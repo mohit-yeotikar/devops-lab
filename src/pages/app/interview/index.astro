@@ -1,0 +1,21 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import { sprints } from '../../../lib/curriculum';
+const u = Astro.locals.user!; const db = env.DB;
+const scope = Astro.url.searchParams.get('scope') || 'all';
+const { results: past } = await db.prepare('SELECT id, scope, score, created_at, finished_at FROM interviews WHERE user_id = ? ORDER BY created_at DESC LIMIT 20').bind(u.id).all<{ id: string; scope: string; score: number | null; created_at: string; finished_at: string | null }>();
+---
+<Base title="Mock interview">
+  <h1>Mock interview</h1>
+  <p class="sub">7 questions. Answer each one in writing, as you would speak. The coach scores you and shows a better answer. <span class="hi">Jaise bolte ho waise likho. Coach score dega aur behtar jawab dikhayega.</span></p>
+  <div class="card">
+    <form data-api action="/api/interview" method="post" class="row" style="align-items:flex-end"><input type="hidden" name="action" value="start" />
+      <div style="flex:1 1 240px"><label>Questions from</label><select name="scope"><option value="all" selected={scope === 'all'}>Everything I have worked on</option>{sprints.map((s) => <option value={s.id} selected={scope === s.id}>Sprint {s.number}: {s.title}</option>)}</select></div>
+      <div><button class="btn" type="submit">Start interview</button></div>
+    </form>
+    <div class="out"></div>
+    <p class="help" style="margin-top:12px">Tips: answer in first person ("I built", "I fixed"). Say the tool name, the problem, what you did, the result. Short sentences are good.</p>
+  </div>
+  {past.length > 0 && <div class="card"><h3 style="margin-top:0">Past interviews</h3><table><tbody>{past.map((p) => <tr><td>{p.created_at.slice(0, 10)}</td><td>{p.scope === 'all' ? 'All' : p.scope.toUpperCase()}</td><td>{p.score != null ? `${p.score.toFixed(1)}/10` : '—'}</td><td><a href={`/app/interview/${p.id}`}>{p.finished_at ? 'Review' : 'Continue'}</a></td></tr>)}</tbody></table></div>}
+</Base>

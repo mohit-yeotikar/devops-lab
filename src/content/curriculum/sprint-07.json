@@ -1,0 +1,323 @@
+{
+  "id": "s07",
+  "number": 7,
+  "title": "Kubernetes basics on k3d",
+  "weeks": "13-14",
+  "theme": "Run ShopNotes on a small Kubernetes cluster on your laptop and learn to debug it with kubectl.",
+  "jobStory": "In this sprint you move ShopNotes from Docker Compose to Kubernetes. You create a local cluster with k3d, write the YAML files for the API, the frontend and Postgres, and open the app through an Ingress. You add health checks, CPU and memory limits and autoscaling, like a real team does before going to production. You also learn to find and fix a broken pod with kubectl, because this is the most common daily work of a DevOps engineer.",
+  "outcomes": [
+    "I created a local Kubernetes cluster with k3d and deployed a 3-tier app on it.",
+    "I wrote Deployments, Services, an Ingress, ConfigMaps, Secrets and a Postgres StatefulSet by hand.",
+    "I added readiness and liveness probes, resource requests and limits, and an HPA that scales on CPU.",
+    "I debugged a CrashLoopBackOff pod with kubectl logs, describe and events."
+  ],
+  "tickets": [
+    {
+      "id": "s07-t01",
+      "key": "OPS-701",
+      "type": "task",
+      "title": "Create a k3d cluster and deploy the ShopNotes API",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The ShopNotes API runs as a Kubernetes Deployment with 2 pods behind a Service on a local k3d cluster.",
+      "context": "Hi, the team wants to move ShopNotes to Kubernetes later this quarter. Before we pay for any cloud cluster, please build a free local cluster with k3d and run the API on it. Start small: only the API, 2 copies, and a Service in front.",
+      "steps": [
+        "Install the tools. kubectl: follow https://kubernetes.io/docs/tasks/tools/ . k3d v5: `curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash`. Check both: `kubectl version --client` and `k3d version`.",
+        "Create the cluster with 1 server, 2 agents and port 8080 on your laptop mapped to the cluster load balancer: `k3d cluster create shopnotes --agents 2 -p \"8080:80@loadbalancer\"`.",
+        "Check the cluster: `kubectl cluster-info`, `kubectl get nodes -o wide`. You must see 3 nodes in Ready state.",
+        "Build the API image from your Dockerfile (OPS-201) with a fixed tag (never only `latest`): `docker build -t shopnotes-api:1.0.0 ./api`.",
+        "k3d nodes cannot see images on your laptop. Import the image into the cluster: `k3d image import shopnotes-api:1.0.0 -c shopnotes`.",
+        "Make a folder `k8s/` in your repo and a namespace file `k8s/namespace.yaml` with `apiVersion: v1`, `kind: Namespace`, `metadata.name: shopnotes`. Apply it: `kubectl apply -f k8s/namespace.yaml`.",
+        "Write `k8s/api-deployment.yaml`: `apiVersion: apps/v1`, `kind: Deployment`, name `api`, namespace `shopnotes`, `replicas: 2`, `selector.matchLabels.app: api`, pod label `app: api`, one container named `api` with `image: shopnotes-api:1.0.0`, `imagePullPolicy: IfNotPresent` and `containerPort: 5000`.",
+        "Write `k8s/api-service.yaml`: `kind: Service`, name `api`, namespace `shopnotes`, `type: ClusterIP`, `selector.app: api`, port `5000` with name `http` and `targetPort: 5000`.",
+        "Apply both: `kubectl apply -f k8s/`. Watch the pods start: `kubectl get pods -n shopnotes -w` (press Ctrl+C to stop).",
+        "Test the Service from your laptop: `kubectl port-forward -n shopnotes svc/api 5000:5000`, then in a second terminal `curl http://localhost:5000/health`. The database is not there yet, so a 503 answer with a database error is OK today; the app must answer.",
+        "Delete one pod and watch Kubernetes create a new one: `kubectl delete pod -n shopnotes -l app=api --wait=false` and `kubectl get pods -n shopnotes -w`.",
+        "Commit the `k8s/` folder and push it to GitHub."
+      ],
+      "acceptance": [
+        "`kubectl get nodes` shows 3 nodes in Ready state.",
+        "`kubectl get deploy -n shopnotes api` shows READY 2/2.",
+        "`curl http://localhost:5000/health` answers through `kubectl port-forward`.",
+        "After you delete a pod, a new pod is created by the Deployment within 30 seconds.",
+        "The YAML files are in the `k8s/` folder of your GitHub repo."
+      ],
+      "evidence": [
+        "Output of `kubectl get nodes,deploy,svc,pods -n shopnotes`",
+        "Output of the `curl` command through port-forward",
+        "Link to the `k8s/` folder in your GitHub repo"
+      ],
+      "hints": [
+        "If the pod shows ErrImagePull, you forgot `k3d image import` or the tag in the YAML is different from the tag you built.",
+        "Use `kubectl explain deployment.spec` to see which fields are allowed.",
+        "Your machine needs about 4 GB of free RAM for this cluster. Close other heavy apps."
+      ],
+      "explain": {
+        "en": "In this task I created a local Kubernetes cluster with k3d. k3d runs k3s inside Docker, so it is free and fast. I built the API image with a fixed version tag and imported it into the cluster. I wrote a Deployment with 2 replicas and a ClusterIP Service in front of the pods. I tested it with kubectl port-forward and curl. When I deleted a pod, the Deployment made a new one, so I saw self-healing with my own eyes.",
+        "hi": "Is task mein maine k3d se laptop par ek local Kubernetes cluster banaya. k3d, k3s ko Docker ke andar chalata hai, isliye ye free aur fast hai. Maine API ki image fixed version tag ke saath build ki aur cluster mein import ki. Phir ek Deployment likha jisme 2 replicas hain, aur pods ke aage ek ClusterIP Service lagayi. kubectl port-forward aur curl se test kiya. Jab maine ek pod delete kiya, Deployment ne turant naya pod bana diya, yani self-healing khud dekha."
+      },
+      "vocabulary": [
+        { "term": "cluster", "en": "a group of machines (nodes) that Kubernetes controls together", "hi": "machines (nodes) ka group jise Kubernetes ek saath manage karta hai" },
+        { "term": "pod", "en": "the smallest unit in Kubernetes; one or more containers that run together", "hi": "Kubernetes ki sabse chhoti unit; ek ya zyada containers jo saath chalte hain" },
+        { "term": "Deployment", "en": "an object that keeps the wanted number of pods running and updates them", "hi": "ek object jo chahiye utne pods chalu rakhta hai aur unhe update karta hai" },
+        { "term": "Service", "en": "a fixed name and IP that sends traffic to the right pods", "hi": "ek fixed naam aur IP jo traffic sahi pods tak bhejta hai" },
+        { "term": "namespace", "en": "a folder inside the cluster to keep resources apart", "hi": "cluster ke andar ek folder jaisa, resources ko alag rakhne ke liye" }
+      ],
+      "interview": [
+        { "q": "What is the difference between a pod and a Deployment?", "a": "A pod is one running copy of my container. If a pod dies, nobody makes it again. A Deployment watches the pods and always keeps the number of replicas I asked for. It also does rolling updates when I change the image." },
+        { "q": "Why did you use k3d and not EKS?", "a": "k3d runs a real k3s cluster inside Docker on my laptop, so it costs nothing. EKS charges money for the control plane every hour. For learning and for a dev environment, k3d gives me the same kubectl and the same YAML. Later I can move the same files to a real cluster." },
+        { "q": "What does a ClusterIP Service do?", "a": "It gives a fixed name and a fixed virtual IP inside the cluster. Pods come and go and their IPs change, but the Service name stays the same. The Service sends traffic only to pods with the matching label. ClusterIP is reachable only inside the cluster, so I used port-forward to test it." }
+      ],
+      "resources": [
+        { "title": "k3d documentation", "url": "https://k3d.io/" },
+        { "title": "Kubernetes docs: Deployments", "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/" },
+        { "title": "Kubernetes docs: Service", "url": "https://kubernetes.io/docs/concepts/services-networking/service/" }
+      ]
+    },
+    {
+      "id": "s07-t02",
+      "key": "OPS-702",
+      "type": "task",
+      "title": "Run Postgres as a StatefulSet and connect the API with a ConfigMap and a Secret",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "Postgres runs in the cluster with a persistent volume, and the API reads its settings from a ConfigMap and its password from a Secret.",
+      "context": "Hi, the API pods are up but they have no database. Please run Postgres inside the cluster for the dev environment. Data must survive a pod restart. Do not put the password inside the image or in Git; use a Kubernetes Secret.",
+      "steps": [
+        "Create the Secret from the command line, so the password is not saved in a file in Git: `kubectl create secret generic shopnotes-db -n shopnotes --from-literal=POSTGRES_USER=shopnotes --from-literal=POSTGRES_PASSWORD='Change-Me-123' --from-literal=POSTGRES_DB=shopnotes`.",
+        "Look at the Secret: `kubectl get secret shopnotes-db -n shopnotes -o yaml`. Decode one value: `kubectl get secret shopnotes-db -n shopnotes -o jsonpath='{.data.POSTGRES_USER}' | base64 -d`. Note: base64 is NOT encryption. Anyone with access can read it.",
+        "Write `k8s/postgres-service.yaml`: a headless Service (`clusterIP: None`) named `postgres` with `selector.app: postgres` and port `5432`.",
+        "Write `k8s/postgres-statefulset.yaml`: `kind: StatefulSet`, name `postgres`, `serviceName: postgres`, `replicas: 1`, image `postgres:16`, port 5432, `envFrom` with `secretRef.name: shopnotes-db`, and env `PGDATA=/var/lib/postgresql/data/pgdata`.",
+        "In the same StatefulSet add `volumeMounts` (name `data`, mountPath `/var/lib/postgresql/data`) and `volumeClaimTemplates` with name `data`, `accessModes: [ReadWriteOnce]`, `storageClassName: local-path` and `resources.requests.storage: 1Gi`. k3s gives you the `local-path` storage class for free.",
+        "Apply and check: `kubectl apply -f k8s/postgres-service.yaml -f k8s/postgres-statefulset.yaml`, then `kubectl get statefulset,pvc,pods -n shopnotes`. The PVC must be Bound.",
+        "Load the ShopNotes table: `kubectl exec -i -n shopnotes postgres-0 -- psql -U shopnotes -d shopnotes < db/schema.sql`.",
+        "Write `k8s/api-configmap.yaml`: `kind: ConfigMap`, name `api-config`, data `DB_HOST: postgres`, `DB_PORT: \"5432\"`, `DB_NAME: shopnotes`. These are the normal, non-secret parts of the database address.",
+        "Change `k8s/api-deployment.yaml`. The app reads one variable, `DATABASE_URL` (OPS-101). Under `env` add, in this order: `DB_HOST`, `DB_PORT`, `DB_NAME` with `valueFrom.configMapKeyRef` (name `api-config`), `DB_USER` and `DB_PASSWORD` with `valueFrom.secretKeyRef` (name `shopnotes-db`, keys `POSTGRES_USER` and `POSTGRES_PASSWORD`), and last `DATABASE_URL` with `value: postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)`. Kubernetes fills `$(NAME)` from the variables defined above it. Use a password without `@`, `:` or `/`, or it breaks the URL.",
+        "Apply and restart: `kubectl apply -f k8s/` and `kubectl rollout restart deployment/api -n shopnotes`. Pods read env variables only when they start.",
+        "Test: `kubectl port-forward -n shopnotes svc/api 5000:5000` and check `curl http://localhost:5000/health` (now `{\"db\":\"ok\",\"status\":\"ok\"}`), create a note with `curl -X POST http://localhost:5000/notes -H 'Content-Type: application/json' -d '{\"text\":\"k8s works\"}'`, then `curl http://localhost:5000/notes`. (The API itself has no `/api` prefix; only the web Nginx adds it.)",
+        "Test persistence: `kubectl delete pod postgres-0 -n shopnotes`, wait until it is Running again, and read the notes again. Your note must still be there.",
+        "Commit the YAML files. Do NOT commit any file that has the real password."
+      ],
+      "acceptance": [
+        "`kubectl get pvc -n shopnotes` shows the Postgres PVC as Bound.",
+        "The API can create and read notes through port-forward.",
+        "After `kubectl delete pod postgres-0`, the old notes are still there.",
+        "No password is written in any file in the Git repo."
+      ],
+      "evidence": [
+        "Output of `kubectl get statefulset,pvc,pods,configmap,secret -n shopnotes`",
+        "Output of the two curl commands before and after deleting postgres-0",
+        "Link to the commit with the new YAML files"
+      ],
+      "hints": [
+        "If Postgres says the data directory is not empty, check that `PGDATA` points to a sub-folder like `/var/lib/postgresql/data/pgdata`.",
+        "Inside the cluster the API reaches the database by the Service name `postgres` (full name `postgres.shopnotes.svc.cluster.local`).",
+        "Use `kubectl exec -it -n shopnotes postgres-0 -- psql -U shopnotes` to look inside the database."
+      ],
+      "explain": {
+        "en": "In this task I ran Postgres inside Kubernetes as a StatefulSet. A StatefulSet gives the pod a fixed name, postgres-0, and its own persistent volume. I put normal settings like the DB host in a ConfigMap and the password in a Secret. The API reads both as environment variables. I deleted the database pod and my data was still there, so the volume works. I also learned that a Secret is only base64, so we must control who can read it.",
+        "hi": "Is task mein maine Postgres ko Kubernetes ke andar StatefulSet ki tarah chalaya. StatefulSet pod ko ek fixed naam deta hai, jaise postgres-0, aur uska apna persistent volume. Normal settings jaise DB host maine ConfigMap mein daali aur password Secret mein. API dono ko environment variables ki tarah padhti hai. Maine database pod delete kiya, phir bhi data bacha raha, matlab volume sahi kaam kar raha hai. Ye bhi seekha ki Secret sirf base64 hota hai, isliye access control zaroori hai."
+      },
+      "vocabulary": [
+        { "term": "StatefulSet", "en": "like a Deployment, but each pod keeps a fixed name and its own disk", "hi": "Deployment jaisa, par har pod ka fixed naam aur apni disk hoti hai" },
+        { "term": "PersistentVolumeClaim (PVC)", "en": "a request from a pod for a piece of disk storage", "hi": "pod ki taraf se disk storage ki request" },
+        { "term": "ConfigMap", "en": "an object that keeps normal settings for the app", "hi": "ek object jisme app ki normal settings rakhte hain" },
+        { "term": "Secret", "en": "an object for passwords and keys; stored as base64, not encrypted by default", "hi": "password aur keys ke liye object; base64 mein hota hai, by default encrypted nahi" },
+        { "term": "headless Service", "en": "a Service with no virtual IP that gives each pod its own DNS name", "hi": "bina virtual IP wali Service jo har pod ko apna DNS naam deti hai" }
+      ],
+      "interview": [
+        { "q": "Why did you use a StatefulSet for Postgres and not a Deployment?", "a": "A database needs its data to stay with the same pod. A StatefulSet gives the pod a fixed name like postgres-0 and a volume that stays with that name. If the pod restarts, it gets the same disk back. A Deployment treats pods as all the same, which is fine for the API but not for a database." },
+        { "q": "What is the difference between a ConfigMap and a Secret?", "a": "Both give values to the pod as environment variables or files. I use a ConfigMap for normal settings like the database host and log level. I use a Secret for passwords. A Secret is only base64 encoded, so I still limit access with RBAC and I never commit it to Git." },
+        { "q": "Would you run Postgres in Kubernetes in production?", "a": "For our dev environment it is fine and it costs nothing. In production I would use a managed database like Amazon RDS, because AWS handles backups, patching and failover. Running a database in Kubernetes is possible, but it needs more skill and more care." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: StatefulSets", "url": "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/" },
+        { "title": "Kubernetes docs: ConfigMaps", "url": "https://kubernetes.io/docs/concepts/configuration/configmap/" },
+        { "title": "Kubernetes docs: Secrets", "url": "https://kubernetes.io/docs/concepts/configuration/secret/" }
+      ]
+    },
+    {
+      "id": "s07-t03",
+      "key": "OPS-703",
+      "type": "project",
+      "title": "Full ShopNotes on k3d: Ingress, probes, limits and autoscaling",
+      "priority": "high",
+      "estimateHours": 16,
+      "goal": "Users open ShopNotes at http://shopnotes.localhost:8080 through a Traefik Ingress, and the API has probes, resource limits and an HPA that scales from 2 to 5 pods under load.",
+      "context": "Hi, good work on the API and the database. Now we need the full app in the cluster, with one URL for users. Before we call it production-ready, every pod needs health checks and CPU and memory limits, and the API must scale up by itself when traffic grows. Please show me a load test where the pods scale.",
+      "steps": [
+        "Build and import the frontend image: `docker build -t shopnotes-web:1.0.0 ./web` and `k3d image import shopnotes-web:1.0.0 -c shopnotes`.",
+        "Write `k8s/web-deployment.yaml` (2 replicas, label `app: web`, port 80) and `k8s/web-service.yaml` (name `web`, ClusterIP, port 80 named `http`). Apply them. The web Nginx config from OPS-202 sends `/api/` to the host `api` port 5000; in Kubernetes this is our Service `api`, so keep that Service name.",
+        "Write `k8s/ingress.yaml`: `apiVersion: networking.k8s.io/v1`, `kind: Ingress`, name `shopnotes`, `ingressClassName: traefik`, host `shopnotes.localhost`, one rule: path `/` (pathType `Prefix`) goes to Service `web` port 80. The web Nginx then forwards `/api/` to the API, like in Docker Compose. k3s already runs Traefik, so you do not install anything.",
+        "Apply and test: `kubectl apply -f k8s/ingress.yaml`, `kubectl get ingress -n shopnotes`, then `curl http://shopnotes.localhost:8080/` and `curl http://shopnotes.localhost:8080/api/health`. If your system does not resolve `.localhost`, use `curl -H 'Host: shopnotes.localhost' http://localhost:8080/`.",
+        "Open http://shopnotes.localhost:8080 in the browser and create a note in the UI.",
+        "Add probes to the API container: `readinessProbe` with `httpGet` path `/health` port 5000, `initialDelaySeconds: 5`, `periodSeconds: 10`; `livenessProbe` with `tcpSocket` port 5000, `initialDelaySeconds: 15`, `periodSeconds: 20`, `failureThreshold: 3`. Why not `/health` for liveness? `/health` returns 503 when the database is down, and restarting the API does not fix the database. Readiness may depend on the DB, liveness must not. For Postgres use `exec` with command `[\"pg_isready\", \"-U\", \"shopnotes\"]`.",
+        "Add resources to every container. API: `requests: {cpu: 100m, memory: 128Mi}`, `limits: {cpu: 500m, memory: 256Mi}`. Web: `requests: {cpu: 50m, memory: 32Mi}`, `limits: {cpu: 200m, memory: 64Mi}`. Postgres: `requests: {cpu: 100m, memory: 256Mi}`, `limits: {memory: 512Mi}`.",
+        "Apply and check the probes: `kubectl apply -f k8s/` and `kubectl describe pod -n shopnotes -l app=api`. Look for `Readiness` and `Liveness` lines and no warning events.",
+        "Check that metrics-server works (k3s includes it): `kubectl top nodes` and `kubectl top pods -n shopnotes`.",
+        "Write `k8s/api-hpa.yaml`: `apiVersion: autoscaling/v2`, `kind: HorizontalPodAutoscaler`, name `api`, `scaleTargetRef` to Deployment `api`, `minReplicas: 2`, `maxReplicas: 5`, and one metric of type `Resource`, name `cpu`, `target.type: Utilization`, `averageUtilization: 50`. Apply it and run `kubectl get hpa -n shopnotes`.",
+        "Make load from inside the cluster: `kubectl run load -n shopnotes --rm -it --image=busybox:1.36 --restart=Never -- /bin/sh -c 'while true; do wget -q -O- http://api:5000/health > /dev/null; done'`.",
+        "In a second terminal watch it scale: `kubectl get hpa -n shopnotes -w` and `kubectl get pods -n shopnotes -w`. Wait until you see more than 2 API pods. Stop the load with Ctrl+C and watch it scale down again after about 5 minutes.",
+        "Add a short section `Kubernetes (dev)` to your README with the commands to create the cluster and apply the files. Commit and push."
+      ],
+      "acceptance": [
+        "http://shopnotes.localhost:8080 shows the ShopNotes UI and the UI can save a note.",
+        "`kubectl describe pod` for API pods shows a readiness and a liveness probe.",
+        "Every container has CPU and memory requests and limits (`kubectl get pods -n shopnotes -o yaml | grep -A4 resources`).",
+        "During the load test the HPA scales the API to more than 2 pods, and later back to 2.",
+        "All files are in `k8s/` and the README explains how to start the cluster."
+      ],
+      "evidence": [
+        "Screenshot of the ShopNotes UI at http://shopnotes.localhost:8080",
+        "Output of `kubectl get hpa -n shopnotes` during the load test (showing more than 2 replicas)",
+        "Output of `kubectl get ingress,svc,deploy,statefulset -n shopnotes`",
+        "Link to the README section in GitHub"
+      ],
+      "hints": [
+        "Optional: to send `/api` straight from Traefik to the API (without the web Nginx), add a second path `/api` to Service `api`, a Traefik `Middleware` (apiVersion `traefik.io/v1alpha1`) named `strip-api` with `stripPrefix.prefixes: [/api]`, and the Ingress annotation `traefik.ingress.kubernetes.io/router.middlewares: shopnotes-strip-api@kubernetescrd`.",
+        "If the HPA shows `<unknown>` for CPU, the pods have no CPU request or metrics-server is not ready yet. Wait 1 minute and check `kubectl top pods`.",
+        "A wrong liveness probe kills healthy pods. Keep `initialDelaySeconds` long enough for the app to start."
+      ],
+      "explain": {
+        "en": "In this project I ran the full ShopNotes app on Kubernetes. I used the Traefik Ingress that comes with k3s, so users have one URL, and the frontend Nginx forwards /api to the API Service. I added readiness and liveness probes, so Kubernetes sends traffic only to healthy pods and restarts stuck pods. I set CPU and memory requests and limits on every container. Then I made an HPA and ran a load test, and the API went from 2 to 5 pods by itself. When the load stopped, it went back to 2 pods.",
+        "hi": "Is project mein maine poora ShopNotes app Kubernetes par chalaya. k3s ke saath aane wala Traefik Ingress use kiya, jisse users ke liye ek hi URL hai, aur frontend ka Nginx /api wala traffic API Service ko bhejta hai. Readiness aur liveness probes lagaye, taaki traffic sirf healthy pods ko jaaye aur atke hue pods restart ho jaayein. Har container par CPU aur memory requests aur limits set kiye. Phir HPA banaya aur load test kiya, API khud 2 se 5 pods tak scale hui. Load band hua to wapas 2 pods par aa gayi."
+      },
+      "vocabulary": [
+        { "term": "Ingress", "en": "rules that send outside web traffic to the right Service by host and path", "hi": "rules jo bahar ka web traffic host aur path ke hisaab se sahi Service ko bhejte hain" },
+        { "term": "readiness probe", "en": "a check that says if the pod is ready to get traffic", "hi": "check jo batata hai ki pod traffic lene ke liye ready hai ya nahi" },
+        { "term": "liveness probe", "en": "a check that restarts the container if it is stuck", "hi": "check jo container atak jaaye to use restart kar deta hai" },
+        { "term": "requests and limits", "en": "the minimum resources a container gets and the maximum it may use", "hi": "container ko kam se kam kitna resource milega aur zyada se zyada kitna use kar sakta hai" },
+        { "term": "HPA", "en": "Horizontal Pod Autoscaler; it adds or removes pods based on load", "hi": "Horizontal Pod Autoscaler; load ke hisaab se pods badhata ya ghatata hai" }
+      ],
+      "interview": [
+        { "q": "What is the difference between a readiness probe and a liveness probe?", "a": "The readiness probe decides if a pod gets traffic. If it fails, the pod is removed from the Service but not restarted. The liveness probe decides if the container is alive. If it fails a few times, Kubernetes restarts the container." },
+        { "q": "Why do you set resource requests and limits?", "a": "The request tells the scheduler how much CPU and memory the pod needs, so it picks a node with enough space. The limit stops one pod from using all the node resources. If a container goes over the memory limit, it is killed with OOMKilled. The HPA also needs the CPU request to calculate the percentage." },
+        { "q": "How did you test the HPA?", "a": "I created an HPA with min 2, max 5 pods and a CPU target of 50 percent. Then I started a busybox pod that called the API in a loop. I watched kubectl get hpa and the replicas went up to 5. After I stopped the load, the pods went back to 2 after a few minutes." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Ingress", "url": "https://kubernetes.io/docs/concepts/services-networking/ingress/" },
+        { "title": "Kubernetes docs: Liveness, readiness and startup probes", "url": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/" },
+        { "title": "Kubernetes docs: HorizontalPodAutoscaler walkthrough", "url": "https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/" }
+      ]
+    },
+    {
+      "id": "s07-t04",
+      "key": "OPS-704",
+      "type": "docs",
+      "title": "Write the kubectl debugging runbook for the team",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "The repo has a short runbook `docs/k8s-debugging.md` that any team member can follow when a pod is not working.",
+      "context": "Hi, the developers are new to Kubernetes and they ping us for every red pod. Please write one simple page with the commands we use to find the problem, in the right order. Test every command on our k3d cluster before you write it down.",
+      "steps": [
+        "Create the file `docs/k8s-debugging.md` with these headings: 1. First look, 2. Pod status meanings, 3. Logs, 4. Describe and events, 5. Inside the pod, 6. Network and Service, 7. Resources, 8. When to ask for help.",
+        "Section 1, first look: `kubectl get pods -n shopnotes -o wide`, `kubectl get deploy,rs,svc,ingress -n shopnotes`, `kubectl get events -n shopnotes --sort-by=.lastTimestamp`.",
+        "Section 2, status meanings: write one line each for Pending, ContainerCreating, Running, CrashLoopBackOff, ImagePullBackOff, ErrImagePull, OOMKilled, Completed, Terminating.",
+        "Section 3, logs: `kubectl logs -n shopnotes deploy/api`, `kubectl logs -n shopnotes <pod> --previous` (logs of the container that crashed), `kubectl logs -n shopnotes -l app=api --tail=50 -f`.",
+        "Section 4, describe: `kubectl describe pod -n shopnotes <pod>`. Explain where to look: `State`, `Last State`, `Reason`, `Exit Code`, and the `Events` at the bottom.",
+        "Section 5, inside the pod: `kubectl exec -it -n shopnotes <pod> -- sh`, then `env | sort` and `cat /etc/resolv.conf`. If the image has no shell, use an ephemeral debug container: `kubectl debug -it -n shopnotes <pod> --image=busybox:1.36 --target=<container-name>`.",
+        "Section 6, network: `kubectl get endpoints -n shopnotes api` (empty means the Service selector does not match any ready pod), `kubectl run tmp -n shopnotes --rm -it --image=busybox:1.36 --restart=Never -- wget -qO- http://api:5000/health`, `kubectl port-forward -n shopnotes svc/api 5000:5000`.",
+        "Section 7, resources: `kubectl top pods -n shopnotes`, `kubectl describe node <node>` (look at Allocated resources), and the meaning of exit code 137.",
+        "Section 8: write when to stop and call the senior engineer (for example data loss risk, or more than 15 minutes of user downtime).",
+        "Break things on purpose to test the runbook: change the API image tag to `shopnotes-api:does-not-exist`, apply, follow your runbook, then fix it. Do the same with a wrong label in the Service selector.",
+        "Add a link to this file from the README. Commit and push."
+      ],
+      "acceptance": [
+        "`docs/k8s-debugging.md` exists with all 8 sections.",
+        "Every command in the file was run by you on the k3d cluster.",
+        "The file explains at least 8 pod states in simple words.",
+        "The README links to the runbook."
+      ],
+      "evidence": [
+        "Link to `docs/k8s-debugging.md` on GitHub",
+        "Output of `kubectl get events -n shopnotes --sort-by=.lastTimestamp` while you tested the wrong image tag"
+      ],
+      "hints": [
+        "Keep each section short: the command, one line saying what it shows, one line saying what a bad result looks like.",
+        "`kubectl logs --previous` is the most useful command for a crashing pod, because the current container may have no logs yet.",
+        "Use the official kubectl quick reference to check flags."
+      ],
+      "explain": {
+        "en": "In this task I wrote a debugging runbook for Kubernetes. I put the commands in the order we really use them: get, logs, describe, events, exec, and then network checks. I wrote what each pod status means in simple words. I tested every command by breaking the app on purpose, for example with a wrong image tag and a wrong Service selector. Now the developers can fix simple problems without waiting for the DevOps team.",
+        "hi": "Is task mein maine Kubernetes debugging ka runbook likha. Commands usi order mein likhe jaise hum asli mein use karte hain: get, logs, describe, events, exec, aur phir network checks. Har pod status ka matlab simple words mein likha. Har command test kiya, app ko jaan-boojh kar tod kar, jaise galat image tag aur galat Service selector. Ab developers chhoti problems khud fix kar sakte hain, DevOps team ka wait nahi karna padta."
+      },
+      "vocabulary": [
+        { "term": "runbook", "en": "a step-by-step guide to check and fix a known problem", "hi": "kisi known problem ko check aur fix karne ki step-by-step guide" },
+        { "term": "events", "en": "short messages from Kubernetes about what happened to an object", "hi": "Kubernetes ke chhote messages ki kisi object ke saath kya hua" },
+        { "term": "endpoints", "en": "the list of pod IPs that a Service sends traffic to", "hi": "un pod IPs ki list jinko Service traffic bhejti hai" },
+        { "term": "exit code 137", "en": "the container was killed, very often because it used too much memory", "hi": "container ko kill kiya gaya, aksar zyada memory use karne ki wajah se" }
+      ],
+      "interview": [
+        { "q": "A pod is not working. What do you check first?", "a": "First I run kubectl get pods to see the status and the restart count. Then I check kubectl logs, and if it restarted I use the --previous flag. Then I run kubectl describe pod and read the events at the bottom. These three commands find most problems." },
+        { "q": "A Service gives no answer. How do you debug it?", "a": "I run kubectl get endpoints for the Service. If the list is empty, the selector labels do not match the pod labels, or the pods are not ready. Then I test from a busybox pod inside the cluster with wget. This tells me if the problem is the Service or the app." },
+        { "q": "How do you debug a container that has no shell?", "a": "I use kubectl debug to add an ephemeral container, for example busybox, to the running pod. With the target flag it can see the processes of the main container. So I can check the network and files without changing the image." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Debug Pods", "url": "https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/" },
+        { "title": "Kubernetes docs: Debug running pods", "url": "https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/" },
+        { "title": "kubectl quick reference", "url": "https://kubernetes.io/docs/reference/kubectl/quick-reference/" }
+      ]
+    },
+    {
+      "id": "s07-t05",
+      "key": "OPS-705",
+      "type": "incident",
+      "title": "INCIDENT: API pods in CrashLoopBackOff after a config change",
+      "priority": "high",
+      "estimateHours": 4,
+      "goal": "Find the one root cause of the crashing API, fix it, and write a short incident note.",
+      "context": "ALERT: Hi, after this morning's config change the ShopNotes API keeps restarting and users see '502 Bad Gateway'. The developer says 'I only changed one environment variable'. Please find the real cause, fix it, and tell me how we stop this from happening again. Use the drill in `drills/crashloop-bad-env/`.",
+      "steps": [
+        "Open `drills/crashloop-bad-env/README.md` and read the alert and what 'fixed' means. Do NOT open `SOLUTION.md`.",
+        "Start the drill: `cd drills/crashloop-bad-env && docker compose up -d`. Follow any extra start steps in the README.",
+        "Write down the time you started. Every real incident has a timeline.",
+        "Look at the status and the restart count: `docker compose ps` (in Kubernetes: `kubectl get pods`, look at RESTARTS and the CrashLoopBackOff status).",
+        "Read the logs of the crashing service, including the last crash: `docker compose logs --tail=100 <service>` (in Kubernetes: `kubectl logs <pod> --previous`).",
+        "Check the environment the app really gets: `docker compose config` and `docker compose exec <service> env | sort` if it stays up long enough (in Kubernetes: `kubectl describe pod`, `kubectl get configmap <name> -o yaml`).",
+        "Compare the variable names and values with what the app code expects. Find the ONE thing that is wrong.",
+        "Fix it in the config file, not by hand inside the container. Then apply: `docker compose up -d` (in Kubernetes: `kubectl apply -f` and `kubectl rollout restart deployment/<name>`).",
+        "Check the fix: `bash check.sh`. It must print PASS.",
+        "Submit your root cause in the DevOps Lab app in 2-3 sentences: what broke, why, and how you fixed it.",
+        "Only now read `SOLUTION.md` and compare with your answer.",
+        "Write a short incident note (5-8 lines) with: start time, what users saw, root cause, fix, and one prevention idea (for example: the app checks required env vars at start and prints a clear error, or CI validates the ConfigMap).",
+        "Stop the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`bash check.sh` prints PASS.",
+        "Your root cause names the exact wrong setting and why the app crashed.",
+        "The fix is in the config file, not a manual change inside a running container.",
+        "Your incident note has a timeline and at least one prevention idea."
+      ],
+      "evidence": [
+        "Output of `bash check.sh` showing PASS",
+        "The log lines that showed you the root cause",
+        "Your 5-8 line incident note"
+      ],
+      "hints": [
+        "CrashLoopBackOff means: the container starts, exits, and Kubernetes waits longer before every new try. The reason is in the logs of the previous run.",
+        "Check spelling and case of variable names. `DATABASE_URL` and `DATABASE_URI` are different names for the app.",
+        "Exit code 1 usually means the app itself stopped with an error. Exit code 137 means it was killed."
+      ],
+      "explain": {
+        "en": "In this incident the API kept crashing after a config change. I checked the status and saw many restarts, which is CrashLoopBackOff in Kubernetes. I read the logs of the previous run and found the error message. Then I compared the environment variables with what the code expects and found the wrong setting. I fixed it in the config file and restarted the service, and the check script passed. As prevention, I suggested that the app checks its required settings at start and prints a clear message.",
+        "hi": "Is incident mein config change ke baad API baar-baar crash ho rahi thi. Maine status check kiya to bahut saare restarts dikhe, jise Kubernetes mein CrashLoopBackOff kehte hain. Pichhle run ke logs padhe aur error message mila. Phir environment variables ko code ki expectation se compare kiya aur galat setting pakdi. Config file mein fix kiya, service restart ki, aur check script PASS ho gayi. Prevention ke liye suggest kiya ki app start hote hi zaroori settings check kare aur clear message de."
+      },
+      "vocabulary": [
+        { "term": "CrashLoopBackOff", "en": "the container keeps crashing and Kubernetes waits longer before each restart", "hi": "container baar-baar crash hota hai aur Kubernetes har restart se pehle zyada wait karta hai" },
+        { "term": "root cause", "en": "the real first reason for a problem, not only the symptom", "hi": "problem ki asli pehli wajah, sirf symptom nahi" },
+        { "term": "environment variable", "en": "a named value the app reads when it starts", "hi": "ek naam wali value jo app start hote waqt padhta hai" },
+        { "term": "timeline", "en": "the list of what happened and when during an incident", "hi": "incident mein kab kya hua uski list" }
+      ],
+      "interview": [
+        { "q": "What does CrashLoopBackOff mean and how do you fix it?", "a": "It means the container starts and then exits again and again, and Kubernetes waits longer between tries. It is a symptom, not the cause. I run kubectl logs with --previous to see why the last run stopped, and kubectl describe to see the exit code. Very often the cause is a wrong env variable, a missing secret, or a bad command." },
+        { "q": "Why did you fix the config file and not the running container?", "a": "A change inside a running container is lost when the pod restarts. Also nobody can see it in Git. When I fix the file and apply it, the fix is permanent, reviewed and repeatable. This is the main idea of infrastructure as code." },
+        { "q": "How can we stop this kind of incident next time?", "a": "The app should check all required variables when it starts and print a clear error. We can also validate the config in CI before deploy, for example with a small test that starts the container. A readiness probe also helps, because a rolling update stops when new pods are not ready, so old pods keep serving users." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Pod lifecycle", "url": "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/" },
+        { "title": "Kubernetes docs: Debug Pods", "url": "https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/" },
+        { "title": "Docker docs: docker compose logs", "url": "https://docs.docker.com/reference/cli/docker/compose/logs/" }
+      ]
+    }
+  ]
+}

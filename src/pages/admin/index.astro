@@ -1,0 +1,33 @@
+---
+import { env } from '../../lib/env';
+import Base from '../../layouts/Base.astro';
+import { tickets, ticketById } from '../../lib/curriculum';
+const db = env.DB;
+const { results: users } = await db.prepare(`SELECT u.id, u.name, u.handle, u.email, u.role, u.created_at, u.started_at, u.last_seen_at,
+  (SELECT COUNT(*) FROM ticket_progress p WHERE p.user_id=u.id AND p.status='done') AS done,
+  (SELECT COUNT(*) FROM ticket_progress p WHERE p.user_id=u.id AND p.status='review') AS review,
+  (SELECT COALESCE(SUM(hours),0) FROM work_log w WHERE w.user_id=u.id) AS hours FROM users u ORDER BY review DESC, last_seen_at DESC`).all<any>();
+const { results: queue } = await db.prepare(`SELECT p.*, u.name, u.handle FROM ticket_progress p JOIN users u ON u.id=p.user_id WHERE p.status='review' ORDER BY p.submitted_at ASC`).all<any>();
+---
+<Base title="Admin">
+  <h1>Admin</h1>
+  <h2>Review queue ({queue.length})</h2>
+  {queue.map((p) => { const t = ticketById(p.ticket_id); const ev = JSON.parse(p.evidence || '{}'); return (
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><div><strong><a href={`/admin/users/${p.user_id}`}>{p.name}</a></strong> · <a href={`/app/tickets/${p.ticket_id}`}>{t?.key} {t?.title}</a></div><span class="help">submitted {p.submitted_at} · {p.hours} h logged{p.explain_score != null ? ` · explain ${p.explain_score}/10` : ''}</span></div>
+      <p class="help">Needed: {t?.evidence.join(' · ')}</p>
+      {ev.links?.length ? <ul class="steps">{ev.links.map((l: string) => <li><a href={l} target="_blank" rel="noopener">{l}</a></li>)}</ul> : <p class="help">No links.</p>}
+      {ev.notes && <pre style="white-space:pre-wrap">{ev.notes}</pre>}
+      {p.explanation && <p><strong>Their explanation:</strong> {p.explanation}</p>}
+      <form data-api action="/api/admin/review" method="post" class="row" style="align-items:flex-end"><input type="hidden" name="user" value={p.user_id} /><input type="hidden" name="ticket" value={p.ticket_id} />
+        <div style="flex:1 1 260px"><label>Note to trainee</label><input name="note" placeholder="Good work. Next time also add the screenshot of ..." /></div>
+        <button class="btn ok" name="decision" value="approve" type="submit">Approve</button>
+        <button class="btn bad" name="decision" value="changes" type="submit">Ask for changes</button>
+      </form>
+    </div>); })}
+  {queue.length === 0 && <p class="help">Nothing waiting.</p>}
+  <h2>Trainees ({users.length})</h2>
+  <div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>Done</th><th>Review</th><th>Hours</th><th>Started</th><th>Last seen</th><th></th></tr></thead><tbody>
+    {users.map((u) => <tr><td><a href={`/admin/users/${u.id}`}>{u.name}</a><br/><span class="help">{u.email}</span></td><td>{u.role}</td><td>{u.done}/{tickets.length}</td><td>{u.review}</td><td>{Number(u.hours).toFixed(1)}</td><td>{u.started_at?.slice(0, 10) ?? '—'}</td><td>{u.last_seen_at?.slice(0, 16) ?? '—'}</td><td><a href={`/admin/letter/${u.id}`}>Letter</a></td></tr>)}
+  </tbody></table></div>
+</Base>

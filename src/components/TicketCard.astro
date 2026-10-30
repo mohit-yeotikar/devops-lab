@@ -1,0 +1,12 @@
+---
+import type { Ticket } from '../lib/curriculum';
+import type { Progress } from '../lib/db';
+interface Props { t: Ticket; p?: Progress }
+const { t, p } = Astro.props;
+const status = p?.status ?? 'todo';
+---
+<a class="card" href={`/app/tickets/${t.id}`} style="display:block;text-decoration:none;color:inherit">
+  <div class="row" style="justify-content:space-between"><span class="help">{t.key}</span><span class={`pill ${status}`}>{status === 'changes' ? 'fix needed' : status === 'review' ? 'in review' : status}</span></div>
+  <h3 style="margin:6px 0">{t.title}</h3>
+  <div class="row"><span class={`pill ${t.type}`}>{t.type}</span><span class="help">~{t.estimateHours} h</span>{p?.hours ? <span class="help">· {p.hours} h logged</span> : null}</div>
+</a>

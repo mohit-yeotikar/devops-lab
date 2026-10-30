@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "devops-lab", "runtimeExecutable": "bash", "runtimeArgs": ["-lc", "export PATH=\"$HOME/.local/node/bin:$PATH\"; cd /media/mohit/9E961C29961C0505/devops-lab && pnpm exec astro build && pnpm exec wrangler d1 migrations apply devops-lab --local && pnpm exec wrangler dev --config dist/server/wrangler.json --port 8788"], "port": 8788 }
+  ]
+}

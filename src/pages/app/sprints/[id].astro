@@ -1,0 +1,19 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import TicketCard from '../../../components/TicketCard.astro';
+import { sprintById } from '../../../lib/curriculum';
+import { progressFor } from '../../../lib/db';
+const s = sprintById(Astro.params.id!);
+if (!s) return new Response('Not found', { status: 404 });
+const prog = await progressFor(env.DB, Astro.locals.user!.id);
+---
+<Base title={`Sprint ${s.number}: ${s.title}`}>
+  <p class="help"><a href="/app/sprints">Sprints</a> › Sprint {s.number}</p>
+  <h1>Sprint {s.number}: {s.title}</h1>
+  <p class="sub">Weeks {s.weeks} · {s.theme}</p>
+  <div class="card"><h3 style="margin-top:0">What you do in this sprint</h3><p>{s.jobStory}</p>
+    <h3>When you finish, you can say:</h3><ul class="steps">{s.outcomes.map((o) => <li>{o}</li>)}</ul></div>
+  <h2>Tickets</h2>
+  <div class="grid">{s.tickets.map((t) => <TicketCard t={t} p={prog.get(t.id)} />)}</div>
+</Base>

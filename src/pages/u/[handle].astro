@@ -1,0 +1,42 @@
+---
+import { env } from '../../lib/env';
+import Base from '../../layouts/Base.astro';
+import { userByHandle, progressFor, hoursFor, drillResults } from '../../lib/db';
+import { sprints, tickets, ticketById } from '../../lib/curriculum';
+const db = env.DB;
+const u = await userByHandle(db, Astro.params.handle!);
+const me = Astro.locals.user;
+if (!u || (!u.public_portfolio && me?.id !== u.id && me?.role !== 'admin')) return new Response('Not found', { status: 404 });
+const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const drills = await drillResults(db, u.id);
+const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
+const projects = done.filter((t) => t.type === 'project');
+const solvedDrills = [...new Set(drills.filter((d) => d.verdict === 'correct').map((d) => d.drill))];
+const sprintsDone = sprints.filter((s) => s.tickets.every((t) => prog.get(t.id)?.status === 'done'));
+const skills = [...new Set(done.flatMap((t) => t.vocabulary.map((v) => v.term)))].slice(0, 30);
+const { results: scores } = await db.prepare('SELECT score FROM interviews WHERE user_id = ? AND finished_at IS NOT NULL ORDER BY created_at DESC LIMIT 3').bind(u.id).all<{ score: number }>();
+---
+<Base title={`${u.name} · DevOps portfolio`} description={u.bio || `${u.name}'s DevOps training portfolio`}>
+  <div class="card">
+    <h1>{u.name}</h1>
+    <p class="sub">{u.target_role}{u.city ? ` · ${u.city}` : ''}{u.github && <> · <a href={u.github} target="_blank" rel="noopener">GitHub</a></>}{u.linkedin && <> · <a href={u.linkedin} target="_blank" rel="noopener">LinkedIn</a></>}</p>
+    {u.bio && <p>{u.bio}</p>}
+    <div class="grid">
+      <div><div class="stat">{hrs.h.toFixed(0)} h<small>hands-on work logged</small></div></div>
+      <div><div class="stat">{done.length}<small>tickets approved</small></div></div>
+      <div><div class="stat">{sprintsDone.length}/{sprints.length}<small>sprints completed</small></div></div>
+      <div><div class="stat">{solvedDrills.length}<small>incidents solved</small></div></div>
+    </div>
+  </div>
+  {projects.length > 0 && <><h2>Projects</h2>{projects.map((t) => { const p = prog.get(t.id)!; const ev = JSON.parse(p.evidence || '{}') as { links?: string[] }; return (
+    <div class="card"><h3 style="margin-top:0">{t.title}</h3><p>{p.explanation || t.explain.en}</p>
+      {ev.links?.length ? <p class="help">{ev.links.map((l) => <><a href={l} target="_blank" rel="noopener">{l.replace(/^https?:\/\//, '').slice(0, 60)}</a> </>)}</p> : null}</div>); })}</>}
+  <h2>Work history</h2>
+  <div class="tl">{sprints.map((s) => { const d = s.tickets.filter((t) => prog.get(t.id)?.status === 'done'); if (!d.length) return null; return (
+    <div class="it"><strong>Sprint {s.number}: {s.title}</strong><div class="help">{d.length} of {s.tickets.length} tickets</div>
+      <ul class="steps" style="margin:6px 0">{d.map((t) => <li>{t.title}{prog.get(t.id)?.explanation ? <span class="help"> — {prog.get(t.id)!.explanation.slice(0, 160)}{prog.get(t.id)!.explanation.length > 160 ? '…' : ''}</span> : null}</li>)}</ul></div>); })}
+    {done.length === 0 && <p class="help">No approved tickets yet.</p>}
+  </div>
+  {solvedDrills.length > 0 && <><h2>Incidents solved</h2><div class="card"><ul class="steps">{solvedDrills.map((n) => <li>{n.replace(/-/g, ' ')}</li>)}</ul></div></>}
+  {skills.length > 0 && <><h2>Skills demonstrated</h2><p>{skills.map((s) => <span class="pill" style="margin:0 6px 6px 0;text-transform:none">{s}</span>)}</p></>}
+  {scores.length > 0 && <p class="help">Recent mock-interview scores: {scores.map((s) => s.score.toFixed(1)).join(', ')} / 10</p>}
+</Base>

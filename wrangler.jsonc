@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "devops-lab",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "devops-lab", "database_id": "3a0b38c5-1134-40b4-a902-aa39049ac13a", "migrations_dir": "db/migrations" }
+  ],
+  "ai": { "binding": "AI" },
+  "vars": {
+    "APP_NAME": "DevOps Lab",
+    "ADMIN_EMAIL": "infomitrayamitraya@gmail.com",
+    "COMPANY_NAME": "Mitraya Mitraya",
+    "COMPANY_CITY": "Pune, Maharashtra, India"
+  }
+}

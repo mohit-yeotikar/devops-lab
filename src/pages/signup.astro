@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+if (Astro.locals.user) return Astro.redirect('/app');
+---
+<Base title="Create your account">
+  <div class="card" style="max-width:460px;margin:30px auto">
+    <h1>Start your training</h1>
+    <p class="sub">Free. You need a laptop with Docker and a free AWS account.</p>
+    <form data-api action="/api/auth/signup" method="post">
+      <label>Full name</label><input name="name" required autocomplete="name" placeholder="Harshada Kharade" />
+      <label>Email</label><input name="email" type="email" required autocomplete="email" />
+      <label>Username <span class="help">(for your public portfolio link)</span></label><input name="handle" pattern="[a-z0-9-]{3,30}" placeholder="harshada-kharade" />
+      <label>Password <span class="help">(8+ characters)</span></label><input name="password" type="password" minlength="8" required autocomplete="new-password" />
+      <div class="out"></div>
+      <p><button class="btn" type="submit">Create account</button></p>
+    </form>
+    <p class="help">Already have an account? <a href="/login">Log in</a></p>
+  </div>
+</Base>

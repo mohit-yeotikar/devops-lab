@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+const u = Astro.locals.user!;
+---
+<Base title="Your profile">
+  <h1>Your profile</h1>
+  <p class="sub">This information shows on your public portfolio and on your experience letter. Use your real name as on your documents.</p>
+  <div class="card" style="max-width:620px">
+    <form data-api action="/api/profile" method="post">
+      <label>Full name</label><input name="name" value={u.name} required />
+      <label>Username</label><input name="handle" value={u.handle} pattern="[a-z0-9-]{3,30}" /><p class="help">Portfolio link: /u/{u.handle}</p>
+      <label>City</label><input name="city" value={u.city} placeholder="Pune, Maharashtra" />
+      <label>Target role</label><input name="target_role" value={u.target_role} />
+      <label>GitHub profile URL</label><input name="github" value={u.github} placeholder="https://github.com/yourname" />
+      <label>LinkedIn URL</label><input name="linkedin" value={u.linkedin} placeholder="https://linkedin.com/in/yourname" />
+      <label>Short bio (simple English, 2-3 sentences)</label><textarea name="bio" maxlength="600">{u.bio}</textarea>
+      <label class="check"><span style="display:flex;gap:10px"><input type="checkbox" name="show_hindi" checked={!!u.show_hindi} /> Show Hindi help lines</span></label>
+      <label class="check"><span style="display:flex;gap:10px"><input type="checkbox" name="public_portfolio" checked={!!u.public_portfolio} /> Make my portfolio public</span></label>
+      <div class="out"></div>
+      <p class="row"><button class="btn" type="submit">Save</button></p>
+    </form>
+  </div>
+  <form method="post" action="/api/auth/logout"><button class="btn sec" type="submit">Log out</button></form>
+</Base>

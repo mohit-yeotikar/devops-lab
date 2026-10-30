@@ -1,0 +1,325 @@
+{
+  "id": "s10",
+  "number": 10,
+  "title": "Reliability and operations",
+  "weeks": "19-20",
+  "theme": "Make sure ShopNotes can survive bad days: tested backups, safe changes, zero-downtime maintenance, chaos tests and a clear on-call process.",
+  "jobStory": "In this sprint you work like the operations team of a real company. You turn on RDS automated backups and prove that a restore really works, and you add a daily pg_dump to S3 with a lifecycle rule. You plan a change with a change request and a CHANGELOG, do maintenance with zero downtime, and kill pods on purpose to see if the app survives. You also write the on-call runbook and a blameless postmortem template that the team will use after every incident.",
+  "outcomes": [
+    "I configured RDS automated backups and did a timed point-in-time restore test.",
+    "I built a daily pg_dump backup to S3 with a cron job, least-privilege IAM and a lifecycle rule.",
+    "I did node maintenance and a rolling release with zero failed requests, using PodDisruptionBudgets and a change request.",
+    "I ran chaos drills by killing pods and a node, and wrote down what happened.",
+    "I wrote an on-call runbook and a blameless postmortem template."
+  ],
+  "tickets": [
+    {
+      "id": "s10-t01",
+      "key": "OPS-1001",
+      "type": "task",
+      "title": "Turn on RDS automated backups and test a real restore",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The ShopNotes RDS database has automated backups, and we know from a real test how long a restore takes and that the data is complete.",
+      "context": "Hi, the auditor asked us: 'When did you last restore a backup?' We could not answer. A backup that was never restored is only a hope. Please check the RDS backup settings, do a point-in-time restore to a new instance, check the data and measure the time. Delete the test instance after, so we do not pay.",
+      "steps": [
+        "Make sure the ShopNotes RDS instance from the AWS and Terraform sprints exists. If you destroyed it, run `terraform apply` in your Terraform folder. Use a free-tier class like `db.t3.micro` or `db.t4g.micro`, Single-AZ.",
+        "Check the current settings: `aws rds describe-db-instances --db-instance-identifier shopnotes-db --query 'DBInstances[0].[BackupRetentionPeriod,PreferredBackupWindow,LatestRestorableTime]'`.",
+        "Set the backup settings in Terraform (not only in the console, to avoid drift): `backup_retention_period = 7` and `backup_window = \"20:30-21:00\"` (UTC, that is 02:00-02:30 IST, low traffic time). Run `terraform plan` and `terraform apply`. If AWS says the retention is too high for your free-tier account, use the highest value it accepts and write it down.",
+        "Before a risky change, take a manual snapshot too: `aws rds create-db-snapshot --db-instance-identifier shopnotes-db --db-snapshot-identifier shopnotes-manual-$(date +%Y%m%d)`. Check: `aws rds describe-db-snapshots --db-instance-identifier shopnotes-db`.",
+        "Add test data so you can check the restore: connect from the app EC2 with `psql` and insert a note with title `restore-test-<today>`. Write down the exact time (UTC) and the row count: `SELECT count(*) FROM notes;`.",
+        "Wait at least 10 minutes, then start the timer and restore to a new instance: `aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier shopnotes-db --target-db-instance-identifier shopnotes-restore-test --use-latest-restorable-time --db-instance-class db.t3.micro --db-subnet-group-name <your-subnet-group> --vpc-security-group-ids <your-db-sg-id> --no-publicly-accessible --no-multi-az`.",
+        "Wait until it is ready: `aws rds wait db-instance-available --db-instance-identifier shopnotes-restore-test`. Stop the timer. Get the endpoint: `aws rds describe-db-instances --db-instance-identifier shopnotes-restore-test --query 'DBInstances[0].Endpoint.Address' --output text`.",
+        "From the app EC2, connect to the restored DB and check: the row count and that the `restore-test-<today>` note is there.",
+        "Delete the test instance to stay in the free tier: `aws rds delete-db-instance --db-instance-identifier shopnotes-restore-test --skip-final-snapshot --delete-automated-backups`.",
+        "Write `docs/restore-test-<date>.md`: backup settings, restore command, start and end time, total minutes (this is your measured RTO for a restore), how much data you could lose with point-in-time recovery (RPO, usually about 5 minutes), and the checks you did.",
+        "Add a calendar reminder to repeat the restore test every 3 months. Commit the Terraform change and the doc."
+      ],
+      "acceptance": [
+        "`describe-db-instances` shows a backup retention of at least 1 day (7 if your account allows it) and the backup window you set.",
+        "The backup settings are in Terraform and `terraform plan` shows no changes.",
+        "The restored instance had the test row and the same row count.",
+        "The test instance is deleted after the test.",
+        "`docs/restore-test-<date>.md` has the measured restore time."
+      ],
+      "evidence": [
+        "Output of the `describe-db-instances` query",
+        "Output of the row count on the original and the restored DB",
+        "Link to the restore test doc and to the Terraform commit"
+      ],
+      "hints": [
+        "A point-in-time restore always makes a NEW instance with a new endpoint. To use it in a real disaster, you change the app's DB host to the new endpoint.",
+        "Without `--vpc-security-group-ids` the new instance gets the default security group and your app cannot connect.",
+        "RDS free tier includes 750 hours per month of one micro instance. A one-hour test instance is fine, but delete it the same day."
+      ],
+      "explain": {
+        "en": "In this task I configured automated backups for our RDS Postgres database with Terraform, with a 7-day retention and a backup window at night. Then I did a real restore test. I added a test row, did a point-in-time restore to a new instance, and checked that the row and the row count were correct. I measured the time, so now we know our restore takes about this many minutes. After the test I deleted the test instance to keep the cost at zero. I wrote everything in a restore test report.",
+        "hi": "Is task mein maine Terraform se RDS Postgres database ke automated backups configure kiye, 7 din retention aur raat ka backup window. Phir ek asli restore test kiya. Ek test row add ki, naye instance par point-in-time restore kiya, aur check kiya ki row aur row count sahi hain. Time measure kiya, ab hume pata hai ki restore mein kitne minute lagte hain. Test ke baad test instance delete kiya taaki cost zero rahe. Sab kuch ek restore test report mein likha."
+      },
+      "vocabulary": [
+        { "term": "point-in-time recovery", "en": "restoring the database to any second inside the retention period", "hi": "retention period ke andar kisi bhi second par database ko restore karna" },
+        { "term": "snapshot", "en": "a full copy of the database disk at one moment", "hi": "ek pal par database disk ki poori copy" },
+        { "term": "RTO", "en": "Recovery Time Objective; how long it may take to be back online", "hi": "Recovery Time Objective; wapas online aane mein kitna time lag sakta hai" },
+        { "term": "RPO", "en": "Recovery Point Objective; how much data we may lose, in time", "hi": "Recovery Point Objective; kitne time ka data kho sakte hain" },
+        { "term": "retention period", "en": "how many days backups are kept", "hi": "backups kitne din tak rakhe jaate hain" }
+      ],
+      "interview": [
+        { "q": "How do you know your backups work?", "a": "I test them. I did a point-in-time restore of our RDS database to a new instance and checked a test row and the row count. I measured how long it took. A backup is only useful if the restore works, so we repeat this test every three months." },
+        { "q": "What is the difference between RTO and RPO?", "a": "RTO is how long we can be down, for example 30 minutes until the app works again. RPO is how much data we can lose, for example the last 5 minutes. With RDS point-in-time recovery our RPO is about 5 minutes. My restore test gave us a real number for the RTO." },
+        { "q": "What is the difference between automated backups and a manual snapshot in RDS?", "a": "Automated backups run every day and keep transaction logs, so I can restore to any second in the retention period. They are deleted after the retention days. A manual snapshot is one copy at one moment and stays until I delete it. I take a manual snapshot before a risky change." }
+      ],
+      "resources": [
+        { "title": "Amazon RDS docs: Introduction to backups", "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html" },
+        { "title": "Amazon RDS docs: Restoring to a specified time", "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIT.html" },
+        { "title": "AWS Free Tier", "url": "https://aws.amazon.com/free/" }
+      ]
+    },
+    {
+      "id": "s10-t02",
+      "key": "OPS-1002",
+      "type": "task",
+      "title": "Daily pg_dump to S3 with cron and a lifecycle rule",
+      "priority": "medium",
+      "estimateHours": 8,
+      "goal": "Every night a pg_dump of the ShopNotes database is saved to a private S3 bucket, old dumps are deleted after 14 days, and we have tested restoring one.",
+      "context": "Hi, RDS backups are good, but they live in the same AWS account and can only be restored as a new RDS instance. We also want a portable logical backup that we can load into any Postgres, even on a laptop. Please add a nightly pg_dump to S3 and make sure old files are deleted automatically so the bucket does not grow forever.",
+      "steps": [
+        "Create a private bucket (names are global, add your name and a random number): `aws s3api create-bucket --bucket shopnotes-backups-<name>-<random> --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1`. Tag it: `aws s3api put-bucket-tagging --bucket <bucket> --tagging 'TagSet=[{Key=Project,Value=shopnotes}]'`.",
+        "Check that public access is blocked: `aws s3api get-public-access-block --bucket <bucket>`. All four values must be true.",
+        "Create `infra/s3-lifecycle.json`: `{\"Rules\": [{\"ID\": \"expire-daily-dumps\", \"Filter\": {\"Prefix\": \"daily/\"}, \"Status\": \"Enabled\", \"Expiration\": {\"Days\": 14}}]}`. Apply it: `aws s3api put-bucket-lifecycle-configuration --bucket <bucket> --lifecycle-configuration file://infra/s3-lifecycle.json`. Check: `aws s3api get-bucket-lifecycle-configuration --bucket <bucket>`.",
+        "Give the app EC2 instance role only the rights it needs. Policy: `s3:PutObject` on `arn:aws:s3:::<bucket>/daily/*` and nothing else. Add it in your Terraform code as an `aws_iam_role_policy`. No access keys on the server.",
+        "On the app EC2 install the client that matches your RDS major version: `sudo apt-get update && sudo apt-get install -y postgresql-client-16` and check `pg_dump --version`.",
+        "Store the DB password in `~/.pgpass` of the backup user: one line `<rds-endpoint>:5432:shopnotes:shopnotes:<password>`, then `chmod 600 ~/.pgpass`. (In sprint 11 we move it to SSM Parameter Store.)",
+        "Write `/opt/shopnotes/backup.sh`: `#!/usr/bin/env bash`, `set -euo pipefail`, `STAMP=$(date -u +%Y-%m-%dT%H%MZ)`, `FILE=/tmp/shopnotes-$STAMP.dump`, `pg_dump -h \"$DB_HOST\" -U shopnotes -d shopnotes -Fc -f \"$FILE\"`, `aws s3 cp \"$FILE\" \"s3://$BUCKET/daily/shopnotes-$STAMP.dump\"`, `rm -f \"$FILE\"`, `echo \"$(date -u) backup ok $STAMP\"`. Put `DB_HOST` and `BUCKET` in `/etc/shopnotes/backup.env` and `source` it at the top. Run `chmod 700 /opt/shopnotes/backup.sh`.",
+        "Run it by hand once: `/opt/shopnotes/backup.sh` and check: `aws s3 ls s3://<bucket>/daily/`. (Listing needs `s3:ListBucket`; run this from your laptop if the role has only PutObject.)",
+        "Add the cron job with `crontab -e`: `30 20 * * * /opt/shopnotes/backup.sh >> /var/log/shopnotes-backup.log 2>&1` (20:30 UTC = 02:00 IST). Cron has a small PATH, so use full paths or set `PATH=/usr/local/bin:/usr/bin:/bin` at the top of the crontab.",
+        "Test a restore on your laptop: `aws s3 cp s3://<bucket>/daily/<file>.dump .`, start a Postgres: `docker run -d --name pgrestore -e POSTGRES_PASSWORD=test -p 5433:5432 postgres:16`, then `createdb -h localhost -p 5433 -U postgres shopnotes_restore` and `pg_restore -h localhost -p 5433 -U postgres -d shopnotes_restore --no-owner <file>.dump`. Check the row count.",
+        "Add the steps to `docs/backups.md`: what is backed up, where, how long it is kept, and how to restore. Commit the script, the lifecycle JSON and the doc (not the env file with the host)."
+      ],
+      "acceptance": [
+        "At least 2 daily dump files are in `s3://<bucket>/daily/` (one manual, one from cron).",
+        "`get-bucket-lifecycle-configuration` shows the 14-day expiration rule.",
+        "The bucket blocks all public access.",
+        "The EC2 role can only put objects in `daily/`; there are no access keys on the server.",
+        "A dump was restored into a local Postgres and the row count matched."
+      ],
+      "evidence": [
+        "Output of `aws s3 ls s3://<bucket>/daily/`",
+        "Output of `aws s3api get-bucket-lifecycle-configuration`",
+        "Output of the row count in the restored local DB",
+        "Link to `backup.sh` and `docs/backups.md`"
+      ],
+      "hints": [
+        "`-Fc` makes a compressed custom format file. You restore it with `pg_restore`, not with `psql`.",
+        "If the cron job does not run, check `grep CRON /var/log/syslog` and the log file you set.",
+        "S3 free tier is 5 GB. A small app dump is a few MB, so 14 days is far below the limit."
+      ],
+      "explain": {
+        "en": "In this task I added a second kind of backup: a nightly pg_dump of the ShopNotes database to S3. I wrote a small bash script with set -euo pipefail, so it stops on any error, and I run it with cron at 2 AM Indian time. The EC2 instance role can only put files in one folder of the bucket, and there are no access keys on the server. A lifecycle rule deletes dumps older than 14 days, so the cost stays low. I also restored one dump into a local Postgres in Docker to prove it works.",
+        "hi": "Is task mein maine doosri tarah ka backup add kiya: ShopNotes database ka raat ka pg_dump S3 mein. Ek chhota bash script likha set -euo pipefail ke saath, taaki koi bhi error aaye to ruk jaaye, aur use cron se raat 2 baje Indian time par chalaya. EC2 instance role sirf bucket ke ek folder mein file daal sakta hai, aur server par koi access key nahi hai. Lifecycle rule 14 din se purane dumps delete kar deta hai, isliye cost kam rehti hai. Ek dump ko Docker wale local Postgres mein restore karke prove bhi kiya ki ye kaam karta hai."
+      },
+      "vocabulary": [
+        { "term": "pg_dump", "en": "a Postgres tool that writes the database into a file", "hi": "Postgres ka tool jo database ko ek file mein likhta hai" },
+        { "term": "cron", "en": "a Linux service that runs commands on a schedule", "hi": "Linux service jo schedule par commands chalati hai" },
+        { "term": "lifecycle rule", "en": "an S3 rule that deletes or moves old files automatically", "hi": "S3 rule jo purani files ko khud delete ya move kar deta hai" },
+        { "term": "logical backup", "en": "a backup of tables and data as SQL objects, not the disk", "hi": "tables aur data ka SQL objects ki tarah backup, disk ka nahi" },
+        { "term": "instance role", "en": "an IAM role attached to EC2 so it gets temporary keys automatically", "hi": "EC2 se juda IAM role jisse use temporary keys khud mil jaati hain" }
+      ],
+      "interview": [
+        { "q": "Why do you need pg_dump if RDS already has backups?", "a": "RDS backups can only be restored as a new RDS instance in the same account. A pg_dump file is portable: I can load it into any Postgres, for example on a laptop or in another cloud. It also helps when I need only one table back. So it is a second, independent copy." },
+        { "q": "How did you keep the backup secure?", "a": "The bucket blocks all public access. The EC2 instance role can only put objects into the daily folder, nothing else. There are no long-lived access keys on the server. The DB password is in a file only the backup user can read, and later we moved it to SSM Parameter Store." },
+        { "q": "Why did you add an S3 lifecycle rule?", "a": "Without it, a new file is added every night and the bucket grows forever, so the cost grows too. The lifecycle rule deletes dumps older than 14 days automatically. It also matches our retention policy, so we do not keep old data longer than needed." }
+      ],
+      "resources": [
+        { "title": "PostgreSQL docs: pg_dump", "url": "https://www.postgresql.org/docs/current/app-pgdump.html" },
+        { "title": "PostgreSQL docs: pg_restore", "url": "https://www.postgresql.org/docs/current/app-pgrestore.html" },
+        { "title": "Amazon S3 docs: Managing the lifecycle of objects", "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html" }
+      ]
+    },
+    {
+      "id": "s10-t03",
+      "key": "OPS-1003",
+      "type": "project",
+      "title": "Planned maintenance with zero downtime, a change request and a chaos drill",
+      "priority": "high",
+      "estimateHours": 16,
+      "goal": "We can drain a node and release a new version while users get zero failed requests, every change is planned and logged in a CHANGELOG, and we know what happens when pods or a node die.",
+      "context": "Hi, next week we must patch the cluster nodes, and the client said 'no downtime'. Please prepare it like a real change: a change request with a rollback plan, a CHANGELOG entry, and a test that shows zero failed requests. After that, break things on purpose (kill pods and a node) so we know how the system behaves before it happens at 3 AM.",
+      "steps": [
+        "Make the cluster bigger so pods can move: add a second agent with `k3d node create extra-agent --cluster shopnotes --role agent` and check with `kubectl get nodes`.",
+        "Create `CHANGELOG.md` in the format of Keep a Changelog: sections `## [Unreleased]`, then versions like `## [1.2.0] - 2026-11-10` with `### Added`, `### Changed`, `### Fixed`. Use semantic versioning (MAJOR.MINOR.PATCH).",
+        "Write a change request `docs/changes/CR-001-node-maintenance.md` with: What (drain and patch each node), Why, Risk (low/medium/high), Time window, Who is doing it, Steps, How we check success, Rollback plan, Who to tell (users, team). Ask your mentor to approve it in a PR review before you start.",
+        "Make the API safe for zero downtime in the Helm chart: `api.replicas: 3` (HPA min 3), rolling update `strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}`, a readiness probe, and `lifecycle.preStop.exec.command: [\"sleep\", \"5\"]` so a pod gets no new traffic before it stops.",
+        "Spread the API pods over nodes with `topologySpreadConstraints`: `maxSkew: 1`, `topologyKey: kubernetes.io/hostname`, `whenUnsatisfiable: ScheduleAnyway`, and the API label selector.",
+        "Add `charts/shopnotes/templates/api-pdb.yaml`: `apiVersion: policy/v1`, `kind: PodDisruptionBudget`, `minAvailable: 2`, selector with the API labels. Commit and push; ArgoCD deploys it. Check: `kubectl get pdb -n shopnotes-dev`.",
+        "Start a traffic check in a second terminal and keep it running: `while true; do curl -s -o /dev/null -w '%{http_code}\\n' http://shopnotes.localhost:8080/api/health; sleep 0.2; done | tee maintenance-results.txt`.",
+        "Do the maintenance, one node at a time: `kubectl cordon <node>`, `kubectl drain <node> --ignore-daemonsets --delete-emptydir-data`, wait 2 minutes (in real life you patch and reboot now), then `kubectl uncordon <node>`. Do the agent nodes only; in our lab the Postgres pod is a single copy, so it would be down (in production the DB is RDS, which AWS patches).",
+        "During the same window, release a new API version through Git (change the version text, CI and ArgoCD do the rest) and watch `kubectl rollout status deploy/shopnotes-api -n shopnotes-dev`.",
+        "Stop the curl loop and count the results: `sort maintenance-results.txt | uniq -c`. The goal is only `200` lines. If you see errors, find out why (missing preStop, PDB, or probe) and repeat.",
+        "Chaos drill 1, kill pods: keep the curl loop running and run `kubectl delete pod -n shopnotes-dev -l <api-label> --wait=false` (check labels with `kubectl get pods --show-labels`). Count errors again.",
+        "Chaos drill 2, kill a node: `docker stop k3d-shopnotes-agent-0`. Watch `kubectl get nodes -w` and `kubectl get pods -n shopnotes-dev -o wide -w`. Note when the node becomes NotReady and when pods move (about 5 minutes by default). Then `docker start k3d-shopnotes-agent-0`.",
+        "Chaos drill 3, kill the database pod: `kubectl delete pod -n shopnotes-dev <postgres-pod>`. Measure how long the API returns errors and check that data is still there after.",
+        "Write `docs/chaos-report-<date>.md`: for each drill, what you did, what you expected, what happened, how many failed requests, and one improvement. Add a CHANGELOG entry for the release, close the change request with the result, commit and push."
+      ],
+      "acceptance": [
+        "`CHANGELOG.md` and `docs/changes/CR-001-node-maintenance.md` exist, and the CR was approved in a PR before the work.",
+        "A PodDisruptionBudget, preStop hook, maxUnavailable 0 and topology spread are in the Helm chart.",
+        "`sort maintenance-results.txt | uniq -c` shows only HTTP 200 during the drain and the release.",
+        "The chaos report has results for all 3 drills with numbers.",
+        "The CHANGELOG has an entry for the new version."
+      ],
+      "evidence": [
+        "Output of `sort maintenance-results.txt | uniq -c`",
+        "Output of `kubectl get pdb,pods -n shopnotes-dev -o wide` during the drain",
+        "Links to the change request PR, `CHANGELOG.md` and the chaos report"
+      ],
+      "hints": [
+        "If `kubectl drain` hangs, the PDB is protecting your pods. That is good. It waits until other pods are ready. If it never finishes, you do not have enough replicas or nodes.",
+        "Without `preStop: sleep`, a pod can stop before the Ingress learns it is gone, and a few requests fail.",
+        "Do chaos tests only on dev or staging, with a plan, and tell the team first."
+      ],
+      "explain": {
+        "en": "In this project I did planned node maintenance and a release with zero failed requests. First I wrote a change request with the risk and a rollback plan, and it was approved in a pull request. I made the API safe with three replicas spread over nodes, a PodDisruptionBudget, maxUnavailable zero and a preStop sleep. While a curl loop was running, I drained each node and released a new version, and all requests returned 200. Then I ran chaos drills: I killed pods, a whole node and the database pod, and wrote a report with what happened and what we should improve.",
+        "hi": "Is project mein maine planned node maintenance aur ek release kiya, bina ek bhi failed request ke. Pehle risk aur rollback plan ke saath change request likha, aur woh pull request mein approve hua. API ko safe banaya: teen replicas alag nodes par, PodDisruptionBudget, maxUnavailable zero aur preStop sleep. Ek curl loop chalte hue maine har node drain kiya aur naya version release kiya, aur saari requests 200 aayi. Phir chaos drills kiye: pods, ek poora node aur database pod kill kiye, aur report likhi ki kya hua aur kya improve karna chahiye."
+      },
+      "vocabulary": [
+        { "term": "drain", "en": "move all pods away from a node so you can work on it", "hi": "node se saare pods hata dena taaki us par kaam kar sakein" },
+        { "term": "PodDisruptionBudget", "en": "a rule that keeps a minimum number of pods running during planned work", "hi": "rule jo planned kaam ke dauraan kam se kam itne pods chalu rakhta hai" },
+        { "term": "change request", "en": "a written plan for a change, with risk and rollback, approved before work", "hi": "change ka likha hua plan, risk aur rollback ke saath, kaam se pehle approve hota hai" },
+        { "term": "chaos engineering", "en": "breaking things on purpose in a safe way to find weak points", "hi": "safe tareeke se jaan-boojh kar cheezein todna taaki kamzor jagah mile" },
+        { "term": "CHANGELOG", "en": "a file that lists what changed in each version", "hi": "file jisme har version mein kya badla uski list hoti hai" }
+      ],
+      "interview": [
+        { "q": "How did you do node maintenance without downtime?", "a": "I ran three API replicas spread over different nodes and added a PodDisruptionBudget with minAvailable 2. Then I cordoned and drained one node at a time. The PDB made sure at least two pods were always running. A curl loop during the work showed only HTTP 200 answers." },
+        { "q": "What is a change request and what does it contain?", "a": "It is a short written plan before a change in production. It says what we change and why, the risk, the time window, the steps, how we check success and the rollback plan. Someone reviews and approves it. This avoids surprises and makes the team aware." },
+        { "q": "What did you learn from your chaos drill?", "a": "Killing API pods caused no errors because of the replicas and probes. Stopping a node took about five minutes before the pods moved, because Kubernetes waits before it evicts pods. Killing the single database pod caused errors for some seconds. So the database is our weak point, and in production it should be a managed RDS with Multi-AZ." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Disruptions and PodDisruptionBudget", "url": "https://kubernetes.io/docs/concepts/workloads/pods/disruptions/" },
+        { "title": "Kubernetes docs: Safely drain a node", "url": "https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/" },
+        { "title": "Keep a Changelog", "url": "https://keepachangelog.com/en/1.1.0/" }
+      ]
+    },
+    {
+      "id": "s10-t04",
+      "key": "OPS-1004",
+      "type": "docs",
+      "title": "Write the on-call runbook and the blameless postmortem template",
+      "priority": "medium",
+      "estimateHours": 8,
+      "goal": "The team has one on-call runbook that covers every alert we have, and a postmortem template that we fill after every incident.",
+      "context": "Hi, from next month we start an on-call rotation. Nobody should be alone at night without clear steps. Please write the on-call runbook: severity levels, who to call, and one section per alert. Also make a blameless postmortem template and fill it once for the CrashLoopBackOff incident from sprint 7.",
+      "steps": [
+        "Create `docs/oncall/README.md` with: on-call hours, how to hand over (a short note at the end of the shift), and the tools (Grafana URL, ArgoCD URL, Telegram group, AWS console).",
+        "Add a severity table: SEV1 (all users down or data loss: act now, update every 30 minutes), SEV2 (a main feature broken or slow for many users: act within 30 minutes), SEV3 (small problem, no big user impact: next working day).",
+        "Add the escalation path: on-call engineer, then the senior DevOps engineer after 15 minutes for SEV1, then the team lead. Use role names, not private phone numbers, in Git.",
+        "Create `docs/oncall/runbooks/` with one file per alert from OPS-904: `ShopNotesApiDown.md`, `ShopNotesHighErrorRate.md`, `ShopNotesSlowRequests.md`, `ShopNotesPodRestarting.md`.",
+        "Every runbook file has the same sections: What the alert means, User impact, First checks (exact commands and Grafana panels), Common causes, How to fix, How to check it is fixed, When to escalate.",
+        "Fill the commands from your real work, for example `kubectl get pods -n shopnotes-dev`, `kubectl logs --previous`, `argocd app history shopnotes-dev`, `argocd app rollback shopnotes-dev <id>` (or `git revert` of the last tag commit), and the LogQL queries from OPS-903.",
+        "Make sure the `runbook_url` annotation of each alert points to the right file in GitHub.",
+        "Create `docs/postmortems/TEMPLATE.md` with: Title, Date, Authors, Status, Severity, Summary (3 lines), Impact (users, minutes, error budget used), Timeline (times in IST and UTC), Root cause, Trigger, Detection (how did we find out?), Resolution, What went well, What went wrong, Where we got lucky, Action items (table: action, owner, due date, ticket), Lessons learned.",
+        "At the top of the template write the blameless rule in simple words: 'We look at systems and processes, not at people. People acted with the information they had.'",
+        "Fill the template once for OPS-705 (CrashLoopBackOff) as `docs/postmortems/2026-xx-xx-crashloop-bad-env.md`. Every action item must be specific, for example 'Add startup check for required env vars (owner: you, due: next sprint)'.",
+        "Ask a team mate (or mentor) to follow one runbook without your help while you break the app. Fix every step they did not understand. Commit and push."
+      ],
+      "acceptance": [
+        "`docs/oncall/README.md` has severity levels and an escalation path.",
+        "There is one runbook per alert, each with the same 7 sections and real commands.",
+        "Every alert's `runbook_url` opens the right runbook.",
+        "The postmortem template has a timeline, root cause, action items with owners, and the blameless rule.",
+        "One real postmortem is filled in for the sprint 7 incident."
+      ],
+      "evidence": [
+        "Links to `docs/oncall/README.md`, one runbook, the template and the filled postmortem",
+        "A short note from the person who tested your runbook"
+      ],
+      "hints": [
+        "Write runbooks for a tired person at 3 AM: short lines, exact commands, no long text.",
+        "A good action item is small and has one owner and a date. 'Be more careful' is not an action item.",
+        "Look at the Google SRE postmortem examples to see the style."
+      ],
+      "explain": {
+        "en": "In this task I wrote our on-call documentation. I defined three severity levels and an escalation path, so everyone knows how fast to act and who to call. I wrote one runbook for every alert we have, with the same sections and the real commands we use. Each alert links to its runbook. I also made a blameless postmortem template and filled it for the CrashLoopBackOff incident. Blameless means we look for problems in the system and the process, not for a person to blame.",
+        "hi": "Is task mein maine hamari on-call documentation likhi. Teen severity levels aur ek escalation path define kiya, taaki sabko pata ho kitni jaldi act karna hai aur kisko call karna hai. Har alert ke liye ek runbook likha, same sections aur asli commands ke saath. Har alert apne runbook se linked hai. Ek blameless postmortem template bhi banaya aur CrashLoopBackOff incident ke liye bhara. Blameless ka matlab hai hum system aur process mein problem dhoondhte hain, kisi insaan ko blame nahi karte."
+      },
+      "vocabulary": [
+        { "term": "on-call", "en": "being the person who answers alerts during a shift, also at night", "hi": "shift ke dauraan alerts ka jawab dene wala insaan hona, raat mein bhi" },
+        { "term": "severity", "en": "how serious an incident is, for example SEV1 to SEV3", "hi": "incident kitna serious hai, jaise SEV1 se SEV3" },
+        { "term": "escalation", "en": "asking a more senior person for help when you cannot fix it fast", "hi": "jaldi fix na ho to senior insaan se madad maangna" },
+        { "term": "postmortem", "en": "a written review after an incident to learn and prevent it again", "hi": "incident ke baad likha review taaki seekh sakein aur dobara na ho" },
+        { "term": "blameless", "en": "looking at systems and process, not blaming a person", "hi": "system aur process ko dekhna, kisi insaan ko blame nahi karna" }
+      ],
+      "interview": [
+        { "q": "What is a blameless postmortem?", "a": "It is a review after an incident where we do not blame a person. We ask why the system allowed the mistake and how to make it safer. People then share the full truth without fear. The result is a list of action items with owners and dates." },
+        { "q": "What does a good runbook contain?", "a": "It says what the alert means and what users feel. It has the first checks with exact commands, the common causes and how to fix each one. It also says how to confirm the fix and when to escalate. It is short, because people read it under stress." },
+        { "q": "How do you decide the severity of an incident?", "a": "I look at user impact. If all users are down or data can be lost, it is SEV1 and we act at once. If a main feature is broken for many users, it is SEV2. A small problem with a workaround is SEV3 and can wait for the next working day." }
+      ],
+      "resources": [
+        { "title": "Google SRE book: Postmortem culture", "url": "https://sre.google/sre-book/postmortem-culture/" },
+        { "title": "Google SRE workbook: Example postmortem", "url": "https://sre.google/workbook/postmortem-culture/" },
+        { "title": "PagerDuty Incident Response documentation", "url": "https://response.pagerduty.com/" }
+      ]
+    },
+    {
+      "id": "s10-t05",
+      "key": "OPS-1005",
+      "type": "incident",
+      "title": "INCIDENT: 'too many connections' and timeouts under load",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "Find why the API runs out of database connections under load, fix the root cause, and write a postmortem with the new template.",
+      "context": "ALERT: Hi, during the sale this morning ShopNotes became very slow and then returned 500 errors. The logs say things like 'too many clients already' or 'connection pool timeout'. CPU and memory look normal. Somebody wants to add more API pods, but I think that could make it worse. Please find the real cause. Use the drill in `drills/db-connection-pool-exhausted/`.",
+      "steps": [
+        "Read `drills/db-connection-pool-exhausted/README.md`. Do NOT open `SOLUTION.md`.",
+        "Start the drill: `cd drills/db-connection-pool-exhausted && docker compose up -d`, plus any start steps in the README (it may include a load script). Write down the start time.",
+        "Read the API logs and find the exact error text: `docker compose logs --tail=200 <api-service>`.",
+        "Look inside Postgres while the load runs: `docker compose exec <db-service> psql -U <user> -d <db> -c 'SHOW max_connections;'` and `-c \"SELECT state, count(*) FROM pg_stat_activity GROUP BY state;\"`.",
+        "Find who holds the connections and for how long: `SELECT pid, state, now() - state_change AS age, left(query, 60) FROM pg_stat_activity WHERE datname = '<db>' ORDER BY age DESC;`. Many `idle in transaction` rows mean the app does not close or commit its transactions.",
+        "Do the math: number of API copies x pool size per copy (x workers per copy) must be lower than `max_connections` minus a few for admin. Write down the numbers from the config.",
+        "Read the app code and config around the database connection: is the connection returned to the pool after each request? Is there a commit or rollback on every path, also on errors? What are the pool size and timeout?",
+        "Fix the ONE root cause in code or config. Do not only raise `max_connections`.",
+        "Restart: `docker compose up -d --build`, run the load again, and check `pg_stat_activity` again. Connections should stay stable.",
+        "Run `bash check.sh`. It must print PASS. Submit your root cause in the DevOps Lab app, then read `SOLUTION.md`.",
+        "Write a postmortem with your OPS-1004 template: `docs/postmortems/<date>-db-connection-pool.md`. Include the connection math and action items, for example a Postgres setting `idle_in_transaction_session_timeout`, a Grafana panel for active connections, or a pooler like PgBouncer.",
+        "Stop the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`bash check.sh` prints PASS.",
+        "Your root cause explains why connections were not available, with numbers from `pg_stat_activity` and the config.",
+        "The fix is in the code or config of the app, not only a bigger `max_connections`.",
+        "A postmortem with the team template is written, with at least 2 action items with owners."
+      ],
+      "evidence": [
+        "Output of `bash check.sh` showing PASS",
+        "Output of the `pg_stat_activity` query before and after the fix",
+        "Link to your postmortem file"
+      ],
+      "hints": [
+        "Adding more API pods adds more pools, so it can make 'too many connections' worse.",
+        "`idle in transaction` means a transaction was opened and never finished. It holds a connection and sometimes locks.",
+        "In Python, use `with` blocks or `try/finally` so the connection is always given back, even when an error happens."
+      ],
+      "explain": {
+        "en": "In this incident the API became slow and then failed under load with database connection errors, while CPU and memory looked normal. I checked pg_stat_activity in Postgres and counted the connections and their state. I compared the number of app copies times the pool size with max_connections. Then I read the app code and found the one reason why connections were not given back. I fixed it and the connections stayed stable under the same load. I wrote a blameless postmortem with the numbers and action items, like an alert on active connections.",
+        "hi": "Is incident mein load par API pehle slow hui aur phir database connection errors ke saath fail hui, jabki CPU aur memory normal the. Maine Postgres mein pg_stat_activity check kiya aur connections aur unki state count ki. App copies guna pool size ko max_connections se compare kiya. Phir app code padha aur woh ek wajah mili jiski wajah se connections wapas nahi ho rahe the. Fix kiya aur same load par connections stable rahe. Numbers aur action items ke saath blameless postmortem likha, jaise active connections par alert."
+      },
+      "vocabulary": [
+        { "term": "connection pool", "en": "a group of open DB connections that the app reuses", "hi": "khule DB connections ka group jo app dobara use karta hai" },
+        { "term": "max_connections", "en": "the most connections Postgres accepts at the same time", "hi": "Postgres ek saath zyada se zyada kitne connections leta hai" },
+        { "term": "pg_stat_activity", "en": "a Postgres view that shows every connection and what it does", "hi": "Postgres view jo har connection aur woh kya kar raha hai dikhata hai" },
+        { "term": "idle in transaction", "en": "a connection that started a transaction and is waiting without finishing it", "hi": "connection jisne transaction shuru kiya aur bina khatam kiye wait kar raha hai" },
+        { "term": "PgBouncer", "en": "a small proxy that shares few DB connections between many clients", "hi": "chhota proxy jo kam DB connections ko bahut clients mein share karta hai" }
+      ],
+      "interview": [
+        { "q": "The app shows 'too many connections'. What do you check?", "a": "First I check max_connections in Postgres and count the connections in pg_stat_activity by state. Then I calculate app copies times pool size and compare. I also look for idle in transaction connections, which mean the code does not finish its transactions. This tells me if the problem is the pool size or a connection leak." },
+        { "q": "Why can adding more pods make this worse?", "a": "Every pod has its own connection pool. If I go from 4 to 8 pods, I double the possible connections to the database. The database limit stays the same, so it runs out even faster. The fix is to use connections well, or to put a pooler like PgBouncer in front." },
+        { "q": "How do you stop this from happening again?", "a": "I make sure the code always returns the connection, with a with block or try and finally. I set idle_in_transaction_session_timeout in Postgres to close stuck transactions. I add a Grafana panel and an alert on active connections near the limit. And I write the pool math in the runbook." }
+      ],
+      "resources": [
+        { "title": "PostgreSQL docs: Monitoring statistics (pg_stat_activity)", "url": "https://www.postgresql.org/docs/current/monitoring-stats.html" },
+        { "title": "PostgreSQL docs: Connections and authentication", "url": "https://www.postgresql.org/docs/current/runtime-config-connection.html" },
+        { "title": "PgBouncer documentation", "url": "https://www.pgbouncer.org/" }
+      ]
+    }
+  ]
+}

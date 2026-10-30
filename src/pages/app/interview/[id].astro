@@ -1,0 +1,30 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+const u = Astro.locals.user!; const db = env.DB;
+const row = await db.prepare('SELECT * FROM interviews WHERE id = ? AND user_id = ?').bind(Astro.params.id, u.id).first<{ id: string; questions: string; answers: string; score: number | null; finished_at: string | null }>();
+if (!row) return new Response('Not found', { status: 404 });
+const qs = JSON.parse(row.questions) as { q: string; ticketId: string }[];
+const as = JSON.parse(row.answers) as { a: string; score: number; feedback: string; better: string; hi?: string }[];
+const i = as.length; const done = !!row.finished_at;
+---
+<Base title="Mock interview">
+  <p class="help"><a href="/app/interview">Interview</a> › question {Math.min(i + 1, qs.length)} of {qs.length}</p>
+  <div class="bar"><i style={`width:${Math.round((i / qs.length) * 100)}%`}></i></div>
+  {!done && <div class="card" style="margin-top:14px">
+    <h2 style="margin-top:0">Interviewer: “{qs[i].q}”</h2>
+    <form data-api action="/api/interview" method="post"><input type="hidden" name="action" value="answer" /><input type="hidden" name="id" value={row.id} />
+      <textarea name="answer" required minlength="10" placeholder="Speak-write your answer here..." style="min-height:140px"></textarea>
+      <div class="out"></div>
+      <p><button class="btn" type="submit">Send answer</button></p>
+    </form>
+  </div>}
+  {done && <div class="card notice ok" style="margin-top:14px"><h2 style="margin-top:0">Finished. Average score: {row.score?.toFixed(1)}/10</h2><p>{(row.score ?? 0) >= 7 ? 'Good. You are ready to tell this story to a real interviewer.' : 'Keep practising. Read each "better answer" aloud, then redo this interview in two days.'}</p><a class="btn" href="/app/interview">New interview</a></div>}
+  {as.map((a, k) => <div class="card">
+    <div class="row" style="justify-content:space-between"><strong>Q{k + 1}. {qs[k].q}</strong><span class={`pill ${a.score >= 7 ? 'done' : a.score >= 4 ? 'doing' : 'changes'}`}>{a.score}/10</span></div>
+    <p class="help">You said: {a.a}</p>
+    <p>{a.feedback}</p>
+    <blockquote style="border-left:3px solid var(--brand);margin:8px 0;padding-left:12px"><strong>Better answer:</strong> {a.better}</blockquote>
+    {a.hi && <p class="hi">{a.hi}</p>}
+  </div>).reverse()}
+</Base>

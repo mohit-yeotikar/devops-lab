@@ -1,0 +1,334 @@
+{
+  "id": "s11",
+  "number": 11,
+  "title": "Security and cost",
+  "weeks": "21-22",
+  "theme": "Lock down ShopNotes with least-privilege IAM, real secret management, security scans and TLS everywhere, and keep the AWS bill at zero.",
+  "jobStory": "In this sprint you do the security and cost work that every company asks for before an audit. You review all IAM users and roles and remove rights nobody uses. You move passwords out of files into SSM Parameter Store and sync them into Kubernetes with External Secrets Operator. You add Trivy and OWASP ZAP to CI, turn on TLS from the browser to the database, and build a monthly cost sheet and a cleanup script that removes forgotten resources by tag.",
+  "outcomes": [
+    "I audited IAM with the credential report and last-accessed data and applied least privilege.",
+    "I moved secrets into SSM Parameter Store and synced them into Kubernetes with External Secrets Operator.",
+    "I added Trivy image and IaC scans and an OWASP ZAP baseline scan to the CI pipeline.",
+    "I set up TLS from the browser to the Ingress and from the app to RDS.",
+    "I made a monthly AWS cost sheet and a tag-based cleanup script with dry-run mode."
+  ],
+  "tickets": [
+    {
+      "id": "s11-t01",
+      "key": "OPS-1101",
+      "type": "task",
+      "title": "IAM least privilege audit",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Every IAM user and role has only the rights it really uses, the root user is protected, and the audit is written down.",
+      "context": "Hi, the security team is doing an audit next month. During the last sprints we gave some users and roles AdministratorAccess 'just to make it work'. Please list every identity, find what it really uses, remove the rest, and write an audit report. Do not lock yourself out: keep one admin path with MFA.",
+      "steps": [
+        "Check the root user: `aws iam get-account-summary --query 'SummaryMap.[AccountMFAEnabled,AccountAccessKeysPresent]'`. MFA must be 1 and root access keys must be 0. If not, fix it in the console now.",
+        "Make the credential report: `aws iam generate-credential-report`, wait a few seconds, then `aws iam get-credential-report --query Content --output text | base64 -d > iam-credential-report.csv`. Open it and look at: password_last_used, mfa_active, access_key_1_last_rotated, access_key_1_last_used_date.",
+        "List all users and their policies: `aws iam list-users --query 'Users[].UserName'`, then for each user `aws iam list-attached-user-policies --user-name <user>`, `aws iam list-user-policies --user-name <user>` and `aws iam list-groups-for-user --user-name <user>`.",
+        "Find who has full admin: `aws iam list-entities-for-policy --policy-arn arn:aws:iam::aws:policy/AdministratorAccess`.",
+        "For each user or role with wide rights, see which services it really used: `aws iam generate-service-last-accessed-details --arn <user-or-role-arn>` (returns a JobId), then `aws iam get-service-last-accessed-details --job-id <JobId> --query 'ServicesLastAccessed[?TotalAuthenticatedEntities>`0`].[ServiceNamespace,LastAuthenticated]' --output table`.",
+        "Write a new, small policy for each identity based on what it used. Example for the Terraform user: only the services in your Terraform code (EC2, VPC, RDS, S3, IAM for roles). Save the JSON in `infra/iam/`.",
+        "Check every new policy with IAM Access Analyzer (free): `aws accessanalyzer validate-policy --policy-type IDENTITY_POLICY --policy-document file://infra/iam/<policy>.json`. Fix all errors and security warnings.",
+        "Create a free account analyzer for public or cross-account access: `aws accessanalyzer create-analyzer --analyzer-name shopnotes-account --type ACCOUNT`, then `aws accessanalyzer list-findings --analyzer-arn <arn>`. Fix any S3 bucket or role that is open to the outside.",
+        "Attach the new policies (in Terraform if the identity is managed there), test that the tool still works (for example `terraform plan`), and only then detach AdministratorAccess.",
+        "Rotate access keys older than 90 days: `aws iam create-access-key --user-name <user>`, update the tool, `aws iam update-access-key --user-name <user> --access-key-id <old> --status Inactive`, test, then `aws iam delete-access-key --user-name <user> --access-key-id <old>`. Delete users and keys nobody used for 90 days.",
+        "Best: replace long-lived CI keys with GitHub OIDC. Create an IAM OIDC identity provider for `token.actions.githubusercontent.com` and a role whose trust policy allows only your repo (`repo:<your-github-user>/shopnotes:ref:refs/heads/main`). In the workflow use `aws-actions/configure-aws-credentials` with `role-to-assume` and `permissions: id-token: write`.",
+        "Write `docs/security/iam-audit-<date>.md`: a table with identity, purpose, old rights, new rights, last used, action taken. Commit the report and the policy files (never the credential report CSV, it has account data)."
+      ],
+      "acceptance": [
+        "Root has MFA and no access keys.",
+        "Only one human admin (with MFA) still has AdministratorAccess; every tool user or role has a small policy.",
+        "All new policies pass `validate-policy` with no security warnings.",
+        "No access key is older than 90 days or unused for 90 days.",
+        "The audit report table is in the repo."
+      ],
+      "evidence": [
+        "Output of the `get-account-summary` query",
+        "Output of `list-entities-for-policy` for AdministratorAccess before and after",
+        "Link to the audit report and the policy files"
+      ],
+      "hints": [
+        "Change one identity at a time and test after each change. Keep a second browser session logged in as admin while you work.",
+        "Last-accessed data shows the last 400 days and needs a few hours to update. A service that is not in the list was never used.",
+        "Prefer roles with temporary credentials over users with access keys."
+      ],
+      "explain": {
+        "en": "In this task I did an IAM least privilege audit of our AWS account. I checked that the root user has MFA and no access keys. I made the credential report and used service last-accessed data to see what each user and role really used. Then I wrote small policies with only those rights, checked them with IAM Access Analyzer, tested the tools, and removed AdministratorAccess. I rotated old access keys and moved CI to GitHub OIDC, so there are no long-lived keys in CI anymore.",
+        "hi": "Is task mein maine AWS account ka IAM least privilege audit kiya. Check kiya ki root user par MFA hai aur koi access key nahi hai. Credential report banayi aur service last-accessed data se dekha ki har user aur role asli mein kya use karta hai. Phir sirf utne rights wali chhoti policies likhi, IAM Access Analyzer se check ki, tools test kiye, aur AdministratorAccess hataya. Purani access keys rotate ki aur CI ko GitHub OIDC par le gaya, taaki CI mein ab koi long-lived keys na hon."
+      },
+      "vocabulary": [
+        { "term": "least privilege", "en": "give only the rights that are really needed, nothing more", "hi": "sirf utne rights dena jitne sach mein chahiye, usse zyada nahi" },
+        { "term": "credential report", "en": "an IAM file that lists all users with password, MFA and key status", "hi": "IAM file jisme saare users ka password, MFA aur key status hota hai" },
+        { "term": "access key", "en": "a long-lived key pair for the AWS CLI or API", "hi": "AWS CLI ya API ke liye lambe time tak chalne wali key pair" },
+        { "term": "OIDC", "en": "a login standard; here GitHub proves who it is and AWS gives a short-lived role", "hi": "login standard; yahan GitHub apni pehchaan prove karta hai aur AWS short-lived role deta hai" },
+        { "term": "MFA", "en": "multi-factor authentication; a second code after the password", "hi": "multi-factor authentication; password ke baad ek doosra code" }
+      ],
+      "interview": [
+        { "q": "How did you find the rights a user really needs?", "a": "I used IAM service last-accessed data. It shows which AWS services each user or role used and when. I wrote a new policy with only those services and actions. Then I tested the tool and removed the old wide policy." },
+        { "q": "Why are access keys a risk?", "a": "Access keys do not expire by themselves. If one leaks, for example in a Git commit, anyone can use it until we delete it. So I rotate keys, delete unused ones, and use roles where I can. For GitHub Actions I use OIDC, which gives short-lived credentials for each run." },
+        { "q": "What did you check for the root user?", "a": "I checked that MFA is on and that there are no root access keys. The root user can do everything, even close the account. So we use it only for a few account tasks and use normal IAM identities for daily work." }
+      ],
+      "resources": [
+        { "title": "AWS IAM docs: Security best practices", "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" },
+        { "title": "AWS IAM docs: Refining permissions using last accessed information", "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_last-accessed.html" },
+        { "title": "AWS IAM docs: Getting credential reports", "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html" }
+      ]
+    },
+    {
+      "id": "s11-t02",
+      "key": "OPS-1102",
+      "type": "task",
+      "title": "Move secrets to SSM Parameter Store and sync them with External Secrets Operator",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "All ShopNotes passwords live in SSM Parameter Store, the EC2 app and the Kubernetes clusters read them from there, and no secret is in Git or in a plain file.",
+      "context": "Hi, today our passwords are in `.pgpass`, in env files on servers and in Kubernetes Secrets we created by hand. Nobody knows where all the copies are. Please put every secret in one place. Secrets Manager costs money per secret, so use SSM Parameter Store standard parameters, which are free. In Kubernetes, use External Secrets Operator so we never create Secrets by hand again.",
+      "steps": [
+        "Scan the repo for secrets that were committed in the past: `docker run --rm -v \"$PWD:/repo\" zricethezav/gitleaks:v8.18.4 detect --source /repo -v`. Any real password you find must be changed (rotated), because it is in the Git history forever.",
+        "Create the parameters as SecureString (encrypted with the free AWS managed key `aws/ssm`): `aws ssm put-parameter --name /shopnotes/prod/db_password --type SecureString --value '<new-strong-password>'` and the same for `/shopnotes/dev/db_password` and `/shopnotes/monitoring/telegram_token`.",
+        "Check (the value is hidden without `--with-decryption`): `aws ssm get-parameters-by-path --path /shopnotes --recursive --query 'Parameters[].Name'`.",
+        "Change the RDS master password to the new value: set it in Terraform from the parameter with a `data \"aws_ssm_parameter\"` block (or `manage_master_user_password` if you choose Secrets Manager later), then `terraform apply`.",
+        "EC2 app: give the instance role `ssm:GetParameter` on `arn:aws:ssm:<region>:<account-id>:parameter/shopnotes/prod/*` only. In the start script (or an Ansible task that writes `/etc/shopnotes/shopnotes.env` with mode 600), read the value: `DB_PASSWORD=$(aws ssm get-parameter --name /shopnotes/prod/db_password --with-decryption --query Parameter.Value --output text)` and build `DATABASE_URL` from it. Remove `.pgpass` and any password from Git or Ansible vars. Update `backup.sh` from OPS-1002 the same way.",
+        "Install External Secrets Operator on k3d: `helm repo add external-secrets https://charts.external-secrets.io && helm repo update`, then `helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace`. Check: `kubectl get pods -n external-secrets`.",
+        "k3d is not on AWS, so it needs a key. Create an IAM user `eso-k3d-reader` with only `ssm:GetParameter` and `ssm:GetParameters` on `arn:aws:ssm:<region>:<account-id>:parameter/shopnotes/dev/*`. Create a key and put it in the cluster: `kubectl create secret generic aws-eso-creds -n shopnotes-dev --from-literal=access-key=<id> --from-literal=secret-access-key=<secret>`. (On EC2 staging you would use the instance role instead.)",
+        "Create `gitops/secrets/secretstore.yaml`: `apiVersion: external-secrets.io/v1`, `kind: SecretStore`, name `aws-ssm`, namespace `shopnotes-dev`, `spec.provider.aws.service: ParameterStore`, `region: <region>`, `auth.secretRef.accessKeyIDSecretRef: {name: aws-eso-creds, key: access-key}`, `auth.secretRef.secretAccessKeySecretRef: {name: aws-eso-creds, key: secret-access-key}`.",
+        "Create `gitops/secrets/db-externalsecret.yaml`: `kind: ExternalSecret`, name `shopnotes-db`, `spec.refreshInterval: 1h`, `secretStoreRef: {name: aws-ssm, kind: SecretStore}`, `target.name: shopnotes-db`, and `data` with `secretKey: POSTGRES_PASSWORD`, `remoteRef.key: /shopnotes/dev/db_password`. Add the user and DB name with `target.template` or as plain data.",
+        "Delete the old hand-made Secret (`kubectl delete secret shopnotes-db -n shopnotes-dev`), apply the files (or let ArgoCD do it), and check: `kubectl get externalsecret -n shopnotes-dev` must show `SecretSynced`, and `kubectl get secret shopnotes-db -n shopnotes-dev` must exist.",
+        "Test rotation: change the value in SSM, then force a refresh with `kubectl annotate externalsecret shopnotes-db -n shopnotes-dev force-sync=$(date +%s) --overwrite` and check that the Secret changed. Remember that pods read env vars only at start.",
+        "Alternative to know for interviews: Sealed Secrets (Bitnami) encrypts a Secret with the cluster public key so the encrypted file can live in Git. Write 3 lines in `docs/security/secrets.md` comparing both, plus a table of every secret, where it lives and who can read it. Commit and push."
+      ],
+      "acceptance": [
+        "gitleaks finds no live secret in the repo, and every secret found in history was rotated.",
+        "All ShopNotes secrets are SecureString parameters under `/shopnotes/`.",
+        "The EC2 app and backup script read the password from SSM; `.pgpass` and env files with passwords are gone.",
+        "`kubectl get externalsecret -n shopnotes-dev` shows SecretSynced and the app still works.",
+        "`docs/security/secrets.md` lists every secret and its location."
+      ],
+      "evidence": [
+        "Output of `aws ssm get-parameters-by-path --path /shopnotes --recursive --query 'Parameters[].Name'`",
+        "Output of `kubectl get externalsecret,secretstore -n shopnotes-dev`",
+        "Output of the gitleaks scan",
+        "Link to `docs/security/secrets.md`"
+      ],
+      "hints": [
+        "Standard parameters in SSM Parameter Store have no extra charge. AWS Secrets Manager costs money per secret per month after the trial, so we do not use it in the lab.",
+        "If the ExternalSecret shows an error, run `kubectl describe externalsecret shopnotes-db -n shopnotes-dev`. Most errors are a wrong region, a wrong parameter name, or missing IAM rights.",
+        "Never use `--with-decryption` in a shell that records history on a shared server, and never print secrets in CI logs."
+      ],
+      "explain": {
+        "en": "In this task I moved all our secrets into AWS SSM Parameter Store as SecureString parameters. I chose Parameter Store because standard parameters are free, and Secrets Manager costs money per secret. The EC2 app now reads the database password at start with its instance role, which can read only our prod path. In Kubernetes I installed External Secrets Operator, and it creates the Kubernetes Secret from Parameter Store. I scanned the repo with gitleaks and rotated every password that was in the Git history.",
+        "hi": "Is task mein maine saare secrets AWS SSM Parameter Store mein SecureString parameters ki tarah daale. Parameter Store isliye chuna kyunki standard parameters free hain, aur Secrets Manager har secret ke paise leta hai. EC2 app ab start par apne instance role se database password padhti hai, jo sirf hamara prod path padh sakta hai. Kubernetes mein External Secrets Operator install kiya, jo Parameter Store se Kubernetes Secret bana deta hai. gitleaks se repo scan kiya aur Git history mein jo bhi password tha use rotate kiya."
+      },
+      "vocabulary": [
+        { "term": "SSM Parameter Store", "en": "an AWS service to store settings and encrypted secrets", "hi": "AWS service jisme settings aur encrypted secrets store karte hain" },
+        { "term": "SecureString", "en": "a parameter type that is stored encrypted with KMS", "hi": "parameter type jo KMS se encrypted store hota hai" },
+        { "term": "External Secrets Operator", "en": "a Kubernetes tool that copies secrets from a vault into Kubernetes Secrets", "hi": "Kubernetes tool jo vault se secrets ko Kubernetes Secrets mein copy karta hai" },
+        { "term": "rotate", "en": "change a password or key to a new value", "hi": "password ya key ko nayi value se badalna" },
+        { "term": "Sealed Secrets", "en": "a tool that encrypts a Secret so the encrypted file can be stored in Git", "hi": "tool jo Secret ko encrypt karta hai taaki encrypted file Git mein rakh sakein" }
+      ],
+      "interview": [
+        { "q": "How do you manage secrets in your project?", "a": "All secrets are SecureString parameters in SSM Parameter Store. On EC2 the app reads them at start with an instance role that can read only its own path. In Kubernetes, External Secrets Operator syncs them into Kubernetes Secrets. Nothing is in Git, and there is one place to change a password." },
+        { "q": "Why did you choose Parameter Store and not Secrets Manager?", "a": "Standard parameters in Parameter Store are free and they are encrypted with KMS. Secrets Manager costs money per secret every month, but it has built-in automatic rotation. For our small project Parameter Store was enough. In a bigger company I would use Secrets Manager for database passwords that need automatic rotation." },
+        { "q": "A password was committed to Git. What do you do?", "a": "Deleting the file is not enough, because the password stays in the Git history and maybe in forks. First I rotate the password, so the old one is useless. Then I move it into the secret store. I can also clean the history, and I add a secret scan like gitleaks to CI so it does not happen again." }
+      ],
+      "resources": [
+        { "title": "AWS Systems Manager Parameter Store docs", "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html" },
+        { "title": "External Secrets Operator: AWS Parameter Store provider", "url": "https://external-secrets.io/latest/provider/aws-parameter-store/" },
+        { "title": "Sealed Secrets on GitHub", "url": "https://github.com/bitnami-labs/sealed-secrets" }
+      ]
+    },
+    {
+      "id": "s11-t03",
+      "key": "OPS-1103",
+      "type": "project",
+      "title": "Security scans in CI and TLS everywhere",
+      "priority": "high",
+      "estimateHours": 16,
+      "goal": "Every build is scanned with Trivy and OWASP ZAP and fails on critical problems, and all traffic uses TLS: browser to Ingress, and app to RDS.",
+      "context": "Hi, the client sent us a security questionnaire. Two questions we cannot answer yet: 'Do you scan images and code for known vulnerabilities?' and 'Is all traffic encrypted?'. Please add Trivy and an OWASP ZAP baseline scan to the pipeline, and set up TLS on the staging Ingress with Let's Encrypt and between the app and RDS.",
+      "steps": [
+        "You used Trivy on your laptop in OPS-204. Now run it from Docker with a pinned version from the official releases page (https://github.com/aquasecurity/trivy/releases), never `latest`: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:<version> image --severity HIGH,CRITICAL --ignore-unfixed ghcr.io/<your-github-user>/shopnotes-api:<tag>`.",
+        "Fix what you can: use a smaller, newer base image (for example `python:3.12-slim`), upgrade Python packages with known fixes, rebuild, and scan again. Write down the before and after numbers.",
+        "Scan the infrastructure code for bad settings: `docker run --rm -v \"$PWD:/src\" aquasec/trivy:<version> config /src/terraform` and the same for `/src/charts/shopnotes`. Fix at least the HIGH findings (for example open security groups, containers running as root: add `securityContext.runAsNonRoot: true`).",
+        "Add a `security` job to the CI workflow after the image build. Set `env: TRIVY_VERSION: <version>` and run the image scan with `--exit-code 1 --severity CRITICAL --ignore-unfixed`, so the build fails on fixable critical problems. Also run `trivy fs --scanners vuln,secret --exit-code 1 --severity CRITICAL .` on the repo.",
+        "Pin every third-party GitHub Action to a full commit SHA (not only a tag like `@v4`), because a tag can be moved by an attacker. Add a comment with the version next to the SHA.",
+        "Add an OWASP ZAP baseline scan job: start the app in CI with `docker compose up -d`, wait for `/health`, then `docker run --rm --network host -v \"$PWD:/zap/wrk:rw\" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:8080 -r zap-report.html -I`. `-I` means warnings do not fail the build at first. Upload `zap-report.html` with `actions/upload-artifact`.",
+        "Read the ZAP report. Fix easy items in the Nginx config of the web image, for example add the headers `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and a basic `Content-Security-Policy`. Then remove `-I` so new warnings fail the build, and list accepted findings in a rules file (`-c zap-rules.conf`) with a reason.",
+        "TLS on the staging cluster (OPS-804): install cert-manager: `helm repo add jetstack https://charts.jetstack.io --force-update` and `helm install cert-manager jetstack/cert-manager -n cert-manager --create-namespace --set crds.enabled=true --kubeconfig ~/.kube/staging.yaml`.",
+        "Create two `ClusterIssuer` objects with `acme.server` `https://acme-staging-v02.api.letsencrypt.org/directory` (for testing) and `https://acme-v02.api.letsencrypt.org/directory` (real), `privateKeySecretRef`, and `solvers: [{http01: {ingress: {ingressClassName: traefik}}}]`.",
+        "In the Helm chart add TLS to the Ingress when `ingress.tls.enabled` is true: annotation `cert-manager.io/cluster-issuer: letsencrypt-prod` and `tls: [{hosts: [<host>], secretName: shopnotes-tls}]`. Test with the staging issuer first, then switch to prod. Check: `kubectl get certificate -n shopnotes-staging` shows READY True.",
+        "Redirect HTTP to HTTPS with a Traefik Middleware: `apiVersion: traefik.io/v1alpha1`, `kind: Middleware`, `spec.redirectScheme: {scheme: https, permanent: true}`, and the Ingress annotation `traefik.ingress.kubernetes.io/router.middlewares: <namespace>-<name>@kubernetescrd`. Test: `curl -I http://<ip>.sslip.io` must return a 301 or 308 to https.",
+        "TLS from the app to RDS: download the RDS CA bundle `curl -o global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem`, put it in the app image or a ConfigMap, and connect with `sslmode=verify-full` and `sslrootcert` pointing to the file. Check from psql: `SELECT ssl, version FROM pg_stat_ssl WHERE pid = pg_backend_pid();` must show `t`.",
+        "Make RDS refuse plain connections: in the DB parameter group (Terraform) set `rds.force_ssl = 1` (it is already the default on newer Postgres versions; check it).",
+        "Write `docs/security/tls.md` with a small table: each connection (browser to Ingress, Ingress to pod, app to RDS), encrypted yes or no, certificate source, and how it renews. Commit and push."
+      ],
+      "acceptance": [
+        "The CI pipeline has a Trivy job and a ZAP job; a CRITICAL fixable vulnerability fails the build.",
+        "All third-party actions are pinned to a commit SHA.",
+        "The ZAP report is uploaded as a build artifact and the easy header findings are fixed.",
+        "`curl -vI https://<ip>.sslip.io` shows a valid Let's Encrypt certificate, and HTTP redirects to HTTPS.",
+        "`pg_stat_ssl` shows `ssl = t` for the app connection to RDS, and `rds.force_ssl` is 1.",
+        "`docs/security/tls.md` describes every connection."
+      ],
+      "evidence": [
+        "Link to a CI run with the Trivy and ZAP jobs, and to one run that failed on a vulnerability",
+        "Trivy numbers before and after your image fixes",
+        "Output of `curl -vI https://<ip>.sslip.io 2>&1 | grep -E 'issuer|expire'`",
+        "Output of the `pg_stat_ssl` query",
+        "Link to `docs/security/tls.md`"
+      ],
+      "hints": [
+        "Use the Let's Encrypt staging server first. The real server has rate limits, and many failed tries can block you for some time.",
+        "If ZAP cannot write the report, the mounted folder is not writable for the ZAP user. Run `chmod 777` on a fresh report folder in CI and mount that folder.",
+        "`--ignore-unfixed` hides problems that have no fix yet. Review them anyway once a month."
+      ],
+      "explain": {
+        "en": "In this project I added security checks to our pipeline and turned on TLS everywhere. Trivy scans our image, our repo and our Terraform and Helm code, and the build fails on critical problems that have a fix. I also pinned all GitHub Actions to commit SHAs to protect the pipeline itself. OWASP ZAP runs a baseline scan against the running app, and I fixed the missing security headers it found. On staging I used cert-manager with Let's Encrypt for a free certificate and a redirect to HTTPS. Between the app and RDS I used verify-full TLS with the AWS CA bundle and forced SSL on the database.",
+        "hi": "Is project mein maine pipeline mein security checks add kiye aur har jagah TLS on kiya. Trivy hamari image, repo aur Terraform aur Helm code scan karta hai, aur jin critical problems ka fix hai un par build fail ho jaata hai. Pipeline ko bachane ke liye saare GitHub Actions ko commit SHA par pin kiya. OWASP ZAP chalti hui app par baseline scan karta hai, aur jo security headers missing the woh maine fix kiye. Staging par cert-manager aur Let's Encrypt se free certificate liya aur HTTPS redirect lagaya. App aur RDS ke beech AWS CA bundle ke saath verify-full TLS use kiya aur database par SSL force kiya."
+      },
+      "vocabulary": [
+        { "term": "vulnerability", "en": "a known weakness in software that an attacker can use", "hi": "software ki known kamzori jise attacker use kar sakta hai" },
+        { "term": "CVE", "en": "a public ID number for a known vulnerability", "hi": "known vulnerability ka public ID number" },
+        { "term": "DAST", "en": "testing a running app from outside, like ZAP does", "hi": "chalti hui app ko bahar se test karna, jaise ZAP karta hai" },
+        { "term": "cert-manager", "en": "a Kubernetes tool that gets and renews TLS certificates", "hi": "Kubernetes tool jo TLS certificates leta hai aur renew karta hai" },
+        { "term": "verify-full", "en": "a Postgres TLS mode that checks the certificate and the host name", "hi": "Postgres TLS mode jo certificate aur host name dono check karta hai" }
+      ],
+      "interview": [
+        { "q": "What security scans do you run in CI?", "a": "Trivy scans the Docker image for known vulnerabilities, the repo for secrets, and the Terraform and Helm files for bad settings. OWASP ZAP runs a baseline scan against the running app and checks things like security headers. The build fails on critical problems that have a fix. Reports are saved as build artifacts." },
+        { "q": "What is the difference between Trivy and ZAP?", "a": "Trivy is a static scanner. It looks at the image and the files and compares packages with a list of known CVEs. ZAP is a dynamic scanner. It calls the running app like a user or attacker and looks at the answers. They find different problems, so I use both." },
+        { "q": "What does 'TLS everywhere' mean in your project?", "a": "The browser talks to the Ingress over HTTPS with a Let's Encrypt certificate from cert-manager, and HTTP is redirected to HTTPS. The app talks to RDS with TLS in verify-full mode using the AWS CA bundle. RDS has force_ssl on, so it refuses plain connections. Inside the cluster the traffic stays on the private network." }
+      ],
+      "resources": [
+        { "title": "Trivy on GitHub (docs and releases)", "url": "https://github.com/aquasecurity/trivy" },
+        { "title": "ZAP docs: Baseline scan", "url": "https://www.zaproxy.org/docs/docker/baseline-scan/" },
+        { "title": "cert-manager docs: ACME", "url": "https://cert-manager.io/docs/configuration/acme/" }
+      ]
+    },
+    {
+      "id": "s11-t04",
+      "key": "OPS-1104",
+      "type": "task",
+      "title": "AWS cost report, monthly cost sheet and a tag-based cleanup script",
+      "priority": "medium",
+      "estimateHours": 8,
+      "goal": "The team has a monthly cost sheet from Cost Explorer, alerts before any spend, and a safe script that finds and removes forgotten lab resources by tag.",
+      "context": "Hi, last month someone forgot an Elastic IP and an EBS volume, and we paid for nothing. Please make a monthly cost sheet from Cost Explorer, a budget alert, and a cleanup script that finds resources by our tags. The script must show what it would delete first (dry run) and never touch the production database.",
+      "steps": [
+        "Open Billing and Cost Management, Cost Explorer in the console. Using the console is free; each Cost Explorer API call (`aws ce ...`) costs money, so do not script it.",
+        "Activate the cost allocation tags: Billing, Cost allocation tags, select `Project` and `Env`, Activate. It takes up to 24 hours before you can filter by them.",
+        "Create a zero-spend budget if you do not have one: Billing, Budgets, Create budget, template `Zero spend budget`, your email. Also check Billing, Free Tier for services close to the limit.",
+        "In Cost Explorer: last 3 months, granularity Monthly, group by Service. Then group by Tag `Project`. Download the CSV.",
+        "Create `docs/cost/cost-sheet-<yyyy-mm>.md` (or a spreadsheet exported to CSV in the repo) with columns: Service, Resource, Env, Hours or GB used, Free tier limit, Cost this month, Forecast, Action. Add rows for EC2 (app and k3s staging), EBS, RDS, S3, public IPv4 addresses, data transfer.",
+        "Add a short 'what it would cost without free tier' column. Use the AWS Pricing Calculator (https://calculator.aws/) for EC2, RDS and EBS in your region. Add the EKS control plane line too, to show the money we save.",
+        "Make sure every resource has tags. Find missing tags: `aws resourcegroupstaggingapi get-resources --query 'ResourceTagMappingList[?!not_null(Tags[?Key==`Project`])].ResourceARN'`. Add tags in Terraform with `default_tags` in the AWS provider.",
+        "Write `scripts/cleanup-lab.sh`: `set -euo pipefail`, `DRY_RUN=${DRY_RUN:-1}`, `TAG_KEY=Env`, `TAG_VALUE=lab`, region from `AWS_REGION`. Print what you would do when DRY_RUN is 1; act only when `DRY_RUN=0`.",
+        "Part 1, EC2: `aws ec2 describe-instances --filters \"Name=tag:$TAG_KEY,Values=$TAG_VALUE\" \"Name=instance-state-name,Values=running,stopped\" --query 'Reservations[].Instances[].InstanceId' --output text`, then `aws ec2 terminate-instances --instance-ids ...` only when not dry run.",
+        "Part 2, EBS volumes not attached: `aws ec2 describe-volumes --filters Name=status,Values=available --query 'Volumes[].[VolumeId,Size,CreateTime]' --output text`, then `aws ec2 delete-volume --volume-id ...`.",
+        "Part 3, Elastic IPs not attached: `aws ec2 describe-addresses --query 'Addresses[?AssociationId==null].AllocationId' --output text`, then `aws ec2 release-address --allocation-id ...`.",
+        "Part 4, RDS: only LIST instances with the lab tag (`aws rds describe-db-instances --query 'DBInstances[].[DBInstanceIdentifier,DBInstanceStatus]'`); the script must never delete a database. Print a warning instead.",
+        "Run it with `DRY_RUN=1 ./scripts/cleanup-lab.sh` and check the list. Create one test volume with the lab tag (`aws ec2 create-volume --availability-zone <az> --size 1 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Env,Value=lab},{Key=Project,Value=shopnotes}]'`) and remove it with `DRY_RUN=0`.",
+        "Check the script with `shellcheck scripts/cleanup-lab.sh`. Add a 'How to use' block at the top of the script. Commit and push."
+      ],
+      "acceptance": [
+        "The cost sheet has real numbers from Cost Explorer for the last month, by service and by tag.",
+        "A zero-spend budget exists and sends to your email.",
+        "Every AWS resource in the account has `Project` and `Env` tags.",
+        "`cleanup-lab.sh` runs in dry-run mode by default and never deletes RDS.",
+        "The test volume was removed by the script, and `shellcheck` shows no errors."
+      ],
+      "evidence": [
+        "Screenshot of Cost Explorer grouped by service",
+        "Link to the cost sheet",
+        "Output of `DRY_RUN=1 ./scripts/cleanup-lab.sh`",
+        "Link to `scripts/cleanup-lab.sh`"
+      ],
+      "hints": [
+        "Public IPv4 addresses are charged by the hour outside the free tier allowance, even when the instance is stopped (for Elastic IPs). Release what you do not use.",
+        "Snapshots also cost money. List them with `aws ec2 describe-snapshots --owner-ids self` and `aws rds describe-db-snapshots --snapshot-type manual`.",
+        "Always run a delete script first with dry run and read the list. A wrong filter can delete the wrong thing."
+      ],
+      "explain": {
+        "en": "In this task I worked on cost control for our AWS account. I activated cost allocation tags and used Cost Explorer in the console to build a monthly cost sheet by service and by project tag. I created a zero-spend budget, so we get an email before we pay anything. I made sure every resource has Project and Env tags with default tags in Terraform. Then I wrote a cleanup script that finds lab EC2 instances, unattached EBS volumes and unused Elastic IPs by tag. It runs in dry-run mode by default and it never deletes a database.",
+        "hi": "Is task mein maine AWS account ke cost control par kaam kiya. Cost allocation tags activate kiye aur console mein Cost Explorer se service aur project tag ke hisaab se monthly cost sheet banayi. Zero-spend budget banaya, taaki kuch bhi pay karne se pehle email aa jaaye. Terraform ke default tags se ensure kiya ki har resource par Project aur Env tags hon. Phir ek cleanup script likha jo tag se lab EC2 instances, bina attach wale EBS volumes aur unused Elastic IPs dhoondhta hai. Ye by default dry-run mode mein chalta hai aur kabhi database delete nahi karta."
+      },
+      "vocabulary": [
+        { "term": "Cost Explorer", "en": "the AWS page that shows what you spent and on which service", "hi": "AWS page jo dikhata hai kitna kharch hua aur kis service par" },
+        { "term": "cost allocation tag", "en": "a tag that AWS uses to split the bill, like Project", "hi": "tag jisse AWS bill ko baant-ta hai, jaise Project" },
+        { "term": "budget alert", "en": "an email when spend goes over a set amount", "hi": "email jab kharch ek set amount se upar jaaye" },
+        { "term": "dry run", "en": "a test mode that shows what would happen but changes nothing", "hi": "test mode jo dikhata hai kya hoga par kuch badalta nahi" },
+        { "term": "orphaned resource", "en": "a resource that nobody uses anymore but still costs money", "hi": "resource jise ab koi use nahi karta par paisa lagta rehta hai" }
+      ],
+      "interview": [
+        { "q": "How do you control cloud cost?", "a": "First I tag every resource with Project and Env, using default tags in Terraform. I activate the tags for cost allocation and check Cost Explorer every month by service and by tag. A budget alert emails us before we spend money. And a cleanup script removes forgotten lab resources." },
+        { "q": "How did you make the cleanup script safe?", "a": "It runs in dry-run mode by default and only prints what it would delete. It selects resources only by our lab tag. It never deletes databases, it only lists them. I tested it on one test volume before I used it for real." },
+        { "q": "What resources are often forgotten and cost money?", "a": "Unattached EBS volumes, old snapshots, Elastic IPs that are not attached, and instances that someone forgot to stop. NAT gateways and load balancers are also expensive if they stay running. That is why I check them in my script and in the monthly cost sheet." }
+      ],
+      "resources": [
+        { "title": "AWS docs: Analyzing your costs with AWS Cost Explorer", "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html" },
+        { "title": "AWS docs: Managing your costs with AWS Budgets", "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html" },
+        { "title": "AWS Pricing Calculator", "url": "https://calculator.aws/" }
+      ]
+    },
+    {
+      "id": "s11-t05",
+      "key": "OPS-1105",
+      "type": "incident",
+      "title": "INCIDENT: users see 'Your connection is not private'",
+      "priority": "high",
+      "estimateHours": 4,
+      "goal": "Find why the HTTPS certificate is not accepted, fix it, and add monitoring so we know 14 days before a certificate expires.",
+      "context": "ALERT: Hi, since this morning users get a big browser warning 'Your connection is not private' and the mobile app cannot connect at all. Nothing was deployed last night. Please find out what is wrong with the certificate, fix it, and make sure we never learn about this from users again. Use the drill in `drills/expired-tls-cert/`.",
+      "steps": [
+        "Read `drills/expired-tls-cert/README.md`. Do NOT open `SOLUTION.md`.",
+        "Start the drill: `cd drills/expired-tls-cert && docker compose up -d`, plus any start steps in the README. Write down the start time.",
+        "See what the client sees: `curl -v https://localhost:<port>/ 2>&1 | grep -iE 'expire|verify|subject|issuer'` (use the port and host name from the README).",
+        "Read the certificate dates and names: `echo | openssl s_client -connect localhost:<port> -servername <host> 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName`. Compare `notAfter` with today's date (`date -u`).",
+        "Check the certificate file on disk, too: `openssl x509 -in <path-to-cert.pem> -noout -dates`. Is the server using the file you think it uses?",
+        "Find out why it was not renewed. Look at the renewal setup described in the README (for example a cron job, a certbot timer, or cert-manager). In Kubernetes: `kubectl get certificate,certificaterequest,order,challenge -A` and `kubectl describe certificate <name>`.",
+        "Fix the ONE root cause: renew or replace the certificate in the right way and make the server load it (a reload is often needed for Nginx: `nginx -s reload`). Do not just tell users to click 'Proceed anyway'.",
+        "Check again with the `openssl s_client` command: the new `notAfter` date must be in the future.",
+        "Run `bash check.sh`. It must print PASS. Submit your root cause in the DevOps Lab app, then read `SOLUTION.md`.",
+        "Prevention: write an alert rule for the future. With blackbox exporter: `probe_ssl_earliest_cert_expiry - time() < 14 * 24 * 3600`. With cert-manager: `certmanager_certificate_expiration_timestamp_seconds - time() < 14 * 24 * 3600`. Add it to the runbook list from OPS-1004.",
+        "Write a short postmortem with the team template. Stop the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`bash check.sh` prints PASS.",
+        "Your root cause says why the certificate was not renewed, not only that it expired.",
+        "`openssl s_client` shows a valid date range after the fix.",
+        "You wrote an expiry alert rule that warns 14 days before."
+      ],
+      "evidence": [
+        "Output of `openssl x509 -noout -dates` before and after the fix",
+        "Output of `bash check.sh` showing PASS",
+        "Your alert rule and short postmortem"
+      ],
+      "hints": [
+        "An expired certificate is the symptom. The real question is: why did the automatic renewal not work, and why did no alert tell us?",
+        "Let's Encrypt certificates are valid for a short time (about 90 days), so renewal must be automatic and monitored.",
+        "A web server often keeps the old certificate in memory until it is reloaded, even when the file on disk is new."
+      ],
+      "explain": {
+        "en": "In this incident users saw a certificate warning in the browser. I used curl and openssl s_client to read the certificate the server really sends, and I saw that the notAfter date was in the past. Then I looked at why the automatic renewal did not work and found the one root cause. I fixed it, made the server load the new certificate, and checked the new dates with openssl. To prevent it, I wrote an alert that fires 14 days before any certificate expires.",
+        "hi": "Is incident mein users ko browser mein certificate warning dikh rahi thi. Maine curl aur openssl s_client se woh certificate padha jo server sach mein bhej raha tha, aur dekha ki notAfter date nikal chuki thi. Phir dekha ki automatic renewal kyun nahi chala aur ek root cause mila. Use fix kiya, server ko naya certificate load karwaya, aur openssl se nayi dates check ki. Prevention ke liye ek alert likha jo kisi bhi certificate ke expire hone se 14 din pehle fire hota hai."
+      },
+      "vocabulary": [
+        { "term": "TLS certificate", "en": "a file that proves the server's name and allows encryption", "hi": "file jo server ka naam prove karti hai aur encryption allow karti hai" },
+        { "term": "notAfter", "en": "the last date a certificate is valid", "hi": "certificate valid rehne ki aakhri date" },
+        { "term": "renewal", "en": "getting a new certificate before the old one expires", "hi": "purana certificate expire hone se pehle naya lena" },
+        { "term": "openssl s_client", "en": "a command that connects to a TLS server and shows its certificate", "hi": "command jo TLS server se connect hoke uska certificate dikhata hai" },
+        { "term": "SAN", "en": "Subject Alternative Name; the list of host names a certificate is valid for", "hi": "Subject Alternative Name; un host names ki list jinke liye certificate valid hai" }
+      ],
+      "interview": [
+        { "q": "How do you check when a certificate expires?", "a": "I run openssl s_client to connect to the server and pipe the result into openssl x509 with -dates. It shows notBefore and notAfter. This checks the certificate that the server really sends, not only the file on disk. I also check the host names in the SAN list." },
+        { "q": "Why can a certificate expire if renewal is automatic?", "a": "Automatic renewal can fail without anyone noticing. For example the cron job or timer stopped, the HTTP challenge is blocked by a firewall, or DNS changed. Sometimes the new certificate is on disk but the web server was not reloaded. That is why we need monitoring and not only automation." },
+        { "q": "How do you monitor certificates?", "a": "I use a Prometheus alert on the expiry time. With the blackbox exporter it is probe_ssl_earliest_cert_expiry, and with cert-manager it is certmanager_certificate_expiration_timestamp_seconds. The alert fires 14 days before expiry, so we have time to fix the renewal calmly." }
+      ],
+      "resources": [
+        { "title": "OpenSSL docs: s_client", "url": "https://docs.openssl.org/master/man1/openssl-s_client/" },
+        { "title": "Let's Encrypt docs", "url": "https://letsencrypt.org/docs/" },
+        { "title": "cert-manager docs: Prometheus metrics", "url": "https://cert-manager.io/docs/devops-tips/prometheus-metrics/" }
+      ]
+    }
+  ]
+}

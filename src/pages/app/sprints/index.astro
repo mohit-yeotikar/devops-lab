@@ -1,0 +1,17 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import { sprints } from '../../../lib/curriculum';
+import { progressFor } from '../../../lib/db';
+const prog = await progressFor(env.DB, Astro.locals.user!.id);
+---
+<Base title="Sprints">
+  <h1>Sprints</h1>
+  <p class="sub">Two weeks each. One company system that grows every sprint. <span class="hi">Har sprint 2 hafte ka hai. Ek hi system har sprint me bada hota hai.</span></p>
+  {sprints.map((s) => { const d = s.tickets.filter((t) => prog.get(t.id)?.status === 'done').length; return (
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><div><div class="help">Sprint {s.number} · weeks {s.weeks} · {s.tickets.reduce((n, t) => n + t.estimateHours, 0)} h</div><h2 style="margin:4px 0"><a href={`/app/sprints/${s.id}`} style="text-decoration:none;color:inherit">{s.title}</a></h2></div><span class="pill">{d}/{s.tickets.length} done</span></div>
+      <p>{s.theme}</p>
+      <ul class="steps">{s.tickets.map((t) => <li><a href={`/app/tickets/${t.id}`}>{t.key} · {t.title}</a> <span class={`pill ${prog.get(t.id)?.status ?? 'todo'}`}>{prog.get(t.id)?.status ?? 'todo'}</span></li>)}</ul>
+    </div>); })}
+</Base>

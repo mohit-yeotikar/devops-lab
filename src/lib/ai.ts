@@ -1,0 +1,47 @@
+import Anthropic from '@anthropic-ai/sdk';
+
+export type Turn = { role: 'user' | 'assistant'; content: string };
+
+const SYSTEM_BASE = `You are the coach inside "DevOps Lab", a training app for junior DevOps engineers from India whose English is weak.
+Rules for every answer:
+- Use very simple English. Short sentences. Common words. No idioms. Explain any hard word in brackets.
+- Be warm and direct. Praise what is right first, then fix what is wrong.
+- Keep technical facts correct and current (Docker Compose v2, Terraform 1.x, Kubernetes, GitHub Actions, AWS).
+- When you correct English, show the corrected sentence, then one line "Why" in simple words.
+- If asked, add a short Hinglish (Roman Hindi) line to explain the meaning. Never write Devanagari unless asked.
+- Never write code or answers for cloud actions that cost money. Keep everything on AWS Free Tier or local Docker.
+- Keep answers under 250 words unless the task says otherwise.`;
+
+export async function coach(env: Env, opts: { system: string; turns: Turn[]; json?: boolean; maxTokens?: number }): Promise<string> {
+  const system = SYSTEM_BASE + '\n\n' + opts.system + (opts.json ? '\n\nReply with ONLY a JSON object, no markdown fences.' : '');
+  const turns = opts.turns.length ? opts.turns : [{ role: 'user' as const, content: 'Start.' }];
+  if (env.ANTHROPIC_API_KEY) {
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    const res = await client.beta.messages.create({
+      model: 'claude-opus-5-5',
+      max_tokens: opts.maxTokens ?? 2000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: { effort: 'low' },
+      system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+      messages: turns.map((t) => ({ role: t.role, content: t.content })),
+    } as Parameters<typeof client.beta.messages.create>[0]) as Anthropic.Beta.BetaMessage;
+    if (res.stop_reason === 'refusal') return opts.json ? '{"error":"The coach could not answer this. Please rephrase."}' : 'Sorry, I cannot answer this one. Please ask in another way.';
+    return res.content.filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === 'text').map((b) => b.text).join('\n').trim();
+  }
+  // Free fallback: Workers AI.
+  const out = (await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast' as never, {
+    messages: [{ role: 'system', content: system }, ...turns],
+    max_tokens: opts.maxTokens ?? 1500,
+  } as never)) as { response?: unknown; choices?: { message?: { content?: string } }[] };
+  const r = out.response;
+  const text = typeof r === 'string' ? r : out.choices?.[0]?.message?.content ?? (r && typeof r === 'object' ? JSON.stringify(r) : '');
+  return String(text).trim();
+}
+
+export function parseJson<T>(s: string, fallback: T): T {
+  try { return JSON.parse(s) as T; } catch {}
+  const m = s.match(/\{[\s\S]*\}/);
+  if (m) { try { return JSON.parse(m[0]) as T; } catch {} }
+  return fallback;
+}

@@ -1,0 +1,24 @@
+---
+import { env } from '../../lib/env';
+import Base from '../../layouts/Base.astro';
+import { hoursFor, workLog } from '../../lib/db';
+import { ticketById } from '../../lib/curriculum';
+const u = Astro.locals.user!; const db = env.DB;
+const hrs = await hoursFor(db, u.id); const rows = await workLog(db, u.id, 500);
+const byDay = new Map<string, number>(); rows.forEach((r) => byDay.set(r.day, (byDay.get(r.day) || 0) + r.hours));
+const weeks = Math.max(1, Math.ceil(byDay.size / 5));
+---
+<Base title="Work log">
+  <h1>Work log</h1>
+  <p class="sub">Every hour you log is part of your record. Reviewers and the experience letter use this list. <span class="hi">Ye list tumhara proof hai, isliye sahi hours likho.</span></p>
+  <div class="grid">
+    <div class="card"><div class="stat">{hrs.h.toFixed(1)} h<small>total</small></div></div>
+    <div class="card"><div class="stat">{hrs.days}<small>working days</small></div></div>
+    <div class="card"><div class="stat">{(hrs.h / weeks).toFixed(1)} h<small>per working week (5 days)</small></div></div>
+    <div class="card"><div class="stat">{hrs.first ?? '—'}<small>first day</small></div></div>
+  </div>
+  <div class="card"><table><thead><tr><th>Day</th><th>Hours</th><th>Ticket</th><th>Note</th></tr></thead><tbody>
+    {rows.map((r) => <tr><td>{r.day}</td><td>{r.hours}</td><td>{r.ticket_id ? <a href={`/app/tickets/${r.ticket_id}`}>{ticketById(r.ticket_id)?.key ?? r.ticket_id}</a> : ''}</td><td>{r.note}</td></tr>)}
+    {rows.length === 0 && <tr><td colspan="4" class="help">No hours yet. Open a ticket and use "Proof & hours" to add time.</td></tr>}
+  </tbody></table></div>
+</Base>

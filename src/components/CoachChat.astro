@@ -1,0 +1,26 @@
+---
+import { md } from '../lib/md';
+interface Props { ticket?: string; drill?: string; history: { role: string; content: string }[]; placeholder?: string }
+const { ticket, drill, history, placeholder = 'Ask the coach. Example: "My container exits at once. What should I check?"' } = Astro.props;
+---
+<div class="chat">
+  <div class="log" id={`chat-${ticket || drill || 'g'}`}>
+    {history.map((m) => <div class={`msg ${m.role}`} set:html={m.role === 'assistant' ? md(m.content) : m.content.replace(/</g, '&lt;')} />)}
+  </div>
+  <form data-api action="/api/coach" method="post" class="coach-form">
+    <input type="hidden" name="mode" value="chat" />
+    {ticket && <input type="hidden" name="ticket" value={ticket} />}
+    {drill && <input type="hidden" name="drill" value={drill} />}
+    <textarea name="text" required minlength="5" placeholder={placeholder} style="min-height:70px"></textarea>
+    <div class="out"></div>
+    <p class="row"><button class="btn" type="submit">Ask coach</button> <span class="help">Write in English. Simple is fine. The coach answers simply too.</span></p>
+  </form>
+</div>
+<script>
+  document.querySelectorAll<HTMLFormElement>('.coach-form').forEach((f) => {
+    f.addEventListener('api:done', (e: Event) => {
+      const j = (e as CustomEvent).detail; const log = f.parentElement!.querySelector('.log')!;
+      if (j.html) { log.insertAdjacentHTML('beforeend', j.html); f.querySelector('.out')!.innerHTML = ''; (f.querySelector('textarea') as HTMLTextAreaElement).value = ''; log.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    });
+  });
+</script>

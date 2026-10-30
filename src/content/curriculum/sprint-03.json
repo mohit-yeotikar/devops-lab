@@ -1,0 +1,502 @@
+{
+  "id": "s03",
+  "number": 3,
+  "title": "CI with GitHub Actions and Jenkins",
+  "weeks": "5-6",
+  "theme": "Test, build, scan and push ShopNotes automatically on every change, with GitHub Actions and with Jenkins.",
+  "jobStory": "In this sprint you make the computer check every change. You write a GitHub Actions workflow that lints, tests with a real Postgres, builds both images, scans them with Trivy and pushes them to ghcr.io. You protect main so only green pull requests can merge, and you make the first semantic version release. Because many Indian companies use Jenkins, you also build the same pipeline in a Jenkinsfile on a Jenkins server in Docker.",
+  "outcomes": [
+    "I built a GitHub Actions pipeline with lint, tests against a Postgres service, image build, Trivy scan and push.",
+    "I protected main with a ruleset and released v0.2.0 with semantic version tags.",
+    "I ran Jenkins in Docker and wrote a Jenkinsfile with test, build, scan and push stages.",
+    "I kept secrets safe with GITHUB_TOKEN and Jenkins credentials.",
+    "I documented both pipelines for the developers."
+  ],
+  "tickets": [
+    {
+      "id": "s03-t01",
+      "key": "OPS-301",
+      "type": "task",
+      "title": "Add lint and tests to every pull request with GitHub Actions",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Every pull request runs ruff and pytest against a real Postgres in GitHub Actions, and a red check shows when something breaks.",
+      "context": "Hi, last week a typo in app.py reached main and the app did not start. Please add automatic checks on every pull request: a linter and real tests with a database. If a check is red, we do not merge.",
+      "steps": [
+        "Create `api/requirements-dev.txt` with `pytest>=8` and `ruff>=0.6`. Install it in your venv: `cd ~/shopnotes/api && source .venv/bin/activate && pip install -r requirements-dev.txt`.",
+        "Create `api/pytest.ini` with two settings under `[pytest]`: `pythonpath = .` and `testpaths = tests`. Now `from app import app` works inside the tests.",
+        "Create `api/tests/test_app.py`. Add `import os`, `import pytest`, `from app import app`, and a fixture `client` that sets `app.config[\"TESTING\"] = True` and returns `app.test_client()`.",
+        "Add a test that needs no database: `test_post_needs_text` posts `json={}` to `/notes` and checks `res.status_code == 400`.",
+        "Add two tests that need the database, marked with `@pytest.mark.skipif(not os.environ.get(\"DATABASE_URL\"), reason=\"needs a database\")`: `test_health_ok` checks that `/health` returns 200 and `res.get_json()[\"db\"] == \"ok\"`; `test_add_and_list_note` posts `{\"text\": \"ci note\"}` (201) and then checks that `ci note` is in the texts from `GET /notes`.",
+        "Run everything locally first: `ruff check .` and `DATABASE_URL=postgresql://shopnotes:shopnotes@localhost:5432/shopnotes pytest -q`. Fix all ruff warnings. All tests must pass.",
+        "Create `.github/workflows/ci.yml`. Top part: `name: ci`; `on:` with `pull_request:` and `push:` with `branches: [main]` and `tags: ['v*.*.*']`; `permissions:` `contents: read`; `concurrency:` `group: ci-${{ github.ref }}` and `cancel-in-progress: true`.",
+        "Add a job `test` with `runs-on: ubuntu-24.04` and a Postgres service: `services:` `postgres:` `image: postgres:16`, `env:` `POSTGRES_USER: shopnotes`, `POSTGRES_PASSWORD: shopnotes`, `POSTGRES_DB: shopnotes`, `ports: ['5432:5432']`, `options: --health-cmd \"pg_isready -U shopnotes\" --health-interval 5s --health-timeout 3s --health-retries 10`. This password is only for the throw-away CI database.",
+        "In the `test` job set `env:` `DATABASE_URL: postgresql://shopnotes:shopnotes@localhost:5432/shopnotes` and `defaults:` `run:` `working-directory: api`.",
+        "Steps of the `test` job: `- uses: actions/checkout@v4`; `- uses: actions/setup-python@v5` with `python-version: '3.12'`, `cache: pip`, `cache-dependency-path: api/requirements*.txt`; `- run: pip install -r requirements.txt -r requirements-dev.txt`; `- run: ruff check .`; `- run: psql \"$DATABASE_URL\" -f ../db/schema.sql`; `- run: pytest -q`.",
+        "Push the workflow in a branch `ci/add-tests` and open a PR. Open the Checks tab and watch the job. Every step must be green.",
+        "Prove the check works: in the same branch break a test on purpose (for example expect 200 instead of 400), push, and see the red X on the PR. Read the error in the log. Then fix it, push again and merge when green."
+      ],
+      "acceptance": [
+        "`ruff check .` and `pytest -q` pass on your laptop.",
+        "The `test` job runs on every pull request and on pushes to main.",
+        "The database tests really run in CI (pytest shows 3 passed, not skipped).",
+        "A broken test made the PR check red, and the fixed version made it green."
+      ],
+      "evidence": [
+        "Link to a green workflow run",
+        "Link to the red workflow run from the broken test",
+        "Link to `.github/workflows/ci.yml` on GitHub"
+      ],
+      "hints": [
+        "YAML needs spaces, not tabs, and the indentation must be exact. Use an editor with YAML support.",
+        "If pytest says `ModuleNotFoundError: No module named 'app'`, check `pythonpath = .` in `api/pytest.ini`.",
+        "The service container is reachable on `localhost:5432` because the job runs directly on the runner and we mapped the port."
+      ],
+      "explain": {
+        "en": "In this task I added CI with GitHub Actions. On every pull request a job checks out the code, sets up Python 3.12 with a pip cache, runs ruff for linting and runs pytest. The tests use a real Postgres 16 service container, so I also test the database code, not only simple functions. I made a test fail on purpose to see the red check, then fixed it. Now broken code cannot be merged without everyone seeing it.",
+        "hi": "Is task mein maine GitHub Actions se CI add kiya. Har pull request par ek job code checkout karta hai, pip cache ke saath Python 3.12 setup karta hai, linting ke liye ruff chalata hai aur pytest chalata hai. Tests ek asli Postgres 16 service container use karte hain, isliye database wala code bhi test hota hai, sirf simple functions nahi. Maine jaan bujh kar ek test fail karke red check dekha, phir fix kiya. Ab toota hua code bina sabko dikhe merge nahi ho sakta."
+      },
+      "vocabulary": [
+        {
+          "term": "CI (continuous integration)",
+          "en": "every change is built and tested automatically",
+          "hi": "har change apne aap build aur test hota hai"
+        },
+        {
+          "term": "workflow",
+          "en": "a YAML file in .github/workflows that GitHub Actions runs",
+          "hi": ".github/workflows mein YAML file jise GitHub Actions chalata hai"
+        },
+        {
+          "term": "runner",
+          "en": "the machine that runs the jobs of a workflow",
+          "hi": "woh machine jo workflow ke jobs chalati hai"
+        },
+        {
+          "term": "linter",
+          "en": "a tool that finds mistakes and bad style in code without running it",
+          "hi": "tool jo code chalaye bina galtiyan aur kharab style dhoondhta hai"
+        },
+        {
+          "term": "service container",
+          "en": "a helper container, like a database, that runs next to a CI job",
+          "hi": "helper container, jaise database, jo CI job ke saath chalta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What does your CI pipeline check?",
+          "a": "On every pull request it runs ruff to find code mistakes and pytest to run the tests. The tests use a real Postgres service container, so the SQL is tested too. If any step fails, the pull request shows a red check and we do not merge."
+        },
+        {
+          "q": "Why use a real database in CI and not only mocks?",
+          "a": "Mocks can hide real problems like a wrong column name or bad SQL. A Postgres service container starts in seconds on the runner and is thrown away after the job. So I get real results with no cost and no shared test database."
+        },
+        {
+          "q": "How did you make the pipeline faster?",
+          "a": "I used the pip cache in actions/setup-python, so packages are not downloaded every time. I also set concurrency with cancel-in-progress, so an old run stops when I push a new commit to the same branch."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: Workflow syntax for GitHub Actions",
+          "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax"
+        },
+        {
+          "title": "GitHub Docs: Creating PostgreSQL service containers",
+          "url": "https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers"
+        },
+        {
+          "title": "Ruff documentation",
+          "url": "https://docs.astral.sh/ruff/"
+        }
+      ]
+    },
+    {
+      "id": "s03-t02",
+      "key": "OPS-302",
+      "type": "project",
+      "title": "Build, scan and push both images in the pipeline",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "After the tests pass, CI builds the API and web images, stops on HIGH or CRITICAL findings, and pushes tagged images to ghcr.io.",
+      "context": "Hi, pushing images from laptops must stop; nobody knows what code is inside. Please make CI build both images, scan them with Trivy and push them to ghcr.io with clear tags: the PR number, the commit, and the version for releases. A failed scan must stop the push.",
+      "steps": [
+        "In `.github/workflows/ci.yml` add a second job `build` with `needs: test`, `runs-on: ubuntu-24.04` and job permissions `permissions:` `contents: read` and `packages: write`. Only this job can write packages.",
+        "Build both images with a matrix: `strategy:` `matrix:` `service: [api, web]`. The job runs two times, once for each folder.",
+        "Steps 1 and 2: `- uses: actions/checkout@v4` and `- uses: docker/setup-buildx-action@v3`.",
+        "Step 3, the tags: `- uses: docker/metadata-action@v5` with `id: meta` and `with:` `images: ghcr.io/${{ github.repository_owner }}/shopnotes-${{ matrix.service }}` and `tags: |` with these lines: `type=ref,event=pr`, `type=ref,event=branch`, `type=sha,prefix=`, `type=semver,pattern={{version}}`, `type=semver,pattern={{major}}.{{minor}}`. A PR gives `pr-12`, main gives `main`, every build gives the 7-letter commit id, and a tag `v1.2.3` gives `1.2.3` and `1.2`.",
+        "Step 4, build for the scan: `- uses: docker/build-push-action@v6` with `context: ${{ matrix.service }}`, `load: true`, `tags: scan-me:${{ matrix.service }}`, `cache-from: type=gha,scope=${{ matrix.service }}`, `cache-to: type=gha,mode=max,scope=${{ matrix.service }}`.",
+        "Step 5, install Trivy: `- run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin`.",
+        "Step 6, the security gate: `- run: trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed scan-me:${{ matrix.service }}`. The job stops here if the scan finds a problem. Trivy runs in the repo root, so it reads your `.trivyignore`.",
+        "Step 7, log in: `- uses: docker/login-action@v3` with `registry: ghcr.io`, `username: ${{ github.actor }}`, `password: ${{ secrets.GITHUB_TOKEN }}`. GITHUB_TOKEN is created by GitHub for each run and ends with the run. No personal token is needed.",
+        "Step 8, push: `- uses: docker/build-push-action@v6` with `context: ${{ matrix.service }}`, `push: true`, `tags: ${{ steps.meta.outputs.tags }}`, `labels: ${{ steps.meta.outputs.labels }}`, `cache-from: type=gha,scope=${{ matrix.service }}`. It uses the cache, so it does not build again from zero.",
+        "Open a PR. Check the run: `test`, then `build (api)` and `build (web)`. After it is green, open the package pages and find the new tags `pr-<number>` and the commit id.",
+        "Test the gate: in a test branch change `api/Dockerfile` to an old base image such as `python:3.8-slim`, push, and see the scan stop the job before the push step. Close that PR without merging.",
+        "Merge the real PR. On main, check that the `main` tag and the commit tag appear on both packages.",
+        "Pull one image by its commit id to prove it: `docker pull ghcr.io/<your-github-user>/shopnotes-api:<7-letter-sha>`."
+      ],
+      "acceptance": [
+        "The `build` job runs only after `test` passes, for both `api` and `web`.",
+        "A PR creates images tagged `pr-<number>` and `<7-letter-sha>`; a push to main creates `main` and `<7-letter-sha>`.",
+        "An image with HIGH or CRITICAL findings is not pushed (you showed this with the old base image).",
+        "No personal token is stored in the repo secrets; the job uses GITHUB_TOKEN.",
+        "The second build in the job uses the cache (the log shows `CACHED` steps)."
+      ],
+      "evidence": [
+        "Link to a green run with test and both build jobs",
+        "Link to the run where the Trivy gate stopped the push",
+        "Screenshot of a package page with the pr, main and sha tags"
+      ],
+      "hints": [
+        "If push fails with 403 or `permission_denied`, open the package > Package settings > Manage Actions access, add the shopnotes repo and give it the Write role.",
+        "PRs from forks get a read-only GITHUB_TOKEN, so they cannot push. That is on purpose for safety.",
+        "Image names must be lowercase. If your GitHub user has capital letters, write the owner part in lowercase by hand."
+      ],
+      "explain": {
+        "en": "In this task I extended the CI pipeline to build, scan and push our images. After the tests pass, a matrix job builds the api and web images with Docker Buildx and the GitHub Actions cache. Trivy scans each image and stops the job on fixable HIGH or CRITICAL findings, so a bad image is never pushed. docker/metadata-action makes clear tags: the PR number, the commit id, main and the version for release tags. The job logs in to ghcr.io with the short-lived GITHUB_TOKEN, so we store no personal token.",
+        "hi": "Is task mein maine CI pipeline ko images build, scan aur push karne ke liye badhaya. Tests pass hone ke baad ek matrix job Docker Buildx aur GitHub Actions cache ke saath api aur web images build karta hai. Trivy har image scan karta hai aur fixable HIGH ya CRITICAL finding milne par job rok deta hai, isliye kharab image kabhi push nahi hoti. docker/metadata-action saaf tags banata hai: PR number, commit id, main aur release tags ke liye version. Job thodi der wale GITHUB_TOKEN se ghcr.io mein login karta hai, isliye koi personal token store nahi karna padta."
+      },
+      "vocabulary": [
+        {
+          "term": "matrix",
+          "en": "one job definition that runs many times with different values",
+          "hi": "ek job definition jo alag values ke saath kai baar chalti hai"
+        },
+        {
+          "term": "GITHUB_TOKEN",
+          "en": "a token GitHub creates for each workflow run; it ends when the run ends",
+          "hi": "token jo GitHub har workflow run ke liye banata hai; run khatam to token khatam"
+        },
+        {
+          "term": "Buildx",
+          "en": "the Docker build tool with cache and multi-platform support",
+          "hi": "Docker ka build tool jisme cache aur multi-platform support hai"
+        },
+        {
+          "term": "needs",
+          "en": "a workflow setting that makes a job wait for another job",
+          "hi": "workflow setting jo ek job ko dusre job ka intezaar karwati hai"
+        },
+        {
+          "term": "immutable tag",
+          "en": "a tag that always points to the same image, like a commit id",
+          "hi": "tag jo hamesha ek hi image ko point karta hai, jaise commit id"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you scan the image before you push it?",
+          "a": "If I push first, a bad image is already in the registry and someone could deploy it. So I build with load: true, scan the local image, and only push if the scan passes. The push uses the build cache, so the second build takes seconds."
+        },
+        {
+          "q": "How do you tag images in CI?",
+          "a": "I use docker/metadata-action. Every build gets the short commit id, which never changes and tells me the exact code. Pull requests also get pr-<number>, main gets main, and a git tag v1.2.3 gives 1.2.3 and 1.2. We deploy by commit id or version, never by latest."
+        },
+        {
+          "q": "How does the pipeline log in to the registry?",
+          "a": "It uses the GITHUB_TOKEN that GitHub makes for each run. I gave only the build job packages: write, and the rest of the workflow has contents: read. The token ends when the run ends, so there is no long-lived secret to leak."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Docker Docs: GitHub Actions with Docker",
+          "url": "https://docs.docker.com/build/ci/github-actions/"
+        },
+        {
+          "title": "docker/metadata-action on GitHub",
+          "url": "https://github.com/docker/metadata-action"
+        },
+        {
+          "title": "GitHub Docs: Publishing Docker images",
+          "url": "https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images"
+        }
+      ]
+    },
+    {
+      "id": "s03-t03",
+      "key": "OPS-303",
+      "type": "task",
+      "title": "Protect main and release with semantic version tags",
+      "priority": "medium",
+      "estimateHours": 4,
+      "goal": "Nobody can push to main directly or merge a red PR, and each release is a git tag like v0.2.0 that creates matching image tags.",
+      "context": "Hi, yesterday someone pushed straight to main and skipped CI. Please protect main: only pull requests with green checks can go in. Also start real releases with semantic version tags, so we can say exactly which version runs on a server.",
+      "steps": [
+        "Branch rules are free for public repos. Your shopnotes repo is public; keep it public (for a private repo you would need a paid plan).",
+        "On GitHub open the repo > Settings > Rules > Rulesets > New ruleset > New branch ruleset. Name: `protect-main`. Enforcement status: Active. Target branches: Add target > Include default branch.",
+        "Turn on these rules: Restrict deletions; Block force pushes; Require a pull request before merging (set required approvals to 0 if you work alone, 1 in a real team); Require status checks to pass, then Add checks: `test`, `build (api)` and `build (web)`. Save.",
+        "Test the rule: on main make a small commit and run `git push origin main`. It must be rejected with a message about repository rule violations. Undo the local commit with `git reset --hard origin/main`.",
+        "Learn semantic versioning: `MAJOR.MINOR.PATCH`. PATCH (0.2.1) is a bug fix, MINOR (0.3.0) is a new feature that does not break users, MAJOR (1.0.0) is a breaking change. Below 1.0.0 the API can still change.",
+        "Create `CHANGELOG.md` with a heading `## v0.2.0` and the main changes of this sprint (Docker images, CI tests, image scan). Merge it with a PR.",
+        "Create the release tag on the merged main: `git switch main && git pull`, `git tag -a v0.2.0 -m \"ShopNotes 0.2.0: CI with tests and image scan\"`, `git push origin v0.2.0`.",
+        "Watch the workflow run for the tag. When it is green, check the packages: both images now have the tags `0.2.0` and `0.2`.",
+        "Create a GitHub release from the tag: Releases > Draft a new release > choose `v0.2.0` > Generate release notes > Publish. Or with GitHub CLI: `gh release create v0.2.0 --generate-notes`.",
+        "See all tags: `git tag -l` and `git show v0.2.0`. Write the release steps in `docs/release.md` (3 to 6 lines) and merge with a PR."
+      ],
+      "acceptance": [
+        "A direct push to main is rejected by the ruleset.",
+        "A PR cannot be merged while `test` or a `build` check is red.",
+        "Tag `v0.2.0` exists and the images have tags `0.2.0` and `0.2`.",
+        "A GitHub release v0.2.0 with notes exists.",
+        "`CHANGELOG.md` and `docs/release.md` are on main."
+      ],
+      "evidence": [
+        "Output of the rejected `git push origin main`",
+        "Screenshot of the ruleset rules",
+        "Link to the v0.2.0 release page"
+      ],
+      "hints": [
+        "Status checks appear in the Add checks list only after they ran at least once in the last days.",
+        "With a matrix, the check names include the value, like `build (api)`.",
+        "Tag only commits that are already on main and green."
+      ],
+      "explain": {
+        "en": "In this task I protected the main branch with a GitHub ruleset. Direct pushes and force pushes are blocked, and a pull request can merge only when the test and build checks are green. I tested the rule with a direct push and it was rejected. Then I started semantic versioning: I wrote a changelog, pushed the annotated tag v0.2.0, and CI made the image tags 0.2.0 and 0.2. Last, I created a GitHub release with generated notes and wrote the release steps down.",
+        "hi": "Is task mein maine GitHub ruleset se main branch ko protect kiya. Direct push aur force push block hain, aur pull request tabhi merge hoga jab test aur build checks green honge. Maine direct push karke rule test kiya aur woh reject hua. Phir semantic versioning shuru ki: changelog likha, annotated tag v0.2.0 push kiya, aur CI ne image tags 0.2.0 aur 0.2 banaye. Aakhir mein generated notes ke saath GitHub release banaya aur release ke steps likh diye."
+      },
+      "vocabulary": [
+        {
+          "term": "ruleset",
+          "en": "GitHub rules that protect branches, like no direct push",
+          "hi": "GitHub ke rules jo branches ko protect karte hain, jaise direct push mana"
+        },
+        {
+          "term": "status check",
+          "en": "a CI result that GitHub shows on a pull request",
+          "hi": "CI ka result jo GitHub pull request par dikhata hai"
+        },
+        {
+          "term": "semantic versioning",
+          "en": "version numbers MAJOR.MINOR.PATCH that show what kind of change it is",
+          "hi": "MAJOR.MINOR.PATCH version numbers jo batate hain change kis type ka hai"
+        },
+        {
+          "term": "annotated tag",
+          "en": "a git tag with a message, an author and a date",
+          "hi": "message, author aur date wala git tag"
+        },
+        {
+          "term": "changelog",
+          "en": "a file that lists what changed in each version",
+          "hi": "file jo batati hai har version mein kya badla"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How did you protect the main branch?",
+          "a": "I made a GitHub ruleset for the default branch. It blocks force pushes and deletion, needs a pull request, and needs the test and build checks to be green. I tested it with a direct push and GitHub rejected it."
+        },
+        {
+          "q": "What is semantic versioning?",
+          "a": "A version has three numbers: MAJOR.MINOR.PATCH. I raise PATCH for a bug fix, MINOR for a new feature that does not break anything, and MAJOR for a breaking change. So people know from the number how risky an upgrade is."
+        },
+        {
+          "q": "What happens in your pipeline when you push a tag?",
+          "a": "The workflow listens for tags like v*.*.*. It runs the tests and the scan again, then docker/metadata-action makes image tags from the git tag, for example 0.2.0 and 0.2. So the image version always matches the code version."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: About rulesets",
+          "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets"
+        },
+        {
+          "title": "Semantic Versioning 2.0.0",
+          "url": "https://semver.org/"
+        },
+        {
+          "title": "Git Book: Tagging",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Tagging"
+        }
+      ]
+    },
+    {
+      "id": "s03-t04",
+      "key": "OPS-304",
+      "type": "task",
+      "title": "Run the same pipeline in Jenkins on Docker",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A Jenkins server in Docker runs a Jenkinsfile from the repo that tests, builds, scans and pushes the API and web images.",
+      "context": "Hi, our biggest customer runs Jenkins, and many companies here still do. Please run Jenkins in Docker on your laptop and make the same pipeline as a Jenkinsfile: test, build, scan, push. Keep the registry token in Jenkins credentials, never in the Jenkinsfile.",
+      "steps": [
+        "Make a folder outside the repo: `mkdir -p ~/jenkins-lab && cd ~/jenkins-lab`. Create a `Dockerfile` that adds the Docker CLI to Jenkins: `FROM jenkins/jenkins:lts-jdk21`, `USER root`, then one RUN line: `RUN apt-get update && apt-get install -y ca-certificates curl && install -m 0755 -d /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && chmod a+r /etc/apt/keyrings/docker.asc && echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo $VERSION_CODENAME) stable\" > /etc/apt/sources.list.d/docker.list && apt-get update && apt-get install -y docker-ce-cli docker-buildx-plugin && rm -rf /var/lib/apt/lists/*`.",
+        "End the Dockerfile with `USER jenkins` and `RUN jenkins-plugin-cli --plugins docker-workflow`. Build it: `docker build -t shopnotes-jenkins .`.",
+        "Start Jenkins with your laptop Docker socket, so pipelines can run docker commands: `docker run -d --name jenkins --restart unless-stopped -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --group-add $(stat -c '%g' /var/run/docker.sock) shopnotes-jenkins`. Stop your Compose stack first if port 8080 is used (`docker compose down` in the shopnotes folder).",
+        "Security note: access to docker.sock is the same as root on your laptop. This is OK for a lab on your own machine. Companies use separate build agents instead.",
+        "Get the first admin password: `docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword`. Open http://localhost:8080, paste it, choose Install suggested plugins, and create your admin user.",
+        "Add the registry token: Manage Jenkins > Credentials > System > Global credentials > Add Credentials. Kind: Username with password. Username: your GitHub user. Password: a classic token with `write:packages`. ID: `ghcr`.",
+        "Create `Jenkinsfile` in the repo root. Start with `pipeline {`, `agent any`, `environment { REGISTRY = 'ghcr.io/<your-github-user>'; TAG = \"jenkins-${env.BUILD_NUMBER}\" }`, `options { timeout(time: 20, unit: 'MINUTES') }`.",
+        "Stage `Lint and test` runs inside a Python container: `stage('Lint and test') { agent { docker { image 'python:3.12-slim'; reuseNode true } } steps { dir('api') { sh 'python -m venv /tmp/venv && /tmp/venv/bin/pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt && /tmp/venv/bin/ruff check . && /tmp/venv/bin/pytest -q' } } }`. The database tests are skipped here because there is no DATABASE_URL.",
+        "Stage `Build`: `steps { sh 'for s in api web; do docker build -t $REGISTRY/shopnotes-$s:$TAG ./$s; done' }`.",
+        "Stage `Scan` uses the official Trivy image, with a cache volume so the database is not downloaded every time: `steps { sh 'for s in api web; do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/ aquasec/trivy:latest image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed $REGISTRY/shopnotes-$s:$TAG; done' }`.",
+        "Stage `Push`: `steps { withCredentials([usernamePassword(credentialsId: 'ghcr', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) { sh 'echo \"$GH_TOKEN\" | docker login ghcr.io -u \"$GH_USER\" --password-stdin && for s in api web; do docker push $REGISTRY/shopnotes-$s:$TAG; done' } }`. Use single quotes around the sh command, so Groovy does not put the secret into the command text.",
+        "Close with `post { always { sh 'docker logout ghcr.io || true' } }` and the last `}`. Commit the Jenkinsfile through a PR and merge it.",
+        "Create the job: New Item > name `shopnotes` > Pipeline > OK. Under Pipeline choose Pipeline script from SCM, SCM Git, Repository URL `https://github.com/<your-github-user>/shopnotes.git`, Branch `*/main`, Script Path `Jenkinsfile`. Under Triggers tick Poll SCM with `H/5 * * * *` (GitHub webhooks cannot reach your laptop).",
+        "Click Build Now. Open the build > Console Output and follow each stage. When it is green, check the `jenkins-<number>` tags on your ghcr.io packages."
+      ],
+      "acceptance": [
+        "Jenkins runs at http://localhost:8080 from your own image and keeps its data in the `jenkins_home` volume.",
+        "The `Jenkinsfile` is in the repo and has the stages Lint and test, Build, Scan, Push.",
+        "A build is green and both packages have a `jenkins-<number>` tag.",
+        "The token is stored only in Jenkins credentials (ID `ghcr`) and is masked as `****` in the console log.",
+        "Jenkins starts a build by itself within 5 minutes after you merge a change to main."
+      ],
+      "evidence": [
+        "Screenshot of the green stage view of the shopnotes job",
+        "The Console Output of the Push stage (with the masked token)",
+        "Link to the Jenkinsfile on GitHub"
+      ],
+      "hints": [
+        "`permission denied` on `/var/run/docker.sock` inside Jenkins means the `--group-add` value is wrong. Check `stat -c '%g' /var/run/docker.sock` and start the container again.",
+        "If the Python stage cannot write files, keep the venv in `/tmp` like in the step; the workspace user is not root.",
+        "In companies you would use a Multibranch Pipeline, so every branch and PR gets its own build."
+      ],
+      "explain": {
+        "en": "In this task I built the same pipeline in Jenkins, because many companies use it. I made a Jenkins image with the Docker CLI and ran it in Docker with the host Docker socket. My Jenkinsfile has four stages: lint and test inside a python:3.12-slim container, build both images, scan them with the Trivy image, and push them to ghcr.io. The registry token is a Jenkins credential, used with withCredentials, so it is masked in the logs. The job reads the Jenkinsfile from GitHub and polls for changes every five minutes.",
+        "hi": "Is task mein maine wahi pipeline Jenkins mein banayi, kyunki bahut companies Jenkins use karti hain. Maine Docker CLI wali Jenkins image banayi aur host ke Docker socket ke saath Docker mein chalayi. Mere Jenkinsfile mein chaar stages hain: python:3.12-slim container ke andar lint aur test, dono images build, Trivy image se scan, aur ghcr.io par push. Registry token Jenkins credential hai jo withCredentials se use hota hai, isliye logs mein masked dikhta hai. Job GitHub se Jenkinsfile padhta hai aur har paanch minute mein changes check karta hai."
+      },
+      "vocabulary": [
+        {
+          "term": "Jenkinsfile",
+          "en": "a file in the repo that describes a Jenkins pipeline as code",
+          "hi": "repo mein file jo Jenkins pipeline ko code ki tarah describe karti hai"
+        },
+        {
+          "term": "stage",
+          "en": "one named step group in a pipeline, like Build or Scan",
+          "hi": "pipeline mein ek naam wala steps ka group, jaise Build ya Scan"
+        },
+        {
+          "term": "credentials",
+          "en": "secrets that Jenkins stores safely and gives to a job when needed",
+          "hi": "secrets jo Jenkins safe rakhta hai aur zaroorat par job ko deta hai"
+        },
+        {
+          "term": "Poll SCM",
+          "en": "Jenkins checks the repo on a schedule and builds when it changed",
+          "hi": "Jenkins schedule par repo check karta hai aur change hone par build karta hai"
+        },
+        {
+          "term": "Docker socket",
+          "en": "the file /var/run/docker.sock that lets a program control Docker",
+          "hi": "/var/run/docker.sock file jisse koi program Docker ko control kar sakta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between GitHub Actions and Jenkins?",
+          "a": "GitHub Actions is hosted by GitHub and starts from events in the repo, with YAML workflows. Jenkins is a server that the company runs itself, with a Groovy Jenkinsfile and many plugins. Jenkins gives more control but you must update and secure the server yourself."
+        },
+        {
+          "q": "How do you keep secrets safe in Jenkins?",
+          "a": "I store the token as a Jenkins credential and use it only inside withCredentials. Jenkins masks the value in the console log. I write the sh command in single quotes, so Groovy does not put the secret into the command string."
+        },
+        {
+          "q": "Why did you use a docker agent for the test stage?",
+          "a": "The Jenkins image does not have the right Python. With agent docker and python:3.12-slim the tests run in a clean container with the same Python as our image. reuseNode true keeps the same workspace, so the code is already there."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Jenkins: Installing Jenkins with Docker",
+          "url": "https://www.jenkins.io/doc/book/installing/docker/"
+        },
+        {
+          "title": "Jenkins: Using a Jenkinsfile",
+          "url": "https://www.jenkins.io/doc/book/pipeline/jenkinsfile/"
+        },
+        {
+          "title": "Jenkins: Using Docker with Pipeline",
+          "url": "https://www.jenkins.io/doc/book/pipeline/docker/"
+        }
+      ]
+    },
+    {
+      "id": "s03-t05",
+      "key": "OPS-305",
+      "type": "docs",
+      "title": "Document the CI/CD pipelines",
+      "priority": "low",
+      "estimateHours": 3,
+      "goal": "One page explains both pipelines, where secrets live, how to read a failure and how to make a release.",
+      "context": "Hi, developers see red checks and do not know what to do. Please write a short page about our pipelines: what runs when, what each step checks, where the secrets are, and how to make a release. Add a CI badge to the README.",
+      "steps": [
+        "Create `docs/ci.md` with the headings: Overview, GitHub Actions pipeline, Jenkins pipeline, Secrets, When a check is red, How to release, GitHub Actions vs Jenkins.",
+        "Overview: a text diagram of the flow `PR -> test (ruff, pytest + postgres) -> build api/web -> Trivy scan -> push to ghcr.io`, and when it runs (PR, push to main, tag v*.*.*).",
+        "GitHub Actions pipeline: a table with Job, What it does, Runs on (PR, main, tag). Also list the image tags each event makes.",
+        "Jenkins pipeline: the stages, how the job finds the Jenkinsfile, and the Poll SCM trigger.",
+        "Secrets: GITHUB_TOKEN (made per run, packages: write only in build), Jenkins credential `ghcr` (classic token, 30 days). Write who can change them and when the Jenkins token expires.",
+        "When a check is red: 3 to 5 lines. Open the failed job, read the first red step, run the same command on your laptop (`ruff check .`, `pytest -q`, `trivy image ...`), fix and push again. Never merge red.",
+        "How to release: copy the steps from `docs/release.md` (OPS-303).",
+        "GitHub Actions vs Jenkins: a small table with Hosting, Config file, Secrets, Triggers, Who maintains it.",
+        "Add the CI badge to the top of README.md: `![ci](https://github.com/<your-github-user>/shopnotes/actions/workflows/ci.yml/badge.svg)`. Link `docs/ci.md` from the README.",
+        "Merge through a PR."
+      ],
+      "acceptance": [
+        "`docs/ci.md` has all 7 headings.",
+        "The page lists every secret, where it is stored and when it expires.",
+        "The README shows a green CI badge and links to `docs/ci.md`."
+      ],
+      "evidence": [
+        "Link to `docs/ci.md` on GitHub",
+        "Screenshot of the README with the badge"
+      ],
+      "hints": [
+        "Use the job and stage names exactly as they appear in the UI.",
+        "Keep it short. People read it when a check is red and they are in a hurry."
+      ],
+      "explain": {
+        "en": "In this task I documented our two CI/CD pipelines. The page shows the flow from pull request to image push, what each job checks and which image tags each event makes. I listed every secret, where it is stored and when it expires. I wrote clear steps for what to do when a check is red, and how to make a release. I also compared GitHub Actions and Jenkins in a small table and added a CI badge to the README.",
+        "hi": "Is task mein maine apni do CI/CD pipelines ka documentation likha. Page par pull request se image push tak ka flow hai, har job kya check karta hai aur har event se kaunse image tags bante hain. Har secret ki list banayi, woh kahan store hai aur kab expire hoga. Check red hone par kya karna hai aur release kaise karni hai, iske saaf steps likhe. GitHub Actions aur Jenkins ki ek chhoti comparison table bhi banayi aur README mein CI badge lagaya."
+      },
+      "vocabulary": [
+        {
+          "term": "CD (continuous delivery)",
+          "en": "every green change is ready to be released at any time",
+          "hi": "har green change kabhi bhi release hone ke liye ready rehta hai"
+        },
+        {
+          "term": "badge",
+          "en": "a small image in the README that shows the pipeline status",
+          "hi": "README mein chhoti image jo pipeline ka status dikhati hai"
+        },
+        {
+          "term": "token expiry",
+          "en": "the date after which a token stops working",
+          "hi": "woh date jiske baad token kaam karna band kar deta hai"
+        },
+        {
+          "term": "trigger",
+          "en": "the event that starts a pipeline, like a push or a tag",
+          "hi": "woh event jo pipeline start karta hai, jaise push ya tag"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What do you tell a developer whose PR check is red?",
+          "a": "Open the failed job and read the first red step, not the last line. Run the same command on the laptop, for example pytest -q or ruff check. Fix it, push again, and wait for green. We never merge a red pull request."
+        },
+        {
+          "q": "Where are the secrets of your pipelines?",
+          "a": "GitHub Actions uses the GITHUB_TOKEN, which GitHub makes for each run, so we store no token. Jenkins has one credential with a classic token that expires after 30 days. I wrote in the docs who owns it and when to renew it."
+        },
+        {
+          "q": "What is the difference between continuous integration and continuous delivery?",
+          "a": "Continuous integration means every change is built and tested automatically. Continuous delivery means every green change also produces a release-ready artifact, here a scanned image in the registry. Deploying it to servers comes next, in a later sprint."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: Adding a workflow status badge",
+          "url": "https://docs.github.com/en/actions/how-tos/monitor-workflows/add-a-status-badge"
+        },
+        {
+          "title": "GitHub Docs: Automatic token authentication (GITHUB_TOKEN)",
+          "url": "https://docs.github.com/en/actions/concepts/security/github_token"
+        }
+      ]
+    }
+  ]
+}

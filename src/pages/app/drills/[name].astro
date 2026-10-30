@@ -1,0 +1,34 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import CoachChat from '../../../components/CoachChat.astro';
+import { drillByName } from '../../../lib/curriculum';
+import { drillResults, thread } from '../../../lib/db';
+import { md } from '../../../lib/md';
+const d = drillByName(Astro.params.name!);
+if (!d) return new Response('Not found', { status: 404 });
+const u = Astro.locals.user!; const db = env.DB;
+const mine = (await drillResults(db, u.id)).filter((r) => r.drill === d.name);
+const solved = mine.some((r) => r.verdict === 'correct');
+const chat = await thread(db, u.id, `drill:${d.name}:chat`, 10);
+---
+<Base title={d.title}>
+  <p class="help"><a href="/app/drills">Incidents</a> › {d.name}</p>
+  <h1>{d.title}</h1>
+  <div class="card"><pre style="margin:0 0 10px">cd drills/{d.name} && docker compose up -d</pre><div set:html={md(d.readme)} /></div>
+  <div class="tabs"><button class="on">Submit root cause</button><button>Ask coach</button>{(solved || mine.length >= 2) && <button>Solution</button>}</div>
+  <div class="tab">
+    <div class="card">
+      <form data-api action="/api/drill" method="post" data-out="drill-out"><input type="hidden" name="drill" value={d.name} />
+        <label>What was the root cause? (1-3 sentences)</label><textarea name="root_cause" required minlength="15" placeholder="Nginx was sending traffic to port 5001 but the app listens on 5000."></textarea>
+        <label>How did you fix it? (commands or steps)</label><textarea name="fix" placeholder="Changed proxy_pass to http://app:5000 in nginx.conf and ran docker compose restart nginx"></textarea>
+        <label>How many minutes did it take?</label><input name="minutes" type="number" min="1" max="600" style="max-width:140px" />
+        <p><button class="btn ok" type="submit">Submit</button></p>
+      </form>
+      <div id="drill-out"></div>
+    </div>
+    {mine.length > 0 && <div class="card"><h3 style="margin-top:0">Your attempts</h3>{mine.map((r) => <p><span class={`pill ${r.verdict === 'correct' ? 'done' : r.verdict === 'partly' ? 'doing' : 'changes'}`}>{r.verdict}</span> {r.created_at} · {r.root_cause}<br/><span class="help">{r.feedback}</span></p>)}</div>}
+  </div>
+  <div class="tab"><CoachChat drill={d.name} history={chat} placeholder="Tell the coach what you checked. Example: 'I ran docker compose ps. All containers are up. What next?'" /></div>
+  {(solved || mine.length >= 2) && <div class="tab"><div class="card" set:html={md(d.solution)} /></div>}
+</Base>

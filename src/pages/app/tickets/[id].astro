@@ -1,0 +1,103 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import CoachChat from '../../../components/CoachChat.astro';
+import { ticketById, sprintOf, drillFor } from '../../../lib/curriculum';
+import { progressOne, thread, today } from '../../../lib/db';
+const t = ticketById(Astro.params.id!);
+if (!t) return new Response('Not found', { status: 404 });
+const u = Astro.locals.user!;
+const db = env.DB;
+const s = sprintOf(t.id)!;
+const p = await progressOne(db, u.id, t.id);
+const status = p?.status ?? 'todo';
+const checked = new Set<number>(JSON.parse(p?.checklist || '[]'));
+const evidence = JSON.parse(p?.evidence || '{}') as { links?: string[]; notes?: string };
+const chat = await thread(db, u.id, `ticket:${t.id}:chat`, 10);
+const drill = t.type === 'incident' ? drillFor(t) : undefined;
+const steps = s.tickets; const idx = steps.findIndex((x) => x.id === t.id);
+const prev = steps[idx - 1], next = steps[idx + 1];
+---
+<Base title={`${t.key} ${t.title}`}>
+  <p class="help"><a href="/app/sprints">Sprints</a> › <a href={`/app/sprints/${s.id}`}>Sprint {s.number}</a> › {t.key}</p>
+  <div class="row" style="justify-content:space-between;align-items:flex-start">
+    <div><h1>{t.title}</h1><div class="row"><span class={`pill ${t.type}`}>{t.type}</span><span class={`pill ${status}`}>{status === 'changes' ? 'fix needed' : status === 'review' ? 'in review' : status}</span><span class="help">priority {t.priority} · ~{t.estimateHours} h · logged {p?.hours ?? 0} h</span></div></div>
+    {status === 'todo' && <form data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="start" /><button class="btn" type="submit">Start this ticket</button></form>}
+  </div>
+  {status === 'changes' && <div class="notice warn"><strong>Reviewer asked for changes:</strong> {p?.reviewer_note}</div>}
+  {status === 'done' && <div class="notice ok"><strong>Approved.</strong> {p?.reviewer_note}</div>}
+  {status === 'review' && <div class="notice">Submitted. Waiting for the reviewer. You can start the next ticket.</div>}
+
+  <div class="tabs">
+    <button class="on">Ticket</button><button>Explain it</button><button>Interview</button><button>Proof & hours</button><button>Ask coach</button>
+  </div>
+
+  <div class="tab on">
+    <div class="card"><p><strong>Goal:</strong> {t.goal}</p><blockquote style="margin:0;border-left:3px solid var(--line);padding-left:12px;color:var(--muted)">{t.context}</blockquote></div>
+    {drill && <div class="notice warn"><strong>Incident drill:</strong> this ticket uses <a href={`/app/drills/${drill}`}>drills/{drill}</a>. Open it, start the broken system on your laptop, find the cause, then come back and submit.</div>}
+    <h2>Steps</h2>
+    <div class="card"><ol class="steps">{t.steps.map((st) => <li set:html={st.replace(/</g,'&lt;').replace(/`([^`]+)`/g, '<code>$1</code>')} />)}</ol></div>
+    <h2>Done means</h2>
+    <div class="card">
+      <form id="ckform" data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="checklist" />
+        <ul class="check">{t.acceptance.map((a, i) => <li><label><input type="checkbox" name="checked[]" value={i} checked={checked.has(i)} /> <span>{a}</span></label></li>)}</ul>
+        <button type="submit" hidden>save</button>
+      </form>
+      <p class="help">Tick each line when it is true. Saved automatically.</p>
+    </div>
+    {t.hints.length > 0 && <details class="card"><summary><strong>Stuck? Open the hints</strong></summary><ul class="steps">{t.hints.map((h) => <li>{h}</li>)}</ul></details>}
+    <h2>Words to know</h2>
+    <div class="card"><table><tbody>{t.vocabulary.map((v) => <tr><td><strong>{v.term}</strong></td><td>{v.en}</td><td class="hi">{v.hi}</td></tr>)}</tbody></table></div>
+    {t.resources.length > 0 && <p class="help">Read: {t.resources.map((r, i) => <>{i > 0 && ' · '}<a href={r.url} target="_blank" rel="noopener">{r.title}</a></>)}</p>}
+    <p class="row noprint">{prev && <a class="btn sec" href={`/app/tickets/${prev.id}`}>← {prev.key}</a>}{next && <a class="btn sec" href={`/app/tickets/${next.id}`}>{next.key} →</a>}</p>
+  </div>
+
+  <div class="tab">
+    <div class="card"><h3 style="margin-top:0">How an engineer says it</h3><p>{t.explain.en}</p><p class="hi">{t.explain.hi}</p></div>
+    <div class="card">
+      <h3 style="margin-top:0">Now you. Write what you did in your own words.</h3>
+      <p class="help">5 to 7 sentences. Start with "In this task I ...". Mistakes are fine, the coach will fix them. <span class="hi">Apne shabdon me likho. Galti chalegi, coach theek karega.</span></p>
+      <form data-api action="/api/coach" method="post" data-out="explain-out"><input type="hidden" name="mode" value="explain" /><input type="hidden" name="ticket" value={t.id} />
+        <textarea name="text" required minlength="30" placeholder="In this task I ...">{p?.explanation}</textarea>
+        <p class="row"><button class="btn" type="submit">Check my explanation</button>{p?.explain_score != null && <span class="help">Last score: {p.explain_score}/10</span>}</p>
+      </form>
+      <div id="explain-out"></div>
+    </div>
+  </div>
+
+  <div class="tab">
+    <p class="help">Interviewers ask these about this kind of work. Read the answer, then close it and say it yourself.</p>
+    {t.interview.map((q) => <details class="card"><summary><strong>{q.q}</strong></summary><p style="margin:10px 0 0">{q.a}</p></details>)}
+    <p><a class="btn sec" href={`/app/interview?scope=${s.id}`}>Mock interview on Sprint {s.number}</a></p>
+  </div>
+
+  <div class="tab">
+    <div class="card">
+      <h3 style="margin-top:0">Log your hours</h3>
+      <form data-api action={`/api/tickets/${t.id}`} method="post" class="row" style="align-items:flex-end"><input type="hidden" name="action" value="log" />
+        <div style="flex:0 0 110px"><label>Hours</label><input name="hours" type="number" step="0.25" min="0.25" max="12" value="2" required /></div>
+        <div style="flex:0 0 160px"><label>Day</label><input name="day" type="date" value={today()} required /></div>
+        <div style="flex:1 1 200px"><label>What did you do? (short)</label><input name="note" maxlength="300" placeholder="Wrote Dockerfile, fixed build error" /></div>
+        <div><button class="btn sec" type="submit">Add</button></div>
+      </form>
+      <p class="help">Be honest. Hours are checked against your Git activity when the experience letter is written.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Submit your proof</h3>
+      <p class="help">Needed: {t.evidence.join(' · ')}</p>
+      <form data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="submit" />
+        <label>Links (one per line: GitHub repo, commit, screenshot on Imgur/Drive, Grafana share link)</label><textarea name="links" placeholder="https://github.com/you/shopnotes&#10;https://i.imgur.com/..." >{(evidence.links || []).join('\n')}</textarea>
+        <label>Notes for the reviewer (what works, what was hard, command output)</label><textarea name="notes">{evidence.notes}</textarea>
+        <div class="out"></div>
+        <p><button class="btn ok" type="submit" disabled={status === 'review' || status === 'done'}>{status === 'done' ? 'Approved' : status === 'review' ? 'Submitted' : 'Submit for review'}</button></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="tab"><CoachChat ticket={t.id} history={chat} /></div>
+
+  <script>
+    const f = document.getElementById('ckform') as HTMLFormElement | null;
+    f?.querySelectorAll('input[type=checkbox]').forEach((c) => c.addEventListener('change', () => f.requestSubmit()));
+  </script>
+</Base>

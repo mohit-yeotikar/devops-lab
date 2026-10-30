@@ -1,0 +1,323 @@
+{
+  "id": "s09",
+  "number": 9,
+  "title": "Observability: metrics, logs and alerts",
+  "weeks": "17-18",
+  "theme": "See what ShopNotes is doing with Prometheus, Grafana, Loki and Alloy, and get an alert on your phone before users complain.",
+  "jobStory": "In this sprint you make ShopNotes observable. You install kube-prometheus-stack on the k3d cluster, add a /metrics endpoint to the API and build a RED dashboard in Grafana. You collect all pod logs with Alloy into Loki and search them with LogQL. Then you write alert rules, send alerts to Telegram or email, and define a 99.5% SLO, like the on-call team in a real company.",
+  "outcomes": [
+    "I installed Prometheus, Grafana and Alertmanager with the kube-prometheus-stack Helm chart.",
+    "I added Prometheus metrics to a Flask API and built a RED dashboard (rate, errors, duration).",
+    "I collected Kubernetes logs with Grafana Alloy into Loki and searched them with LogQL.",
+    "I wrote alert rules and routed alerts to Telegram or email through Alertmanager.",
+    "I defined a 99.5% availability SLO with an error budget and a burn-rate alert."
+  ],
+  "tickets": [
+    {
+      "id": "s09-t01",
+      "key": "OPS-901",
+      "type": "task",
+      "title": "Install kube-prometheus-stack on the k3d cluster",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Prometheus, Grafana and Alertmanager run in the `monitoring` namespace and show the CPU and memory of every node and pod.",
+      "context": "Hi, when something is slow we have no data, only guesses. Please install the standard monitoring stack on the dev cluster first. Use the community Helm chart, keep the data small because it runs on a laptop, and switch off the parts that do not work on k3s.",
+      "steps": [
+        "Check that your laptop has at least 6 GB free RAM. If not, delete the cluster and create it with 1 agent: `k3d cluster delete shopnotes && k3d cluster create shopnotes --agents 1 -p \"8080:80@loadbalancer\"` and let ArgoCD (OPS-803) bring the app back.",
+        "Add the chart repo: `helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update`.",
+        "Create `monitoring/kps-values.yaml` with: `kubeEtcd: {enabled: false}`, `kubeControllerManager: {enabled: false}`, `kubeScheduler: {enabled: false}`, `kubeProxy: {enabled: false}` (k3s runs these inside one process, so the default scrape targets fail), and `prometheus: {prometheusSpec: {retention: 3d, resources: {requests: {memory: 400Mi}}}}`.",
+        "Install: `helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f monitoring/kps-values.yaml`.",
+        "Wait for the pods: `kubectl get pods -n monitoring -w`. You should see Prometheus, Alertmanager, Grafana, kube-state-metrics, node-exporter and the operator.",
+        "Get the Grafana admin password: `kubectl get secret -n monitoring monitoring-grafana -o jsonpath='{.data.admin-password}' | base64 -d; echo`.",
+        "Open Grafana: `kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80` and go to http://localhost:3000 . Log in as `admin`.",
+        "Open the built-in dashboards: Dashboards, `Kubernetes / Compute Resources / Namespace (Pods)`, choose namespace `shopnotes-dev`. Look at CPU and memory per pod.",
+        "Open Prometheus: `kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090` and go to http://localhost:9090 . Open Status, Targets. All targets must be UP.",
+        "Run your first PromQL queries in Prometheus: `up`, `sum by (namespace) (rate(container_cpu_usage_seconds_total[5m]))`, `container_memory_working_set_bytes{namespace=\"shopnotes-dev\", container!=\"\"}`.",
+        "Better for GitOps: add an ArgoCD Application `gitops/monitoring.yaml` that installs the same chart with the values file, so monitoring is also in Git. Commit the values file and push."
+      ],
+      "acceptance": [
+        "`kubectl get pods -n monitoring` shows all pods Running.",
+        "Prometheus Status, Targets shows no DOWN targets.",
+        "Grafana shows CPU and memory for the pods in `shopnotes-dev`.",
+        "`monitoring/kps-values.yaml` is in Git and has no password in it."
+      ],
+      "evidence": [
+        "Screenshot of the Grafana namespace dashboard for `shopnotes-dev`",
+        "Screenshot of Prometheus Targets page",
+        "Link to `monitoring/kps-values.yaml`"
+      ],
+      "hints": [
+        "Service names start with the release name. If you named the release differently, run `kubectl get svc -n monitoring` to find the right name.",
+        "If Prometheus is OOMKilled, give it more memory or lower `retention` to 1d.",
+        "Do not expose Grafana with a public Ingress without a strong password and TLS."
+      ],
+      "explain": {
+        "en": "In this task I installed the kube-prometheus-stack Helm chart on our k3d cluster. It gives Prometheus for metrics, Grafana for dashboards and Alertmanager for alerts in one install. I turned off the etcd, scheduler and controller manager targets, because k3s runs them in one process and they show as down. I set a short retention so it fits on a laptop. Then I used the built-in dashboards and wrote my first PromQL queries for CPU and memory per pod.",
+        "hi": "Is task mein maine k3d cluster par kube-prometheus-stack Helm chart install kiya. Isse ek hi install mein metrics ke liye Prometheus, dashboards ke liye Grafana aur alerts ke liye Alertmanager mil jaate hain. etcd, scheduler aur controller manager targets off kiye, kyunki k3s inhe ek hi process mein chalata hai aur woh down dikhte hain. Retention chhota rakha taaki laptop par fit ho. Phir built-in dashboards dekhe aur pod ke CPU aur memory ke liye apni pehli PromQL queries likhi."
+      },
+      "vocabulary": [
+        { "term": "metric", "en": "a number measured again and again over time, like CPU use", "hi": "ek number jo time ke saath baar-baar measure hota hai, jaise CPU use" },
+        { "term": "Prometheus", "en": "a tool that pulls metrics from targets and stores them", "hi": "tool jo targets se metrics kheenchta hai aur store karta hai" },
+        { "term": "scrape", "en": "when Prometheus reads the metrics page of a target", "hi": "jab Prometheus kisi target ka metrics page padhta hai" },
+        { "term": "PromQL", "en": "the query language of Prometheus", "hi": "Prometheus ki query language" },
+        { "term": "retention", "en": "how long the data is kept before it is deleted", "hi": "data delete hone se pehle kitne time tak rakha jaata hai" }
+      ],
+      "interview": [
+        { "q": "What does kube-prometheus-stack install?", "a": "It installs the Prometheus Operator, Prometheus, Alertmanager and Grafana. It also installs node-exporter for node metrics and kube-state-metrics for the state of Kubernetes objects. It comes with ready dashboards and alert rules. So in one Helm install I get a full monitoring setup." },
+        { "q": "Prometheus uses pull. What does that mean?", "a": "Prometheus calls the metrics URL of each target every few seconds and stores the numbers. The app does not send data, it only shows a /metrics page. This makes it easy to see if a target is down, because the scrape fails and the up metric becomes 0." },
+        { "q": "Why did you turn off some targets on k3s?", "a": "In k3s the scheduler, controller manager and etcd run inside one k3s process, not as separate pods. The default chart tries to scrape them as separate pods and shows them as down. These false alarms are noise, so I disabled them in the values file." }
+      ],
+      "resources": [
+        { "title": "kube-prometheus-stack Helm chart", "url": "https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack" },
+        { "title": "Prometheus docs: Querying basics", "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/" },
+        { "title": "Grafana docs: Dashboards", "url": "https://grafana.com/docs/grafana/latest/dashboards/" }
+      ]
+    },
+    {
+      "id": "s09-t02",
+      "key": "OPS-902",
+      "type": "task",
+      "title": "Add /metrics to the API and build a RED dashboard",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "The ShopNotes API exposes Prometheus metrics, Prometheus scrapes them through a ServiceMonitor, and a Grafana dashboard shows rate, errors and duration.",
+      "context": "Hi, the node dashboards are nice, but they do not tell us if users are happy. We need app metrics: how many requests, how many errors, and how slow. Please add a /metrics endpoint to the API and make a RED dashboard. Keep the dashboard in Git.",
+      "steps": [
+        "Add the library to the API: in `api/requirements.txt` add `prometheus-flask-exporter`.",
+        "In the app code: `from prometheus_flask_exporter import PrometheusMetrics` and after `app = Flask(__name__)` add `metrics = PrometheusMetrics(app)` and `metrics.info('shopnotes_api_info', 'ShopNotes API', version='1.1.0')`. This adds `/metrics` with request counts and a duration histogram.",
+        "Run it locally and check: `curl http://localhost:5000/metrics | grep flask_http_request`. You must see `flask_http_request_total` and `flask_http_request_duration_seconds_bucket`.",
+        "Our Dockerfile runs Gunicorn with 2 workers, and each worker counts alone. Read the multiprocess section of the exporter docs (`GunicornPrometheusMetrics`), or use `--workers 1` in the lab.",
+        "Push the code. Your GitOps flow from OPS-803 builds the image and deploys it. Check: `kubectl port-forward -n shopnotes-dev svc/api 5000:5000` and `curl localhost:5000/metrics`.",
+        "Make sure the API Service port has a name, for example `name: http`. A ServiceMonitor uses the port name.",
+        "Add `charts/shopnotes/templates/servicemonitor.yaml` inside `{{- if .Values.metrics.enabled }}`: `apiVersion: monitoring.coreos.com/v1`, `kind: ServiceMonitor`, name `{{ .Release.Name }}-api`, label `release: monitoring` (the chart only picks ServiceMonitors with this label), `spec.selector.matchLabels` the same labels as your API Service, `spec.endpoints: [{port: http, path: /metrics, interval: 15s}]`. Set `metrics.enabled: true` in `values-dev.yaml`. Commit and push.",
+        "In Prometheus, Status, Targets, find `serviceMonitor/shopnotes-dev/shopnotes-api`. It must be UP.",
+        "Make some traffic: `for i in $(seq 1 300); do curl -s -o /dev/null http://shopnotes.localhost:8080/api/notes; done`, and also call a URL that does not exist to make 404s.",
+        "In Grafana create a dashboard `ShopNotes RED` with 3 panels. Rate: `sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\"}[5m]))`. Errors (percent of 5xx): `100 * sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\", status=~\"5..\"}[5m])) / sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\"}[5m]))`. Duration p95: `histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{namespace=\"shopnotes-dev\"}[5m])))`.",
+        "Add a 4th panel for saturation: pod CPU vs limit, `sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"shopnotes-dev\", container=\"api\"}[5m]))`.",
+        "Export the dashboard: Share, Export, Save to file. Save it as `monitoring/dashboards/shopnotes-red.json`. To load it with GitOps, put it in a ConfigMap with label `grafana_dashboard: \"1\"`; the Grafana sidecar of the chart loads it automatically.",
+        "Commit and push."
+      ],
+      "acceptance": [
+        "`curl /metrics` on the API shows `flask_http_request_total`.",
+        "The ServiceMonitor target is UP in Prometheus.",
+        "The `ShopNotes RED` dashboard shows rate, error percent, p95 duration and CPU.",
+        "The dashboard JSON is in Git and loads again after you delete it in the UI."
+      ],
+      "evidence": [
+        "Screenshot of the RED dashboard with traffic",
+        "Screenshot of the UP ServiceMonitor target",
+        "Link to `servicemonitor.yaml` and `shopnotes-red.json` in GitHub"
+      ],
+      "hints": [
+        "If the target does not appear, check the `release: monitoring` label and that the Service labels match `spec.selector.matchLabels`.",
+        "Another way: set `prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues: false` in the chart values, then Prometheus picks every ServiceMonitor.",
+        "Use `rate()` only on counters (names ending in `_total` or `_bucket`), never on gauges."
+      ],
+      "explain": {
+        "en": "In this task I added Prometheus metrics to our Flask API with the prometheus-flask-exporter library. The API now shows request counts and request duration on /metrics. I added a ServiceMonitor to our Helm chart, so Prometheus finds the API by its labels. Then I built a RED dashboard in Grafana: request rate, error percent and the 95th percentile duration. I saved the dashboard as JSON in Git and load it with a ConfigMap, so it is not lost when Grafana restarts.",
+        "hi": "Is task mein maine prometheus-flask-exporter library se Flask API mein Prometheus metrics add kiye. Ab API /metrics par request count aur request duration dikhati hai. Helm chart mein ek ServiceMonitor add kiya, taaki Prometheus labels se API ko dhoondh le. Phir Grafana mein RED dashboard banaya: request rate, error percent aur 95th percentile duration. Dashboard ko JSON ki tarah Git mein save kiya aur ConfigMap se load kiya, taaki Grafana restart hone par bhi kho na jaaye."
+      },
+      "vocabulary": [
+        { "term": "RED method", "en": "watch Rate, Errors and Duration of requests for every service", "hi": "har service ke requests ka Rate, Errors aur Duration dekhna" },
+        { "term": "ServiceMonitor", "en": "a Kubernetes object that tells Prometheus which Service to scrape", "hi": "Kubernetes object jo Prometheus ko batata hai kaunsi Service scrape karni hai" },
+        { "term": "counter", "en": "a metric that only goes up, like total requests", "hi": "metric jo sirf badhta hai, jaise total requests" },
+        { "term": "histogram", "en": "a metric that counts values in buckets, used for durations", "hi": "metric jo values ko buckets mein count karta hai, duration ke liye use hota hai" },
+        { "term": "p95", "en": "95 out of 100 requests are faster than this value", "hi": "100 mein se 95 requests is value se fast hain" }
+      ],
+      "interview": [
+        { "q": "What is the RED method?", "a": "RED means Rate, Errors and Duration. For each service I watch how many requests per second come in, how many of them fail, and how long they take. These three numbers show what the user feels. I built one Grafana panel for each of them." },
+        { "q": "Why do you use the 95th percentile and not the average for latency?", "a": "The average hides the slow requests. If most requests are fast and a few are very slow, the average still looks good. The p95 shows the time that 95 percent of users get or better. So it shows the real pain of the slow users." },
+        { "q": "How does Prometheus find your application?", "a": "I created a ServiceMonitor in our Helm chart. It selects the API Service by its labels and says which port and path to scrape. The Prometheus Operator reads it and adds the target to Prometheus. The ServiceMonitor needs the release label that the Prometheus instance selects." }
+      ],
+      "resources": [
+        { "title": "prometheus_flask_exporter on GitHub", "url": "https://github.com/rycus86/prometheus_flask_exporter" },
+        { "title": "Prometheus docs: Histograms and summaries", "url": "https://prometheus.io/docs/practices/histograms/" },
+        { "title": "Grafana blog: The RED Method", "url": "https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/" }
+      ]
+    },
+    {
+      "id": "s09-t03",
+      "key": "OPS-903",
+      "type": "task",
+      "title": "Collect pod logs with Alloy and Loki, and search them with LogQL",
+      "priority": "medium",
+      "estimateHours": 10,
+      "goal": "All pod logs from the cluster go to Loki through Grafana Alloy, and the team can search them in Grafana with LogQL.",
+      "context": "Hi, when a pod restarts, its old logs are gone and we cannot see what happened. Please collect all pod logs in one place. Use Loki for storage and Grafana Alloy as the collector, and write down 5 useful LogQL queries for the team.",
+      "steps": [
+        "Add the Grafana chart repo: `helm repo add grafana https://grafana.github.io/helm-charts && helm repo update`.",
+        "Create `monitoring/loki-values.yaml` for a small single-binary Loki: `deploymentMode: SingleBinary`, `loki.auth_enabled: false`, `loki.commonConfig.replication_factor: 1`, `loki.storage.type: filesystem`, `loki.schemaConfig.configs` with one entry `{from: \"2024-04-01\", store: tsdb, object_store: filesystem, schema: v13, index: {prefix: loki_index_, period: 24h}}`, `singleBinary.replicas: 1`, `read.replicas: 0`, `write.replicas: 0`, `backend.replicas: 0`, `chunksCache.enabled: false`, `resultsCache.enabled: false`.",
+        "Install Loki: `helm upgrade --install loki grafana/loki -n monitoring -f monitoring/loki-values.yaml`. Check: `kubectl get pods -n monitoring -l app.kubernetes.io/name=loki`.",
+        "Create `monitoring/alloy-values.yaml` with `alloy.configMap.content` that has 4 blocks: `discovery.kubernetes \"pods\" { role = \"pod\" }`; `discovery.relabel \"pods\"` that copies `__meta_kubernetes_namespace` to `namespace`, `__meta_kubernetes_pod_name` to `pod`, `__meta_kubernetes_pod_container_name` to `container` and `__meta_kubernetes_pod_label_app_kubernetes_io_name` to `app`; `loki.source.kubernetes \"pods\"` with `targets = discovery.relabel.pods.output` and `forward_to = [loki.write.default.receiver]`; and `loki.write \"default\"` with `endpoint { url = \"http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push\" }`.",
+        "Install Alloy: `helm upgrade --install alloy grafana/alloy -n monitoring -f monitoring/alloy-values.yaml`. Check its logs: `kubectl logs -n monitoring -l app.kubernetes.io/name=alloy --tail=30`.",
+        "Add Loki as a Grafana data source in `kps-values.yaml`: `grafana.additionalDataSources: [{name: Loki, type: loki, url: http://loki-gateway.monitoring.svc.cluster.local, access: proxy}]`. Upgrade the monitoring release.",
+        "Make the API log in JSON (one line per request with `level`, `path`, `status`, `duration_ms`). With Python `logging` you can use a small JSON formatter. Deploy it with GitOps.",
+        "In Grafana, Explore, choose Loki and run: `{namespace=\"shopnotes-dev\"}`.",
+        "Write and test 5 queries, and save them in `docs/logql-queries.md` with one line each saying what it shows: (1) `{namespace=\"shopnotes-dev\", container=\"api\"} |= \"ERROR\"` (2) `{namespace=\"shopnotes-dev\", container=\"api\"} | json | status >= 500` (3) `sum by (pod) (count_over_time({namespace=\"shopnotes-dev\"} |= \"error\" [5m]))` (4) `{namespace=\"shopnotes-dev\", container=\"api\"} | json | duration_ms > 500` (5) `topk(5, sum by (path) (count_over_time({container=\"api\"} | json [15m])))`.",
+        "Delete an API pod and check that you can still read its logs in Loki after it is gone.",
+        "Add a logs panel to the `ShopNotes RED` dashboard under the metrics panels. Commit all values files and the docs."
+      ],
+      "acceptance": [
+        "Loki and Alloy pods are Running in `monitoring`.",
+        "Grafana Explore shows logs for `{namespace=\"shopnotes-dev\"}`.",
+        "Logs of a deleted pod can still be found in Loki.",
+        "`docs/logql-queries.md` has 5 working queries with simple explanations.",
+        "The RED dashboard has a logs panel."
+      ],
+      "evidence": [
+        "Screenshot of Grafana Explore with the `| json | status >= 500` query",
+        "Link to `docs/logql-queries.md`",
+        "Link to the Loki and Alloy values files"
+      ],
+      "hints": [
+        "Labels in Loki must be few and stable (namespace, app, pod). Never make a label from user id or request id; that makes Loki slow.",
+        "If no logs arrive, open the Alloy UI: `kubectl port-forward -n monitoring svc/alloy 12345:12345` and check http://localhost:12345 for red components.",
+        "Promtail is old and replaced by Alloy. Use Alloy for new setups."
+      ],
+      "explain": {
+        "en": "In this task I set up central logging for the cluster. Grafana Alloy runs in the cluster, finds all pods and sends their logs to Loki. I ran Loki in single binary mode with filesystem storage, because it is a small lab. I changed the API to write JSON logs, so I can filter by status and duration with LogQL. I wrote five useful queries for the team. Now we can read the logs of a pod even after it crashed and was deleted.",
+        "hi": "Is task mein maine cluster ke liye central logging setup ki. Grafana Alloy cluster mein chalta hai, saare pods ko dhoondhta hai aur unke logs Loki ko bhejta hai. Loki ko single binary mode mein filesystem storage ke saath chalaya, kyunki ye chhota lab hai. API ko JSON logs likhne ke liye badla, taaki LogQL se status aur duration par filter kar sakun. Team ke liye paanch useful queries likhi. Ab pod crash hoke delete ho jaaye, tab bhi uske logs padh sakte hain."
+      },
+      "vocabulary": [
+        { "term": "Loki", "en": "a log database from Grafana that indexes only labels, so it is cheap", "hi": "Grafana ka log database jo sirf labels index karta hai, isliye sasta hai" },
+        { "term": "Alloy", "en": "Grafana's collector that reads logs and metrics and sends them on", "hi": "Grafana ka collector jo logs aur metrics padhke aage bhejta hai" },
+        { "term": "LogQL", "en": "the query language for Loki, similar to PromQL", "hi": "Loki ki query language, PromQL jaisi" },
+        { "term": "label", "en": "a key and value that groups logs or metrics, like namespace=shopnotes-dev", "hi": "key aur value jo logs ya metrics ko group karta hai, jaise namespace=shopnotes-dev" },
+        { "term": "structured log", "en": "a log line written as JSON with named fields", "hi": "log line jo JSON mein named fields ke saath likhi ho" }
+      ],
+      "interview": [
+        { "q": "Why do we need central logging in Kubernetes?", "a": "Pods are short-lived. When a pod is deleted, kubectl logs cannot show its logs anymore. With Alloy and Loki every log line is stored in one place with labels like namespace and pod. So I can search logs of all pods together and also of pods that are gone." },
+        { "q": "What is the difference between Loki and Elasticsearch?", "a": "Elasticsearch indexes the full text of every log line, so it is powerful but needs a lot of memory and disk. Loki indexes only the labels and stores the log text compressed. So Loki is much cheaper and simpler, and it fits well with Grafana. For our small team Loki is the right choice." },
+        { "q": "Give an example of a LogQL query you used.", "a": "I used {namespace=\"shopnotes-dev\", container=\"api\"} | json | status >= 500. The first part selects the log stream by labels. The json part reads the fields of each JSON line. Then I filter only the lines with a server error status." }
+      ],
+      "resources": [
+        { "title": "Grafana Loki docs: Install with Helm", "url": "https://grafana.com/docs/loki/latest/setup/install/helm/" },
+        { "title": "Grafana Loki docs: LogQL", "url": "https://grafana.com/docs/loki/latest/query/" },
+        { "title": "Grafana Alloy docs", "url": "https://grafana.com/docs/alloy/latest/" }
+      ]
+    },
+    {
+      "id": "s09-t04",
+      "key": "OPS-904",
+      "type": "project",
+      "title": "SLO 99.5%, alert rules and Alertmanager to Telegram or email",
+      "priority": "high",
+      "estimateHours": 14,
+      "goal": "ShopNotes has a written 99.5% availability SLO, alert rules in Git, and real alerts reach the on-call person on Telegram or email.",
+      "context": "Hi, dashboards only help if somebody looks at them. We want the system to call us when users are affected, and stay quiet when they are not. Please write our first SLO, create alert rules for it, and send the alerts to a Telegram group (or email if Telegram is blocked). Test it with a real fake outage.",
+      "steps": [
+        "Write `docs/slo.md`. SLI: the percent of API requests that do not return a 5xx status. SLO: 99.5% over 30 days. Error budget: 0.5% of requests, which is about 3.6 hours of full downtime in 30 days (30 x 24 x 60 = 43200 minutes, x 0.005 = 216 minutes). Write what we do when the budget is used up: stop new features and fix reliability first.",
+        "Add the SLI query to the doc: `1 - (sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\", status=~\"5..\"}[1d])) / sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\"}[1d])))`. In the lab we use 1d because Prometheus keeps only 3 days.",
+        "Create a Telegram bot: talk to `@BotFather` in Telegram, send `/newbot`, and save the token in your password manager. Add the bot to a new group, send one message in the group, then open `https://api.telegram.org/bot<TOKEN>/getUpdates` in your browser and copy the `chat.id` (a group id is a negative number).",
+        "Store the token as a Kubernetes Secret, not in Git: `kubectl create secret generic telegram-bot -n monitoring --from-literal=token='<TOKEN>'`.",
+        "In `kps-values.yaml` add `alertmanager.alertmanagerSpec.secrets: [telegram-bot]` (mounted at `/etc/alertmanager/secrets/telegram-bot/`) and `alertmanager.config` with: `route: {receiver: telegram, group_by: [alertname, namespace], group_wait: 30s, repeat_interval: 4h, routes: [{receiver: 'null', matchers: ['alertname = \"Watchdog\"']}]}` and `receivers: [{name: 'null'}, {name: telegram, telegram_configs: [{bot_token_file: /etc/alertmanager/secrets/telegram-bot/token, chat_id: <CHAT_ID>, send_resolved: true}]}]`. Upgrade the release.",
+        "Email instead of Telegram: use `email_configs` with `to`, `from`, `smarthost: smtp.gmail.com:587`, `auth_username` and `auth_password_file`, and a Gmail App Password (needs 2-step verification on the Google account).",
+        "Test the route without breaking anything: `kubectl exec -n monitoring alertmanager-monitoring-kube-prometheus-alertmanager-0 -c alertmanager -- amtool alert add TestAlert severity=critical --alertmanager.url=http://localhost:9093`. The message must arrive in Telegram.",
+        "Add `charts/shopnotes/templates/prometheusrule.yaml` (inside `{{- if .Values.metrics.enabled }}`): `apiVersion: monitoring.coreos.com/v1`, `kind: PrometheusRule`, label `release: monitoring`, group `shopnotes.rules` with 4 rules.",
+        "Rule 1 `ShopNotesApiDown`: `sum(up{namespace=\"shopnotes-dev\", service=\"api\"}) == 0` for `2m`, severity `critical`.",
+        "Rule 2 `ShopNotesHighErrorRate` (fast burn of the error budget): `sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\", status=~\"5..\"}[1h])) / sum(rate(flask_http_request_total{namespace=\"shopnotes-dev\"}[1h])) > (14.4 * 0.005)` for `5m`, severity `critical`. 14.4 means the 30-day budget would be gone in about 2 days.",
+        "Rule 3 `ShopNotesSlowRequests`: p95 duration over 5 minutes `> 0.5` seconds for `10m`, severity `warning`. Rule 4 `ShopNotesPodRestarting`: `increase(kube_pod_container_status_restarts_total{namespace=\"shopnotes-dev\"}[15m]) > 3`, severity `warning`.",
+        "Give every rule `annotations.summary`, `annotations.description` and `annotations.runbook_url` that points to your runbook in GitHub. Commit and push; ArgoCD deploys the rules. Check them in Prometheus, Alerts.",
+        "Real test: in ArgoCD turn off auto-sync for `shopnotes-dev` (App Details, Sync Policy), then `kubectl scale deploy shopnotes-api -n shopnotes-dev --replicas=0`. Wait until the `ShopNotesApiDown` alert arrives in Telegram. Scale back to 2, wait for the RESOLVED message, then turn auto-sync on again.",
+        "Write the times in `docs/slo.md`: when you broke it, when the alert fired, when it arrived, when it was resolved."
+      ],
+      "acceptance": [
+        "`docs/slo.md` defines the SLI, the 99.5% SLO and the error budget in minutes.",
+        "The PrometheusRule is in the Helm chart and the 4 rules show in Prometheus, Alerts.",
+        "The test alert and the real `ShopNotesApiDown` alert both arrived in Telegram or email, and a RESOLVED message came after the fix.",
+        "No bot token or email password is in Git.",
+        "Every alert has a `runbook_url`."
+      ],
+      "evidence": [
+        "Screenshot of the Telegram (or email) firing and resolved messages",
+        "Screenshot of the Prometheus Alerts page with your 4 rules",
+        "Links to `docs/slo.md` and `prometheusrule.yaml`"
+      ],
+      "hints": [
+        "If nothing arrives, check `kubectl logs -n monitoring alertmanager-monitoring-kube-prometheus-alertmanager-0 -c alertmanager` for errors like `chat not found` or `unauthorized`.",
+        "`chat_id` must be a number without quotes in the config.",
+        "A good alert is about user pain and has a runbook. If an alert fires and nobody needs to act, delete it or make it a warning."
+      ],
+      "explain": {
+        "en": "In this project I defined our first SLO: 99.5 percent of API requests must succeed over 30 days. This gives an error budget of about 3.6 hours a month. I wrote alert rules as a PrometheusRule inside our Helm chart, so they are in Git and deployed by ArgoCD. One rule is a burn-rate alert that fires when we use the error budget too fast. I configured Alertmanager to send alerts to a Telegram group, with the bot token in a Kubernetes Secret. I tested it with a real fake outage and wrote down how long the alert took.",
+        "hi": "Is project mein maine hamara pehla SLO define kiya: 30 din mein API ki 99.5 percent requests successful honi chahiye. Isse mahine ka lagbhag 3.6 ghante ka error budget milta hai. Alert rules PrometheusRule ki tarah Helm chart ke andar likhe, taaki woh Git mein rahein aur ArgoCD deploy kare. Ek rule burn-rate alert hai jo tab fire hota hai jab error budget bahut tez kharch ho raha ho. Alertmanager ko Telegram group mein alert bhejne ke liye configure kiya, bot token Kubernetes Secret mein rakha. Ek fake outage karke test kiya aur likha ki alert aane mein kitna time laga."
+      },
+      "vocabulary": [
+        { "term": "SLI", "en": "Service Level Indicator; the number we measure, like percent of good requests", "hi": "Service Level Indicator; jo number hum measure karte hain, jaise achhi requests ka percent" },
+        { "term": "SLO", "en": "Service Level Objective; the target for the SLI, like 99.5%", "hi": "Service Level Objective; SLI ka target, jaise 99.5%" },
+        { "term": "error budget", "en": "how much failure is allowed before we break the SLO", "hi": "SLO todne se pehle kitni failure allowed hai" },
+        { "term": "burn rate", "en": "how fast we are using the error budget", "hi": "error budget kitni tezi se kharch ho raha hai" },
+        { "term": "Alertmanager", "en": "the tool that groups alerts and sends them to people", "hi": "tool jo alerts ko group karke logon tak bhejta hai" }
+      ],
+      "interview": [
+        { "q": "What is the difference between an SLI, an SLO and an SLA?", "a": "The SLI is what I measure, for example the percent of requests without a server error. The SLO is our internal target for it, for example 99.5 percent in 30 days. The SLA is a promise to the customer in a contract, often with money back, and it is usually lower than the SLO." },
+        { "q": "What does an error budget of 99.5 percent mean in time?", "a": "30 days have 43200 minutes. 0.5 percent of that is 216 minutes, so about 3.6 hours of downtime per month. If we use the budget, we stop risky releases and work on reliability. If we have budget left, we can ship faster." },
+        { "q": "How do you avoid too many alerts?", "a": "I alert on user pain, like errors and downtime, not on every CPU spike. Every alert has a for duration, so short spikes do not page anyone. Alertmanager groups related alerts into one message. And every alert has a runbook, so the person knows what to do." }
+      ],
+      "resources": [
+        { "title": "Google SRE workbook: Alerting on SLOs", "url": "https://sre.google/workbook/alerting-on-slos/" },
+        { "title": "Prometheus docs: Alertmanager configuration", "url": "https://prometheus.io/docs/alerting/latest/configuration/" },
+        { "title": "Telegram Bots: tutorial", "url": "https://core.telegram.org/bots/tutorial" }
+      ]
+    },
+    {
+      "id": "s09-t05",
+      "key": "OPS-905",
+      "type": "incident",
+      "title": "INCIDENT: API pods restart every few hours with OOMKilled",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "Find why the API memory keeps growing until the container is killed, fix the root cause, and show the memory graph before and after.",
+      "context": "ALERT: Hi, `ShopNotesPodRestarting` fired again last night. The API pods restart every few hours and some users get errors at that moment. Somebody wants to just double the memory limit. Before we do that, please find out why memory keeps growing. Use the drill in `drills/memory-leak-oom/`.",
+      "steps": [
+        "Read `drills/memory-leak-oom/README.md`. Do NOT open `SOLUTION.md`.",
+        "Start the drill: `cd drills/memory-leak-oom && docker compose up -d`, plus any start steps in the README. Write down the start time.",
+        "Confirm it is an OOM kill and not a crash: `docker inspect --format '{{.State.OOMKilled}} {{.State.ExitCode}}' <container>` (true and 137 means OOM). In Kubernetes: `kubectl describe pod <pod>` shows `Last State: Terminated, Reason: OOMKilled, Exit Code: 137`.",
+        "Watch the memory grow: `docker stats` (in Kubernetes: `kubectl top pod` or the Grafana query `container_memory_working_set_bytes{container=\"api\"}`). Make traffic as the README says and note how memory changes per request.",
+        "Find which request makes memory grow: call each endpoint many times and watch the memory after each one.",
+        "Read the app code of that endpoint. Look for data that is added to a global list, dict or cache and never removed.",
+        "Fix the ONE root cause in the code (for example a cache with a max size, or no global storage at all). Do not only raise the memory limit.",
+        "Rebuild and restart: `docker compose up -d --build`. Make the same traffic again and check that memory stays flat.",
+        "Run `bash check.sh`. It must print PASS.",
+        "Submit your root cause in the DevOps Lab app. Then read `SOLUTION.md` and compare.",
+        "Write a 5-8 line incident note with: impact, root cause, fix, and why raising the limit is only a short-term help. Add a prevention idea, for example an alert when memory is above 80% of the limit for 15 minutes: `max by (pod) (container_memory_working_set_bytes{container=\"api\"} / container_spec_memory_limit_bytes{container=\"api\"}) > 0.8`.",
+        "Stop the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`bash check.sh` prints PASS.",
+        "You proved it was an OOM kill (OOMKilled true or exit code 137).",
+        "Your fix changes the code that leaks, not only the limit.",
+        "You have memory numbers from before and after the fix."
+      ],
+      "evidence": [
+        "Output of `bash check.sh` showing PASS",
+        "`docker stats` output or a graph before and after the fix",
+        "Your root cause text and incident note"
+      ],
+      "hints": [
+        "Exit code 137 = 128 + 9. Signal 9 is SIGKILL. The kernel killed the process because it went over the memory limit.",
+        "A memory leak grows with traffic and never goes down. A normal app goes up and then stays flat.",
+        "More memory only makes the restart come later. The leak is still there."
+      ],
+      "explain": {
+        "en": "In this incident the API was killed again and again with OOMKilled and exit code 137. First I proved it was the memory limit and not a normal crash. Then I watched the memory with docker stats and saw it grow with every request to one endpoint and never go down. In the code I found data that was saved in a global object and never removed. I fixed the code instead of only raising the limit, and the memory stayed flat after the fix. I also suggested an alert when memory is above 80 percent of the limit.",
+        "hi": "Is incident mein API baar-baar OOMKilled aur exit code 137 ke saath kill ho rahi thi. Pehle maine prove kiya ki ye memory limit ki wajah se hai, normal crash nahi. Phir docker stats se memory dekhi, ek endpoint ki har request par memory badh rahi thi aur kabhi kam nahi hoti thi. Code mein mila ki data ek global object mein save ho raha tha aur kabhi hataya nahi jaata tha. Sirf limit badhane ki jagah code fix kiya, aur fix ke baad memory flat rahi. Ek alert bhi suggest kiya jab memory limit ke 80 percent se upar jaaye."
+      },
+      "vocabulary": [
+        { "term": "OOMKilled", "en": "the container was stopped because it used more memory than its limit", "hi": "container ko band kiya gaya kyunki usne limit se zyada memory use ki" },
+        { "term": "memory leak", "en": "memory that the app takes and never gives back", "hi": "memory jo app leta hai aur kabhi wapas nahi deta" },
+        { "term": "working set", "en": "the memory a container really uses now; Kubernetes uses it for OOM decisions", "hi": "memory jo container abhi sach mein use kar raha hai; Kubernetes OOM ke liye ise dekhta hai" },
+        { "term": "SIGKILL", "en": "signal 9; it stops a process at once with no clean exit", "hi": "signal 9; process ko turant band kar deta hai, bina clean exit ke" }
+      ],
+      "interview": [
+        { "q": "How do you know a pod was OOMKilled?", "a": "kubectl describe pod shows Last State Terminated with reason OOMKilled and exit code 137. Exit code 137 means the process got signal 9, SIGKILL. In Grafana I also see the memory line reach the limit just before the restart." },
+        { "q": "Why did you not just increase the memory limit?", "a": "With a leak the memory grows with every request and never goes down. A bigger limit only makes the crash come later, and it costs more resources on the node. The real fix is in the code. I may raise the limit for a short time while the fix is coming, but I say clearly that it is temporary." },
+        { "q": "How would you detect this problem earlier?", "a": "I would add an alert when the working set memory is above 80 percent of the limit for 15 minutes. I would also alert on pod restarts. A Grafana panel of memory over a few days shows a leak as a line that only goes up." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Assign memory resources", "url": "https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/" },
+        { "title": "Kubernetes docs: Resource management for pods and containers", "url": "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/" }
+      ]
+    }
+  ]
+}

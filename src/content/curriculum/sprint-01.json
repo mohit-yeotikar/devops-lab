@@ -1,0 +1,509 @@
+{
+  "id": "s01",
+  "number": 1,
+  "title": "Linux, Git and the company app",
+  "weeks": "1-2",
+  "theme": "Run ShopNotes on your Linux laptop, manage it as a service, and keep the code in Git and GitHub.",
+  "jobStory": "In this sprint you join the ShopNotes team as a junior DevOps engineer. You set up a Linux machine and run the company app on it with a real Postgres database. You learn how the team works with Git branches and pull requests on GitHub. You write small bash scripts, run the app as a systemd service behind Nginx, and write the setup guide that the next new person will use.",
+  "outcomes": [
+    "I set up Ubuntu and ran a Flask API with a Postgres database on it.",
+    "I used SSH keys, Git branches and pull requests on GitHub, and fixed a merge conflict.",
+    "I wrote and tested bash scripts for health checks and database backups and scheduled them with cron.",
+    "I ran the app with gunicorn as a systemd service behind Nginx and read its logs with journalctl.",
+    "I wrote a README and a runbook and tested them on a fresh machine."
+  ],
+  "tickets": [
+    {
+      "id": "s01-t01",
+      "key": "OPS-101",
+      "type": "project",
+      "title": "Run the ShopNotes app on your Linux laptop",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "ShopNotes (Flask API + Postgres database) runs on your Ubuntu machine and answers on http://localhost:5000/health.",
+      "context": "Hi, welcome to the team! Before you touch any server, please run our app on your own machine. ShopNotes is a small notes app for shop owners: a Python Flask API, one HTML page and a Postgres database. Build it from zero on Ubuntu, so you know every part of it.",
+      "steps": [
+        "If your laptop runs Windows, install WSL2 with Ubuntu: open PowerShell as Administrator, run `wsl --install -d Ubuntu-24.04` and restart. If you already use Linux, Ubuntu 22.04 or 24.04 is fine. Do all next steps in the Ubuntu terminal.",
+        "Update the system and install the tools: `sudo apt update && sudo apt upgrade -y`, then `sudo apt install -y git curl python3 python3-venv python3-pip postgresql postgresql-client`.",
+        "Check that Postgres is running: `systemctl status postgresql`. If it is not `active`, run `sudo systemctl enable --now postgresql`.",
+        "Create the database user and the database: `sudo -u postgres psql -c \"CREATE USER shopnotes WITH PASSWORD 'shopnotes';\"` and `sudo -u postgres createdb -O shopnotes shopnotes`.",
+        "Create the project folders and a Git repo: `mkdir -p ~/shopnotes/api/tests ~/shopnotes/web ~/shopnotes/db && cd ~/shopnotes && git init -b main`.",
+        "Create `db/schema.sql` with one line: `CREATE TABLE IF NOT EXISTS notes (id SERIAL PRIMARY KEY, text TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now());`. Load it: `psql postgresql://shopnotes:shopnotes@localhost:5432/shopnotes -f db/schema.sql`. Check it: `psql postgresql://shopnotes:shopnotes@localhost:5432/shopnotes -c '\\d notes'`.",
+        "Create `api/requirements.txt` with three lines: `flask>=3.1,<4`, `psycopg2-binary>=2.9,<3`, `gunicorn>=23,<24`.",
+        "Create `api/app.py`. It has: `import os`, `import psycopg2`, `from flask import Flask, jsonify, request`; `app = Flask(__name__)`; `DATABASE_URL = os.environ.get(\"DATABASE_URL\", \"postgresql://shopnotes:shopnotes@localhost:5432/shopnotes\")`; a helper `def db(): return psycopg2.connect(DATABASE_URL, connect_timeout=3)`.",
+        "In `api/app.py` add the route `@app.get(\"/health\")`: it opens a connection, runs `SELECT 1`, and returns `jsonify(status=\"ok\", db=\"ok\")`. If the database fails, it returns `jsonify(status=\"error\", db=str(e)), 503`. A health check must tell the truth about the database.",
+        "In `api/app.py` add `@app.get(\"/notes\")`: run `SELECT id, text FROM notes ORDER BY id` and return the rows as a JSON list of `{\"id\": ..., \"text\": ...}`. Add `@app.post(\"/notes\")`: read `text` from `request.get_json(silent=True) or {}`, return status 400 if it is empty, else run `INSERT INTO notes (text) VALUES (%s) RETURNING id` with `(text,)` as parameter, call `conn.commit()`, and return `jsonify(id=new_id, text=text), 201`. Always close the connection (use `try/finally` or `with conn:` plus `conn.close()`).",
+        "Never put user text into SQL with string formatting. Always use `%s` parameters, like in the step above. This stops SQL injection.",
+        "Create `web/index.html`: a title `ShopNotes`, a form with one input and an Add button, and a list. The script calls `fetch('/api/notes')` to load notes and `fetch('/api/notes', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})})` to save one. Show note text with `li.textContent = n.text` (not innerHTML). The page works later, when Nginx sends `/api/` to the API (ticket OPS-104).",
+        "Make a virtual environment and install the packages: `cd ~/shopnotes/api && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.",
+        "Run the API: `flask --app app run --debug --port 5000`. In a second terminal test it: `curl -i http://localhost:5000/health`, `curl -i -X POST -H 'Content-Type: application/json' -d '{\"text\":\"Buy milk\"}' http://localhost:5000/notes`, `curl http://localhost:5000/notes`.",
+        "Test the error case: `curl -i -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:5000/notes` must give 400. Stop Postgres with `sudo systemctl stop postgresql`, call `/health` again (must give 503), then start it again with `sudo systemctl start postgresql`.",
+        "Create `~/shopnotes/.gitignore` with: `.venv/`, `__pycache__/`, `*.pyc`, `.env`, `backups/`. Set your Git name once: `git config --global user.name \"Your Name\"` and `git config --global user.email \"you@example.com\"`. Then commit: `git add . && git commit -m \"Add ShopNotes API, web page and schema\"`."
+      ],
+      "acceptance": [
+        "`curl http://localhost:5000/health` returns status 200 and `{\"db\":\"ok\",\"status\":\"ok\"}` (key order can differ).",
+        "`POST /notes` with a text returns 201, and `POST /notes` with no text returns 400.",
+        "`GET /notes` shows the saved note, also after you stop and start the Flask app again.",
+        "When Postgres is stopped, `/health` returns 503.",
+        "`git status` is clean and `.venv/` is not in the repo."
+      ],
+      "evidence": [
+        "Output of the four `curl` commands (health, POST, GET, POST without text)",
+        "Output of `/health` while Postgres was stopped",
+        "Output of `git log --oneline` and `git ls-files`"
+      ],
+      "hints": [
+        "If `psql` says `password authentication failed`, check the user and password in the URL. They must match the CREATE USER command.",
+        "If `flask` is `command not found`, you forgot `source .venv/bin/activate` in this terminal.",
+        "If port 5000 is busy, find the program with `sudo ss -ltnp | grep 5000`."
+      ],
+      "explain": {
+        "en": "In this task I set up the company app on my Ubuntu laptop from zero. I installed Python, Git and PostgreSQL with apt. I created a database user, a database and a table from a SQL file. I made a Python virtual environment and wrote a small Flask API with a health check and two notes endpoints. The health check also tests the database, so it returns 503 when the database is down. I tested everything with curl and saved the code in Git with a .gitignore file.",
+        "hi": "Is task mein maine company ka app apne Ubuntu laptop par zero se setup kiya. apt se Python, Git aur PostgreSQL install kiya. Ek database user, database aur SQL file se table banaya. Python virtual environment banaya aur ek chhota Flask API likha jisme health check aur notes ke do endpoints hain. Health check database ko bhi check karta hai, isliye database band ho toh 503 deta hai. Sab kuch curl se test kiya aur code ko .gitignore ke saath Git mein save kiya."
+      },
+      "vocabulary": [
+        {
+          "term": "virtual environment",
+          "en": "a private folder with its own Python packages for one project",
+          "hi": "ek project ke liye alag folder jisme uske apne Python packages hote hain"
+        },
+        {
+          "term": "environment variable",
+          "en": "a setting given to a program from outside, not written in the code",
+          "hi": "program ko bahar se di gayi setting, jo code mein likhi nahi hoti"
+        },
+        {
+          "term": "endpoint",
+          "en": "one URL of an API that does one job, like /health",
+          "hi": "API ka ek URL jo ek kaam karta hai, jaise /health"
+        },
+        {
+          "term": "health check",
+          "en": "a small URL that tells if the app and its parts are working",
+          "hi": "chhota URL jo batata hai ki app aur uske parts theek chal rahe hain ya nahi"
+        },
+        {
+          "term": "SQL injection",
+          "en": "an attack where bad text from a user changes the SQL query",
+          "hi": "attack jisme user ka galat text SQL query ko badal deta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you use a Python virtual environment?",
+          "a": "A virtual environment keeps the packages of one project separate from the system Python. So two projects can use different versions of Flask without a fight. I install the packages from requirements.txt, so every developer gets the same versions. I never put the .venv folder in Git."
+        },
+        {
+          "q": "How does the app know where the database is?",
+          "a": "The app reads the DATABASE_URL environment variable. The URL has the user, password, host, port and database name. I do not write passwords in the code, so the same code can run on my laptop, in Docker and on AWS with different settings."
+        },
+        {
+          "q": "Why does your /health endpoint check the database?",
+          "a": "If /health only says ok, it can lie when the database is down. My health check runs SELECT 1 and returns 503 if it fails. Later a load balancer or Kubernetes can use this to stop sending traffic to a broken copy of the app."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Flask: Quickstart",
+          "url": "https://flask.palletsprojects.com/en/stable/quickstart/"
+        },
+        {
+          "title": "PostgreSQL: psql reference",
+          "url": "https://www.postgresql.org/docs/current/app-psql.html"
+        },
+        {
+          "title": "Microsoft: Install WSL",
+          "url": "https://learn.microsoft.com/en-us/windows/wsl/install"
+        }
+      ]
+    },
+    {
+      "id": "s01-t02",
+      "key": "OPS-102",
+      "type": "task",
+      "title": "Put ShopNotes on GitHub with SSH keys and pull requests",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "The ShopNotes code is on GitHub, you push with an SSH key, and every change goes through a branch and a pull request.",
+      "context": "Hi, our code must live on GitHub, not only on your laptop. Please connect with an SSH key, not a password. From now on nobody pushes straight to main. Every change goes in a branch and a pull request (PR), so the team can review it.",
+      "steps": [
+        "Make `main` the default branch name for new repos: `git config --global init.defaultBranch main`.",
+        "Create an SSH key: `ssh-keygen -t ed25519 -C \"you@example.com\"`. Press Enter for the default file and type a passphrase.",
+        "Start the SSH agent and add the key: `eval \"$(ssh-agent -s)\"` and `ssh-add ~/.ssh/id_ed25519`.",
+        "Show the public key with `cat ~/.ssh/id_ed25519.pub` and copy it. On GitHub go to Settings > SSH and GPG keys > New SSH key, paste it and save. Never share the file without `.pub`; that is your private key.",
+        "Test the connection: `ssh -T git@github.com`. You must see `Hi <your-user>! You've successfully authenticated`.",
+        "On GitHub create a new public repository named `shopnotes`. Do not add a README there (your repo already has files).",
+        "Connect and push: `cd ~/shopnotes`, `git remote add origin git@github.com:<your-user>/shopnotes.git`, `git push -u origin main`.",
+        "Make a branch for a small feature: `git switch -c feature/notes-count`. In `api/app.py` add `@app.get(\"/notes/count\")` that runs `SELECT count(*) FROM notes` and returns `jsonify(count=n)`. Test it with `curl http://localhost:5000/notes/count`.",
+        "Commit and push the branch: `git add api/app.py`, `git commit -m \"Add notes count endpoint\"`, `git push -u origin feature/notes-count`.",
+        "On GitHub click Compare & pull request. Write a title and a short description: What changed, Why, How I tested (paste the curl output). Open the PR, read your own diff in the Files changed tab, then click Squash and merge.",
+        "Update your laptop: `git switch main`, `git pull`, then delete the old branch with `git branch -D feature/notes-count` (capital D, because a squash merge makes a new commit).",
+        "Practice a merge conflict on purpose. `git switch -c test/title-a`, change the title in `web/index.html` to `ShopNotes A`, commit. `git switch main`, `git switch -c test/title-b`, change the same line to `ShopNotes B`, commit. Then `git switch test/title-a`, `git merge test/title-b`. Open the file, keep one title, remove the `<<<<<<<`, `=======` and `>>>>>>>` lines, then `git add web/index.html` and `git commit`. Delete both test branches when you are done.",
+        "Optional but useful: install GitHub CLI (`sudo apt install gh`), log in with `gh auth login`, and open your next PR with `gh pr create --fill`."
+      ],
+      "acceptance": [
+        "`ssh -T git@github.com` greets you with your GitHub user name.",
+        "The repo `github.com/<your-user>/shopnotes` shows `api/`, `web/` and `db/` folders.",
+        "At least one PR is merged with a description that has What, Why and How I tested.",
+        "`/notes/count` works on your laptop after you pull main.",
+        "You resolved a merge conflict and can explain the conflict markers."
+      ],
+      "evidence": [
+        "Link to your GitHub repo",
+        "Link to your merged pull request",
+        "Output of `ssh -T git@github.com` and `git log --oneline --graph -10`"
+      ],
+      "hints": [
+        "If `git push` asks for a password, your remote uses HTTPS. Fix it with `git remote set-url origin git@github.com:<your-user>/shopnotes.git`.",
+        "`git status` always tells you what to do next. Read it slowly.",
+        "If you made a mess in a branch, `git log --oneline` and `git restore <file>` help you go back."
+      ],
+      "explain": {
+        "en": "In this task I put our code on GitHub. I created an ed25519 SSH key, added the public key to GitHub and tested it with ssh -T. Then I worked like a real team: I made a feature branch, pushed it, and opened a pull request with a clear description and test output. I merged it with squash and merge, so main has one clean commit per change. I also made a merge conflict on purpose and fixed it by hand.",
+        "hi": "Is task mein maine apna code GitHub par daala. Ek ed25519 SSH key banayi, public key GitHub mein add ki aur ssh -T se test kiya. Phir real team ki tarah kaam kiya: feature branch banayi, push ki, aur clear description aur test output ke saath pull request khola. Squash and merge se merge kiya, taaki main branch mein har change ka ek saaf commit ho. Maine jaan bujh kar ek merge conflict bhi banaya aur haath se fix kiya."
+      },
+      "vocabulary": [
+        {
+          "term": "SSH key",
+          "en": "a pair of files (private and public) that proves who you are without a password",
+          "hi": "do files ka pair (private aur public) jo bina password ke aapki pehchaan prove karta hai"
+        },
+        {
+          "term": "branch",
+          "en": "a separate line of work in Git, so main stays safe",
+          "hi": "Git mein kaam ki alag line, taaki main branch safe rahe"
+        },
+        {
+          "term": "pull request",
+          "en": "a request to merge your branch, where others can review the change",
+          "hi": "apni branch merge karne ki request, jahan dusre log change review kar sakte hain"
+        },
+        {
+          "term": "merge conflict",
+          "en": "Git cannot join two changes because they touch the same lines",
+          "hi": "jab do changes ek hi line ko badalte hain aur Git unhe khud jod nahi pata"
+        },
+        {
+          "term": "squash merge",
+          "en": "all commits of a branch become one commit on main",
+          "hi": "branch ke saare commits main par ek hi commit ban jaate hain"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you use an SSH key and not a password for GitHub?",
+          "a": "GitHub does not accept account passwords for Git over HTTPS any more. An SSH key is safer because the private key never leaves my laptop. I protect the key with a passphrase and use ssh-agent so I type it only once."
+        },
+        {
+          "q": "What is a pull request and why does the team use it?",
+          "a": "A pull request asks to merge my branch into main. Other people can read the diff, comment and approve. Later the CI pipeline also runs tests on the pull request. So bad code is stopped before it reaches main."
+        },
+        {
+          "q": "How do you fix a merge conflict?",
+          "a": "Git marks the conflict in the file with <<<<<<<, ======= and >>>>>>> lines. I read both versions, keep the correct code, and delete the markers. Then I run the tests, do git add on the file and finish with git commit."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: Generate a new SSH key",
+          "url": "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"
+        },
+        {
+          "title": "GitHub Docs: Creating a pull request",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request"
+        },
+        {
+          "title": "Pro Git book",
+          "url": "https://git-scm.com/book/en/v2"
+        }
+      ]
+    },
+    {
+      "id": "s01-t03",
+      "key": "OPS-103",
+      "type": "task",
+      "title": "Write bash scripts for health check and database backup",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Two tested bash scripts check the app health and back up the database every night, and old backups are deleted.",
+      "context": "Hi, last month a shop owner lost notes and we had no backup. Please write a backup script for the database and a health check script for the API. Run them with cron. Keep 7 days of backups, not more, so the disk does not fill up.",
+      "steps": [
+        "Warm up in the terminal and write down what each command shows: `pwd`, `ls -la`, `cat api/requirements.txt`, `grep -n \"route\\|get\\|post\" api/app.py`, `ps aux | grep flask`, `df -h`, `free -h`, `whoami`, `id`.",
+        "Learn file rights: `ls -l`, then `touch test.sh`, `chmod +x test.sh`, `ls -l test.sh`. The `x` means the file can run. Delete it: `rm test.sh`.",
+        "Make the folder: `mkdir -p ~/shopnotes/scripts`.",
+        "Create `scripts/healthcheck.sh`. Line 1: `#!/usr/bin/env bash`. Line 2: `set -euo pipefail`. Then `URL=\"${1:-http://localhost:5000/health}\"`. Then an if: `if curl -fsS --max-time 5 \"$URL\" | grep -q '\"status\": *\"ok\"'; then echo \"$(date '+%F %T') OK $URL\"; else echo \"$(date '+%F %T') FAIL $URL\" >&2; exit 1; fi`.",
+        "Create `scripts/backup-db.sh`. Start with the same two lines. Then: `DB_URL=\"${DATABASE_URL:-postgresql://shopnotes:shopnotes@localhost:5432/shopnotes}\"`, `BACKUP_DIR=\"${BACKUP_DIR:-$HOME/shopnotes/backups}\"`, `KEEP_DAYS=7`, `mkdir -p \"$BACKUP_DIR\"`, `FILE=\"$BACKUP_DIR/shopnotes-$(date +%F-%H%M).sql.gz\"`, `pg_dump \"$DB_URL\" | gzip > \"$FILE\"`, `find \"$BACKUP_DIR\" -name 'shopnotes-*.sql.gz' -mtime +\"$KEEP_DAYS\" -delete`, `echo \"Backup saved: $FILE\"`.",
+        "Make them runnable: `chmod +x scripts/*.sh`. Run them: `./scripts/healthcheck.sh` and `./scripts/backup-db.sh`. Look inside a backup: `zcat backups/shopnotes-*.sql.gz | head -30`.",
+        "Test failure: stop the Flask app, run `./scripts/healthcheck.sh` and then `echo $?`. The exit code must be 1. A script that fails must say so with its exit code.",
+        "A backup is only good if you can restore it. Restore into a new database: `sudo -u postgres createdb -O shopnotes shopnotes_restore`, then `zcat backups/<your-file>.sql.gz | psql postgresql://shopnotes:shopnotes@localhost:5432/shopnotes_restore`, then `psql postgresql://shopnotes:shopnotes@localhost:5432/shopnotes_restore -c 'SELECT count(*) FROM notes;'`. The count must match the real database. Drop it after: `sudo -u postgres dropdb shopnotes_restore`.",
+        "Check your scripts with ShellCheck: `sudo apt install -y shellcheck` and `shellcheck scripts/*.sh`. Fix every warning.",
+        "Schedule them with cron. Make sure cron runs: `systemctl status cron` (in WSL you may need `sudo systemctl enable --now cron`). Open `crontab -e` and add: `0 2 * * * $HOME/shopnotes/scripts/backup-db.sh >> $HOME/shopnotes/backups/backup.log 2>&1` and `*/5 * * * * $HOME/shopnotes/scripts/healthcheck.sh >> $HOME/shopnotes/healthcheck.log 2>&1`. Check with `crontab -l`.",
+        "For a quick test, add a line that runs every minute (`* * * * *`), wait 2 minutes, check the log file, then remove the test line.",
+        "Add `healthcheck.log` to `.gitignore`. Commit the scripts in a branch `feature/scripts` and merge through a PR."
+      ],
+      "acceptance": [
+        "`./scripts/healthcheck.sh` prints OK and exits 0 when the app runs, and prints FAIL and exits 1 when it is down.",
+        "`./scripts/backup-db.sh` creates a `.sql.gz` file in `backups/`.",
+        "You restored a backup into `shopnotes_restore` and the row count matched.",
+        "`shellcheck scripts/*.sh` shows no warnings.",
+        "`crontab -l` shows both jobs, and the log files get new lines."
+      ],
+      "evidence": [
+        "Output of both scripts and of `echo $?` after the failure test",
+        "Output of the restore row count",
+        "Output of `crontab -l` and `tail -5 ~/shopnotes/healthcheck.log`"
+      ],
+      "hints": [
+        "Cron has a very small PATH. If a command is not found in cron, use the full path, for example `/usr/bin/pg_dump` (find it with `which pg_dump`).",
+        "Quote every variable like \"$FILE\". Without quotes, a space in a name breaks the script.",
+        "Use https://crontab.guru to read cron times in plain English."
+      ],
+      "explain": {
+        "en": "In this task I wrote two bash scripts. The health check calls the /health URL with curl and exits with code 1 if the app is not ok. The backup script runs pg_dump, compresses the file with gzip and deletes backups older than 7 days. I used set -euo pipefail so the script stops on the first error. I tested a real restore into a new database and the row count matched. Then I scheduled both scripts with cron and checked them with ShellCheck.",
+        "hi": "Is task mein maine do bash scripts likhi. Health check script curl se /health URL call karti hai aur app theek na ho toh exit code 1 deti hai. Backup script pg_dump chalati hai, gzip se file compress karti hai aur 7 din se purane backups delete karti hai. Maine set -euo pipefail use kiya taaki pehli error par script ruk jaaye. Maine naye database mein asli restore karke test kiya aur row count match hua. Phir dono scripts cron se schedule ki aur ShellCheck se check ki."
+      },
+      "vocabulary": [
+        {
+          "term": "exit code",
+          "en": "a number a program gives back when it ends; 0 means success",
+          "hi": "program khatam hone par jo number deta hai; 0 ka matlab success"
+        },
+        {
+          "term": "cron",
+          "en": "a Linux service that runs commands at fixed times",
+          "hi": "Linux service jo fixed time par commands chalati hai"
+        },
+        {
+          "term": "pg_dump",
+          "en": "a Postgres tool that saves a database into a file",
+          "hi": "Postgres ka tool jo database ko ek file mein save karta hai"
+        },
+        {
+          "term": "restore",
+          "en": "loading a backup back into a database",
+          "hi": "backup ko wapas database mein load karna"
+        },
+        {
+          "term": "pipe",
+          "en": "the | sign; it sends the output of one command into the next",
+          "hi": "| sign; ek command ka output agli command ko deta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What does set -euo pipefail do?",
+          "a": "-e stops the script when a command fails. -u stops it when I use a variable that is not set. -o pipefail makes a pipe fail if any command in it fails, not only the last one. Together they stop a script from going on silently after an error."
+        },
+        {
+          "q": "How do you know your backups are good?",
+          "a": "I do not trust a backup until I restore it. I restored the dump into a new test database and compared the row count with the real one. In a company I would run this restore test on a schedule and alert if it fails."
+        },
+        {
+          "q": "How do you stop backups from filling the disk?",
+          "a": "My script keeps only 7 days of backups. It uses find with -mtime +7 -delete to remove older files. I also compress every dump with gzip, so each file is small."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GNU Bash manual",
+          "url": "https://www.gnu.org/software/bash/manual/bash.html"
+        },
+        {
+          "title": "PostgreSQL: pg_dump",
+          "url": "https://www.postgresql.org/docs/current/app-pgdump.html"
+        },
+        {
+          "title": "crontab(5) manual page",
+          "url": "https://man7.org/linux/man-pages/man5/crontab.5.html"
+        }
+      ]
+    },
+    {
+      "id": "s01-t04",
+      "key": "OPS-104",
+      "type": "task",
+      "title": "Run ShopNotes as a systemd service behind Nginx",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "The API runs under gunicorn as a systemd service that starts on boot and restarts after a crash, and Nginx serves the web page and sends /api/ to the API.",
+      "context": "Hi, `flask run` is only for development. On a real server the app must start by itself after a reboot and come back after a crash. Please run it with gunicorn as a systemd service, and put Nginx in front so the web page and the API work on one address.",
+      "steps": [
+        "Install gunicorn in the venv if needed (it is in requirements.txt) and test it by hand: `cd ~/shopnotes/api && source .venv/bin/activate && gunicorn --bind 127.0.0.1:5000 --workers 2 app:app`. In a second terminal: `curl http://127.0.0.1:5000/health`. Stop it with Ctrl+C.",
+        "Make a settings file outside the repo: `sudo mkdir -p /etc/shopnotes`, `echo 'DATABASE_URL=postgresql://shopnotes:shopnotes@localhost:5432/shopnotes' | sudo tee /etc/shopnotes/shopnotes.env`, `sudo chmod 600 /etc/shopnotes/shopnotes.env`.",
+        "Create the unit file with `sudo nano /etc/systemd/system/shopnotes.service`. Section `[Unit]`: `Description=ShopNotes API`, `After=network-online.target postgresql.service`, `Wants=network-online.target`. Section `[Service]`: `User=<your-linux-user>`, `WorkingDirectory=/home/<your-linux-user>/shopnotes/api`, `EnvironmentFile=/etc/shopnotes/shopnotes.env`, `ExecStart=/home/<your-linux-user>/shopnotes/api/.venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --access-logfile - app:app`, `Restart=on-failure`, `RestartSec=3`. Section `[Install]`: `WantedBy=multi-user.target`.",
+        "Load and start it: `sudo systemctl daemon-reload`, `sudo systemctl enable --now shopnotes`, `systemctl status shopnotes`. You must see `active (running)`.",
+        "Read the logs: `journalctl -u shopnotes -f` (live) and `journalctl -u shopnotes --since \"10 min ago\"`. Call `/health` and see the access log line appear.",
+        "Test the auto restart: `sudo kill -9 $(systemctl show -p MainPID --value shopnotes)`. Wait 5 seconds and run `systemctl status shopnotes` again. The PID is new and the app works.",
+        "Install Nginx: `sudo apt install -y nginx`. Copy the web page to a folder Nginx can read: `sudo mkdir -p /var/www/shopnotes && sudo cp ~/shopnotes/web/index.html /var/www/shopnotes/`.",
+        "Create `/etc/nginx/sites-available/shopnotes` with: `server { listen 80 default_server; server_name _; root /var/www/shopnotes; index index.html; location /api/ { proxy_pass http://127.0.0.1:5000/; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; } }`. The `/` at the end of `proxy_pass` removes `/api` from the path, so `/api/notes` reaches the API as `/notes`.",
+        "Enable the site: `sudo ln -s /etc/nginx/sites-available/shopnotes /etc/nginx/sites-enabled/shopnotes`, `sudo rm /etc/nginx/sites-enabled/default`, `sudo nginx -t`, `sudo systemctl reload nginx`.",
+        "Test the full path: `curl http://localhost/api/health`, then open http://localhost in the browser and add a note on the page.",
+        "Test a reboot: `sudo reboot` (in WSL: run `wsl --shutdown` in PowerShell and open Ubuntu again). Check `systemctl status shopnotes nginx` and `curl http://localhost/api/health` without starting anything by hand.",
+        "Save copies in the repo: `mkdir -p deploy && cp /etc/systemd/system/shopnotes.service deploy/ && cp /etc/nginx/sites-available/shopnotes deploy/nginx-shopnotes.conf`. Commit through a PR."
+      ],
+      "acceptance": [
+        "`systemctl is-enabled shopnotes` prints `enabled` and `systemctl is-active shopnotes` prints `active`.",
+        "After `kill -9`, the service is running again within 10 seconds with a new PID.",
+        "`curl http://localhost/api/health` returns 200 through Nginx.",
+        "You can add a note on the web page at http://localhost.",
+        "After a reboot, both services run without manual steps."
+      ],
+      "evidence": [
+        "Output of `systemctl status shopnotes` before and after the kill test (show both PIDs)",
+        "Output of `journalctl -u shopnotes -n 20`",
+        "Screenshot of the ShopNotes page in the browser with your notes"
+      ],
+      "hints": [
+        "After every change to a unit file, run `sudo systemctl daemon-reload`.",
+        "If Nginx shows 502 Bad Gateway, the API is not running or the port in `proxy_pass` is wrong. Check `systemctl status shopnotes` and `sudo ss -ltnp`.",
+        "Read errors in `sudo tail -n 30 /var/log/nginx/error.log`."
+      ],
+      "explain": {
+        "en": "In this task I moved the API from the Flask dev server to gunicorn and ran it as a systemd service. I wrote a unit file with Restart=on-failure and an EnvironmentFile for the database URL, so no password is in the code. I killed the process with kill -9 and systemd started it again in a few seconds. Then I installed Nginx, served the web page from it and sent /api/ requests to gunicorn with proxy_pass. After a reboot everything started by itself. I read the logs with journalctl.",
+        "hi": "Is task mein maine API ko Flask dev server se hata kar gunicorn par chalaya aur systemd service banaya. Unit file mein Restart=on-failure aur database URL ke liye EnvironmentFile likha, taaki password code mein na rahe. Maine kill -9 se process maara aur systemd ne kuch second mein use wapas start kar diya. Phir Nginx install kiya, usse web page serve kiya aur /api/ wali requests proxy_pass se gunicorn ko bheji. Reboot ke baad sab apne aap start hua. Logs journalctl se padhe."
+      },
+      "vocabulary": [
+        {
+          "term": "systemd",
+          "en": "the Linux program that starts, stops and watches services",
+          "hi": "Linux ka program jo services ko start, stop aur monitor karta hai"
+        },
+        {
+          "term": "unit file",
+          "en": "a text file that tells systemd how to run one service",
+          "hi": "text file jo systemd ko batati hai ki ek service kaise chalani hai"
+        },
+        {
+          "term": "gunicorn",
+          "en": "a production web server for Python apps",
+          "hi": "Python apps ke liye production web server"
+        },
+        {
+          "term": "reverse proxy",
+          "en": "a server that takes the request and sends it to the app behind it",
+          "hi": "server jo request leta hai aur peeche wale app ko bhejta hai"
+        },
+        {
+          "term": "journalctl",
+          "en": "the command to read logs that systemd collects",
+          "hi": "systemd ke collect kiye logs padhne ki command"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why not use flask run in production?",
+          "a": "flask run starts a development server. It is slow, handles few requests and is not made to be safe. gunicorn runs several worker processes and is made for production. So I use gunicorn and put Nginx in front of it."
+        },
+        {
+          "q": "What does Restart=on-failure do?",
+          "a": "It tells systemd to start the service again when the process exits with an error or is killed. I tested it with kill -9 and the app came back with a new PID after about 3 seconds. This makes small crashes almost invisible to users."
+        },
+        {
+          "q": "Why do you put Nginx in front of gunicorn?",
+          "a": "Nginx serves the static web page very fast, so the Python app does not have to. It sends only /api/ requests to gunicorn. Later Nginx also does TLS and can switch between two app copies. One address for the page and the API also means no CORS problems."
+        }
+      ],
+      "resources": [
+        {
+          "title": "systemd.service manual",
+          "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+        },
+        {
+          "title": "Gunicorn: Deploying Gunicorn",
+          "url": "https://docs.gunicorn.org/en/stable/deploy.html"
+        },
+        {
+          "title": "Nginx: ngx_http_proxy_module",
+          "url": "https://nginx.org/en/docs/http/ngx_http_proxy_module.html"
+        }
+      ]
+    },
+    {
+      "id": "s01-t05",
+      "key": "OPS-105",
+      "type": "docs",
+      "title": "Write the ShopNotes README and the first runbook",
+      "priority": "medium",
+      "estimateHours": 4,
+      "goal": "A new team member can set up ShopNotes from the README alone, and the on-call person can fix common problems from the runbook.",
+      "context": "Hi, next month two more people join. I do not want to explain the setup again and again. Please write a README that a new person can follow without help, and a short runbook for the problems you already saw.",
+      "steps": [
+        "Create `README.md` in the repo root with these headings: What is ShopNotes, Architecture, Requirements, Setup, Run, Test, Scripts, Folders.",
+        "Under Architecture draw a simple text diagram: `Browser -> Nginx :80 -> /api/ -> gunicorn :5000 (Flask) -> Postgres :5432`. Add one sentence for each part.",
+        "Under Setup copy the real commands from OPS-101 and OPS-104 in the right order. Put every command in a code block. Write the expected output after the important ones (for example `{\"db\":\"ok\",\"status\":\"ok\"}`).",
+        "Under Test list the curl commands for `/api/health`, `GET /api/notes` and `POST /api/notes`.",
+        "Create `docs/runbook.md`. For each problem write: Symptom, Check (commands), Fix (commands). Write at least these 4: `502 Bad Gateway from Nginx`, `API service is not running`, `/health returns 503 (database down)`, `Restore the database from a backup`.",
+        "In each Check part use real commands: `systemctl status shopnotes`, `journalctl -u shopnotes -n 50`, `sudo tail -n 30 /var/log/nginx/error.log`, `systemctl status postgresql`, `sudo ss -ltnp`.",
+        "Use short sentences. Explain every new word once. Do not write 'just' or 'simply'; for a new person nothing is simple.",
+        "Test your README: ask a friend (or use a fresh WSL distro: `wsl --install -d Ubuntu-22.04`) and follow it step by step without your memory. Write down every place where you got stuck and fix the text.",
+        "Commit `README.md` and `docs/runbook.md` in a branch `docs/readme` and merge with a PR. Check that GitHub shows the code blocks nicely."
+      ],
+      "acceptance": [
+        "README.md has all 8 headings and real, tested commands.",
+        "The runbook has at least 4 problems, each with Symptom, Check and Fix.",
+        "Someone (or you on a fresh machine) followed the README and the app ran.",
+        "The PR is merged and GitHub renders the Markdown correctly."
+      ],
+      "evidence": [
+        "Link to README.md on GitHub",
+        "Link to docs/runbook.md on GitHub",
+        "A list of the gaps you found when you tested the README and how you fixed them"
+      ],
+      "hints": [
+        "Write the README for the person who knows the least, not for yourself.",
+        "If a step needs a password, write where the person gets it, never the real password.",
+        "Use GitHub Markdown code blocks with three backticks so commands are easy to copy."
+      ],
+      "explain": {
+        "en": "In this task I wrote the README and the first runbook for ShopNotes. The README has an architecture diagram, the setup commands in the right order and the test commands with expected output. The runbook has four common problems, and each one has symptom, check and fix steps with real commands. I tested the README on a fresh Ubuntu in WSL and fixed the steps where I got stuck. Now a new person can set up the app without asking me.",
+        "hi": "Is task mein maine ShopNotes ka README aur pehla runbook likha. README mein architecture diagram hai, setup commands sahi order mein hain aur test commands expected output ke saath hain. Runbook mein chaar common problems hain, aur har ek ke liye symptom, check aur fix steps asli commands ke saath hain. Maine README ko WSL ke fresh Ubuntu par test kiya aur jahan atka wahan steps theek kiye. Ab naya banda bina mujhse puche app setup kar sakta hai."
+      },
+      "vocabulary": [
+        {
+          "term": "README",
+          "en": "the first file in a repo that explains what it is and how to use it",
+          "hi": "repo ki pehli file jo batati hai ki ye kya hai aur kaise use karna hai"
+        },
+        {
+          "term": "runbook",
+          "en": "a document with steps to check and fix known problems",
+          "hi": "document jisme known problems ko check aur fix karne ke steps hote hain"
+        },
+        {
+          "term": "on-call",
+          "en": "the person who must answer alerts and fix problems at this time",
+          "hi": "woh banda jo is time alerts ka jawab dega aur problem fix karega"
+        },
+        {
+          "term": "Markdown",
+          "en": "a simple text format that GitHub shows with headings and code blocks",
+          "hi": "simple text format jise GitHub headings aur code blocks ke saath dikhata hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why is documentation part of a DevOps job?",
+          "a": "Systems are only useful if people can run and fix them. A good README saves hours for every new team member. A runbook helps the on-call person fix a problem at night without waking up the whole team."
+        },
+        {
+          "q": "What is the difference between a README and a runbook?",
+          "a": "The README explains what the project is and how to set it up and run it. A runbook is for operations: it lists problems, how to check them and how to fix them. The README is for starting, the runbook is for bad days."
+        },
+        {
+          "q": "How did you check that your README is correct?",
+          "a": "I followed it on a fresh Ubuntu in WSL, step by step, without using my memory. I wrote down every place where I got stuck. Then I fixed those steps and added the expected output for important commands."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: About READMEs",
+          "url": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes"
+        },
+        {
+          "title": "GitHub Docs: Basic writing and formatting syntax",
+          "url": "https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
+        }
+      ]
+    }
+  ]
+}

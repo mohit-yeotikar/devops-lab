@@ -1,0 +1,65 @@
+---
+import { env } from '../lib/env';
+interface Props { title: string; description?: string; wide?: boolean }
+const { title, description = 'Practice real DevOps work. Build a portfolio. Get ready for interviews.' } = Astro.props;
+const user = Astro.locals.user;
+const path = Astro.url.pathname;
+const on = (p: string) => (path === p || (p !== '/app' && path.startsWith(p)) ? 'on' : '');
+const appName = env.APP_NAME ?? 'DevOps Lab';
+---
+<!doctype html>
+<html lang="en" class={user && !user.show_hindi ? 'hide-hi' : ''}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title} · {appName}</title>
+  <meta name="description" content={description} />
+  <link rel="stylesheet" href="/app.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f5fd6'/><text y='68' x='50' text-anchor='middle' font-size='56' font-family='sans-serif' font-weight='800' fill='white'>D</text></svg>" />
+</head>
+<body>
+  <header class="top"><div class="wrap">
+    <a class="logo" href={user ? '/app' : '/'}>⚙ {appName}</a>
+    <nav>
+      {user ? (<>
+        <a href="/app" class={on('/app')}>Home</a>
+        <a href="/app/sprints" class={on('/app/sprints')}>Sprints</a>
+        <a href="/app/drills" class={on('/app/drills')}>Incidents</a>
+        <a href="/app/interview" class={on('/app/interview')}>Interview</a>
+        <a href="/app/log" class={on('/app/log')}>Work log</a>
+        <a href={`/u/${user.handle}`}>Portfolio</a>
+        {user.role === 'admin' && <a href="/admin" class={on('/admin')}>Admin</a>}
+        <a href="/app/profile" class={on('/app/profile')}>{user.name.split(' ')[0]}</a>
+      </>) : (<>
+        <a href="/login">Log in</a>
+        <a href="/signup" class="btn sm">Start free</a>
+      </>)}
+    </nav>
+  </div></header>
+  <main><div class="wrap"><slot /></div></main>
+  <footer><div class="wrap">{appName} · Practice environment for DevOps trainees. Every hour you log here is real work you did.</div></footer>
+  <script>
+    // Tabs + generic fetch forms (data-api). Keeps pages dependency-free.
+    document.querySelectorAll('.tabs').forEach((t) => {
+      const btns = t.querySelectorAll('button'); const panes = t.parentElement!.querySelectorAll(':scope > .tab');
+      btns.forEach((b, i) => b.addEventListener('click', () => { btns.forEach((x) => x.classList.remove('on')); panes.forEach((x) => x.classList.remove('on')); b.classList.add('on'); panes[i]?.classList.add('on'); }));
+    });
+    document.querySelectorAll<HTMLFormElement>('form[data-api]').forEach((f) => {
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = f.querySelector<HTMLButtonElement>('button[type=submit]'); if (btn) btn.disabled = true;
+        const out = f.querySelector('.out') || document.getElementById(f.dataset.out || '');
+        try {
+          const r = await fetch(f.action, { method: 'POST', body: new FormData(f) });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) { if (out) out.innerHTML = `<div class="notice warn">${j.error || 'Something went wrong.'}</div>`; return; }
+          if (j.redirect) { location.href = j.redirect; return; }
+          if (j.reload) { location.reload(); return; }
+          if (out && j.html) out.innerHTML = j.html;
+          f.dispatchEvent(new CustomEvent('api:done', { detail: j }));
+        } finally { if (btn) btn.disabled = false; }
+      });
+    });
+  </script>
+</body>
+</html>

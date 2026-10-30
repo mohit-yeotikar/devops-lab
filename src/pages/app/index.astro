@@ -1,0 +1,51 @@
+---
+import { env } from '../../lib/env';
+import Base from '../../layouts/Base.astro';
+import TicketCard from '../../components/TicketCard.astro';
+import { sprints, tickets } from '../../lib/curriculum';
+import { progressFor, hoursFor } from '../../lib/db';
+const u = Astro.locals.user!;
+const db = env.DB;
+const prog = await progressFor(db, u.id);
+const hrs = await hoursFor(db, u.id);
+const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
+const pct = Math.round((done.length / tickets.length) * 100);
+const active = tickets.filter((t) => ['doing', 'changes'].includes(prog.get(t.id)?.status ?? ''));
+const inReview = tickets.filter((t) => prog.get(t.id)?.status === 'review');
+const next = tickets.find((t) => !prog.get(t.id) || prog.get(t.id)!.status === 'todo');
+const curSprint = sprints.find((s) => s.tickets.some((t) => prog.get(t.id)?.status !== 'done')) ?? sprints.at(-1);
+const welcome = Astro.url.searchParams.has('welcome');
+---
+<Base title="Home">
+  {welcome && <div class="notice ok"><strong>Welcome, {u.name.split(' ')[0]}!</strong> Start with Sprint 1. Read the ticket, do the steps on your laptop, log your hours, then submit your proof. <span class="hi">Ticket padho, laptop pe steps karo, hours likho, proof submit karo.</span></div>}
+  <h1>Hello, {u.name.split(' ')[0]}</h1>
+  <p class="sub">{curSprint ? <>You are in <strong>Sprint {curSprint.number}: {curSprint.title}</strong>.</> : 'All sprints done!'} </p>
+  <div class="grid">
+    <div class="card"><div class="stat">{pct}%<small>{done.length} of {tickets.length} tickets done</small></div><div class="bar" style="margin-top:8px"><i style={`width:${pct}%`}></i></div></div>
+    <div class="card"><div class="stat">{hrs.h.toFixed(1)} h<small>logged on {hrs.days} working days</small></div></div>
+    <div class="card"><div class="stat">{inReview.length}<small>waiting for review</small></div></div>
+    <div class="card"><div class="stat">{u.started_at ? Math.max(1, Math.ceil((Date.now() - new Date(u.started_at.replace(' ', 'T') + 'Z').getTime()) / 86400_000)) : 0} days<small>since you started</small></div></div>
+  </div>
+
+  {active.length > 0 && <><h2>Continue working</h2><div class="grid">{active.map((t) => <TicketCard t={t} p={prog.get(t.id)} />)}</div></>}
+  {next && <><h2>Next ticket</h2><div class="grid"><TicketCard t={next} p={prog.get(next.id)} /></div></>}
+
+  <h2>Today's plan</h2>
+  <div class="card">
+    <ol class="steps">
+      <li>Work 2 to 4 hours on your open ticket. Log the hours when you stop.</li>
+      <li>Write 5 sentences about what you did in the <strong>Explain it</strong> tab. The coach will correct your English.</li>
+      <li>Once a week: do one <a href="/app/drills">incident drill</a> and one <a href="/app/interview">mock interview</a>.</li>
+    </ol>
+    <p class="hi">Roz 2-4 ghante kaam, hours log karo, 5 line English me likho. Hafte me ek incident aur ek mock interview.</p>
+  </div>
+
+  <h2>All sprints</h2>
+  <div class="grid">
+    {sprints.map((s) => { const d = s.tickets.filter((t) => prog.get(t.id)?.status === 'done').length; return (
+      <a class="card" href={`/app/sprints/${s.id}`} style="display:block;text-decoration:none;color:inherit">
+        <div class="help">Sprint {s.number} · weeks {s.weeks}</div><h3 style="margin:4px 0 8px">{s.title}</h3>
+        <div class="bar"><i style={`width:${Math.round((d / s.tickets.length) * 100)}%`}></i></div><div class="help" style="margin-top:6px">{d}/{s.tickets.length} tickets</div>
+      </a>); })}
+  </div>
+</Base>

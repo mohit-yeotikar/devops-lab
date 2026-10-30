@@ -1,0 +1,325 @@
+{
+  "id": "s08",
+  "number": 8,
+  "title": "Helm and GitOps with ArgoCD",
+  "weeks": "15-16",
+  "theme": "Package ShopNotes as a Helm chart and let ArgoCD deploy it from Git to a local and a staging cluster.",
+  "jobStory": "In this sprint you stop running kubectl apply by hand. You turn the ShopNotes YAML files into one Helm chart with a values file for each environment and store the chart in GitHub Container Registry. You install ArgoCD, so the cluster always follows what is in Git, and your CI pipeline changes the image tag in Git after every build. You also build a small staging cluster with k3s on a free-tier EC2 machine, the way small companies do when they cannot pay for EKS.",
+  "outcomes": [
+    "I built a Helm chart for a 3-tier app with separate values for dev and staging.",
+    "I pushed the chart to GHCR as an OCI artifact and installed it from there.",
+    "I set up ArgoCD with automated sync, self-heal and prune from a Git repo.",
+    "I built a CI flow that builds the image and updates the image tag in Git for ArgoCD.",
+    "I ran a single-node k3s staging cluster on a free-tier EC2 instance."
+  ],
+  "tickets": [
+    {
+      "id": "s08-t01",
+      "key": "OPS-801",
+      "type": "task",
+      "title": "Turn the ShopNotes YAML files into a Helm chart",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "One Helm chart `charts/shopnotes` installs the full app, and `values-dev.yaml` and `values-staging.yaml` change only what is different per environment.",
+      "context": "Hi, we now copy the same YAML files for every environment and change them by hand. This is how mistakes happen. Please make one Helm chart with templates, and put the differences (replicas, image tag, host name, HPA on or off) in a values file per environment.",
+      "steps": [
+        "Install Helm 3: follow https://helm.sh/docs/intro/install/ and check with `helm version`.",
+        "Create the chart skeleton: `helm create charts/shopnotes`. Delete the example files you do not need: `rm -rf charts/shopnotes/templates/tests charts/shopnotes/templates/*.yaml`. Keep `_helpers.tpl` and `NOTES.txt`.",
+        "Edit `charts/shopnotes/Chart.yaml`: `name: shopnotes`, `version: 0.1.0` (chart version), `appVersion: \"1.0.0\"` (app version).",
+        "Copy your sprint 7 files into `charts/shopnotes/templates/`: api-deployment, api-service, api-configmap, api-hpa, web-deployment, web-service, ingress, postgres-service, postgres-statefulset. Remove the `namespace:` lines; Helm sets the namespace.",
+        "Write `charts/shopnotes/values.yaml` with defaults, for example: `api.image.repository: ghcr.io/<your-github-user>/shopnotes-api`, `api.image.tag: \"1.0.0\"`, `api.replicas: 2`, `api.resources`, `web.image.repository`, `web.image.tag`, `ingress.host: shopnotes.localhost`, `hpa.enabled: true`, `hpa.maxReplicas: 5`, `db.secretName: shopnotes-db`, `postgres.enabled: true`, `postgres.storage: 1Gi`.",
+        "Replace the fixed values in the templates with values, for example `image: \"{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}\"`, `replicas: {{ .Values.api.replicas }}`, and name the Deployments `{{ .Release.Name }}-api` and `{{ .Release.Name }}-web`. Keep the Service names fixed as `api`, `web` and `postgres`, because the web Nginx config and `DATABASE_URL` use these host names (one release per namespace).",
+        "Wrap optional parts with if blocks: `{{- if .Values.hpa.enabled }}` … `{{- end }}` in `api-hpa.yaml`, and `{{- if .Values.postgres.enabled }}` in the Postgres files.",
+        "Indent nested blocks with `toYaml` and `nindent`, for example `resources: {{- toYaml .Values.api.resources | nindent 12 }}`.",
+        "Create `charts/shopnotes/values-dev.yaml` (1 API replica, `hpa.enabled: false`, host `shopnotes.localhost`) and `charts/shopnotes/values-staging.yaml` (2 replicas, `hpa.enabled: true`, host `<EC2_PUBLIC_IP>.sslip.io`).",
+        "Check the chart: `helm lint charts/shopnotes -f charts/shopnotes/values-dev.yaml` and look at the output YAML: `helm template shopnotes charts/shopnotes -f charts/shopnotes/values-dev.yaml | less`.",
+        "Install into a new namespace so it does not clash with the sprint 7 objects: `kubectl create namespace shopnotes-dev`, create the DB Secret again in this namespace (same command as OPS-702 with `-n shopnotes-dev`), then `helm upgrade --install shopnotes charts/shopnotes -n shopnotes-dev -f charts/shopnotes/values-dev.yaml`.",
+        "Change the API replicas in `values-dev.yaml` to 2, run the same `helm upgrade --install` command again, then look at the history: `helm history shopnotes -n shopnotes-dev`. Practise a rollback: `helm rollback shopnotes 1 -n shopnotes-dev`.",
+        "When it all works, delete the old sprint 7 namespace to free RAM: `kubectl delete namespace shopnotes`. Commit and push the chart."
+      ],
+      "acceptance": [
+        "`helm lint` shows no errors for both values files.",
+        "`helm list -n shopnotes-dev` shows the release as deployed and the app works at http://shopnotes.localhost:8080.",
+        "`helm template` with `values-dev.yaml` has no HPA, and with `values-staging.yaml` it has an HPA.",
+        "`helm history` shows at least 3 revisions, including one rollback.",
+        "No password is in any values file."
+      ],
+      "evidence": [
+        "Link to `charts/shopnotes` on GitHub",
+        "Output of `helm lint` for dev and staging values",
+        "Output of `helm history shopnotes -n shopnotes-dev`"
+      ],
+      "hints": [
+        "Most Helm errors are wrong indentation. Run `helm template` and read the line number in the error.",
+        "`{{-` removes the white space before the tag. Use it at the start of if and end blocks so you do not get empty lines.",
+        "If you use local images on k3d, set `api.image.repository: shopnotes-api` in `values-dev.yaml` and import the image as in OPS-701."
+      ],
+      "explain": {
+        "en": "In this task I turned many Kubernetes YAML files into one Helm chart. I moved the values that change between environments, like replicas, image tag and host name, into values files. I made one values file for dev and one for staging. I checked the chart with helm lint and helm template before I installed it. I also used helm history and helm rollback, so I know how to go back to the last good version quickly.",
+        "hi": "Is task mein maine bahut saari Kubernetes YAML files ko ek Helm chart mein badla. Jo values environment ke hisaab se badalti hain, jaise replicas, image tag aur host name, unhe values files mein daala. Dev ke liye ek values file aur staging ke liye ek alag banayi. Install karne se pehle helm lint aur helm template se chart check kiya. helm history aur helm rollback bhi use kiya, taaki jaldi se last good version par wapas ja sakun."
+      },
+      "vocabulary": [
+        { "term": "Helm chart", "en": "a package of Kubernetes templates plus default values", "hi": "Kubernetes templates aur default values ka ek package" },
+        { "term": "release", "en": "one installed copy of a chart in a cluster", "hi": "cluster mein install kiya hua chart ka ek copy" },
+        { "term": "values file", "en": "a YAML file with settings that fill the templates", "hi": "YAML file jisme settings hoti hain jo templates mein bhari jaati hain" },
+        { "term": "rollback", "en": "going back to an older, working version", "hi": "purane, chalne wale version par wapas jaana" }
+      ],
+      "interview": [
+        { "q": "Why did you use Helm?", "a": "Without Helm we had copies of the same YAML for every environment. With Helm I have one set of templates and a small values file per environment. Helm also keeps a history of releases, so I can roll back with one command. It makes deploys repeatable and less error-prone." },
+        { "q": "What is the difference between the chart version and the appVersion?", "a": "The chart version is the version of the Helm package itself. I change it when I change the templates. The appVersion is the version of the application inside, for example the image version. They can change separately." },
+        { "q": "How do you check a chart before you install it?", "a": "I run helm lint to find mistakes in the chart. Then I run helm template with the values file and read the YAML it creates. I can also run helm upgrade --install with --dry-run. Only then I install it on the cluster." }
+      ],
+      "resources": [
+        { "title": "Helm docs: Quickstart guide", "url": "https://helm.sh/docs/intro/quickstart/" },
+        { "title": "Helm docs: Chart template guide", "url": "https://helm.sh/docs/chart_template_guide/" },
+        { "title": "Helm docs: Charts", "url": "https://helm.sh/docs/topics/charts/" }
+      ]
+    },
+    {
+      "id": "s08-t02",
+      "key": "OPS-802",
+      "type": "task",
+      "title": "Publish the Helm chart to GHCR as an OCI artifact",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Every chart version is stored in GitHub Container Registry and can be installed with `helm install ... oci://ghcr.io/...`.",
+      "context": "Hi, the staging team should not need our Git repo to install ShopNotes. Please push the chart to GHCR, next to our images, as an OCI artifact. Also add a CI job so a new chart version is published when we change the chart.",
+      "steps": [
+        "Create a GitHub personal access token (classic) with only `write:packages` and `read:packages` scope. Save it in a password manager, never in a file in the repo.",
+        "Log in Helm to GHCR: `echo \"$GHCR_TOKEN\" | helm registry login ghcr.io -u <your-github-user> --password-stdin`.",
+        "Package the chart: `helm package charts/shopnotes`. This makes `shopnotes-0.1.0.tgz`.",
+        "Push it: `helm push shopnotes-0.1.0.tgz oci://ghcr.io/<your-github-user>/charts`.",
+        "Check it: `helm show chart oci://ghcr.io/<your-github-user>/charts/shopnotes --version 0.1.0`.",
+        "On GitHub, open your profile, Packages, `charts/shopnotes`, Package settings, and set the visibility to Public, so clusters can pull it without a password. (For a private company chart you would add credentials instead.)",
+        "Test the install from the registry into a test namespace: `kubectl create namespace oci-test`, then `helm install shopnotes oci://ghcr.io/<your-github-user>/charts/shopnotes --version 0.1.0 -n oci-test --set postgres.enabled=false --set hpa.enabled=false --set ingress.host=oci-test.localhost`. Then remove it: `helm uninstall shopnotes -n oci-test` and `kubectl delete namespace oci-test`.",
+        "Add a GitHub Actions workflow `.github/workflows/chart.yml` that runs on push to `main` when `charts/**` changes. Give it `permissions: packages: write, contents: read`. Steps: checkout, `azure/setup-helm` (pin a version), `helm lint charts/shopnotes`, `echo \"${{ secrets.GITHUB_TOKEN }}\" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin`, `helm package charts/shopnotes`, `helm push shopnotes-*.tgz oci://ghcr.io/${{ github.repository_owner }}/charts`.",
+        "Change `version:` in `Chart.yaml` to `0.1.1`, push, and check that the workflow publishes the new version. A registry does not let you push the same version twice, so always raise the version.",
+        "Delete the local `.tgz` file and add `*.tgz` to `.gitignore`. Commit and push."
+      ],
+      "acceptance": [
+        "`helm show chart oci://ghcr.io/<your-github-user>/charts/shopnotes --version 0.1.1` works from your laptop.",
+        "The CI workflow is green and published version 0.1.1.",
+        "No token is written in any file in the repo.",
+        "The chart package is visible on your GitHub Packages page."
+      ],
+      "evidence": [
+        "Output of `helm show chart oci://ghcr.io/<your-github-user>/charts/shopnotes --version 0.1.1`",
+        "Link to the green GitHub Actions run",
+        "Screenshot of the package page on GitHub"
+      ],
+      "hints": [
+        "GHCR names must be lowercase. If your GitHub user has capital letters, write it in lowercase in the OCI URL.",
+        "If you get `denied`, check the token scopes and that the workflow has `packages: write`.",
+        "Helm 3.8 and newer support OCI registries by default. You do not need `helm repo add` for OCI."
+      ],
+      "explain": {
+        "en": "In this task I stored our Helm chart in GitHub Container Registry as an OCI artifact. I packaged the chart, logged in with a token that has only package rights, and pushed it. Then I installed the chart directly from the registry to prove it works. I also made a GitHub Actions job that lints, packages and pushes a new chart version when the chart changes. Now any cluster can install a fixed chart version without our Git repo.",
+        "hi": "Is task mein maine apna Helm chart GitHub Container Registry mein OCI artifact ki tarah store kiya. Chart ko package kiya, sirf package rights wale token se login kiya, aur push kiya. Phir registry se seedha chart install karke check kiya ki kaam karta hai. Ek GitHub Actions job bhi banaya jo chart badalne par lint, package aur naya version push karta hai. Ab koi bhi cluster bina Git repo ke fixed chart version install kar sakta hai."
+      },
+      "vocabulary": [
+        { "term": "OCI artifact", "en": "a file stored in a container registry using the same standard as images", "hi": "container registry mein images wale standard se store ki gayi file" },
+        { "term": "GHCR", "en": "GitHub Container Registry, a free place to store images and charts", "hi": "GitHub Container Registry, images aur charts rakhne ki free jagah" },
+        { "term": "personal access token", "en": "a password-like key for the GitHub API with limited rights", "hi": "GitHub API ke liye password jaisi key, limited rights ke saath" },
+        { "term": "scope", "en": "the list of things a token is allowed to do", "hi": "token ko kya-kya karne ki permission hai uski list" }
+      ],
+      "interview": [
+        { "q": "Why did you store the Helm chart in an OCI registry?", "a": "We already store our images in GHCR, so the chart lives in the same place with the same login. Every chart version is fixed and cannot be changed, so a deploy is repeatable. Other teams can install it without access to our source code." },
+        { "q": "Why do you change the chart version for every change?", "a": "A chart version should always mean the same content. If I change templates but keep the version, two clusters could run different things with the same number. The registry also refuses to overwrite the same version. So I follow semantic versioning and raise the version." },
+        { "q": "How did you keep the token safe?", "a": "On my laptop I gave the token on stdin with --password-stdin, so it is not in my shell history or in a file. In CI I used the built-in GITHUB_TOKEN with only packages write permission. The token is never committed to the repo." }
+      ],
+      "resources": [
+        { "title": "Helm docs: Use OCI-based registries", "url": "https://helm.sh/docs/topics/registries/" },
+        { "title": "GitHub docs: Working with the Container registry", "url": "https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry" }
+      ]
+    },
+    {
+      "id": "s08-t03",
+      "key": "OPS-803",
+      "type": "project",
+      "title": "GitOps: ArgoCD syncs ShopNotes from Git, CI updates the image tag",
+      "priority": "high",
+      "estimateHours": 18,
+      "goal": "A push to `main` builds a new image, CI writes the new tag into Git, and ArgoCD deploys it to the k3d cluster without any manual kubectl or helm command.",
+      "context": "Hi, people still run helm upgrade from their laptops and nobody knows what is really running. From now on Git is the only truth. Please install ArgoCD on the dev cluster, point it at our chart in Git, and change the CI pipeline so it only updates the image tag in Git. ArgoCD must also fix any manual change in the cluster.",
+      "steps": [
+        "Install ArgoCD on k3d: `kubectl create namespace argocd` and `kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`. Wait: `kubectl get pods -n argocd -w` until all pods are Running.",
+        "Install the CLI: follow https://argo-cd.readthedocs.io/en/stable/cli_installation/ and check `argocd version --client`.",
+        "Get the first admin password: `argocd admin initial-password -n argocd`. Open the UI: `kubectl port-forward svc/argocd-server -n argocd 8443:443` and go to https://localhost:8443 (accept the self-signed certificate warning). Log in as `admin`, then change the password under User Info, and delete the `argocd-initial-admin-secret`.",
+        "Log in with the CLI: `argocd login localhost:8443 --username admin --insecure`.",
+        "Remove the Helm release from OPS-801, because ArgoCD will now own the app: `helm uninstall shopnotes -n shopnotes-dev`. Keep the namespace and the DB Secret.",
+        "Write `gitops/shopnotes-dev.yaml`: `apiVersion: argoproj.io/v1alpha1`, `kind: Application`, name `shopnotes-dev`, namespace `argocd`. `spec.project: default`. `spec.source`: `repoURL: https://github.com/<your-github-user>/shopnotes.git`, `targetRevision: main`, `path: charts/shopnotes`, `helm.valueFiles: [values-dev.yaml]`. `spec.destination`: `server: https://kubernetes.default.svc`, `namespace: shopnotes-dev`. `spec.syncPolicy.automated: {prune: true, selfHeal: true}`.",
+        "Apply it: `kubectl apply -f gitops/shopnotes-dev.yaml`. In the UI you see the app tree. Check with `argocd app get shopnotes-dev`. Status must be Synced and Healthy.",
+        "Test self-heal: `kubectl scale deployment shopnotes-api -n shopnotes-dev --replicas=4`. Within a short time ArgoCD sets it back to the value in Git. Write down how long it took.",
+        "Test a Git change: change `api.replicas` in `values-dev.yaml`, commit and push. In the UI press Refresh (or wait about 3 minutes, the default poll time). The cluster follows Git.",
+        "Change your GitHub Actions CI workflow (for example `.github/workflows/ci.yml`). After tests, build and push the API image with the short commit SHA as tag: `ghcr.io/<your-github-user>/shopnotes-api:${GITHUB_SHA::7}`. Make the GHCR image package public (or see OPS-805 for pull secrets).",
+        "Add a job `update-gitops` that runs after the image push, with `permissions: contents: write`. Steps: checkout, install yq (https://github.com/mikefarah/yq), run `yq -i \".api.image.tag = \\\"${GITHUB_SHA::7}\\\"\" charts/shopnotes/values-dev.yaml`, then `git config user.name \"github-actions[bot]\"`, `git config user.email \"41898282+github-actions[bot]@users.noreply.github.com\"`, `git commit -am \"chore(dev): api image ${GITHUB_SHA::7} [skip ci]\"` and `git push`.",
+        "Make a small visible change in the API (for example the version in `/health`), push it, and watch: CI builds the image, CI commits the new tag, ArgoCD syncs, new pods start. Check: `curl http://shopnotes.localhost:8080/api/health`.",
+        "Practise a GitOps rollback: `git revert` the tag commit and push. ArgoCD goes back to the old image.",
+        "Write `docs/gitops-flow.md` with a short Mermaid diagram: developer push, CI test, image push to GHCR, tag commit, ArgoCD sync, cluster. Mention that ArgoCD Image Updater is another option that watches the registry instead of CI writing to Git. Commit and push."
+      ],
+      "acceptance": [
+        "`argocd app get shopnotes-dev` shows Synced and Healthy.",
+        "A manual `kubectl scale` is reverted by ArgoCD self-heal.",
+        "One push of app code ends with new API pods running the new image, with no manual command.",
+        "The tag commit made by CI is visible in the Git history.",
+        "A `git revert` of the tag commit rolls the app back.",
+        "`docs/gitops-flow.md` exists with a diagram."
+      ],
+      "evidence": [
+        "Screenshot of the ArgoCD UI with the app tree Synced and Healthy",
+        "Link to the green CI run and to the tag commit it made",
+        "Output of `kubectl get deploy shopnotes-api -n shopnotes-dev -o jsonpath='{.spec.template.spec.containers[0].image}'` after the sync",
+        "Link to `docs/gitops-flow.md`"
+      ],
+      "hints": [
+        "`[skip ci]` in the commit message stops the tag commit from starting the pipeline again in a loop.",
+        "If the push from CI fails with 403, check `permissions: contents: write` and the repo setting Actions, General, Workflow permissions.",
+        "If ArgoCD shows OutOfSync forever on the HPA or replicas, the HPA changes replicas. Do not set `replicas` in the Deployment when HPA is enabled, or add `ignoreDifferences` for `/spec/replicas`."
+      ],
+      "explain": {
+        "en": "In this project I set up GitOps with ArgoCD on our dev cluster. ArgoCD watches our Git repo and makes the cluster the same as the Helm chart and values in Git. I turned on automated sync with self-heal and prune, so manual changes in the cluster are removed. I changed the CI pipeline so it builds the image with the commit SHA as tag and then writes that tag into the values file in Git. ArgoCD sees the new commit and deploys it. To roll back, I only revert the commit in Git.",
+        "hi": "Is project mein maine dev cluster par ArgoCD ke saath GitOps setup kiya. ArgoCD hamare Git repo ko dekhta hai aur cluster ko Git wale Helm chart aur values jaisa bana deta hai. Automated sync ke saath self-heal aur prune on kiya, taaki cluster mein manual changes hat jaayein. CI pipeline badli, ab woh commit SHA ko tag bana ke image build karti hai aur phir woh tag Git ki values file mein likhti hai. ArgoCD naya commit dekhta hai aur deploy kar deta hai. Rollback ke liye bas Git mein commit revert karna hota hai."
+      },
+      "vocabulary": [
+        { "term": "GitOps", "en": "a way of working where Git is the single source of truth for the cluster", "hi": "kaam karne ka tareeka jisme cluster ke liye Git hi single source of truth hota hai" },
+        { "term": "sync", "en": "making the cluster the same as what is written in Git", "hi": "cluster ko Git mein likhe hue jaisa bana dena" },
+        { "term": "self-heal", "en": "ArgoCD undoes manual changes that are not in Git", "hi": "ArgoCD un manual changes ko hata deta hai jo Git mein nahi hain" },
+        { "term": "prune", "en": "deleting objects from the cluster that were removed from Git", "hi": "cluster se woh objects delete karna jo Git se hata diye gaye" },
+        { "term": "drift", "en": "a difference between Git and what really runs", "hi": "Git aur jo asli mein chal raha hai unke beech ka farak" }
+      ],
+      "interview": [
+        { "q": "What is GitOps and why did you use it?", "a": "GitOps means the wanted state of the cluster is in Git and a tool like ArgoCD applies it. Nobody runs kubectl apply by hand. Every change is a commit, so we have review, history and easy rollback. It also removes drift, because ArgoCD fixes manual changes." },
+        { "q": "How does a new image version reach the cluster in your setup?", "a": "A developer pushes code. GitHub Actions runs the tests, builds the image and pushes it to GHCR with the short commit SHA as tag. Then a CI job updates the image tag in values-dev.yaml and commits it. ArgoCD sees the new commit and syncs the new tag to the cluster." },
+        { "q": "Why do you use the commit SHA as the image tag and not latest?", "a": "A SHA tag is unique, so I always know which code runs in the cluster. With latest, the same tag can point to different images, and Kubernetes may not pull the new one. A fixed tag also makes rollback simple, because I just go back to the old tag in Git." }
+      ],
+      "resources": [
+        { "title": "Argo CD: Getting started", "url": "https://argo-cd.readthedocs.io/en/stable/getting_started/" },
+        { "title": "Argo CD: Automated sync policy", "url": "https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/" },
+        { "title": "Argo CD Image Updater docs", "url": "https://argocd-image-updater.readthedocs.io/en/stable/" }
+      ]
+    },
+    {
+      "id": "s08-t04",
+      "key": "OPS-804",
+      "type": "task",
+      "title": "Build a single-node k3s staging cluster on a free-tier EC2",
+      "priority": "medium",
+      "estimateHours": 10,
+      "goal": "ShopNotes staging runs on a one-node k3s cluster on a free-tier EC2 instance, installed from the OCI chart, and the team has a written decision on why we do not use EKS.",
+      "context": "Hi, the client wants to see a staging environment on a public URL. We have no budget for EKS: its control plane alone costs money every hour. Please use one free-tier EC2 instance with k3s. Stop the instance when nobody uses it, and write down the decision.",
+      "steps": [
+        "In the AWS console, check Billing, Free Tier, so you know your limits. Create a zero-spend budget if you do not have one yet.",
+        "Launch an EC2 instance: Ubuntu 24.04 LTS, type `t3.micro` or `t2.micro` (the one marked Free tier eligible in your region), 20 GB gp3 disk, tag `Project=shopnotes`, `Env=staging`.",
+        "Security group: SSH 22 and Kubernetes API 6443 only from your own IP (`My IP`), HTTP 80 and HTTPS 443 from anywhere.",
+        "SSH in. Add 2 GB of swap, because the instance has only 1 GB RAM: `sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab`.",
+        "Install k3s with the public IP in the API certificate: `curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"--tls-san <EC2_PUBLIC_IP>\" sh -`. Check: `sudo k3s kubectl get nodes`.",
+        "Copy the kubeconfig to your laptop: on the EC2 run `sudo cat /etc/rancher/k3s/k3s.yaml`, paste it into `~/.kube/staging.yaml` on your laptop, and change `server: https://127.0.0.1:6443` to `server: https://<EC2_PUBLIC_IP>:6443`. Then `chmod 600 ~/.kube/staging.yaml`.",
+        "From your laptop: `kubectl --kubeconfig ~/.kube/staging.yaml get nodes`. It must show 1 node Ready.",
+        "Create the namespace and DB Secret on staging: `kubectl --kubeconfig ~/.kube/staging.yaml create namespace shopnotes-staging` and the same `create secret generic shopnotes-db` command with a NEW strong password.",
+        "Set `ingress.host: <EC2_PUBLIC_IP>.sslip.io` in `values-staging.yaml`. sslip.io is a free DNS name that points to the IP inside the name.",
+        "Install from the OCI chart: `helm upgrade --install shopnotes oci://ghcr.io/<your-github-user>/charts/shopnotes --version 0.1.1 -n shopnotes-staging -f charts/shopnotes/values-staging.yaml --kubeconfig ~/.kube/staging.yaml`.",
+        "Test from your laptop: `curl http://<EC2_PUBLIC_IP>.sslip.io/api/health` and open the UI in the browser. Check memory on the node: `kubectl --kubeconfig ~/.kube/staging.yaml top nodes`.",
+        "Optional GitOps: register the staging cluster in your ArgoCD with `argocd cluster add default --kubeconfig ~/.kube/staging.yaml --name staging` and create an Application `shopnotes-staging` with `values-staging.yaml`. This works only while your laptop is on.",
+        "Write `docs/decisions/0001-no-eks.md` (an ADR): Context (small team, no budget), Decision (k3d for dev, single-node k3s on free-tier EC2 for staging), Why not EKS (control plane is charged per hour, about 73 USD per month, plus worker nodes, see https://aws.amazon.com/eks/pricing/), Risks (one node is a single point of failure, 1 GB RAM is small), When to move to EKS (paying users, need for high availability).",
+        "Stop the EC2 instance when you finish for the day: `aws ec2 stop-instances --instance-ids <id>`. Note: the public IP changes after a stop and start; then update `--tls-san` (re-run the install command), the kubeconfig and the host."
+      ],
+      "acceptance": [
+        "`kubectl --kubeconfig ~/.kube/staging.yaml get nodes` shows 1 Ready node from your laptop.",
+        "http://<EC2_PUBLIC_IP>.sslip.io shows ShopNotes and can save a note.",
+        "Port 6443 and 22 are open only to your IP in the security group.",
+        "`docs/decisions/0001-no-eks.md` explains the cost reason with the official pricing link.",
+        "The instance is stopped when you are not working, and your bill shows 0 USD."
+      ],
+      "evidence": [
+        "Output of `kubectl --kubeconfig ~/.kube/staging.yaml get nodes,pods -A`",
+        "Screenshot of ShopNotes on the sslip.io URL",
+        "Screenshot of the security group inbound rules",
+        "Link to the ADR file"
+      ],
+      "hints": [
+        "If pods stay Pending on staging, the node has no free memory. Set API replicas to 1 and turn off the HPA in `values-staging.yaml`.",
+        "Never open port 6443 to 0.0.0.0/0. The Kubernetes API is the key to the whole cluster.",
+        "k3s includes Traefik, so the same Ingress from the chart works on staging."
+      ],
+      "explain": {
+        "en": "In this task I built a staging Kubernetes cluster on one free-tier EC2 instance with k3s. I added swap because the machine has only 1 GB RAM. I opened the Kubernetes API port only to my own IP. I installed ShopNotes from our OCI chart with the staging values and used an sslip.io host name, so we got a public URL for free. I also wrote an architecture decision record that explains why we skip EKS: the control plane costs money every hour, and we have no budget yet.",
+        "hi": "Is task mein maine ek free-tier EC2 instance par k3s se staging Kubernetes cluster banaya. Machine mein sirf 1 GB RAM hai, isliye swap add kiya. Kubernetes API port sirf apne IP ke liye khola. ShopNotes ko hamare OCI chart se staging values ke saath install kiya aur sslip.io host name use kiya, jisse free mein public URL mil gaya. Ek architecture decision record bhi likha jo batata hai ki EKS kyun skip kiya: uska control plane har ghante paise leta hai aur abhi budget nahi hai."
+      },
+      "vocabulary": [
+        { "term": "k3s", "en": "a small, light Kubernetes made for small machines", "hi": "chhoti machines ke liye bana halka Kubernetes" },
+        { "term": "control plane", "en": "the brain of Kubernetes: API server, scheduler and database", "hi": "Kubernetes ka dimaag: API server, scheduler aur database" },
+        { "term": "kubeconfig", "en": "a file with the cluster address and the key to log in", "hi": "file jisme cluster ka address aur login ki key hoti hai" },
+        { "term": "ADR", "en": "Architecture Decision Record; a short note of a technical decision and why", "hi": "Architecture Decision Record; technical decision aur uski wajah ka chhota note" },
+        { "term": "single point of failure", "en": "one part that stops everything when it breaks", "hi": "ek hissa jo toot jaaye to sab kuch ruk jaata hai" }
+      ],
+      "interview": [
+        { "q": "Why did you not use EKS?", "a": "EKS charges for the control plane every hour, about 73 US dollars a month, even before we add worker nodes. That is not in the free tier. Our app is small, so one k3s node on a free-tier EC2 is enough for staging. I wrote this down in an ADR with the risks and with the point when we should move to EKS." },
+        { "q": "What are the risks of a single-node k3s cluster?", "a": "If the node goes down, the whole staging environment is down, because there is no second node. The machine has little RAM, so I had to add swap and keep replicas low. For staging this is OK. For production I would use at least three nodes or a managed service." },
+        { "q": "How did you secure the k3s API on the internet?", "a": "In the security group I allowed port 6443 and SSH only from my own IP. The kubeconfig file has admin rights, so I keep it only on my laptop with chmod 600. I added the public IP with --tls-san so the certificate is valid for that address." }
+      ],
+      "resources": [
+        { "title": "K3s docs: Quick-start guide", "url": "https://docs.k3s.io/quick-start" },
+        { "title": "K3s docs: Requirements", "url": "https://docs.k3s.io/installation/requirements" },
+        { "title": "Amazon EKS pricing", "url": "https://aws.amazon.com/eks/pricing/" }
+      ]
+    },
+    {
+      "id": "s08-t05",
+      "key": "OPS-805",
+      "type": "incident",
+      "title": "INCIDENT: new release stuck in ImagePullBackOff",
+      "priority": "high",
+      "estimateHours": 4,
+      "goal": "Find why the new pods cannot pull their image, fix it, and add a check so it does not happen again.",
+      "context": "ALERT: Hi, the last deploy never finished. The new pods show ImagePullBackOff and the old version is still serving. A developer made the image package private yesterday, and the pipeline also changed. Please find the one real cause, fix it, and tell me how to catch it before deploy. Use the drill in `drills/image-pull-backoff/`.",
+      "steps": [
+        "Read `drills/image-pull-backoff/README.md`. Do NOT open `SOLUTION.md`.",
+        "Start the drill: `cd drills/image-pull-backoff && docker compose up -d`, plus any start steps in the README. Write down the start time.",
+        "Look at the status of the services and the exact error text: `docker compose ps -a` and `docker compose logs --tail=100` (in Kubernetes: `kubectl get pods` and `kubectl describe pod <pod>`; read the `Events` part, it says `Failed to pull image` and the reason).",
+        "Read the error carefully. The three common reasons are: the tag does not exist (`not found` / `manifest unknown`), no permission (`unauthorized` / `denied`), or a wrong registry name or network problem.",
+        "Check the image name and tag that the config really asks for. Compare it letter by letter with what exists in the registry.",
+        "Try to pull the same image by hand: `docker pull <image>:<tag>`. This tells you if it is the tag, the login or the network.",
+        "Fix the ONE root cause in the config (for example the correct tag, or the correct login). In Kubernetes a private registry needs a pull secret: `kubectl create secret docker-registry ghcr-cred --docker-server=ghcr.io --docker-username=<your-github-user> --docker-password=<token-with-read:packages> -n <ns>` and `imagePullSecrets: [{name: ghcr-cred}]` in the pod spec.",
+        "Apply the fix and run `bash check.sh`. It must print PASS.",
+        "Submit your root cause in the DevOps Lab app in 2-3 sentences. Then read `SOLUTION.md` and compare.",
+        "Write a prevention idea: for example a CI step that runs `docker manifest inspect <image>:<tag>` before it writes the tag into Git, so ArgoCD never gets a tag that does not exist.",
+        "Stop the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`bash check.sh` prints PASS.",
+        "Your root cause quotes the exact error message and explains it.",
+        "Your fix is in the config, not a manual pull on one machine.",
+        "You wrote one CI check that would catch the problem before deploy."
+      ],
+      "evidence": [
+        "Output of `bash check.sh` showing PASS",
+        "The error line from the logs or events",
+        "Your root cause text and the prevention idea"
+      ],
+      "hints": [
+        "ErrImagePull is the first failure. ImagePullBackOff means Kubernetes is now waiting longer before each new try.",
+        "The users still had the old version because a rolling update keeps old pods until new pods are ready. That is why the outage was small.",
+        "Image names are case sensitive and GHCR names must be lowercase."
+      ],
+      "explain": {
+        "en": "In this incident the new pods could not pull their image, so the deploy got stuck in ImagePullBackOff. The old pods kept running because of the rolling update, so users saw no big outage. I read the exact error in the events and tried to pull the image by hand to see if it was the tag, the login or the network. I found the one real cause and fixed it in the config. As prevention I suggested a CI step that checks the image exists before the tag goes into Git.",
+        "hi": "Is incident mein naye pods apni image pull nahi kar pa rahe the, isliye deploy ImagePullBackOff mein atak gaya. Rolling update ki wajah se purane pods chalte rahe, to users ko bada outage nahi dikha. Maine events mein exact error padha aur image ko haath se pull karke dekha ki problem tag ki hai, login ki ya network ki. Ek asli cause mila aur config mein fix kiya. Prevention ke liye suggest kiya ki CI mein ek step ho jo Git mein tag likhne se pehle check kare ki image exist karti hai."
+      },
+      "vocabulary": [
+        { "term": "ImagePullBackOff", "en": "Kubernetes cannot download the image and waits before trying again", "hi": "Kubernetes image download nahi kar pa raha aur dobara try karne se pehle wait karta hai" },
+        { "term": "imagePullSecrets", "en": "a list of secrets with registry login used to pull private images", "hi": "registry login wale secrets ki list jo private images pull karne ke liye use hoti hai" },
+        { "term": "image tag", "en": "the version name of an image, the part after the colon", "hi": "image ka version naam, colon ke baad wala hissa" },
+        { "term": "manifest", "en": "the description of an image in the registry; if it is missing, the tag does not exist", "hi": "registry mein image ki details; agar missing hai to tag exist nahi karta" }
+      ],
+      "interview": [
+        { "q": "A pod shows ImagePullBackOff. How do you debug it?", "a": "I run kubectl describe pod and read the events. The message tells me if the image is not found, if access is denied, or if there is a network error. Then I try docker pull with the same name and tag. After that I fix the tag, the pull secret, or the registry name." },
+        { "q": "How do you pull an image from a private registry in Kubernetes?", "a": "I create a secret of type docker-registry with the registry address, user and a token that can only read packages. Then I add it under imagePullSecrets in the pod spec or to the service account. The kubelet uses it when it pulls the image." },
+        { "q": "Why did users not see an outage during this incident?", "a": "The Deployment uses a rolling update. Kubernetes starts new pods first and removes old pods only when the new ones are ready. The new pods never became ready, so the old pods kept serving. This is why readiness probes and rolling updates are important." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Images", "url": "https://kubernetes.io/docs/concepts/containers/images/" },
+        { "title": "Kubernetes docs: Pull an image from a private registry", "url": "https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/" }
+      ]
+    }
+  ]
+}

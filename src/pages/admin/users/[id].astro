@@ -1,0 +1,27 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import { userById, progressFor, hoursFor, workLog, drillResults } from '../../../lib/db';
+import { sprints } from '../../../lib/curriculum';
+const db = env.DB;
+const u = await userById(db, Astro.params.id!);
+if (!u) return new Response('Not found', { status: 404 });
+const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const log = await workLog(db, u.id, 60); const drills = await drillResults(db, u.id);
+const submitBtn = (s: string) => s === 'review';
+---
+<Base title={u.name}>
+  <p class="help"><a href="/admin">Admin</a> › {u.name}</p>
+  <h1>{u.name} <span class="pill">{u.role}</span></h1>
+  <p class="sub">{u.email} · <a href={`/u/${u.handle}`}>portfolio</a> · <a href={`/admin/letter/${u.id}`}>experience letter</a> · started {u.started_at ?? '—'} · {hrs.h.toFixed(1)} h on {hrs.days} days</p>
+  <div class="row">
+    <form data-api action="/api/admin/user" method="post"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="action" value="role" /><input type="hidden" name="role" value={u.role === 'admin' ? 'trainee' : 'admin'} /><button class="btn sec sm" type="submit">{u.role === 'admin' ? 'Make trainee' : 'Make admin'}</button></form>
+    <form data-api action="/api/admin/user" method="post" onsubmit="return confirm('Delete this account and all its data?')"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="action" value="delete" /><button class="btn bad sm" type="submit">Delete account</button></form>
+  </div>
+  <h2>Tickets</h2>
+  {sprints.map((s) => <div class="card"><strong>Sprint {s.number}: {s.title}</strong><table><tbody>{s.tickets.map((t) => { const p = prog.get(t.id); return (
+    <tr><td><a href={`/app/tickets/${t.id}`}>{t.key}</a> {t.title}</td><td><span class={`pill ${p?.status ?? 'todo'}`}>{p?.status ?? 'todo'}</span></td><td>{p?.hours ?? 0} h</td><td>{p?.explain_score != null ? `${p.explain_score}/10` : ''}</td>
+      <td>{submitBtn(p?.status ?? '') && <form data-api action="/api/admin/review" method="post" class="row"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="ticket" value={t.id} /><input name="note" placeholder="note" style="max-width:180px" /><button class="btn ok sm" name="decision" value="approve">Approve</button><button class="btn bad sm" name="decision" value="changes">Changes</button></form>}
+      {p?.status === 'done' && <form data-api action="/api/admin/review" method="post"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="ticket" value={t.id} /><input type="hidden" name="note" value="Reopened by reviewer." /><button class="btn sec sm" name="decision" value="changes">Reopen</button></form>}</td></tr>); })}</tbody></table></div>)}
+  <h2>Incidents</h2><div class="card"><table><tbody>{drills.map((d) => <tr><td>{d.created_at.slice(0, 10)}</td><td>{d.drill}</td><td><span class={`pill ${d.verdict === 'correct' ? 'done' : 'doing'}`}>{d.verdict}</span></td><td>{d.minutes ?? ''} min</td><td class="help">{d.root_cause}</td></tr>)}{drills.length === 0 && <tr><td class="help">None yet.</td></tr>}</tbody></table></div>
+  <h2>Recent work log</h2><div class="card"><table><tbody>{log.map((r) => <tr><td>{r.day}</td><td>{r.hours} h</td><td>{r.ticket_id}</td><td class="help">{r.note}</td></tr>)}</tbody></table></div>
+</Base>
