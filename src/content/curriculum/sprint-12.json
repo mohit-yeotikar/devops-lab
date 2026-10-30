@@ -1,0 +1,359 @@
+{
+  "id": "s12",
+  "number": 12,
+  "title": "Capstone and handover",
+  "weeks": "23-24",
+  "theme": "Finish, document and hand over the ShopNotes platform, and prepare to explain it with confidence in interviews.",
+  "jobStory": "In this sprint you close the project like a DevOps engineer who is moving to a new team. You draw the full architecture, finish the README and runbooks, and update the cost sheet. You record a 10-minute demo, write a one-page project summary, and practise 30 interview questions and a mock interview. At the end you hand the platform over to another engineer, who must be able to run it without you.",
+  "outcomes": [
+    "I documented a full DevOps platform with a Mermaid architecture diagram, README and runbooks.",
+    "I recorded a 10-minute demo of the CI/CD, GitOps, monitoring and incident flow.",
+    "I can explain my project in 60 seconds and answer 30 common DevOps interview questions in simple English.",
+    "I wrote honest resume bullets and a LinkedIn summary based on real work.",
+    "I handed over the platform with a checklist and a sign-off from the receiving engineer."
+  ],
+  "tickets": [
+    {
+      "id": "s12-t01",
+      "key": "OPS-1201",
+      "type": "docs",
+      "title": "Architecture diagram, final README and runbook index",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "A new engineer can read the README, understand the whole ShopNotes platform from one diagram, and find the right runbook in less than one minute.",
+      "context": "Hi, you are moving to another project in two weeks. Before you go, the platform must be documented so that someone else can run it. Please draw the full architecture in Mermaid (it renders on GitHub), clean up the README, and make one index of all runbooks. Test it: every command in the README must work on a fresh laptop.",
+      "steps": [
+        "Create `docs/architecture.md`. Start a code block with three backticks and the word `mermaid`, then `flowchart LR`. GitHub shows it as a diagram.",
+        "Draw the delivery flow, one arrow per line, for example: `dev[Developer] -->|git push| gh[GitHub repo]`, `gh --> ci[GitHub Actions: test, Trivy, ZAP]`, `ci -->|image| ghcr[GHCR images + Helm chart]`, `ci -->|tag commit| gh`, `argo[Argo CD] -->|watches| gh`, `argo -->|sync| k8s[k3d dev / k3s staging]`.",
+        "Draw the runtime flow in a `subgraph cluster`: `user[Browser] -->|HTTPS| ing[Traefik Ingress + cert-manager]`, `ing --> web[web: Nginx]`, `web -->|/api| api[api: Flask + Gunicorn, HPA 2-5]`, `api --> pg[(Postgres StatefulSet in dev)]`, and outside the cluster `api -.->|TLS| rds[(Amazon RDS in AWS)]`.",
+        "Draw the operations parts: `alloy[Alloy] --> loki[Loki]`, `prom[Prometheus] -->|scrape /metrics| api`, `prom --> am[Alertmanager] -->|alert| tg[Telegram]`, `grafana[Grafana] --> prom`, `grafana --> loki`, `eso[External Secrets] -->|read| ssm[SSM Parameter Store]`, `cron[pg_dump cron] --> s3[(S3 backups, 14-day lifecycle)]`.",
+        "Under the diagram, write one simple line for every box: what it is and why we have it. Add a table of environments: dev (k3d on laptop), staging (k3s on free-tier EC2), AWS 3-tier (EC2 + RDS from Terraform and Ansible).",
+        "Check that the diagram renders: push the file and open it on GitHub. If it shows an error, test it at https://mermaid.live and fix the line.",
+        "Rewrite `README.md` with these sections: What is ShopNotes, Architecture (link and a small picture), Repo layout (one line per folder: `api/`, `web/`, `db/`, `k8s/`, `charts/`, `gitops/`, `monitoring/`, `terraform/`, `ansible/`, `scripts/`, `docs/`), Quick start on a laptop (Compose and k3d), Deploy (the GitOps flow), Environments and URLs, Monitoring and alerts, Backups and restore, Security, Cost, Runbooks, Contacts (roles only).",
+        "Create `docs/runbooks/README.md` as the index: a table with Alert or situation, Severity, Runbook link, Last tested date. Include all alert runbooks from OPS-1004, the k8s debugging runbook (OPS-704), the restore test (OPS-1001), backups (OPS-1002), certificate expiry (OPS-1105), and node maintenance (OPS-1003).",
+        "Check all links in the docs: `grep -rhoE '\\]\\([^)]+\\)' README.md docs | sort -u` and open each one. Fix the broken ones.",
+        "Fresh laptop test: clone the repo into a new folder (`git clone https://github.com/<your-github-user>/shopnotes.git /tmp/fresh && cd /tmp/fresh`), delete your k3d cluster, and follow only the README Quick start. Write down every step that was missing or wrong and fix the README.",
+        "Ask a friend or your mentor to read the README for 10 minutes and tell you 3 things that were not clear. Fix them. Commit and push."
+      ],
+      "acceptance": [
+        "`docs/architecture.md` renders as a diagram on GitHub and shows the delivery flow, the runtime flow and the operations tools.",
+        "Every box in the diagram has a one-line explanation.",
+        "The README has all listed sections and the Quick start works on a fresh clone.",
+        "`docs/runbooks/README.md` lists every runbook with a link and a last tested date.",
+        "No broken links in README and docs."
+      ],
+      "evidence": [
+        "Link to `docs/architecture.md` on GitHub (rendered diagram)",
+        "Link to `README.md` and `docs/runbooks/README.md`",
+        "Your notes from the fresh laptop test and what you fixed"
+      ],
+      "hints": [
+        "Keep the diagram readable. If it gets too big, make two diagrams: one for delivery (CI/CD) and one for runtime.",
+        "In Mermaid, a label with special characters must be in quotes, for example `api[\"api: Flask (HPA 2-5)\"]`.",
+        "Write the README for a new team member on their first day, not for yourself."
+      ],
+      "explain": {
+        "en": "In this task I documented the whole ShopNotes platform before handover. I drew the architecture in Mermaid, so it is text in Git and GitHub shows it as a diagram. The diagram has three parts: how code goes from a developer to the cluster, how a user request flows, and the operations tools like monitoring, secrets and backups. I rewrote the README with a quick start and tested it on a fresh clone. I also made one index of all runbooks with the date each one was last tested.",
+        "hi": "Is task mein maine handover se pehle poore ShopNotes platform ko document kiya. Architecture Mermaid mein banaya, isliye woh Git mein text hai aur GitHub use diagram ki tarah dikhata hai. Diagram ke teen hisse hain: code developer se cluster tak kaise jaata hai, user ki request kaise flow hoti hai, aur operations tools jaise monitoring, secrets aur backups. README ko quick start ke saath dobara likha aur fresh clone par test kiya. Saare runbooks ka ek index bhi banaya, har ek ki last tested date ke saath."
+      },
+      "vocabulary": [
+        { "term": "Mermaid", "en": "a way to write diagrams as text that GitHub shows as pictures", "hi": "diagrams ko text mein likhne ka tareeka jise GitHub picture ki tarah dikhata hai" },
+        { "term": "handover", "en": "giving your work and knowledge to another person so they can run it", "hi": "apna kaam aur knowledge doosre ko dena taaki woh use chala sake" },
+        { "term": "quick start", "en": "the shortest steps to get the project running", "hi": "project chalane ke sabse chhote steps" },
+        { "term": "docs as code", "en": "keeping documentation in Git next to the code, with reviews", "hi": "documentation ko code ke saath Git mein rakhna, review ke saath" }
+      ],
+      "interview": [
+        { "q": "Can you draw and explain your project architecture?", "a": "Yes. A developer pushes code to GitHub, GitHub Actions tests and scans it, builds an image and writes the new tag into Git. Argo CD syncs the Helm chart to the Kubernetes cluster. Users come through a Traefik Ingress with TLS to the Nginx frontend and the Flask API, which uses Postgres. Prometheus, Grafana and Loki watch everything, and alerts go to Telegram." },
+        { "q": "Why did you write the diagram in Mermaid?", "a": "Mermaid is plain text, so it lives in Git next to the code. When the system changes, I change the diagram in the same pull request, and the team can review it. GitHub shows it as a picture without any extra tool. A drawing in a separate tool is often old after a few months." },
+        { "q": "How did you check that your documentation is good?", "a": "I did a fresh laptop test: I cloned the repo into a new folder and followed only the README. Every missing step I found, I added. I also asked another person to read it and tell me what was not clear. Good docs are tested, like code." }
+      ],
+      "resources": [
+        { "title": "Mermaid docs: Flowchart syntax", "url": "https://mermaid.js.org/syntax/flowchart.html" },
+        { "title": "GitHub docs: Creating diagrams", "url": "https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams" },
+        { "title": "GitHub docs: About READMEs", "url": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes" }
+      ]
+    },
+    {
+      "id": "s12-t02",
+      "key": "OPS-1202",
+      "type": "docs",
+      "title": "Final cost sheet and a 10-minute demo video",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "The team has the final monthly cost sheet, and a 10-minute demo video in simple English that shows the platform working end to end.",
+      "context": "Hi, the client wants a short video they can watch later, and our manager wants to know what this platform costs per month now and what it would cost in production. Please update the cost sheet from OPS-1104 and record a 10-minute demo. Practise it two times before you record. Simple English is fine; clear is more important than fancy.",
+      "steps": [
+        "Update `docs/cost/cost-sheet-<yyyy-mm>.md` with this month's numbers from Cost Explorer. Add three totals: Lab today (free tier), Same setup after free tier ends, and Small production (for example 3 EKS worker nodes or 3 k3s nodes, RDS Multi-AZ, a load balancer). Use https://calculator.aws/ and save the calculator link in the sheet.",
+        "Add one line for each money decision we made: k3s instead of EKS, Parameter Store instead of Secrets Manager, S3 lifecycle on backups, stopping EC2 at night, tags and the cleanup script.",
+        "Prepare the demo: start the k3d cluster, open these tabs before recording: GitHub repo, GitHub Actions, Argo CD UI, ShopNotes app, Grafana RED dashboard, Grafana Explore (Loki), Telegram, `docs/architecture.md`, the cost sheet.",
+        "Write `docs/demo-script.md` with these parts and times. 0:00-0:45 Introduction: 'Hi, my name is <name>. This is ShopNotes, a small notes app. I built the DevOps platform around it: CI/CD, Kubernetes, GitOps, monitoring, backups and security. Everything runs on a laptop and the AWS free tier.'",
+        "1:00-2:00 Architecture: show `docs/architecture.md`. Say: 'Code goes from GitHub to GitHub Actions. Actions tests and scans the code, builds an image and writes the new image tag into Git. Argo CD sees the change and deploys it to Kubernetes. Prometheus, Grafana and Loki watch the app.'",
+        "2:00-4:00 Live change: change the version text in the API, commit and push. Say: 'I push a small change. The pipeline runs tests, Trivy and ZAP. It builds the image and commits the new tag.' Show the green run and the tag commit.",
+        "4:00-5:00 GitOps: show Argo CD syncing and the new pods. Say: 'Argo CD found the new commit and started a rolling update. The old pods stay until the new pods are ready, so users see no downtime.' Then show `curl http://shopnotes.localhost:8080/api/health` with the new version.",
+        "5:00-6:30 Monitoring: show the RED dashboard and a LogQL query. Say: 'This dashboard shows requests per second, error percent and the 95th percentile time. Our SLO is 99.5 percent of requests without a server error.' Then scale the API to 0 (auto-sync off) and show the Telegram alert. Say: 'When users are affected, the on-call person gets this message with a link to the runbook.' Scale back and show the resolved message.",
+        "6:30-7:30 Incident story: tell one incident from the drills in 4 sentences: what users saw, how you found the root cause, the fix, and the prevention. Example: 'The API was OOMKilled every few hours. I saw memory grow with every request. I found a list in the code that was never cleared and fixed it. I added an alert at 80 percent of the memory limit.'",
+        "7:30-8:30 Security and backups: show the ExternalSecret, the Trivy job, the TLS certificate, and the S3 backup files. Say: 'There are no passwords in Git. Images are scanned in every build. Backups run every night and I tested a restore; it took <N> minutes.'",
+        "8:30-9:30 Cost: show the cost sheet. Say: 'The lab costs 0 dollars per month. A small production setup would cost about <X> dollars. We skipped EKS because the control plane alone costs about 73 dollars a month.'",
+        "9:30-10:00 Close: 'Everything is documented in the README and runbooks. Thank you for watching.'",
+        "Practise the script two times with a timer. Speak slowly. If you forget a word, it is OK; just continue.",
+        "Record your screen and voice with a free tool (for example OBS Studio, https://obsproject.com/). Upload as an unlisted video (YouTube unlisted or Google Drive with link sharing) and put the link in the README. Do not show passwords, tokens or your AWS account id on screen."
+      ],
+      "acceptance": [
+        "The cost sheet has this month's real numbers and the three totals with a calculator link.",
+        "`docs/demo-script.md` exists with all parts and times.",
+        "The video is 9 to 11 minutes and shows a live push going all the way to new pods.",
+        "The video shows a real alert arriving and a resolved message.",
+        "No secret, token or account id is visible in the video."
+      ],
+      "evidence": [
+        "Link to the updated cost sheet",
+        "Link to `docs/demo-script.md`",
+        "Link to the unlisted demo video"
+      ],
+      "hints": [
+        "Make the cluster ready 15 minutes before recording. Argo CD and Prometheus need some minutes after a cold start.",
+        "If something fails during recording, stay calm and explain how you debug it. That is also a good demo.",
+        "Increase the terminal and browser font size so text is readable in the video."
+      ],
+      "explain": {
+        "en": "In this task I updated our cost sheet and recorded a 10-minute demo of the platform. The cost sheet shows that the lab costs zero dollars, what it would cost after the free tier, and what a small production setup would cost. In the demo I pushed a live change and showed it going through CI, Argo CD and a rolling update. Then I showed the dashboards, a real alert in Telegram, our security setup and the tested backups. I wrote a script with times first and practised it, so the video was clear and on time.",
+        "hi": "Is task mein maine cost sheet update ki aur platform ka 10 minute ka demo record kiya. Cost sheet dikhati hai ki lab ka kharcha zero dollar hai, free tier ke baad kitna hoga, aur ek chhoti production setup kitne ki hogi. Demo mein maine ek live change push kiya aur dikhaya ki woh CI, Argo CD aur rolling update se kaise jaata hai. Phir dashboards, Telegram mein asli alert, security setup aur tested backups dikhaye. Pehle times ke saath script likhi aur practice ki, isliye video clear aur time par raha."
+      },
+      "vocabulary": [
+        { "term": "demo", "en": "a short show of a working system to other people", "hi": "doosron ko chalta hua system dikhane ka chhota show" },
+        { "term": "end to end", "en": "from the first step to the last step, all together", "hi": "pehle step se aakhri step tak, sab saath mein" },
+        { "term": "forecast", "en": "a guess of the future cost based on today's use", "hi": "aaj ke use ke hisaab se aage ke cost ka andaaza" },
+        { "term": "unlisted video", "en": "a video only people with the link can see", "hi": "video jo sirf link wale log dekh sakte hain" }
+      ],
+      "interview": [
+        { "q": "How much does your platform cost?", "a": "The lab costs zero dollars per month because I use k3d on my laptop and the AWS free tier, with a zero-spend budget alert. After the free tier, the same small setup would cost a few dollars more. I also calculated a small production setup with the AWS Pricing Calculator. The biggest saving was using k3s instead of EKS." },
+        { "q": "Show me how a change goes to production in your setup.", "a": "I push a commit to main. GitHub Actions runs the tests and the security scans, builds the image with the commit SHA as tag, and commits the new tag into the Helm values file. Argo CD sees the commit and does a rolling update. I check the pods, the health endpoint and the dashboard after the deploy." },
+        { "q": "What would you change if this went to real production?", "a": "I would use a managed Kubernetes or at least three nodes, and RDS Multi-AZ for the database. I would store Terraform state with locking and use separate AWS accounts for staging and production. I would add a pull request approval step before production syncs. And I would set up on-call with a proper paging tool." }
+      ],
+      "resources": [
+        { "title": "AWS Pricing Calculator", "url": "https://calculator.aws/" },
+        { "title": "AWS Cost Explorer docs", "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html" },
+        { "title": "OBS Studio (free screen recorder)", "url": "https://obsproject.com/" }
+      ]
+    },
+    {
+      "id": "s12-t03",
+      "key": "OPS-1203",
+      "type": "docs",
+      "title": "One-page project summary, resume bullets and LinkedIn summary",
+      "priority": "medium",
+      "estimateHours": 8,
+      "goal": "You have a one-page 'my project' explanation, honest resume bullets in correct English for every sprint, and a LinkedIn summary, all based on work you really did.",
+      "context": "Hi, your next step is job interviews. Recruiters read a resume for about one minute, and interviewers ask 'Tell me about your project' first. Please write one page about the ShopNotes platform, resume bullets that show real results with numbers, and a LinkedIn summary. Only write what you really did and can explain.",
+      "steps": [
+        "Create `docs/my-project.md` (one page) with these sections: Problem (2 lines), What I built (5 bullets), Architecture (link to the diagram), Tools (one line per area: Linux, Git, Docker, CI, AWS, Terraform, Ansible, Kubernetes, Helm, Argo CD, Prometheus, Grafana, Loki, Trivy, ZAP), My numbers, Hardest problem and how I solved it, What I would do next.",
+        "Fill 'My numbers' with your real results, for example: API image size before and after, CI time, HPA 2 to 5 pods, restore time in minutes, failed requests during maintenance (0), number of HIGH vulnerabilities before and after, monthly cost (0 USD).",
+        "Write a 60-second answer to 'Tell me about your project' at the top of the page and practise it aloud. Model: 'I built the full DevOps platform for a small 3-tier app called ShopNotes. I started with Linux and Docker, then CI with GitHub Actions and Jenkins, then AWS with Terraform and Ansible. Then I moved it to Kubernetes with Helm and Argo CD for GitOps. I added Prometheus, Grafana and Loki with alerts to Telegram, tested backups, and secured it with least-privilege IAM, Parameter Store and image scanning. It all runs on the AWS free tier, and I handled several incidents like CrashLoopBackOff and OOMKilled.'",
+        "Add a 'Projects' section to your resume (not under work experience). Title: 'ShopNotes DevOps Platform (hands-on training project, 24 weeks)'. Pick 6 to 8 of the bullets below, change the numbers to your real numbers, and remove anything you did not do.",
+        "Sprint 1 bullet: 'Set up a Flask and PostgreSQL application on Linux, ran it as a systemd service behind Nginx, and wrote Bash scripts for health checks and database backups.'",
+        "Sprint 2 bullet: 'Containerized a 3-tier application with multi-stage Dockerfiles and Docker Compose, reduced the API image size by <N>%, and fixed all fixable HIGH and CRITICAL vulnerabilities found by Trivy.'",
+        "Sprint 3 bullet: 'Built CI pipelines in GitHub Actions and Jenkins that test the code, build Docker images and push them to GitHub Container Registry on every change.'",
+        "Sprint 4 bullet: 'Deployed a 3-tier architecture on AWS by hand (VPC with public and private subnets, an Application Load Balancer, EC2, RDS PostgreSQL and security groups) within the AWS Free Tier.'",
+        "Sprint 5 bullet: 'Rebuilt the AWS infrastructure as code with Terraform and remote state, so a full environment can be created or destroyed in about <N> minutes.'",
+        "Sprint 6 bullet: 'Automated server setup and application deployment with Ansible roles and enabled HTTPS with Let's Encrypt certificates.'",
+        "Sprint 7 bullet: 'Migrated the application to Kubernetes with Deployments, a PostgreSQL StatefulSet, a Traefik Ingress, health probes, resource limits and an HPA that scaled the API from 2 to 5 pods under load.'",
+        "Sprint 8 bullet: 'Packaged the application as a Helm chart published to GHCR as an OCI artifact and introduced GitOps with Argo CD, so every deployment and rollback is a Git commit.'",
+        "Sprint 9 bullet: 'Implemented monitoring and logging with Prometheus, Grafana, Loki and Grafana Alloy, built a RED dashboard, defined a 99.5% availability SLO and routed alerts to Telegram through Alertmanager.'",
+        "Sprint 10 bullet: 'Verified RDS point-in-time recovery with a timed restore test (<N> minutes), automated nightly pg_dump backups to S3 with a lifecycle policy, and patched cluster nodes with zero failed requests.'",
+        "Sprint 11 bullet: 'Applied IAM least privilege, moved secrets to AWS SSM Parameter Store with External Secrets Operator, added Trivy and OWASP ZAP scans to CI, and kept the monthly AWS cost at 0 USD with tagging and a cleanup script.'",
+        "Sprint 12 bullet: 'Documented the platform with a Mermaid architecture diagram, runbooks and a cost sheet, and handed it over to another engineer with a recorded demo.'",
+        "Check your English: every bullet starts with a past-tense action verb (Set up, Built, Deployed, Migrated), has no 'I', and ends with a result. Paste them into a grammar checker (for example the free version of LanguageTool) and fix the errors.",
+        "Write the LinkedIn About section (about 120 words). Model: 'I am a junior DevOps engineer with a B.Sc. and hands-on experience in Linux, Docker, CI/CD, AWS, Terraform, Ansible and Kubernetes. In a 24-week project I built the full platform for a 3-tier web app: CI pipelines in GitHub Actions and Jenkins, infrastructure as code on AWS, Kubernetes with Helm and Argo CD for GitOps, and monitoring with Prometheus, Grafana and Loki. I practised real operations work: incident response, tested backups, zero-downtime maintenance, security scanning and cost control on the AWS free tier. I like to automate repeated work and write clear runbooks. I am looking for a DevOps or cloud engineer role. Project: <GitHub link>.'",
+        "Update your LinkedIn headline, for example 'Junior DevOps Engineer | AWS | Kubernetes | Terraform | CI/CD', add the GitHub repo and the demo video in the Featured section. Commit `docs/my-project.md`."
+      ],
+      "acceptance": [
+        "`docs/my-project.md` fits on one page and has real numbers.",
+        "You can say the 60-second answer aloud without reading.",
+        "Your resume has a Projects section with 6 to 8 bullets that start with action verbs and have no grammar errors.",
+        "Every bullet is something you really did and can explain in an interview.",
+        "Your LinkedIn About, headline and Featured links are updated."
+      ],
+      "evidence": [
+        "Link to `docs/my-project.md`",
+        "PDF of your updated resume",
+        "Link to your LinkedIn profile"
+      ],
+      "hints": [
+        "Be honest: call it a training project. Interviewers respect a strong project you can explain more than a fake job title.",
+        "Numbers make bullets strong: time saved, pods, minutes, percent, dollars.",
+        "Use the same words as the job ad (for example 'CI/CD', 'Kubernetes', 'Terraform') when they are true for you."
+      ],
+      "explain": {
+        "en": "In this task I prepared to present my work. I wrote a one-page summary of the ShopNotes platform with the problem, what I built, the tools and my real numbers. I wrote a 60-second answer for 'Tell me about your project' and practised it aloud. I wrote one resume bullet per sprint in correct English, each starting with an action verb and ending with a result. I wrote it as a training project, because I want to be honest. I also updated my LinkedIn summary and added the repo and demo video.",
+        "hi": "Is task mein maine apna kaam present karne ki taiyaari ki. ShopNotes platform ka ek page ka summary likha: problem, maine kya banaya, tools aur mere asli numbers. 'Tell me about your project' ke liye 60 second ka answer likha aur zor se bol kar practice ki. Har sprint ke liye sahi English mein ek resume bullet likha, har ek action verb se shuru aur result par khatam. Ise training project likha, kyunki main honest rehna chahta hoon. LinkedIn summary bhi update ki aur repo aur demo video add kiya."
+      },
+      "vocabulary": [
+        { "term": "resume bullet", "en": "one short line on a resume that shows one thing you did and the result", "hi": "resume ki ek chhoti line jo ek kaam aur uska result dikhati hai" },
+        { "term": "action verb", "en": "a doing word at the start of a bullet, like Built or Deployed", "hi": "bullet ki shuruaat mein kaam wala shabd, jaise Built ya Deployed" },
+        { "term": "elevator pitch", "en": "a very short talk about you or your project, about 60 seconds", "hi": "apne ya project ke baare mein bahut chhoti baat, lagbhag 60 second" },
+        { "term": "headline", "en": "the short line under your name on LinkedIn", "hi": "LinkedIn par naam ke neeche wali chhoti line" }
+      ],
+      "interview": [
+        { "q": "Tell me about yourself.", "a": "I have a B.Sc. and I am a junior DevOps engineer. For the last six months I built a full DevOps platform for a small web app, from Linux and Docker to Kubernetes, GitOps and monitoring on AWS. I also practised incidents, backups and security like a real operations team. I enjoy automating work and I am looking for my first DevOps role." },
+        { "q": "What was the hardest problem in your project?", "a": "The hardest was the database connection problem under load. The app became slow and then failed, but CPU and memory looked normal. I checked pg_stat_activity and found connections that were idle in transaction because the code did not return them to the pool. I fixed the code and added an alert, and I learned to look at the database side too." },
+        { "q": "Is this real work experience?", "a": "It is a hands-on training project, not a paid job. But every part is real: real AWS, real Kubernetes, real pipelines, and real incidents that I debugged myself. I can show the repo, the commits and the demo video. I am happy to explain any part in detail." }
+      ],
+      "resources": [
+        { "title": "LinkedIn Help Center", "url": "https://www.linkedin.com/help/linkedin" },
+        { "title": "LanguageTool (free grammar checker)", "url": "https://languagetool.org/" }
+      ]
+    },
+    {
+      "id": "s12-t04",
+      "key": "OPS-1204",
+      "type": "task",
+      "title": "Practise 30 interview questions and do a mock interview",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "You can answer 30 common DevOps interview questions about your own project in simple, clear English, and you passed one recorded mock interview.",
+      "context": "Hi, before you apply, let us practise. Below are 30 questions that interviewers in India often ask junior DevOps engineers, one or more for every sprint. Learn the idea, not the exact words, and always connect the answer to what you did in ShopNotes. Then we do a mock interview of 30 minutes.",
+      "steps": [
+        "Create `docs/interview-prep.md`. For each question below, write your own answer in 2-4 short sentences with one example from your project. Use the model answer only as a guide.",
+        "Q1 (Linux): A service does not start. What do you check? Model: 'I run systemctl status and journalctl -u with the service name to read the error. I check if the port is already used with ss -ltnp. I also check file permissions and the config file.'",
+        "Q2 (Linux): What does chmod 600 mean? Model: 'Only the owner can read and write the file, nobody else can do anything. I use it for files with secrets, like a .pgpass file or a kubeconfig.'",
+        "Q3 (Git): What is a pull request and why do teams use it? Model: 'It is a request to merge my branch into main. Others review the change and CI runs the tests first. This finds mistakes before they reach main.'",
+        "Q4 (Git): What is the difference between git merge and git rebase? Model: 'Merge joins two branches and keeps both histories with a merge commit. Rebase moves my commits on top of the other branch, so the history is a straight line. I do not rebase branches that others already use.'",
+        "Q5 (Docker): What is the difference between an image and a container? Model: 'An image is a read-only template with the app and its libraries. A container is a running copy of an image. I can start many containers from one image.'",
+        "Q6 (Docker): Why did you use a multi-stage build? Model: 'The first stage has the build tools, the last stage has only what the app needs to run. The final image is smaller and has fewer vulnerabilities.'",
+        "Q7 (Docker Compose): How did the API find the database in Compose? Model: 'Compose puts all services in one network with DNS. The API uses the service name db as the host name in DATABASE_URL.'",
+        "Q8 (CI): What does your CI pipeline do? Model: 'On every push it runs the tests, scans with Trivy, builds the Docker image and pushes it to GHCR with the commit SHA as tag. Then it updates the image tag in Git for Argo CD.'",
+        "Q9 (CI): GitHub Actions or Jenkins, which one and why? Model: 'GitHub Actions is simple when the code is on GitHub, and there is no server to maintain. Jenkins runs on our own server and has many plugins, so it is good for complex or private setups. I used both in my project.'",
+        "Q10 (AWS): Explain your 3-tier architecture on AWS. Model: 'A VPC with public and private subnets. An Application Load Balancer in the public subnets sends traffic to the app on EC2, and the database is RDS in a private subnet. Security groups allow only the needed ports, for example the database accepts 5432 only from the app security group.'",
+        "Q11 (AWS): What is the difference between a security group and a network ACL? Model: 'A security group works on the instance and is stateful, so return traffic is allowed automatically. A NACL works on the subnet, is stateless, and has allow and deny rules.'",
+        "Q12 (Terraform): What is Terraform state and where do you keep it? Model: 'The state file maps my code to the real resources. I keep it in an S3 bucket with locking, not on my laptop, so the team shares one state and two people cannot apply at the same time.'",
+        "Q13 (Terraform): What do terraform plan and apply do? Model: 'plan shows what will be created, changed or destroyed, without changing anything. apply does the change. I always read the plan first, especially lines that destroy resources.'",
+        "Q14 (Ansible): What is idempotency? Model: 'Running the same playbook again gives the same result and changes nothing if the server is already correct. Ansible modules check the state first, so it is safe to run many times.'",
+        "Q15 (TLS): How did you add HTTPS? Model: 'On EC2 I used Let's Encrypt certificates with automatic renewal. On Kubernetes I used cert-manager with a Let's Encrypt ClusterIssuer and redirected HTTP to HTTPS in Traefik. I also monitor the expiry date.'",
+        "Q16 (Kubernetes): What happens when you run kubectl apply for a Deployment? Model: 'kubectl sends the YAML to the API server, which saves it in etcd. The Deployment controller creates a ReplicaSet and pods, the scheduler picks a node for each pod, and the kubelet on that node starts the containers.'",
+        "Q17 (Kubernetes): What is the difference between ClusterIP, NodePort, LoadBalancer and Ingress? Model: 'ClusterIP is only inside the cluster. NodePort opens a port on every node. LoadBalancer asks the cloud for a load balancer. Ingress is HTTP routing by host and path, and in my project Traefik does it.'",
+        "Q18 (Kubernetes): A pod is in CrashLoopBackOff. What do you do? Model: 'I check kubectl logs with --previous and kubectl describe pod for the exit code and events. In my drill the cause was a wrong environment variable. I fixed the config in Git, not inside the pod.'",
+        "Q19 (Kubernetes): How does the HPA work? Model: 'It reads CPU use from metrics-server and compares it with the target, for example 50 percent of the request. It adds pods when use is high and removes them when it is low, between min and max replicas. In my test it went from 2 to 5 pods.'",
+        "Q20 (Helm): Why did you use Helm? Model: 'One chart with templates for all environments and a small values file per environment. Helm keeps release history, so rollback is one command. I stored the chart in GHCR as an OCI artifact.'",
+        "Q21 (GitOps): What is Argo CD and what is self-heal? Model: 'Argo CD watches Git and makes the cluster match it. Self-heal means if someone changes the cluster by hand, Argo CD changes it back to what is in Git.'",
+        "Q22 (GitOps): How do you roll back a bad release? Model: 'I revert the commit that changed the image tag and push. Argo CD syncs the old tag and the old version comes back with a rolling update. Git keeps the record of who did what.'",
+        "Q23 (Monitoring): What is the difference between metrics and logs? Model: 'Metrics are numbers over time, cheap to store and good for dashboards and alerts. Logs are text lines with details of single events, good to find the reason. I used Prometheus for metrics and Loki for logs.'",
+        "Q24 (SLO): What is an SLO and an error budget? Model: 'An SLO is our target, for example 99.5 percent of requests without errors in 30 days. The error budget is the allowed failure, here about 3.6 hours a month. If we use it up, we focus on reliability before new features.'",
+        "Q25 (Alerting): What makes a good alert? Model: 'It is about user pain, it needs a human action, and it has a runbook link. It has a for duration so short spikes do not page people. If nobody needs to act, it should not be an alert.'",
+        "Q26 (Backups): How do you know your backups work? Model: 'I test restores. I restored RDS to a point in time on a new instance and checked a test row and the row count, and I restored a pg_dump file into a local Postgres. I measured the time, so we know our RTO.'",
+        "Q27 (Reliability): How do you deploy or patch without downtime? Model: 'Several replicas on different nodes, readiness probes, a rolling update with maxUnavailable 0, a preStop sleep and a PodDisruptionBudget. During my node drain test, a curl loop showed zero failed requests.'",
+        "Q28 (Incident): Tell me about an incident you handled. Model (use STAR: Situation, Task, Action, Result): 'Users got errors under load. I had to find the cause fast. I checked pg_stat_activity and found connections stuck idle in transaction because the code did not return them. I fixed the code, the errors stopped, and I wrote a blameless postmortem with an alert on connections.'",
+        "Q29 (Security): How do you manage secrets? Model: 'Secrets are SecureString parameters in SSM Parameter Store. EC2 reads them with an instance role, and Kubernetes gets them through External Secrets Operator. Nothing is in Git, and gitleaks and Trivy scan for leaks in CI.'",
+        "Q30 (Cost): How did you keep the cost low, and why no EKS? Model: 'I used k3d on my laptop, k3s on one free-tier EC2, Parameter Store instead of Secrets Manager, lifecycle rules on S3, tags, a zero-spend budget and a cleanup script. EKS charges about 73 dollars a month for the control plane alone, which was not needed for our size.'",
+        "Practise aloud: answer 10 questions a day, record yourself on the phone, listen once, and improve one thing each time (speed, a missing example, a hard word).",
+        "Mock interview checklist, before: laptop charged, good internet, quiet room, camera at eye level, GitHub repo and architecture diagram open, a glass of water, resume in front of you.",
+        "Mock interview checklist, during: listen to the full question; it is OK to say 'Can you repeat the question, please?'; answer in 2-4 sentences, then give one example from ShopNotes; if you do not know, say 'I have not used that yet, but I would start by…' and explain how you would find out; draw on paper or share the diagram when you explain architecture.",
+        "Mock interview checklist, after: write down the questions you could not answer, add them to `docs/interview-prep.md` with a good answer, and send a short thank-you message.",
+        "Do one 30-minute mock interview with your mentor or a friend over a video call. Ask them to pick 10 questions from the list plus 2 new ones, and one 'draw the architecture' task. Record it (with their permission).",
+        "Ask for a score from 1 to 5 for: clear English, technical correctness, examples from the project, and calm under pressure. Practise the weakest area again and commit `docs/interview-prep.md`."
+      ],
+      "acceptance": [
+        "`docs/interview-prep.md` has your own answer to all 30 questions, each with a project example.",
+        "You did one recorded 30-minute mock interview.",
+        "You got scores in 4 areas and wrote down what you will improve.",
+        "You can answer any 10 random questions from the list without reading."
+      ],
+      "evidence": [
+        "Link to `docs/interview-prep.md`",
+        "The mock interview scores and feedback notes",
+        "A 3-minute audio or video clip where you answer 3 random questions"
+      ],
+      "hints": [
+        "Short and clear beats long and complex. Stop after the example; the interviewer will ask more if they want.",
+        "If English words do not come, slow down. Simple words are fine: 'I checked the logs' is a perfect sentence.",
+        "Every answer gets stronger with 'In my project I …'."
+      ],
+      "explain": {
+        "en": "In this task I prepared for DevOps interviews. I wrote my own answers to 30 common questions, from Linux and Git to Kubernetes, GitOps, monitoring, security and cost. For every answer I added a real example from the ShopNotes project. I practised aloud every day and recorded myself to improve. Then I did a 30-minute mock interview, got scores in four areas, and worked on my weakest area.",
+        "hi": "Is task mein maine DevOps interviews ki taiyaari ki. 30 common questions ke apne answers likhe, Linux aur Git se lekar Kubernetes, GitOps, monitoring, security aur cost tak. Har answer mein ShopNotes project ka ek asli example joda. Roz zor se bol kar practice ki aur khud ko record karke improve kiya. Phir 30 minute ka mock interview diya, chaar areas mein score mila, aur sabse kamzor area par kaam kiya."
+      },
+      "vocabulary": [
+        { "term": "mock interview", "en": "a practice interview that feels like the real one", "hi": "practice interview jo asli interview jaisa lagta hai" },
+        { "term": "STAR method", "en": "answer story questions with Situation, Task, Action, Result", "hi": "kahani wale sawaalon ka jawab Situation, Task, Action, Result se dena" },
+        { "term": "follow-up question", "en": "a second question that goes deeper into your answer", "hi": "doosra sawaal jo aapke jawab mein aur gehraai tak jaata hai" },
+        { "term": "feedback", "en": "comments from others on what was good and what to improve", "hi": "doosron ke comments ki kya achha tha aur kya improve karna hai" }
+      ],
+      "interview": [
+        { "q": "What do you do when you do not know the answer to a question?", "a": "I say honestly that I have not used it yet. Then I explain how I would find out, for example the official docs, a small test in my lab, or asking a senior. If I know something close, I connect it to that. Interviewers like honesty more than guessing." },
+        { "q": "Which part of DevOps do you like most and why?", "a": "I like Kubernetes with GitOps the most. It was satisfying to push one commit and see Argo CD roll out the new version with no downtime. I also like that everything is in Git, so it is clear and repeatable. I want to go deeper into it in my next role." },
+        { "q": "How do you keep learning new tools?", "a": "I read the official documentation first and try it in a small lab on my laptop. I write short notes or a runbook while I learn, like I did in my project. I also follow release notes of the tools I use. Then I explain it to someone else to check that I really understood it." }
+      ],
+      "resources": [
+        { "title": "Kubernetes docs: Concepts", "url": "https://kubernetes.io/docs/concepts/" },
+        { "title": "Google SRE book (free online)", "url": "https://sre.google/sre-book/table-of-contents/" },
+        { "title": "AWS Well-Architected Framework", "url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" }
+      ]
+    },
+    {
+      "id": "s12-t05",
+      "key": "OPS-1205",
+      "type": "project",
+      "title": "Final handover of the ShopNotes platform",
+      "priority": "high",
+      "estimateHours": 14,
+      "goal": "Another engineer takes over ShopNotes: they can deploy, monitor, restore and debug it without your help, all access is transferred, the release is tagged v1.0.0, and the AWS bill is zero.",
+      "context": "Hi, this is your last ticket on ShopNotes. Next week another engineer takes over. A good handover is not 'here is the repo'. Please run a handover session, let them do the main tasks while you watch, move all access to them or to the team, tag the final release, clean up what we do not need, and get a written sign-off.",
+      "steps": [
+        "Find the receiving engineer: your mentor, a friend from the course, or another DevOps Lab trainee. Book a 90-minute session.",
+        "Create `docs/handover.md` with a checklist. Sections: Access, Environments, Daily and weekly tasks, Open issues and risks, Known workarounds, Costs, Contacts, Sign-off.",
+        "Access section: list every account and secret location (GitHub repo admin, GHCR packages, AWS IAM, Argo CD admin, Grafana admin, Telegram bot and group, SSM parameter paths). Write who owns each after the handover. Never write the passwords in the file.",
+        "Daily and weekly tasks: check alerts and dashboards (daily), check the backup files in S3 (daily), review Trivy results and Dependabot or Renovate updates (weekly), cost check in Cost Explorer (weekly), restore test (every 3 months), certificate expiry (automatic alert).",
+        "Open issues and risks: write your honest list, for example 'single-node staging', 'Postgres in dev is a single pod', 'ESO on k3d uses an IAM user key', with a suggested next step for each.",
+        "Make a release: update `CHANGELOG.md` with `## [1.0.0] - <date>`, bump the chart to `1.0.0` and `appVersion: \"1.0.0\"`, then tag: `git tag -a v1.0.0 -m 'ShopNotes platform 1.0.0 handover'` and `git push origin v1.0.0`. Create a GitHub Release from the tag with the CHANGELOG text.",
+        "Handover session part 1 (you show, 30 minutes): the architecture diagram, the README, the GitOps flow, the dashboards and the runbook index.",
+        "Handover session part 2 (they do, 45 minutes): the new engineer does these tasks alone while you only watch: (1) create the k3d cluster from the README, (2) deploy a small change through Git and Argo CD, (3) find a log line in Loki, (4) acknowledge a test alert, (5) follow the CrashLoopBackOff runbook on a pod you break, (6) restore the latest pg_dump into a local Postgres.",
+        "Write down every place they got stuck and fix the docs the same day.",
+        "Transfer access: add them (or a team account) as GitHub repo admin, change the Argo CD and Grafana admin passwords and give them the new ones through a password manager, add them to the Telegram group, and rotate any key that you personally created (for example the ESO IAM user key).",
+        "Clean up to keep the bill at zero: run `DRY_RUN=1 ./scripts/cleanup-lab.sh`, check the list together, then decide what to keep. Stop or destroy the staging EC2 (`terraform destroy` or `aws ec2 stop-instances`), delete old manual RDS snapshots you do not need, and check the Free Tier page and Cost Explorer.",
+        "Write the final status in `docs/handover.md`: what runs, what is stopped, what was deleted, and the monthly cost now.",
+        "Get the sign-off: the new engineer writes in the file (or as a PR approval) 'I can run, deploy, monitor and restore ShopNotes without help', with the date and their name. Merge the PR.",
+        "Close the sprint: write a short retro for yourself in `docs/retro.md`: 3 things that went well in the 24 weeks, 3 things you would do differently, and 3 skills you want to learn next (for example EKS in a company account, service mesh, or Python automation)."
+      ],
+      "acceptance": [
+        "`docs/handover.md` has all sections, no secrets, and an honest risk list.",
+        "Tag `v1.0.0` and a GitHub Release with the CHANGELOG text exist.",
+        "The receiving engineer did all 6 tasks alone, and the docs were fixed where they got stuck.",
+        "Access is transferred and keys you created personally are rotated.",
+        "Cost Explorer and the Free Tier page show 0 USD, and the cleanup decision is written down.",
+        "The handover PR has a sign-off from the receiving engineer."
+      ],
+      "evidence": [
+        "Link to the handover PR with the sign-off",
+        "Link to the GitHub Release v1.0.0",
+        "Output of `DRY_RUN=1 ./scripts/cleanup-lab.sh` after the cleanup",
+        "Screenshot of Cost Explorer for the current month",
+        "Link to `docs/retro.md`"
+      ],
+      "hints": [
+        "The test of a good handover: can the other person do the work while you stay silent?",
+        "Do not delete anything during the handover session without writing it down first. Some resources are needed for the demo video or the interviews.",
+        "Keep the GitHub repo public (without secrets) so you can show it in interviews."
+      ],
+      "explain": {
+        "en": "In this final project I handed over the ShopNotes platform to another engineer. I wrote a handover document with access, daily tasks, open risks and costs, without any secrets inside. I tagged the final release v1.0.0 with a CHANGELOG. In the handover session I showed the system first, and then the new engineer did six real tasks alone, like a deploy, a log search and a restore, while I only watched. I fixed the docs where they got stuck, transferred all access, rotated my keys, cleaned up resources to keep the cost at zero, and got a written sign-off.",
+        "hi": "Is final project mein maine ShopNotes platform ek doosre engineer ko handover kiya. Ek handover document likha jisme access, daily tasks, open risks aur costs hain, bina kisi secret ke. Final release ko CHANGELOG ke saath v1.0.0 tag kiya. Handover session mein pehle maine system dikhaya, phir naye engineer ne chhe asli tasks akele kiye, jaise deploy, log search aur restore, aur main sirf dekhta raha. Jahan woh atke wahan docs fix kiye, saara access transfer kiya, apni keys rotate ki, cost zero rakhne ke liye resources clean kiye, aur likha hua sign-off liya."
+      },
+      "vocabulary": [
+        { "term": "sign-off", "en": "a written OK from the person who accepts the work", "hi": "kaam accept karne wale insaan ka likha hua OK" },
+        { "term": "release tag", "en": "a Git tag like v1.0.0 that marks a fixed version", "hi": "Git tag jaise v1.0.0 jo ek fixed version mark karta hai" },
+        { "term": "access transfer", "en": "giving accounts and rights to the new owner and removing old ones", "hi": "naye owner ko accounts aur rights dena aur purane hatana" },
+        { "term": "retro", "en": "a meeting or note about what went well and what to improve", "hi": "meeting ya note ki kya achha gaya aur kya improve karna hai" },
+        { "term": "bus factor", "en": "how many people must leave before nobody knows how the system works", "hi": "kitne logon ke jaane se koi bhi system chalana nahi jaanega" }
+      ],
+      "interview": [
+        { "q": "How do you hand over a system to another engineer?", "a": "I write a handover document with access, environments, regular tasks, open risks and costs. Then I show the system, and after that the new person does the main tasks alone while I watch. I fix the docs where they get stuck. At the end I transfer access, rotate my personal keys and get a written sign-off." },
+        { "q": "What are the open risks in your project?", "a": "The staging cluster has only one node, so it is a single point of failure. The dev database is a single pod, and External Secrets on the laptop uses an IAM user key instead of a role. I wrote each risk in the handover document with a next step, for example moving production to managed Kubernetes and RDS Multi-AZ." },
+        { "q": "What would you learn next?", "a": "I want to run EKS in a company account to learn IAM roles for service accounts and managed node groups. I also want to improve my Python for automation and learn more about service meshes. And I want to join a real on-call rotation, because real incidents teach the most." }
+      ],
+      "resources": [
+        { "title": "GitHub docs: Managing releases in a repository", "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository" },
+        { "title": "Keep a Changelog", "url": "https://keepachangelog.com/en/1.1.0/" },
+        { "title": "Semantic Versioning", "url": "https://semver.org/" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "id": "s06",
+  "number": 6,
+  "title": "Ansible, HTTPS and deploys from CI",
+  "weeks": "11-12",
+  "theme": "Configure the prod server with Ansible roles, add free HTTPS, and deploy every merge with zero downtime from GitHub Actions, with rollback.",
+  "jobStory": "In this sprint you stop setting up servers by hand. You write Ansible roles for users, SSH hardening, Docker, Nginx and the ShopNotes app, with secrets in Ansible Vault. You build a blue/green deploy so users see no errors, add a free Let's Encrypt certificate on a duckdns.org name, and move deploys into GitHub Actions with OIDC, approvals and a rollback button. You also handle a disk-full incident and add log limits and a disk alert to the real server.",
+  "outcomes": [
+    "I configured a server with idempotent Ansible roles and kept secrets in Ansible Vault.",
+    "I built a zero-downtime blue/green deploy with a health gate and a graceful Nginx reload.",
+    "I added HTTPS with Let's Encrypt and automatic renewal through Ansible.",
+    "I deployed every merge from GitHub Actions with OIDC, an approval step, short-lived SSH access and a rollback.",
+    "I fixed a disk-full incident and added log rotation, journald limits and a disk alert."
+  ],
+  "tickets": [
+    {
+      "id": "s06-t01",
+      "key": "OPS-601",
+      "type": "task",
+      "title": "Set up Ansible and a common role for users and SSH hardening",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Ansible manages the prod server: a `deploy` user with an SSH key and sudo, SSH without passwords or root login, and the right time zone, and a second run changes nothing.",
+      "context": "Hi, Terraform builds the server, but someone still has to set it up inside: users, packages, Nginx, the app. Doing it by hand on every new server is slow and full of mistakes. Please start with Ansible. First role: a deploy user, SSH hardening and base packages. Running the playbook two times must give the same result.",
+      "steps": [
+        "Bring up prod and keep it up for this sprint: `./infra/up.sh prod`. One t3.micro and one db.t3.micro running all month fit the 750 free hours each; keep dev destroyed. Note `terraform output -raw app_public_ip` and `terraform output -raw db_address`.",
+        "Get a free name: sign in at https://www.duckdns.org, create a subdomain (for example `shopnotes-<yourname>`) and copy your token. Point it to the Elastic IP: `curl \"https://www.duckdns.org/update?domains=<subdomain>&token=<token>&ip=<elastic-ip>\"` must print `OK`. Check it: `sudo apt install -y dnsutils && dig +short <subdomain>.duckdns.org`.",
+        "Install Ansible with pipx: `sudo apt install -y pipx && pipx ensurepath`, open a new terminal, then `pipx install --include-deps ansible`. Check: `ansible --version`. The full `ansible` package includes the collections we use (`ansible.posix`, `community.general`, `community.docker`, `community.postgresql`).",
+        "Make a key only for deployments: `ssh-keygen -t ed25519 -f ~/.ssh/shopnotes_deploy -C deploy@shopnotes -N \"\"`. Add it to your agent: `ssh-add ~/.ssh/shopnotes_deploy`.",
+        "Create the folders in the repo: `mkdir -p ansible/inventory ansible/group_vars/web ansible/roles && cd ansible`. Create the role skeleton: `ansible-galaxy role init roles/common`. Copy the public key: `cp ~/.ssh/shopnotes_deploy.pub roles/common/files/deploy.pub`.",
+        "Create `ansible/ansible.cfg`: under `[defaults]` write `inventory = inventory/prod.ini`, `roles_path = roles`, `interpreter_python = auto_silent`; under `[ssh_connection]` write `pipelining = True`.",
+        "Create `ansible/inventory/prod.ini` with two lines: `[web]` and `prod ansible_host=<subdomain>.duckdns.org ansible_user=ubuntu`. Accept the host key once with `ssh ubuntu@<subdomain>.duckdns.org exit`, then test Ansible: `ansible web -m ping` must answer `pong`.",
+        "In `roles/common/tasks/main.yml` add tasks (each with a clear `name:`): `ansible.builtin.apt` with `name: [curl, git, htop, unattended-upgrades]`, `update_cache: true`, `cache_valid_time: 3600`; `community.general.timezone` with `name: Asia/Kolkata`; `ansible.builtin.user` with `name: deploy`, `shell: /bin/bash`.",
+        "Add the key and sudo for `deploy`: `ansible.posix.authorized_key` with `user: deploy` and `key: \"{{ lookup('ansible.builtin.file', 'deploy.pub') }}\"`; `ansible.builtin.copy` with `dest: /etc/sudoers.d/deploy`, `content: \"deploy ALL=(ALL) NOPASSWD: ALL\\n\"`, `mode: \"0440\"` and `validate: /usr/sbin/visudo -cf %s`. The validate line stops a broken sudoers file from locking you out.",
+        "Harden SSH: `ansible.builtin.copy` with `dest: /etc/ssh/sshd_config.d/10-hardening.conf`, content `PasswordAuthentication no` and `PermitRootLogin no` (two lines), `mode: \"0644\"`, and `notify: Restart ssh`. In `roles/common/handlers/main.yml` add the handler `- name: Restart ssh` with `ansible.builtin.service:` `name: ssh` and `state: restarted`.",
+        "Create `ansible/site.yml`: one play with `name: Configure the ShopNotes server`, `hosts: web`, `become: true`, `roles: [common]`.",
+        "Dry run first: `ansible-playbook site.yml --check --diff`. Then run it: `ansible-playbook site.yml`. Run it a second time: the recap must show `changed=0`. This is idempotence.",
+        "Switch to the new user: in `inventory/prod.ini` change `ansible_user=ubuntu` to `ansible_user=deploy`, and test `ansible web -m ping` again. Check that passwords are refused: `ssh -o PubkeyAuthentication=no deploy@<subdomain>.duckdns.org` must fail with `Permission denied (publickey)`.",
+        "Commit the `ansible/` folder through a PR. Never commit the private key."
+      ],
+      "acceptance": [
+        "`ansible web -m ping` works as user `deploy`.",
+        "The second `ansible-playbook site.yml` run shows `changed=0`.",
+        "Password login and root login over SSH are refused.",
+        "`<subdomain>.duckdns.org` resolves to the prod Elastic IP.",
+        "The sudoers file is validated with visudo in the task."
+      ],
+      "evidence": [
+        "PLAY RECAP of the first and the second run",
+        "Output of the refused password login",
+        "Link to the `ansible/` folder on GitHub"
+      ],
+      "hints": [
+        "If Ansible ignores your `ansible.cfg` with a warning about a world-writable folder, your repo is on `/mnt/c` in WSL. Keep the repo in your Linux home folder.",
+        "Keep a second SSH session open while you change SSH settings, so you can fix a mistake.",
+        "Use `ansible-doc ansible.posix.authorized_key` to read module options in the terminal."
+      ],
+      "explain": {
+        "en": "In this task I started configuration management with Ansible. I installed Ansible with pipx, gave the prod server a free duckdns.org name, and wrote an inventory and ansible.cfg. My first role, common, installs base packages, sets the time zone, creates a deploy user with an SSH key and passwordless sudo, and turns off password and root login for SSH. I used validate with visudo so a broken sudoers file cannot lock me out, and a handler restarts SSH only when the file changes. The second run showed changed=0, so the role is idempotent.",
+        "hi": "Is task mein maine Ansible ke saath configuration management shuru kiya. pipx se Ansible install kiya, prod server ko free duckdns.org naam diya, aur inventory aur ansible.cfg likhe. Mera pehla role, common, base packages install karta hai, time zone set karta hai, SSH key aur bina password sudo wala deploy user banata hai, aur SSH mein password aur root login band karta hai. visudo ke saath validate use kiya taaki kharab sudoers file mujhe lock out na kare, aur handler sirf file badalne par SSH restart karta hai. Dusre run mein changed=0 aaya, yani role idempotent hai."
+      },
+      "vocabulary": [
+        {
+          "term": "configuration management",
+          "en": "a tool sets up servers from code, the same way every time",
+          "hi": "tool code se servers ko har baar same tarah setup karta hai"
+        },
+        {
+          "term": "inventory",
+          "en": "the Ansible list of servers and how to connect to them",
+          "hi": "Ansible ki servers ki list aur unse connect karne ka tarika"
+        },
+        {
+          "term": "role",
+          "en": "a folder of Ansible tasks, files, templates and handlers for one job",
+          "hi": "ek kaam ke liye Ansible tasks, files, templates aur handlers ka folder"
+        },
+        {
+          "term": "idempotent",
+          "en": "running it again gives the same result and changes nothing new",
+          "hi": "dobara chalane par same result aata hai aur kuch naya nahi badalta"
+        },
+        {
+          "term": "handler",
+          "en": "a task that runs only when another task reports a change",
+          "hi": "task jo tabhi chalta hai jab koi dusra task change report kare"
+        },
+        {
+          "term": "SSH hardening",
+          "en": "settings that make SSH login safer, like no passwords",
+          "hi": "settings jo SSH login ko safe banati hain, jaise password band"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why use Ansible when Terraform already creates the server?",
+          "a": "Terraform is best for creating cloud resources like the VPC, the instance and RDS. Ansible is best for what happens inside the server: users, packages, config files and services. Together they make a full server from code, and I can rebuild it any time."
+        },
+        {
+          "q": "What does idempotent mean in Ansible?",
+          "a": "It means I can run the playbook many times and the server ends in the same state. Modules check first and change only what is different. I proved it: the second run showed changed=0. Plain shell commands are not idempotent, so I use real modules where I can."
+        },
+        {
+          "q": "How did you make SSH safer?",
+          "a": "I created a deploy user that logs in only with an SSH key. I turned off password login and root login in a file under sshd_config.d. Port 22 is open only to my IP in the security group, and a handler restarts SSH only when the config really changes."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Ansible: Installing Ansible",
+          "url": "https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html"
+        },
+        {
+          "title": "Ansible: Roles",
+          "url": "https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html"
+        },
+        {
+          "title": "Duck DNS: API spec",
+          "url": "https://www.duckdns.org/spec.jsp"
+        }
+      ]
+    },
+    {
+      "id": "s06-t02",
+      "key": "OPS-602",
+      "type": "project",
+      "title": "Ansible roles for Docker, Nginx and a zero-downtime blue/green app deploy",
+      "priority": "high",
+      "estimateHours": 16,
+      "goal": "Ansible installs Docker and Nginx, prepares the database user, and deploys a given API image version with blue/green containers, so users get no errors during a deploy.",
+      "context": "Hi, now the real work. Please write roles that set up Docker and Nginx, and a role that deploys the ShopNotes API image from ghcr.io. A deploy must not drop requests: start the new version next to the old one, check its health, then switch Nginx. Keep database passwords in Ansible Vault.",
+      "steps": [
+        "Create the roles: `ansible-galaxy role init roles/docker`, `ansible-galaxy role init roles/nginx`, `ansible-galaxy role init roles/shopnotes`.",
+        "Docker role tasks: `ansible.builtin.apt` with `name: [docker.io, python3-docker]`; `ansible.builtin.service` with `name: docker`, `state: started`, `enabled: true`; `ansible.builtin.user` with `name: deploy`, `groups: docker`, `append: true`.",
+        "Secrets: create a vault password file outside the repo: `openssl rand -base64 24 > ~/.shopnotes_vault_pass && chmod 600 ~/.shopnotes_vault_pass`. Create the vault: `ansible-vault create group_vars/web/vault.yml --vault-password-file ~/.shopnotes_vault_pass` with two lines: `vault_db_admin_password: <the TF_VAR_db_password>` and `vault_db_app_password: <a new strong password>`. The file in Git is encrypted.",
+        "Create `group_vars/web/vars.yml`: `domain: <subdomain>.duckdns.org`, `letsencrypt_email: <your email>`, `api_image: ghcr.io/<your-github-user>/shopnotes-api`, `app_version: main`, `api_ports: {blue: 5001, green: 5002}`, `db_host: <db_address output>`, `database_url: \"postgresql://shopnotes:{{ vault_db_app_password }}@{{ db_host }}:5432/shopnotes?sslmode=require\"`.",
+        "Nginx role tasks: install `nginx`; remove the default site (`ansible.builtin.file` with `path: /etc/nginx/sites-enabled/default`, `state: absent`); create `/var/www/shopnotes`; and create the upstream file only if it does not exist yet: `ansible.builtin.copy` with `dest: /etc/nginx/conf.d/shopnotes-upstream.conf`, `content: \"upstream shopnotes_api { server 127.0.0.1:5001; }\\n\"`, `force: false`. The deploy changes this file later, so site.yml must not overwrite it.",
+        "Nginx role template `roles/nginx/templates/shopnotes.conf.j2`: `server { listen 80; server_name {{ domain }}; root /var/www/shopnotes; index index.html; location /api/ { proxy_pass http://shopnotes_api/; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; } }`. Task: `ansible.builtin.template` to `/etc/nginx/sites-available/shopnotes.conf`, then `ansible.builtin.file` with `state: link` from `/etc/nginx/sites-enabled/shopnotes.conf`, both with `notify: Reload nginx`.",
+        "Nginx handler: `- name: Reload nginx` with `ansible.builtin.shell: nginx -t && systemctl reload nginx`. A reload with `nginx -t` first never breaks a running Nginx. Also add a task that starts and enables the `nginx` service.",
+        "Shopnotes role, part 1 (database, runs once): install `python3-psycopg2` and `postgresql-client`; `community.postgresql.postgresql_user` with `login_host: \"{{ db_host }}\"`, `login_user: shopnotes_admin`, `login_password: \"{{ vault_db_admin_password }}\"`, `login_db: shopnotes`, `ssl_mode: require`, `name: shopnotes`, `password: \"{{ vault_db_app_password }}\"` and `no_log: true`; `community.postgresql.postgresql_query` with the same login values and `query: \"{{ lookup('ansible.builtin.file', playbook_dir + '/../db/schema.sql') }}\"`.",
+        "Part 1 continued: `community.postgresql.postgresql_privs` two times with the same login values, `roles: shopnotes`, `schema: public`, `objs: ALL_IN_SCHEMA`: once `type: table` with `privs: SELECT,INSERT,UPDATE,DELETE`, once `type: sequence` with `privs: USAGE,SELECT`. Then copy the web page: `ansible.builtin.copy` from `\"{{ playbook_dir }}/../web/index.html\"` to `/var/www/shopnotes/index.html`.",
+        "Shopnotes role, part 2 (blue/green): `ansible.builtin.slurp` `src: /etc/shopnotes/active_color` with `register: active_raw` and `failed_when: false`; then `ansible.builtin.set_fact` with `active_color: \"{{ (active_raw.content | default('Z3JlZW4=')) | b64decode | trim }}\"` (Z3JlZW4= is the word green in base64, so the first deploy goes to blue) and `new_color: \"{{ 'green' if active_color == 'blue' else 'blue' }}\"`.",
+        "Part 2 continued: `community.docker.docker_image` with `name: \"{{ api_image }}\"`, `tag: \"{{ app_version }}\"`, `source: pull`; then `community.docker.docker_container` with `name: \"shopnotes-{{ new_color }}\"`, `image: \"{{ api_image }}:{{ app_version }}\"`, `state: started`, `recreate: true`, `restart_policy: unless-stopped`, `published_ports: [\"127.0.0.1:{{ api_ports[new_color] }}:5000\"]`, `env: {DATABASE_URL: \"{{ database_url }}\"}`.",
+        "Part 2 continued, the health gate: `ansible.builtin.uri` with `url: \"http://127.0.0.1:{{ api_ports[new_color] }}/health\"`, `register: health`, `until: health.status == 200`, `retries: 20`, `delay: 3`. If the new version is not healthy, the play stops here and users still use the old color.",
+        "Part 2 continued, the switch: `ansible.builtin.copy` to `/etc/nginx/conf.d/shopnotes-upstream.conf` with `content: \"upstream shopnotes_api { server 127.0.0.1:{{ api_ports[new_color] }}; }\\n\"`; then `ansible.builtin.shell: nginx -t && systemctl reload nginx` (a direct task, not a handler, so the order is exact); then save the state: copy `{{ new_color }}` to `/etc/shopnotes/active_color` and `{{ app_version }}` to `/etc/shopnotes/current_version` (create `/etc/shopnotes` first with `ansible.builtin.file`).",
+        "Part 2 end: `ansible.builtin.pause` with `seconds: 10` (old requests finish), then `community.docker.docker_container` with `name: \"shopnotes-{{ active_color }}\"`, `state: stopped` and `when: active_raw.content is defined`. The old container stays on disk for a fast rollback.",
+        "Playbooks: in `site.yml` set `roles: [common, docker, nginx, shopnotes]`. Create `deploy.yml` with one play (`hosts: web`, `become: true`) and one task: `ansible.builtin.include_role` with `name: shopnotes`.",
+        "Open SSH from your IP (Terraform did that) and run: `ansible-playbook site.yml --vault-password-file ~/.shopnotes_vault_pass`. Open `http://<subdomain>.duckdns.org` and add a note.",
+        "Zero-downtime test: in a second terminal run `while true; do curl -s -o /dev/null -w '%{http_code} ' http://<subdomain>.duckdns.org/api/health; sleep 0.2; done`. In the first terminal deploy again: `ansible-playbook deploy.yml -e app_version=main --vault-password-file ~/.shopnotes_vault_pass`. Every code must stay 200 while the color switches. Check it: `ssh deploy@<subdomain>.duckdns.org 'cat /etc/shopnotes/active_color; docker ps'`.",
+        "Commit the roles, playbooks and the encrypted `vault.yml` through a PR. Check that `vault.yml` starts with `$ANSIBLE_VAULT;1.1;AES256`."
+      ],
+      "acceptance": [
+        "`ansible-playbook site.yml` sets up Docker, Nginx, the DB user and the app, and http://<subdomain>.duckdns.org works.",
+        "Each deploy switches between `shopnotes-blue` (5001) and `shopnotes-green` (5002), and only one of them runs after the deploy.",
+        "During a deploy the curl loop shows only 200 codes.",
+        "A version that is not healthy never gets traffic (the play stops at the health gate).",
+        "`vault.yml` in Git is encrypted and no password is in plain text in the repo.",
+        "The app connects as the `shopnotes` user with only data rights."
+      ],
+      "evidence": [
+        "Output of the curl loop during a deploy (only 200 codes)",
+        "Output of `cat /etc/shopnotes/active_color` and `docker ps` before and after a deploy",
+        "Link to the roles on GitHub"
+      ],
+      "hints": [
+        "Use `ansible-playbook deploy.yml -vv` to see more details when a task fails.",
+        "If the uri task never gets 200, run `docker logs shopnotes-<color>` on the server. A wrong DATABASE_URL is the usual cause.",
+        "Run `ansible-playbook site.yml --check --diff` before a real run on prod."
+      ],
+      "explain": {
+        "en": "In this task I wrote Ansible roles for Docker, Nginx and the ShopNotes app. Database passwords are in an encrypted Ansible Vault file, and the role creates a limited database user with the community.postgresql modules. For deploys I built a blue/green pattern on one server: the new image version starts in the idle container, Ansible waits until its /health returns 200, and only then switches the Nginx upstream and reloads Nginx. Nginx reload is graceful, so no request is dropped. I proved it with a curl loop that showed only 200 codes during the deploy, and a version that is not healthy never gets traffic.",
+        "hi": "Is task mein maine Docker, Nginx aur ShopNotes app ke liye Ansible roles likhe. Database passwords encrypted Ansible Vault file mein hain, aur role community.postgresql modules se ek limited database user banata hai. Deploy ke liye maine ek server par blue/green pattern banaya: nayi image version khaali container mein start hoti hai, Ansible tab tak rukta hai jab tak uska /health 200 na de, aur tabhi Nginx upstream switch karke Nginx reload karta hai. Nginx reload graceful hota hai, isliye koi request drop nahi hoti. Maine curl loop se prove kiya jisme deploy ke dauran sirf 200 codes aaye, aur jo version healthy nahi hai use kabhi traffic nahi milta."
+      },
+      "vocabulary": [
+        {
+          "term": "blue/green deploy",
+          "en": "two copies of the app; the new one starts next to the old one and traffic switches when it is healthy",
+          "hi": "app ki do copies; nayi copy purani ke saath start hoti hai aur healthy hone par traffic switch hota hai"
+        },
+        {
+          "term": "zero downtime",
+          "en": "users see no errors while you deploy a new version",
+          "hi": "naya version deploy karte waqt users ko koi error nahi dikhta"
+        },
+        {
+          "term": "graceful reload",
+          "en": "Nginx loads the new config and lets old connections finish",
+          "hi": "Nginx naya config load karta hai aur purane connections ko poora hone deta hai"
+        },
+        {
+          "term": "Ansible Vault",
+          "en": "the Ansible feature that encrypts files with secrets",
+          "hi": "Ansible ka feature jo secrets wali files encrypt karta hai"
+        },
+        {
+          "term": "template",
+          "en": "a config file with variables that Ansible fills in for each server",
+          "hi": "variables wali config file jise Ansible har server ke liye bharta hai"
+        },
+        {
+          "term": "health gate",
+          "en": "a check that must pass before traffic goes to a new version",
+          "hi": "check jo naye version par traffic jaane se pehle pass hona chahiye"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How did you make the deploy zero-downtime on a single server?",
+          "a": "I run two containers, blue on port 5001 and green on 5002, and Nginx sends traffic to one of them. A deploy starts the new image in the idle color and waits until /health is 200. Then Ansible changes the upstream file and does a graceful Nginx reload, so open requests finish. I tested it with a curl loop and saw only 200 codes."
+        },
+        {
+          "q": "How do you keep secrets in Ansible?",
+          "a": "I put them in group_vars/web/vault.yml and encrypt the file with ansible-vault. Only the encrypted text is in Git. The vault password is in a file outside the repo on my laptop and in a GitHub secret for CI. Tasks that use passwords have no_log: true, so they are not printed."
+        },
+        {
+          "q": "What happens if the new version is broken?",
+          "a": "The uri task checks /health of the new container up to 20 times. If it never returns 200, the play fails before the Nginx switch. Users keep using the old version, which is still running. So a broken image never gets real traffic."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Ansible: community.docker.docker_container module",
+          "url": "https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html"
+        },
+        {
+          "title": "Ansible: Protecting sensitive data with Ansible Vault",
+          "url": "https://docs.ansible.com/ansible/latest/vault_guide/index.html"
+        },
+        {
+          "title": "Nginx: Controlling nginx (reload)",
+          "url": "https://nginx.org/en/docs/control.html"
+        }
+      ]
+    },
+    {
+      "id": "s06-t03",
+      "key": "OPS-603",
+      "type": "task",
+      "title": "Add HTTPS with Let's Encrypt on the free duckdns.org name",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "https://<subdomain>.duckdns.org has a valid Let's Encrypt certificate, HTTP redirects to HTTPS, and the certificate renews by itself.",
+      "context": "Hi, browsers mark our site as Not secure and the login form we plan needs HTTPS. Please add a free Let's Encrypt certificate to Nginx, with Ansible, on our duckdns.org name. HTTP must redirect to HTTPS, and renewal must be automatic.",
+      "steps": [
+        "Check the basics: the security group allows 80 and 443 from everywhere (the prod settings from OPS-503), and `dig +short <subdomain>.duckdns.org` shows the Elastic IP. Let's Encrypt must reach your server on port 80.",
+        "Know the limit: Let's Encrypt gives at most 5 certificates for the same name per week. Keep prod running this sprint (do not destroy and rebuild it every day), and use `--test-cert` while you experiment.",
+        "In the nginx role add a task before the template: `ansible.builtin.stat` with `path: /etc/letsencrypt/live/{{ domain }}/fullchain.pem` and `register: tls_cert`. Pass `tls_ready: \"{{ tls_cert.stat.exists }}\"` into the template with `vars:` on the template task.",
+        "Change the template: wrap the old server block in `{% if not tls_ready %} ... {% else %} ... {% endif %}`. In the else part write two servers. Server 1: `listen 80; server_name {{ domain }}; location / { return 301 https://$host$request_uri; }`. Server 2: `listen 443 ssl; server_name {{ domain }}; ssl_certificate /etc/letsencrypt/live/{{ domain }}/fullchain.pem; ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem; ssl_protocols TLSv1.2 TLSv1.3;` plus the same `root`, `index` and `location /api/` as before.",
+        "Put the redirect inside `location /`, not at server level. Then certbot can still answer the challenge on port 80 when it renews.",
+        "After the template task add `ansible.builtin.meta: flush_handlers`, so Nginx serves the HTTP site before certbot runs.",
+        "Add the certbot tasks: `ansible.builtin.apt` with `name: [certbot, python3-certbot-nginx]`; then `ansible.builtin.command` with `cmd: certbot certonly --nginx -d {{ domain }} --non-interactive --agree-tos -m {{ letsencrypt_email }} --deploy-hook \"systemctl reload nginx\"` and `creates: /etc/letsencrypt/live/{{ domain }}/fullchain.pem`. `certonly` gets the certificate but does not edit our config; our template stays the owner of the Nginx file.",
+        "After certbot, repeat the stat task and the template task (with the same `notify: Reload nginx`), so the HTTPS version is written in the same run.",
+        "Run `ansible-playbook site.yml --vault-password-file ~/.shopnotes_vault_pass`. Then test: `curl -I http://<subdomain>.duckdns.org` (301 to https), `curl -I https://<subdomain>.duckdns.org` (200), and `curl https://<subdomain>.duckdns.org/api/health`.",
+        "See the certificate: `echo | openssl s_client -connect <subdomain>.duckdns.org:443 -servername <subdomain>.duckdns.org 2>/dev/null | openssl x509 -noout -issuer -dates`.",
+        "Check automatic renewal on the server: `systemctl list-timers | grep certbot` and `sudo certbot renew --dry-run`. Both must work.",
+        "Run the playbook again: `changed=0`. Test your site at https://www.ssllabs.com/ssltest/ and write the grade in the PR. Merge through a PR."
+      ],
+      "acceptance": [
+        "`curl -I http://<subdomain>.duckdns.org` returns 301 to the https address.",
+        "`curl https://<subdomain>.duckdns.org/api/health` returns 200 with a valid certificate (no `-k` needed).",
+        "The certificate issuer is Let's Encrypt (not the staging issuer).",
+        "`sudo certbot renew --dry-run` succeeds and the certbot timer is active.",
+        "A second playbook run shows `changed=0`."
+      ],
+      "evidence": [
+        "Output of the openssl command (issuer and dates)",
+        "Output of `sudo certbot renew --dry-run`",
+        "Screenshot of the browser lock icon or the SSL Labs grade"
+      ],
+      "hints": [
+        "If certbot fails with a timeout, port 80 is closed in the security group or the DNS name points to an old IP.",
+        "After testing with `--test-cert`, remove the test certificate with `sudo certbot delete --cert-name <subdomain>.duckdns.org` before you get the real one.",
+        "Read `/var/log/letsencrypt/letsencrypt.log` on the server when certbot fails."
+      ],
+      "explain": {
+        "en": "In this task I added HTTPS to ShopNotes with a free Let's Encrypt certificate on our duckdns.org name. I used certbot certonly with the nginx plugin from Ansible, with a creates check so it runs only once, and a deploy hook that reloads Nginx after each renewal. My Nginx template has two modes: HTTP only before the certificate exists, and HTTPS with a redirect after it exists. I kept the redirect inside location so renewals still work on port 80. I checked the certificate with openssl, tested renewal with certbot renew --dry-run, and the second playbook run showed no changes.",
+        "hi": "Is task mein maine apne duckdns.org naam par free Let's Encrypt certificate ke saath ShopNotes mein HTTPS add kiya. Ansible se nginx plugin ke saath certbot certonly chalaya, creates check ke saath taaki ek hi baar chale, aur deploy hook lagaya jo har renewal ke baad Nginx reload karta hai. Mere Nginx template ke do modes hain: certificate se pehle sirf HTTP, aur certificate hone ke baad redirect ke saath HTTPS. Redirect ko location ke andar rakha taaki port 80 par renewal chalta rahe. openssl se certificate check kiya, certbot renew --dry-run se renewal test kiya, aur playbook ke dusre run mein koi change nahi aaya."
+      },
+      "vocabulary": [
+        {
+          "term": "TLS",
+          "en": "the encryption that makes HTTPS safe",
+          "hi": "encryption jo HTTPS ko safe banata hai"
+        },
+        {
+          "term": "certificate",
+          "en": "a file that proves the server owns the domain name",
+          "hi": "file jo prove karti hai ki server us domain naam ka maalik hai"
+        },
+        {
+          "term": "Let's Encrypt",
+          "en": "a free certificate authority that gives 90-day certificates",
+          "hi": "free certificate authority jo 90 din ke certificates deti hai"
+        },
+        {
+          "term": "ACME challenge",
+          "en": "a test where Let's Encrypt checks that you control the domain",
+          "hi": "test jisme Let's Encrypt check karta hai ki domain aapke control mein hai"
+        },
+        {
+          "term": "redirect 301",
+          "en": "the server tells the browser to go to another URL for good",
+          "hi": "server browser ko hamesha ke liye dusre URL par jaane ko kehta hai"
+        },
+        {
+          "term": "renewal",
+          "en": "getting a new certificate before the old one expires",
+          "hi": "purana certificate expire hone se pehle naya certificate lena"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How does Let's Encrypt check that you own the domain?",
+          "a": "It uses the ACME protocol. With the HTTP challenge, certbot puts a token at a special URL on port 80, and Let's Encrypt downloads it from the internet. If the token is right, it gives the certificate. That is why port 80 must be open and the DNS name must point to the server."
+        },
+        {
+          "q": "How do you make sure the certificate does not expire?",
+          "a": "Let's Encrypt certificates last 90 days. The certbot package installs a systemd timer that tries renewal twice a day and renews about 30 days before expiry. My deploy hook reloads Nginx after a renewal. I tested it with certbot renew --dry-run, and a monitoring check on the expiry date would be the next step."
+        },
+        {
+          "q": "Why did you not use an AWS load balancer with ACM for HTTPS?",
+          "a": "ACM needs a domain where I can add DNS records for validation, and duckdns.org does not support the CNAME record ACM needs. A load balancer also costs money in our lab. So I put the certificate on Nginx on one public server. In a company with a real domain I would use ACM on the ALB."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Certbot instructions",
+          "url": "https://certbot.eff.org/instructions"
+        },
+        {
+          "title": "Let's Encrypt: Rate limits",
+          "url": "https://letsencrypt.org/docs/rate-limits/"
+        },
+        {
+          "title": "Let's Encrypt: Challenge types",
+          "url": "https://letsencrypt.org/docs/challenge-types/"
+        }
+      ]
+    },
+    {
+      "id": "s06-t04",
+      "key": "OPS-604",
+      "type": "task",
+      "title": "Deploy from GitHub Actions over SSH with OIDC, secrets and a rollback button",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Every merge to main deploys the new API image to prod with Ansible after an approval, SSH is open only during the deploy, and anyone on the team can roll back to an older version from the Actions page.",
+      "context": "Hi, deploys still run from your laptop. Please move them to GitHub Actions. After CI passes on main, the deploy job runs the Ansible deploy playbook over SSH. Do not keep port 22 open to the whole internet: use an AWS role through OIDC to open it only for the runner and close it after. Add a manual rollback too.",
+      "steps": [
+        "Make the image tag match the commit: in `ci.yml` add `type=sha,prefix=,format=long` to the metadata-action tags. Each image now also gets the full commit id as a tag.",
+        "As in OPS-504, attach `IAMFullAccess` to your group for this ticket only. Create a role `shopnotes-deploy` with a custom trust policy like the plan role, but with `\"token.actions.githubusercontent.com:sub\": \"repo:<your-github-user>/shopnotes:environment:production\"`. Only jobs that use the production environment can use it.",
+        "Give the role an inline policy with three statements. 1: `ec2:AuthorizeSecurityGroupIngress` and `ec2:RevokeSecurityGroupIngress` on `arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:security-group/*` with a condition `StringEquals` `aws:ResourceTag/Project: shopnotes` and `aws:ResourceTag/Env: prod`. 2: the same two actions on `arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:security-group-rule/*` (new rules have no tags). 3: `ec2:DescribeSecurityGroups` on `*`. Then remove `IAMFullAccess` from your group.",
+        "Create the environment: repo > Settings > Environments > New environment `production`. Add yourself as Required reviewer, and under Deployment branches allow only `main`.",
+        "Add environment secrets in `production`: `DEPLOY_SSH_KEY` (the content of `~/.ssh/shopnotes_deploy`), `DEPLOY_KNOWN_HOSTS` (the output of `ssh-keyscan -t ed25519 <subdomain>.duckdns.org`), `ANSIBLE_VAULT_PASSWORD` (the content of `~/.shopnotes_vault_pass`). Add the environment variable `AWS_DEPLOY_ROLE_ARN`.",
+        "Create `.github/workflows/deploy.yml`. Triggers: `on:` `workflow_call:` with `inputs: version: {required: true, type: string}`, and `workflow_dispatch:` with `inputs: version: {description: \"Image tag to deploy (full commit id or version)\", required: true, type: string}`. Add `concurrency: {group: deploy-production, cancel-in-progress: false}` so two deploys never run at once.",
+        "One job `deploy`: `runs-on: ubuntu-24.04`, `environment: production`, `permissions: {contents: read, id-token: write}`, `env: {VERSION: \"${{ inputs.version }}\"}`. Steps 1 and 2: `actions/checkout@v4` and `aws-actions/configure-aws-credentials@v4` with `role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}` and `aws-region: ap-south-1`.",
+        "Step 3 (`id: open`) opens SSH for this runner only: `IP=$(curl -fsS https://checkip.amazonaws.com)`, `SG=$(aws ec2 describe-security-groups --filters Name=tag:Name,Values=shopnotes-prod-app --query 'SecurityGroups[0].GroupId' --output text)`, `echo \"ip=$IP\" >> \"$GITHUB_OUTPUT\"`, `echo \"sg=$SG\" >> \"$GITHUB_OUTPUT\"`, `aws ec2 authorize-security-group-ingress --group-id \"$SG\" --protocol tcp --port 22 --cidr \"$IP/32\"`.",
+        "Step 4 writes the secrets to files. Pass them through `env:` (`SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}` and so on), never write `${{ secrets... }}` straight into the script. Run: `install -m 700 -d ~/.ssh`, `printf '%s\\n' \"$SSH_KEY\" > ~/.ssh/id_ed25519`, `chmod 600 ~/.ssh/id_ed25519`, `printf '%s\\n' \"$KNOWN_HOSTS\" > ~/.ssh/known_hosts`, `printf '%s' \"$VAULT_PASS\" > ~/.vault_pass`.",
+        "Step 5: `run: pipx install --include-deps ansible`. Step 6 with `working-directory: ansible`: `ansible-playbook deploy.yml -e \"app_version=$VERSION\" --vault-password-file ~/.vault_pass`. Step 7, smoke test: `curl -fsS https://<subdomain>.duckdns.org/api/health`.",
+        "Last step closes SSH even when a step failed: `if: always() && steps.open.outputs.sg != ''` and `run: aws ec2 revoke-security-group-ingress --group-id \"${{ steps.open.outputs.sg }}\" --protocol tcp --port 22 --cidr \"${{ steps.open.outputs.ip }}/32\"`.",
+        "Call it from CI: in `ci.yml` add a job `deploy` with `needs: build`, `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`, `permissions: {contents: read, id-token: write}`, `uses: ./.github/workflows/deploy.yml`, `with: {version: \"${{ github.sha }}\"}` and `secrets: inherit`.",
+        "Merge a small visible change (for example a new line on the web page). Approve the deployment when GitHub asks. Watch the run and open the site. Check that port 22 is closed again: `aws ec2 describe-security-groups --filters Name=tag:Name,Values=shopnotes-prod-app --query 'SecurityGroups[0].IpPermissions'` shows port 22 only for your own IP.",
+        "Test the health gate: Actions > deploy > Run workflow with version `does-not-exist`. The run must fail at the image pull, and the site must keep working on the old version.",
+        "Rollback: see what runs now with `ssh deploy@<subdomain>.duckdns.org cat /etc/shopnotes/current_version`, and find the last good full commit id in the history of the deploy workflow or with `git log --format='%H %s' -5 origin/main`. Run the deploy workflow by hand (Actions > deploy > Run workflow) with that older commit id. Write these steps in `docs/rollback.md` and merge through a PR."
+      ],
+      "acceptance": [
+        "A push to main runs test, build, then deploy after your approval, and the new version is live.",
+        "There are no AWS keys in GitHub; the deploy uses the `shopnotes-deploy` role through OIDC, which only the production environment can use.",
+        "Port 22 is open for the runner only during the deploy and is closed at the end, also when the deploy fails.",
+        "A deploy of a version that does not exist fails without downtime.",
+        "A manual rollback to an older commit id works and is written in `docs/rollback.md`."
+      ],
+      "evidence": [
+        "Link to a full green run: test, build, deploy",
+        "Link to the failed `does-not-exist` run and proof that the site stayed up",
+        "Link to the rollback run and to `docs/rollback.md`"
+      ],
+      "hints": [
+        "`Host key verification failed` means `DEPLOY_KNOWN_HOSTS` is empty or old. Create it again with ssh-keyscan if the server was rebuilt.",
+        "If OIDC fails with `Not authorized`, check the `sub`: jobs with an environment use `repo:<user>/shopnotes:environment:production`.",
+        "Reusable workflows need `id-token: write` in the calling job too, or the token request fails."
+      ],
+      "explain": {
+        "en": "In this task I moved our deploys to GitHub Actions. After tests and the image build on main, a reusable deploy workflow runs in the production environment, which needs my approval. It gets AWS credentials through OIDC with a role that can only change the prod app security group, opens port 22 just for the runner IP, runs the Ansible blue/green deploy over SSH, does a smoke test, and always closes port 22 at the end. The SSH key, known hosts and vault password are environment secrets passed through env variables. The same workflow has a manual trigger, so rollback means deploying an older commit id with one click.",
+        "hi": "Is task mein maine apne deploys GitHub Actions par shift kiye. main par tests aur image build ke baad ek reusable deploy workflow production environment mein chalta hai, jiske liye meri approval chahiye. Ye OIDC se AWS credentials leta hai, ek aise role se jo sirf prod app ka security group badal sakta hai, sirf runner ke IP ke liye port 22 kholta hai, SSH par Ansible ka blue/green deploy chalata hai, smoke test karta hai, aur end mein hamesha port 22 band karta hai. SSH key, known hosts aur vault password environment secrets hain jo env variables se diye jaate hain. Isi workflow mein manual trigger hai, isliye rollback matlab ek click mein purana commit id deploy karna."
+      },
+      "vocabulary": [
+        {
+          "term": "continuous deployment",
+          "en": "every change that passes CI is deployed to servers automatically",
+          "hi": "jo change CI pass kare woh apne aap servers par deploy ho jaata hai"
+        },
+        {
+          "term": "environment (GitHub)",
+          "en": "a target like production with its own secrets, rules and approvals",
+          "hi": "production jaisa target jiske apne secrets, rules aur approvals hote hain"
+        },
+        {
+          "term": "reusable workflow",
+          "en": "a workflow that other workflows can call with inputs",
+          "hi": "workflow jise dusre workflows inputs ke saath call kar sakte hain"
+        },
+        {
+          "term": "rollback",
+          "en": "going back to the last good version after a bad deploy",
+          "hi": "kharab deploy ke baad pichle achhe version par wapas jaana"
+        },
+        {
+          "term": "known_hosts",
+          "en": "a file with server keys, so SSH knows it talks to the right server",
+          "hi": "server keys ki file, taaki SSH ko pata ho ki sahi server se baat ho rahi hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How does your pipeline deploy to the server?",
+          "a": "After the test and build jobs pass on main, the deploy job runs in the production environment and waits for approval. It assumes an AWS role with OIDC, opens SSH only for the runner IP, and runs our Ansible blue/green playbook with the new image tag. Then it calls /api/health over HTTPS and closes SSH again."
+        },
+        {
+          "q": "Why open port 22 only during the deploy?",
+          "a": "GitHub runners have changing IP addresses, and opening SSH to the whole internet invites attacks. So the job adds a rule for its own IP and removes it in a step with if: always(). The role can only change security groups with our prod tags, so even a stolen token can do very little."
+        },
+        {
+          "q": "How do you roll back?",
+          "a": "The deploy workflow has a workflow_dispatch trigger with a version input. To roll back, I run it with the last good commit id, which I find in the deploy history or with git log. The image is still in the registry, and the blue/green switch makes the rollback zero-downtime too."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: Managing environments for deployment",
+          "url": "https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments"
+        },
+        {
+          "title": "GitHub Docs: Reusing workflows",
+          "url": "https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows"
+        },
+        {
+          "title": "GitHub Docs: Using secrets in GitHub Actions",
+          "url": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets"
+        }
+      ]
+    },
+    {
+      "id": "s06-t05",
+      "key": "OPS-605",
+      "type": "incident",
+      "title": "Incident: every request returns 500 after a new log agent was added",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "ShopNotes answers 200 again, the space is freed safely, the cause cannot fill the disk again, and our real server has log limits and a disk alert.",
+      "context": "[P1] Hi, ShopNotes returns 500 Internal Server Error on every request. The database is healthy and no app code changed today, but a new log agent sidecar went out this morning. Please find the cause, fix it so it does not come back after a restart, and write the postmortem. We reproduced it in the drill `drills/disk-full-logs/`.",
+      "steps": [
+        "Get the drill folder `drills/disk-full-logs/` from DevOps Lab and open a terminal in it. Read `README.md`. Do not open `SOLUTION.md` until you have written your root cause in the DevOps Lab app. The drill uses a small 20 MB volume in memory, so it never fills your real disk.",
+        "Start your timeline file now. Then start the drill: `docker compose up -d --build`, `sleep 5`, `curl -i http://localhost:8082/health`.",
+        "Read the error first, do not guess: `docker compose logs app | tail -50`. Find the Python error line and write it in your timeline.",
+        "Check the space where the app writes: `docker compose exec app df -h /var/log/shopnotes`. Look at the Use% column.",
+        "Find what uses the space: `docker compose exec app ls -lh /var/log/shopnotes` and `docker compose exec app du -sh /var/log/shopnotes/*`. Which file is big, and which service writes it? Check `docker compose ps` and `docker compose logs log-agent`.",
+        "Read how that service is configured: look at its part in `docker-compose.yml` (environment and command). Find the setting that makes it write so much.",
+        "Fix the cause first, then free the space. Change the setting in `docker-compose.yml`, apply it with `docker compose up -d <service>`, and confirm the new value with `docker compose exec <service> printenv`.",
+        "Free the space safely. A program may still hold the file open, so empty it with `truncate -s 0 <file>` (inside the container with `docker compose exec`) instead of `rm`. Check `df -h` again.",
+        "Check the fix: `./check.sh` must print `PASS`. Then write the root cause in the DevOps Lab app, read `SOLUTION.md` and compare.",
+        "Learn the real-server commands too (on your prod server over SSH): `df -h`, `df -i` (inodes), `sudo du -xh --max-depth=1 / 2>/dev/null | sort -h | tail`, `sudo journalctl --disk-usage`, `docker system df`, and `sudo lsof +L1` (deleted files that are still open; install with `sudo apt install -y lsof`).",
+        "Prevention on prod with Ansible. In the docker role add `/etc/docker/daemon.json` with `{\"log-driver\": \"json-file\", \"log-opts\": {\"max-size\": \"10m\", \"max-file\": \"3\"}}` and a handler that restarts Docker (the limit applies to new containers, so deploy once after).",
+        "In the common role add `/etc/systemd/journald.conf.d/size.conf` with `[Journal]` and `SystemMaxUse=200M`, and a handler `systemctl restart systemd-journald`.",
+        "Add a disk alert: a script `/usr/local/bin/disk-alert.sh` (from an Ansible template) that reads `df --output=pcent / | tail -1 | tr -dc '0-9'` and, at 80 or more, writes a warning with `logger -p user.warning` and calls `curl -fsS -X POST` to a webhook you own (for example a free Discord or Slack webhook in the vault). Run it every 10 minutes with `ansible.builtin.cron`.",
+        "Run `ansible-playbook site.yml --vault-password-file ~/.shopnotes_vault_pass`, test the alert by changing the limit to 1% for one run, then set it back to 80.",
+        "Write `docs/postmortems/2026-disk-full-logs.md` (blameless): Summary, Impact, Timeline, Root cause, Fix, What went well, What went wrong, Actions. Merge it and the Ansible changes through a PR. Clean up the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`./check.sh` in the drill prints `PASS`.",
+        "The space was freed with truncate, and the setting that caused it is changed in `docker-compose.yml`, so a restart does not bring the problem back.",
+        "Prod has Docker log limits (max-size 10m, max-file 3) and a journald size limit, set by Ansible.",
+        "The disk alert runs every 10 minutes and you saw one test alert.",
+        "The postmortem is merged with a real timeline and actions."
+      ],
+      "evidence": [
+        "Output of `./check.sh` and of `df -h /var/log/shopnotes` before and after",
+        "The error line from the app log that showed the cause",
+        "Link to the postmortem and to the Ansible PR"
+      ],
+      "hints": [
+        "When a disk is full, read the app error first. Errno 28 means no space left on device.",
+        "`rm` on a file that a process keeps open does not free the space until the process closes it.",
+        "Fix the writer first. If you only free space, it fills again in minutes."
+      ],
+      "explain": {
+        "en": "In this task I handled a P1 incident where every request returned 500 after a new log agent was deployed. I read the app log first and found a no space left on device error, so I checked the log volume with df and du and found one huge debug log file. The new sidecar was configured to write debug logs without stopping. I fixed its log level in the compose file so the fix survives a restart, then freed the space with truncate instead of rm, because a process may still hold the file open. check.sh passed, and on our real server I added Docker log rotation, a journald size limit and an 80% disk alert with Ansible.",
+        "hi": "Is task mein maine ek P1 incident handle kiya jisme naya log agent deploy hone ke baad har request 500 de rahi thi. Pehle app log padha aur usme no space left on device error mila, isliye df aur du se log volume check kiya aur ek bahut badi debug log file mili. Naya sidecar bina ruke debug logs likhne ke liye configured tha. Maine compose file mein uska log level theek kiya taaki fix restart ke baad bhi rahe, phir rm ki jagah truncate se jagah khaali ki, kyunki koi process file ko abhi bhi khula rakh sakta hai. check.sh pass hua, aur apne asli server par Ansible se Docker log rotation, journald size limit aur 80% disk alert lagaya."
+      },
+      "vocabulary": [
+        {
+          "term": "disk full",
+          "en": "no free space is left, so programs cannot write files",
+          "hi": "koi khaali jagah nahi bachi, isliye programs files nahi likh sakte"
+        },
+        {
+          "term": "log rotation",
+          "en": "old logs are moved, compressed or deleted when they get too big",
+          "hi": "purane logs bade hone par move, compress ya delete hote hain"
+        },
+        {
+          "term": "truncate",
+          "en": "make a file empty without deleting it",
+          "hi": "file ko delete kiye bina khaali karna"
+        },
+        {
+          "term": "sidecar",
+          "en": "a helper container that runs next to the main app container",
+          "hi": "helper container jo main app container ke saath chalta hai"
+        },
+        {
+          "term": "inode",
+          "en": "a small record for each file; a disk can run out of them too",
+          "hi": "har file ka chhota record; disk mein ye bhi khatam ho sakte hain"
+        },
+        {
+          "term": "log level",
+          "en": "how much detail a program writes, like debug, info or error",
+          "hi": "program kitni detail likhta hai, jaise debug, info ya error"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Users get 500 errors and the database is fine. How do you start?",
+          "a": "I read the app log first, because the error message usually names the cause. Here it was no space left on device. Then I checked the filesystem with df -h, found the big file with du and ls, and found which service writes it. I fixed that writer before I freed the space."
+        },
+        {
+          "q": "Why did you use truncate and not rm?",
+          "a": "If a process still has the file open, rm only removes the name and the disk space stays used until the process closes the file. truncate -s 0 empties the file at once and the process can keep writing. On a real server I check for this case with lsof +L1."
+        },
+        {
+          "q": "How do you stop logs from filling a disk again?",
+          "a": "I set Docker log limits with max-size and max-file in daemon.json and a SystemMaxUse limit for journald, both with Ansible. Production services run with log level info, not debug. And a disk alert at 80% warns us long before users see errors."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Docker Docs: JSON File logging driver",
+          "url": "https://docs.docker.com/engine/logging/drivers/json-file/"
+        },
+        {
+          "title": "journald.conf manual",
+          "url": "https://www.freedesktop.org/software/systemd/man/latest/journald.conf.html"
+        },
+        {
+          "title": "logrotate(8) manual page",
+          "url": "https://man7.org/linux/man-pages/man8/logrotate.8.html"
+        }
+      ]
+    }
+  ]
+}

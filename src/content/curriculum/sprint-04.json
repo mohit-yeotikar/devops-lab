@@ -1,0 +1,522 @@
+{
+  "id": "s04",
+  "number": 4,
+  "title": "AWS core: IAM, VPC, EC2, RDS and the 3-tier app",
+  "weeks": "7-8",
+  "theme": "Build a safe AWS account and deploy ShopNotes by hand as a 3-tier app, while staying in the free tier.",
+  "jobStory": "In this sprint you move ShopNotes to AWS by hand. You lock down the account with MFA, a least-privilege IAM user and a 1 USD budget alert. You build a VPC with public and private subnets, a cheap NAT instance and security groups for each tier. Then you run the app on a private EC2 server with Nginx, the data on RDS PostgreSQL, and an Application Load Balancer in front. Like a real engineer you also track the cost and stop everything at the end of the day.",
+  "outcomes": [
+    "I secured an AWS account with root MFA, a least-privilege IAM user and a 1 USD budget alert.",
+    "I built a VPC with public and private subnets in two zones, a NAT instance and tiered security groups.",
+    "I created a private RDS PostgreSQL database with a limited app user and SSL.",
+    "I deployed ShopNotes as a 3-tier app with an ALB, Nginx, gunicorn and RDS.",
+    "I documented the architecture, the security rules and the cost."
+  ],
+  "tickets": [
+    {
+      "id": "s04-t01",
+      "key": "OPS-401",
+      "type": "task",
+      "title": "Secure the AWS account: MFA, least-privilege IAM user and a 1 USD budget",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "The AWS account has MFA on root, a daily IAM user with only the permissions we need, the AWS CLI set up, and an email alert before we spend 1 USD.",
+      "context": "Hi, we are moving ShopNotes to AWS. Before anyone creates a server, the account must be safe. Lock the root user with MFA, make a normal IAM user for daily work with only the services we use, and set a budget alert at 1 USD. A stolen root password or a forgotten server can cost a lot of money.",
+      "steps": [
+        "Sign in to https://console.aws.amazon.com as the root user (the email you used to sign up). Open the account menu (top right) > Security credentials > Assign MFA device. Choose Authenticator app, scan the QR code with Google Authenticator or Microsoft Authenticator, and enter two codes.",
+        "Still as root, open Billing and Cost Management > Budgets > Create budget > Use a template > Monthly cost budget. Budget amount: `1` USD. Email: your email. Create it. AWS will mail you when the actual or forecasted cost passes 1 USD.",
+        "Open Billing and Cost Management > Billing preferences and turn on Free Tier usage alerts with your email. Also open the Free Tier and Credits pages and note your plan and the end date.",
+        "Let IAM users see billing: account menu > Account > IAM user and role access to Billing information > Edit > Activate IAM access > Update.",
+        "Set the default region for this course: Asia Pacific (Mumbai) `ap-south-1`. Use it for everything.",
+        "Open IAM > User groups > Create group `shopnotes-ops`. Attach only these AWS managed policies: `AmazonEC2FullAccess` (EC2, security groups and load balancers), `AmazonVPCFullAccess`, `AmazonRDSFullAccess`, `IAMReadOnlyAccess`, `AWSBillingReadOnlyAccess`. No AdministratorAccess.",
+        "Open IAM > Users > Create user `<your-name>-ops`. Tick Provide user access to the AWS Management Console, choose a custom password. Add the user to the group `shopnotes-ops`.",
+        "Open the new user > Security credentials > Assign MFA device, and add a second entry in your authenticator app for this user.",
+        "For the CLI: on the same page create an access key, use case Command Line Interface (CLI). Download the .csv once and keep it out of any Git folder. Never paste it in chat, code or screenshots.",
+        "Install AWS CLI v2 on Ubuntu: `curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o awscliv2.zip`, `unzip awscliv2.zip`, `sudo ./aws/install`, `aws --version`.",
+        "Configure it: `aws configure`. Enter the access key id, the secret key, region `ap-south-1`, output `json`. Check who you are: `aws sts get-caller-identity`. The Arn must end with `user/<your-name>-ops`, not root.",
+        "Prove least privilege: `aws iam create-user --user-name test-should-fail` must fail with `AccessDenied`. `aws ec2 describe-vpcs` must work.",
+        "Sign out of root. From now on, use the IAM user sign-in URL (IAM dashboard > AWS account > Sign-in URL) and your ops user. Use root only for billing settings and account tasks."
+      ],
+      "acceptance": [
+        "Root has MFA, and the IAM dashboard shows no security warning for root.",
+        "A monthly cost budget of 1 USD with your email exists.",
+        "User `<your-name>-ops` has MFA, is in group `shopnotes-ops`, and has no AdministratorAccess.",
+        "`aws sts get-caller-identity` shows the ops user and `aws iam create-user` is denied.",
+        "No access key is saved in any Git repo or screenshot."
+      ],
+      "evidence": [
+        "Screenshot of the Budgets page with the 1 USD budget",
+        "Output of `aws sts get-caller-identity` with the account id hidden (for example `1234********`)",
+        "Output of the denied `aws iam create-user` command"
+      ],
+      "hints": [
+        "New accounts (since 15 July 2025) are on the AWS Free plan with credits for 6 months; older ones had the 12-month Free Tier. Check your plan under Billing. Either way, the 1 USD budget warns you early.",
+        "If you lose your MFA phone, root recovery is slow. Save the MFA setup secret or add a second MFA device.",
+        "If an access key leaks, deactivate and delete it at once in IAM, then create a new one."
+      ],
+      "explain": {
+        "en": "In this task I made our AWS account safe before we built anything. I turned on MFA for the root user and created a 1 USD monthly budget with an email alert. I created a group with only the managed policies we need for EC2, VPC and RDS, plus read-only IAM and billing, and an IAM user with MFA in that group. I installed AWS CLI v2 and checked with sts get-caller-identity that I am the IAM user, not root. I also proved least privilege: creating an IAM user was denied.",
+        "hi": "Is task mein maine kuch bhi banane se pehle apna AWS account safe kiya. Root user par MFA lagaya aur email alert ke saath 1 USD ka monthly budget banaya. Ek group banaya jisme sirf zaroori managed policies hain EC2, VPC aur RDS ke liye, aur IAM aur billing read-only, aur us group mein MFA wala IAM user banaya. AWS CLI v2 install kiya aur sts get-caller-identity se check kiya ki main IAM user hoon, root nahi. Least privilege bhi prove kiya: IAM user banane ki command deny ho gayi."
+      },
+      "vocabulary": [
+        {
+          "term": "root user",
+          "en": "the first user of the AWS account; it can do everything, even close the account",
+          "hi": "AWS account ka pehla user; ye sab kuch kar sakta hai, account band bhi"
+        },
+        {
+          "term": "MFA",
+          "en": "a second login step with a code from your phone",
+          "hi": "login ka dusra step, phone ke code ke saath"
+        },
+        {
+          "term": "least privilege",
+          "en": "give only the permissions that are really needed",
+          "hi": "sirf utni permissions dena jitni sach mein chahiye"
+        },
+        {
+          "term": "IAM policy",
+          "en": "a JSON document that says which AWS actions are allowed or denied",
+          "hi": "JSON document jo batata hai kaunse AWS actions allowed ya denied hain"
+        },
+        {
+          "term": "access key",
+          "en": "an id and secret that the CLI uses to call AWS as a user",
+          "hi": "id aur secret jisse CLI user ban kar AWS ko call karta hai"
+        },
+        {
+          "term": "budget alert",
+          "en": "an email from AWS when the cost passes a limit you set",
+          "hi": "AWS ki email jab cost aapki set ki limit se upar jaaye"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you not use the root user every day?",
+          "a": "Root can do everything, including closing the account and changing billing. If its password leaks, the whole account is lost. So I protect root with MFA and use it only for a few account tasks, and I do daily work with an IAM user that has fewer rights."
+        },
+        {
+          "q": "How did you apply least privilege?",
+          "a": "I made a group with only the services the project uses: EC2, VPC, RDS, and read-only IAM and billing. There is no AdministratorAccess. I tested it: describe-vpcs works, but create-user is denied. In a bigger company I would write custom policies or use IAM Identity Center with roles."
+        },
+        {
+          "q": "How do you avoid a surprise AWS bill?",
+          "a": "I created a 1 USD monthly cost budget with email alerts and turned on Free Tier usage alerts. I use only free tier eligible sizes, and I stop or delete resources at the end of each day. I also check the Billing page and Cost Explorer every week."
+        }
+      ],
+      "resources": [
+        {
+          "title": "AWS IAM: Security best practices",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+        },
+        {
+          "title": "AWS Budgets: Creating a budget",
+          "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create.html"
+        },
+        {
+          "title": "AWS CLI: Install or update the latest version",
+          "url": "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+        }
+      ]
+    },
+    {
+      "id": "s04-t02",
+      "key": "OPS-402",
+      "type": "task",
+      "title": "Build the VPC with public and private subnets and a NAT instance",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A VPC in Mumbai has two public and two private subnets, an internet gateway, a cheap NAT instance for the private subnets, and security groups for each tier.",
+      "context": "Hi, our database must never be on the internet, and the app server should not be either. Please build a network with public subnets (load balancer, NAT) and private subnets (app, database). AWS NAT Gateway costs money every hour, so use a small NAT instance on a free tier size instead.",
+      "steps": [
+        "Find your public IP for SSH rules: `curl https://checkip.amazonaws.com`. Write it down as `<my-ip>/32`.",
+        "VPC console > Your VPCs > Create VPC > VPC only. Name `shopnotes-vpc`, IPv4 CIDR `10.0.0.0/16`. After it is created: Actions > Edit VPC settings > tick Enable DNS hostnames.",
+        "Subnets > Create subnet in `shopnotes-vpc`, four times: `shopnotes-public-a` `10.0.1.0/24` in `ap-south-1a`; `shopnotes-public-b` `10.0.2.0/24` in `ap-south-1b`; `shopnotes-private-a` `10.0.11.0/24` in `ap-south-1a`; `shopnotes-private-b` `10.0.12.0/24` in `ap-south-1b`. Two zones are needed for the load balancer and RDS.",
+        "For both public subnets: Actions > Edit subnet settings > tick Enable auto-assign public IPv4 address.",
+        "Internet gateways > Create `shopnotes-igw` > Actions > Attach to VPC `shopnotes-vpc`.",
+        "Route tables > Create `shopnotes-public-rt` in the VPC. Routes > Edit routes > Add `0.0.0.0/0` with target the internet gateway. Subnet associations > add both public subnets.",
+        "Security groups (EC2 or VPC console), all in `shopnotes-vpc`: `shopnotes-alb-sg` inbound HTTP 80 from `0.0.0.0/0`; `shopnotes-nat-sg` inbound All traffic from `10.0.0.0/16` and SSH 22 from `<my-ip>/32`; `shopnotes-app-sg` inbound HTTP 80 from source `shopnotes-alb-sg` and SSH 22 from source `shopnotes-nat-sg`; `shopnotes-db-sg` inbound PostgreSQL 5432 from source `shopnotes-app-sg`. Keep the default outbound rule (all traffic).",
+        "Import your SSH key: EC2 > Key pairs > Actions > Import key pair, name `shopnotes-key`, paste the content of `~/.ssh/id_ed25519.pub`.",
+        "Launch the NAT instance: EC2 > Launch instance. Name `shopnotes-nat`, AMI Amazon Linux 2023, type `t3.micro` (or `t2.micro` if the console marks only that one Free tier eligible), key `shopnotes-key`, subnet `shopnotes-public-a`, auto-assign public IP Enable, security group `shopnotes-nat-sg`.",
+        "In Advanced details > User data paste this script (one command per line): `#!/bin/bash`, `dnf install -y iptables-services`, `systemctl enable --now iptables`, `echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/90-nat.conf`, `sysctl -p /etc/sysctl.d/90-nat.conf`, `IFACE=$(ip route show default | awk '{print $5}')`, `iptables -t nat -A POSTROUTING -o \"$IFACE\" -j MASQUERADE`, `iptables -F FORWARD`, `service iptables save`. Launch.",
+        "A NAT instance forwards traffic for other machines, so AWS must allow packets that are not for itself: select the instance > Actions > Networking > Change source/destination check > tick Stop > Save.",
+        "Route tables > Create `shopnotes-private-rt`. Edit routes > Add `0.0.0.0/0` with target Instance `shopnotes-nat`. Associate both private subnets.",
+        "Test SSH to the NAT instance: `ssh ec2-user@<nat-public-ip>`, then on it: `sudo iptables -t nat -L POSTROUTING -n` (you must see MASQUERADE) and `cat /proc/sys/net/ipv4/ip_forward` (must be 1).",
+        "Cost rule: one t3.micro running all month uses about 730 of the 750 free hours. Two instances (NAT + app) running all month do not fit. Stop both instances at the end of every day: `aws ec2 stop-instances --instance-ids <nat-id> <app-id>`. Also every public IPv4 address costs 0.005 USD per hour outside the free offer. A NAT Gateway would cost about 0.05 USD per hour plus data, more than 35 USD per month, so we do not use it in the lab."
+      ],
+      "acceptance": [
+        "`aws ec2 describe-subnets --filters Name=vpc-id,Values=<vpc-id> --query 'Subnets[].[CidrBlock,AvailabilityZone,MapPublicIpOnLaunch]' --output table` shows 4 subnets in 2 zones, and only the public ones map public IPs.",
+        "The public route table sends `0.0.0.0/0` to the internet gateway; the private one sends it to the NAT instance.",
+        "The NAT instance has source/destination check off and shows MASQUERADE in iptables.",
+        "The DB security group allows 5432 only from the app security group, not from an IP range.",
+        "SSH 22 is open only to your IP (on the NAT) and only from the NAT security group (on the app)."
+      ],
+      "evidence": [
+        "Screenshot of the VPC resource map (VPC > Your VPCs > select > Resource map)",
+        "Output of the describe-subnets command above",
+        "Output of `aws ec2 describe-security-groups --filters Name=vpc-id,Values=<vpc-id> --query 'SecurityGroups[].[GroupName,IpPermissions[].FromPort]' --output json`"
+      ],
+      "hints": [
+        "A security group can use another security group as the source. This is better than IP ranges because it follows the instances when their IPs change.",
+        "If private machines cannot reach the internet later, check the source/destination check, the private route table and `shopnotes-nat-sg` first.",
+        "The NAT public IP changes after stop and start. Look it up again with `aws ec2 describe-instances`."
+      ],
+      "explain": {
+        "en": "In this task I built the network for ShopNotes on AWS by hand. I created a VPC with two public and two private subnets in two availability zones, an internet gateway, and one route table for each type of subnet. Instead of a NAT Gateway, which costs money every hour, I launched a t3.micro NAT instance with iptables masquerade and turned off the source/destination check. I made one security group per tier, and each one only allows traffic from the tier in front of it. I also wrote down the cost rules, like stopping the instances every evening.",
+        "hi": "Is task mein maine ShopNotes ke liye AWS par network haath se banaya. Do availability zones mein do public aur do private subnets wala VPC banaya, ek internet gateway, aur har type ke subnet ke liye ek route table. NAT Gateway har ghante paise leta hai, isliye uski jagah t3.micro NAT instance chalaya jisme iptables masquerade hai, aur source/destination check band kiya. Har tier ka ek security group banaya, aur har ek sirf apne aage wale tier se traffic allow karta hai. Cost ke rules bhi likhe, jaise har shaam instances stop karna."
+      },
+      "vocabulary": [
+        {
+          "term": "VPC",
+          "en": "your own private network inside AWS",
+          "hi": "AWS ke andar aapka apna private network"
+        },
+        {
+          "term": "subnet",
+          "en": "a smaller part of the VPC network in one availability zone",
+          "hi": "VPC network ka chhota hissa jo ek availability zone mein hota hai"
+        },
+        {
+          "term": "internet gateway",
+          "en": "the door between the VPC and the internet",
+          "hi": "VPC aur internet ke beech ka darwaza"
+        },
+        {
+          "term": "NAT",
+          "en": "lets private machines go out to the internet without being reachable from it",
+          "hi": "private machines ko internet par bahar jaane deta hai, par bahar se koi unhe reach nahi kar sakta"
+        },
+        {
+          "term": "route table",
+          "en": "rules that say where network traffic goes next",
+          "hi": "rules jo batate hain network traffic aage kahan jaayega"
+        },
+        {
+          "term": "security group",
+          "en": "a firewall around an instance that allows only the traffic you list",
+          "hi": "instance ke aas-paas firewall jo sirf list kiya hua traffic allow karta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between a public and a private subnet?",
+          "a": "A public subnet has a route to the internet gateway, so machines with a public IP can be reached from the internet. A private subnet has no such route. Our app and database are in private subnets, and they reach the internet only through the NAT for updates."
+        },
+        {
+          "q": "Why did you use a NAT instance and not a NAT Gateway?",
+          "a": "A NAT Gateway is managed and highly available, but it costs money every hour plus data, more than 35 USD a month. For a lab a t3.micro NAT instance is free tier eligible. The trade-off is that I must manage it myself and it is a single point of failure, so in production I would use a NAT Gateway."
+        },
+        {
+          "q": "How did you design the security groups?",
+          "a": "I made one group per tier. The load balancer allows port 80 from the internet, the app allows port 80 only from the load balancer group, and the database allows 5432 only from the app group. SSH to the app is only possible through the NAT instance, which allows SSH only from my IP."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Amazon VPC: Subnets for your VPC",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+        },
+        {
+          "title": "Amazon VPC: NAT instances",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html"
+        },
+        {
+          "title": "Amazon VPC: Security groups",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        }
+      ]
+    },
+    {
+      "id": "s04-t03",
+      "key": "OPS-403",
+      "type": "task",
+      "title": "Create the RDS Postgres database in the private subnets",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "A free tier RDS PostgreSQL db.t3.micro runs in the private subnets, has no public access, and the app has its own database user with limited rights.",
+      "context": "Hi, we do not want to run Postgres on a server ourselves; backups and patches take too much time. Please create an RDS PostgreSQL database in the private subnets. Use the free tier size, no public access, and do not turn on paid extras.",
+      "steps": [
+        "RDS console > Subnet groups > Create DB subnet group. Name `shopnotes-db-subnets`, VPC `shopnotes-vpc`, zones `ap-south-1a` and `ap-south-1b`, subnets `10.0.11.0/24` and `10.0.12.0/24` (the private ones).",
+        "RDS > Create database > Standard create. Engine PostgreSQL, version 16 (the newest 16.x). Template: Free tier.",
+        "Settings: DB instance identifier `shopnotes-db`, master username `shopnotes_admin`. Credentials management: Self managed, and type a strong password (save it in your password manager). Do not choose Secrets Manager here, it costs money per secret.",
+        "Instance and storage: `db.t3.micro` (or `db.t4g.micro`), General Purpose SSD, 20 GiB, and turn off storage autoscaling.",
+        "Connectivity: Don't connect to an EC2 compute resource, VPC `shopnotes-vpc`, subnet group `shopnotes-db-subnets`, Public access No, existing security group `shopnotes-db-sg` only (remove `default`), zone no preference.",
+        "Additional configuration: initial database name `shopnotes`, backup retention 1 day, no Enhanced Monitoring. Create the database. It takes 5 to 10 minutes.",
+        "When it is Available, copy the Endpoint from Connectivity & security. It looks like `shopnotes-db.xxxxxxxx.ap-south-1.rds.amazonaws.com`.",
+        "The database is private, so you can test it only from inside the VPC. In the next ticket you connect from the app server. For now, check the settings with the CLI: `aws rds describe-db-instances --db-instance-identifier shopnotes-db --query 'DBInstances[0].[DBInstanceStatus,DBInstanceClass,PubliclyAccessible,Endpoint.Address]'`.",
+        "Prepare the app user SQL in a local file (do not commit real passwords): `CREATE USER shopnotes WITH PASSWORD '<app-password>';`, `GRANT CONNECT ON DATABASE shopnotes TO shopnotes;`. After the table exists, `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO shopnotes;` and `GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO shopnotes;`. You run it in OPS-404.",
+        "RDS for PostgreSQL 15 and newer needs SSL by default, so the app URL needs `?sslmode=require` at the end.",
+        "End of day: stop the database to save free hours: `aws rds stop-db-instance --db-instance-identifier shopnotes-db`. AWS starts a stopped database again by itself after 7 days."
+      ],
+      "acceptance": [
+        "`describe-db-instances` shows `available`, `db.t3.micro` (or `db.t4g.micro`) and `PubliclyAccessible` false.",
+        "The database uses the subnet group with the two private subnets and only `shopnotes-db-sg`.",
+        "Storage is 20 GiB with autoscaling off, and no Secrets Manager secret was created.",
+        "The SQL for a separate app user with only SELECT, INSERT, UPDATE and DELETE is ready."
+      ],
+      "evidence": [
+        "Output of the `describe-db-instances` query",
+        "Screenshot of the Connectivity & security tab (endpoint visible, no passwords)"
+      ],
+      "hints": [
+        "If Free tier is not shown as a template, check the region and engine; the free size is db.t3.micro or db.t4g.micro, Single-AZ.",
+        "Never choose Multi-AZ in the lab. It doubles the cost.",
+        "Delete with Skip final snapshot only in the lab; in production you always keep a final snapshot."
+      ],
+      "explain": {
+        "en": "In this task I created our database with Amazon RDS for PostgreSQL 16. I used a DB subnet group with only the two private subnets and turned public access off, so the database is not on the internet. The security group allows port 5432 only from the app servers. I chose the free tier db.t3.micro with 20 GB, turned off storage autoscaling and did not use paid extras like Secrets Manager or Multi-AZ. I also prepared a separate app user that can only read and write rows, not change the schema.",
+        "hi": "Is task mein maine Amazon RDS for PostgreSQL 16 se apna database banaya. DB subnet group mein sirf do private subnets rakhe aur public access band kiya, isliye database internet par nahi hai. Security group port 5432 sirf app servers se allow karta hai. Free tier wala db.t3.micro 20 GB ke saath liya, storage autoscaling band kiya aur Secrets Manager ya Multi-AZ jaise paid extras use nahi kiye. Maine ek alag app user bhi ready kiya jo sirf rows padh aur likh sakta hai, schema nahi badal sakta."
+      },
+      "vocabulary": [
+        {
+          "term": "RDS",
+          "en": "the AWS service that runs and manages databases for you",
+          "hi": "AWS service jo aapke liye database chalati aur manage karti hai"
+        },
+        {
+          "term": "DB subnet group",
+          "en": "the list of subnets where RDS may place the database",
+          "hi": "subnets ki list jahan RDS database rakh sakta hai"
+        },
+        {
+          "term": "endpoint",
+          "en": "the DNS name you use to connect to the database",
+          "hi": "DNS naam jisse database se connect karte hain"
+        },
+        {
+          "term": "Multi-AZ",
+          "en": "a standby copy of the database in a second zone; it costs double",
+          "hi": "doosre zone mein database ki standby copy; iska kharcha double hota hai"
+        },
+        {
+          "term": "sslmode=require",
+          "en": "a connection setting that forces an encrypted connection",
+          "hi": "connection setting jo encrypted connection zaroori banati hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why did you use RDS and not Postgres on an EC2 server?",
+          "a": "RDS does backups, patches and monitoring for us, so the team saves a lot of time. I can restore to a point in time and change the size with a few clicks. The free tier covers a small instance, so for us it is also cheap."
+        },
+        {
+          "q": "How is the database protected?",
+          "a": "It is in private subnets with public access off, so there is no route from the internet. The security group allows port 5432 only from the app security group. The connection uses SSL, and the app uses its own user with only data rights, not the admin user."
+        },
+        {
+          "q": "How do you keep RDS inside the free tier?",
+          "a": "I use a db.t3.micro, Single-AZ, 20 GB without autoscaling. I do not use Multi-AZ, Enhanced Monitoring or Secrets Manager. When I do not need it, I stop the database, and I remember that AWS starts it again after 7 days."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Amazon RDS: Creating and connecting to a PostgreSQL DB instance",
+          "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html"
+        },
+        {
+          "title": "Amazon RDS: Working with a DB instance in a VPC",
+          "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html"
+        }
+      ]
+    },
+    {
+      "id": "s04-t04",
+      "key": "OPS-404",
+      "type": "project",
+      "title": "Deploy ShopNotes by hand as a 3-tier app on EC2, RDS and an ALB",
+      "priority": "high",
+      "estimateHours": 14,
+      "goal": "Users open the Application Load Balancer address and use ShopNotes: ALB in the public subnets, Nginx and gunicorn on a private EC2 server, data in RDS.",
+      "context": "Hi, now we put it together. Please deploy ShopNotes by hand on AWS as three tiers: a load balancer in front, the app on a private EC2 server with Nginx, and the RDS database behind it. Doing it by hand once helps you understand every part before we automate it next sprint. Delete the load balancer at the end of each day.",
+      "steps": [
+        "Launch the app server: EC2 > Launch instance. Name `shopnotes-app`, AMI Ubuntu Server 24.04 LTS, type `t3.micro`, key `shopnotes-key`, subnet `shopnotes-private-a`, auto-assign public IP Disable, security group `shopnotes-app-sg`. Note its private IP.",
+        "On your laptop add to `~/.ssh/config`: `Host shopnotes-bastion` with `HostName <nat-public-ip>` and `User ec2-user`; and `Host shopnotes-app` with `HostName <app-private-ip>`, `User ubuntu` and `ProxyJump shopnotes-bastion`. Now `ssh shopnotes-app` jumps through the NAT instance.",
+        "On the app server check the internet path through the NAT: `curl -sI https://pypi.org | head -1`. Then install the tools: `sudo apt update && sudo apt install -y python3-venv nginx git postgresql-client`.",
+        "Get the code and create a system user: `sudo git clone https://github.com/<your-github-user>/shopnotes.git /opt/shopnotes`, `sudo useradd --system --no-create-home --home-dir /opt/shopnotes --shell /usr/sbin/nologin shopnotes`.",
+        "Install the API: `sudo python3 -m venv /opt/shopnotes/api/.venv`, `sudo /opt/shopnotes/api/.venv/bin/pip install -r /opt/shopnotes/api/requirements.txt`, `sudo chown -R shopnotes:shopnotes /opt/shopnotes`.",
+        "Create the table and the app user in RDS: `psql \"host=<rds-endpoint> user=shopnotes_admin dbname=shopnotes sslmode=require\" -f /opt/shopnotes/db/schema.sql`. Then open `psql` the same way and run the SQL you prepared in OPS-403 (CREATE USER, GRANT CONNECT, GRANT on tables and sequences).",
+        "Create `/etc/shopnotes/shopnotes.env` with `DATABASE_URL=postgresql://shopnotes:<app-password>@<rds-endpoint>:5432/shopnotes?sslmode=require`, then `sudo chmod 600 /etc/shopnotes/shopnotes.env`.",
+        "Create `/etc/systemd/system/shopnotes.service` like in OPS-104, but with `User=shopnotes`, `WorkingDirectory=/opt/shopnotes/api`, `ExecStart=/opt/shopnotes/api/.venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --access-logfile - app:app`. Run `sudo systemctl daemon-reload && sudo systemctl enable --now shopnotes` and test `curl http://127.0.0.1:5000/health` (must show db ok).",
+        "Set up Nginx: `sudo mkdir -p /var/www/shopnotes && sudo cp /opt/shopnotes/web/index.html /var/www/shopnotes/`. Create `/etc/nginx/sites-available/shopnotes` like in OPS-104 (`root /var/www/shopnotes;` and `location /api/ { proxy_pass http://127.0.0.1:5000/; ... }`), and add `proxy_set_header X-Forwarded-Proto $scheme;`.",
+        "Enable it: `sudo ln -s /etc/nginx/sites-available/shopnotes /etc/nginx/sites-enabled/`, `sudo rm /etc/nginx/sites-enabled/default`, `sudo nginx -t && sudo systemctl reload nginx`, then `curl http://localhost/api/health`.",
+        "Test without a load balancer first, through an SSH tunnel: on your laptop `ssh -L 8080:localhost:80 shopnotes-app`, then open http://localhost:8080. This way costs nothing.",
+        "Create the target group: EC2 > Target groups > Create. Type Instances, name `shopnotes-tg`, protocol HTTP port 80, VPC `shopnotes-vpc`, health check path `/api/health`. Register `shopnotes-app` on port 80.",
+        "Create the load balancer: EC2 > Load balancers > Create > Application Load Balancer. Name `shopnotes-alb`, Internet-facing, IPv4, VPC `shopnotes-vpc`, zones `ap-south-1a` with `shopnotes-public-a` and `ap-south-1b` with `shopnotes-public-b`, security group `shopnotes-alb-sg` only, listener HTTP 80 forward to `shopnotes-tg`.",
+        "Wait until the target is healthy (Target groups > shopnotes-tg > Targets). Then `curl http://<alb-dns-name>/api/health` and open `http://<alb-dns-name>` in the browser. Add notes.",
+        "Free tier check: the old 12-month free tier included 750 ALB hours per month; on the new Free plan the ALB is paid from your credits (about 0.02 USD per hour plus usage). In both cases delete the ALB at the end of the day: `aws elbv2 delete-load-balancer --load-balancer-arn <arn>`. The target group can stay, it is free.",
+        "End of day checklist: delete the ALB, `aws ec2 stop-instances --instance-ids <app-id> <nat-id>`, `aws rds stop-db-instance --db-instance-identifier shopnotes-db`. Next morning start them again and update the NAT IP in `~/.ssh/config`."
+      ],
+      "acceptance": [
+        "`ssh shopnotes-app` works through the NAT instance, and the app server has no public IP.",
+        "`curl http://127.0.0.1:5000/health` on the server shows `db: ok` with RDS.",
+        "The target group shows the app server as healthy on `/api/health`.",
+        "`http://<alb-dns-name>` shows ShopNotes and saving a note works.",
+        "The app connects as user `shopnotes`, not as `shopnotes_admin`, and uses `sslmode=require`."
+      ],
+      "evidence": [
+        "Screenshot of ShopNotes opened through the ALB DNS name",
+        "Screenshot of the healthy target in `shopnotes-tg`",
+        "Output of `systemctl status shopnotes nginx --no-pager` on the app server"
+      ],
+      "hints": [
+        "Target unhealthy? Check that `shopnotes-app-sg` allows port 80 from `shopnotes-alb-sg`, and that `curl http://localhost/api/health` works on the server.",
+        "`apt update` hangs on the app server? The NAT path is broken. Check the private route table and the source/destination check.",
+        "`psql` times out? Check that `shopnotes-db-sg` allows 5432 from `shopnotes-app-sg` and that you use the endpoint, not an IP."
+      ],
+      "explain": {
+        "en": "In this task I deployed ShopNotes by hand as a 3-tier app on AWS. The app server is an Ubuntu t3.micro in a private subnet, and I reach it with SSH ProxyJump through the NAT instance. On the server I ran the API with gunicorn under systemd and put Nginx in front for the web page and /api/. The data is in RDS PostgreSQL, and the app uses its own limited user with SSL. In front I created an internet-facing Application Load Balancer with a target group that checks /api/health. At the end of each day I delete the load balancer and stop the instances to stay free.",
+        "hi": "Is task mein maine ShopNotes ko AWS par haath se 3-tier app ki tarah deploy kiya. App server private subnet mein Ubuntu t3.micro hai, aur main NAT instance ke through SSH ProxyJump se usme jaata hoon. Server par API ko systemd ke andar gunicorn se chalaya aur web page aur /api/ ke liye aage Nginx lagaya. Data RDS PostgreSQL mein hai, aur app apne limited user se SSL ke saath connect karta hai. Sabse aage ek internet-facing Application Load Balancer banaya jiska target group /api/health check karta hai. Free rehne ke liye har din ke end mein load balancer delete karta hoon aur instances stop karta hoon."
+      },
+      "vocabulary": [
+        {
+          "term": "3-tier architecture",
+          "en": "an app split into web, app and database layers, each in its own network part",
+          "hi": "app ko web, app aur database layers mein baantna, har ek apne network hisse mein"
+        },
+        {
+          "term": "Application Load Balancer",
+          "en": "an AWS service that spreads HTTP requests to healthy servers",
+          "hi": "AWS service jo HTTP requests healthy servers mein baant deti hai"
+        },
+        {
+          "term": "target group",
+          "en": "the list of servers behind a load balancer, with a health check",
+          "hi": "load balancer ke peeche servers ki list, health check ke saath"
+        },
+        {
+          "term": "bastion host",
+          "en": "a small server in a public subnet used to reach private servers with SSH",
+          "hi": "public subnet ka chhota server jisse private servers tak SSH karte hain"
+        },
+        {
+          "term": "ProxyJump",
+          "en": "an SSH setting that connects through one server to reach another",
+          "hi": "SSH setting jo ek server ke through dusre server tak connect karti hai"
+        },
+        {
+          "term": "SSH tunnel",
+          "en": "a safe channel through SSH that forwards a local port to a remote one",
+          "hi": "SSH ke through safe raasta jo local port ko remote port se jodta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Explain your 3-tier setup on AWS.",
+          "a": "The first tier is an Application Load Balancer in two public subnets. The second tier is the app server in a private subnet with Nginx and gunicorn. The third tier is RDS PostgreSQL in private subnets. Each tier only accepts traffic from the tier in front of it through security groups."
+        },
+        {
+          "q": "How do you reach a server that has no public IP?",
+          "a": "I use the NAT instance as a bastion host. In my SSH config the app server has ProxyJump to the bastion, so ssh shopnotes-app goes through it. The bastion allows SSH only from my IP. Another option is AWS Systems Manager Session Manager, which needs no open SSH port."
+        },
+        {
+          "q": "How does the load balancer know if your server is healthy?",
+          "a": "The target group calls /api/health on port 80 every few seconds. Nginx sends it to the API, and the API checks the database. If the check fails several times, the ALB stops sending users to that server until it is healthy again."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Elastic Load Balancing: What is an Application Load Balancer?",
+          "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html"
+        },
+        {
+          "title": "Amazon EC2: Launch an instance",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html"
+        },
+        {
+          "title": "AWS Free Tier",
+          "url": "https://aws.amazon.com/free/"
+        }
+      ]
+    },
+    {
+      "id": "s04-t05",
+      "key": "OPS-405",
+      "type": "docs",
+      "title": "Write the AWS architecture and cost note",
+      "priority": "medium",
+      "estimateHours": 4,
+      "goal": "One page shows the ShopNotes AWS design, every security group rule, what each part costs, and the daily start and stop steps.",
+      "context": "Hi, my manager asked: what did we build on AWS, is it safe, and what will it cost? Please write one architecture note with a diagram, the security rules and a cost table. Add a daily checklist so nobody forgets a running load balancer.",
+      "steps": [
+        "Create `docs/aws-architecture.md` with the headings: Diagram, Network, Security groups, Database, Access, Cost, Daily start and stop, Clean up everything, What we would change for production.",
+        "Diagram: draw it with a free tool like draw.io (https://app.diagrams.net) and save the PNG in `docs/img/aws-3tier.png`, or write a text diagram: `Internet -> ALB (public-a, public-b) -> app EC2 (private-a: Nginx -> gunicorn) -> RDS (private-a/b)` and `app -> NAT instance (public-a) -> Internet`.",
+        "Network: a table with every subnet: name, CIDR, zone, public or private, route table.",
+        "Security groups: a table with Group, Inbound port, Source, Why. Copy the real rules from the console, do not write them from memory.",
+        "Access: how you SSH (ProxyJump through the bastion), who has which IAM user, where the access keys live, and that root has MFA.",
+        "Cost: a table with Resource, Size, Free offer, Cost if not free. Rows: EC2 app t3.micro, NAT instance t3.micro, RDS db.t3.micro 20 GB, ALB, public IPv4 addresses (0.005 USD per hour each), data transfer, and NAT Gateway (not used, about 0.05 USD per hour plus data). Use the official pricing pages and write the date you checked.",
+        "Daily start and stop: the exact CLI commands to start and stop the instances and the database, to delete and create the ALB, and to find the new NAT IP. Test them once.",
+        "Clean up everything: the order to delete all resources at the end of the sprint (ALB, target group, instances, RDS with skip final snapshot, NAT, route tables, subnets, internet gateway, VPC, security groups).",
+        "What we would change for production: for example NAT Gateway in two zones, two app servers in an Auto Scaling group, RDS Multi-AZ, HTTPS with ACM, Session Manager instead of SSH, CloudWatch alarms.",
+        "Merge through a PR and link the page from the README."
+      ],
+      "acceptance": [
+        "`docs/aws-architecture.md` has all 9 headings.",
+        "The security group table matches the console exactly.",
+        "The cost table has the source link and the date for every price.",
+        "The daily start and stop commands were tested once."
+      ],
+      "evidence": [
+        "Link to `docs/aws-architecture.md` on GitHub",
+        "Link to the diagram image or the text diagram"
+      ],
+      "hints": [
+        "Use the AWS Pricing Calculator (https://calculator.aws/) to check monthly costs.",
+        "Write prices in USD and the region (Mumbai). Prices differ between regions."
+      ],
+      "explain": {
+        "en": "In this task I wrote the architecture note for our AWS setup. It has a diagram of the three tiers, a table of all subnets and a table of every security group rule copied from the console. I made a cost table with the free offers and the real price of each part, with links to the AWS pricing pages and the date. I added tested commands to start and stop everything each day and the order to delete it all. I also listed what we would change for production, like Multi-AZ and a NAT Gateway.",
+        "hi": "Is task mein maine apne AWS setup ka architecture note likha. Isme teen tiers ka diagram hai, saare subnets ki table aur har security group rule ki table jo console se copy ki. Ek cost table banayi jisme free offers aur har part ki asli price hai, AWS pricing pages ke links aur date ke saath. Roz sab start aur stop karne ki tested commands likhi aur sab delete karne ka order bhi. Production ke liye kya badlenge, jaise Multi-AZ aur NAT Gateway, woh bhi list kiya."
+      },
+      "vocabulary": [
+        {
+          "term": "architecture diagram",
+          "en": "a picture that shows the parts of a system and how they connect",
+          "hi": "picture jo system ke parts aur unke connection dikhati hai"
+        },
+        {
+          "term": "availability zone",
+          "en": "one data center area inside an AWS region",
+          "hi": "AWS region ke andar ek data center area"
+        },
+        {
+          "term": "on-demand price",
+          "en": "the price per hour when you pay only for what you use",
+          "hi": "per ghante ki price jab sirf use ki hui cheez ka paisa dete ho"
+        },
+        {
+          "term": "single point of failure",
+          "en": "one part that stops the whole system when it breaks",
+          "hi": "ek part jo toot jaaye toh poora system ruk jaata hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What does your AWS setup cost per month?",
+          "a": "In the lab it is close to zero, because I use free tier sizes and stop things every evening. If it ran all month outside the free offer, the biggest costs would be the ALB, the instances and the public IPv4 addresses. I wrote every price with its source link and date in our architecture note."
+        },
+        {
+          "q": "What would you change for production?",
+          "a": "I would use a NAT Gateway in each zone, at least two app servers in an Auto Scaling group behind the ALB, and RDS Multi-AZ. I would add HTTPS with an ACM certificate, CloudWatch alarms, and Session Manager instead of SSH. These cost more but remove single points of failure."
+        },
+        {
+          "q": "Why write a cost table for a small lab?",
+          "a": "Cloud cost is a real part of a DevOps job. Managers always ask what something costs before they approve it. Writing it down also showed me where the hidden costs are, like public IPv4 addresses and a NAT Gateway."
+        }
+      ],
+      "resources": [
+        {
+          "title": "AWS Pricing Calculator",
+          "url": "https://calculator.aws/"
+        },
+        {
+          "title": "Amazon EC2 On-Demand Pricing",
+          "url": "https://aws.amazon.com/ec2/pricing/on-demand/"
+        },
+        {
+          "title": "Amazon VPC Pricing (NAT Gateway and public IPv4)",
+          "url": "https://aws.amazon.com/vpc/pricing/"
+        }
+      ]
+    }
+  ]
+}

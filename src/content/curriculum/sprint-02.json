@@ -320,7 +320,7 @@
       "goal": "The API and web images have no fixable HIGH or CRITICAL vulnerabilities, and the Dockerfile and repo pass a Trivy config and secret scan.",
       "context": "Hi, a customer asked if our images are safe. Please scan them with Trivy, fix what can be fixed and write down what is left with a reason. Also check the repo for secrets and the Dockerfiles for bad settings.",
       "steps": [
-        "Install Trivy with the official install script: `curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin`. Other ways (apt, Docker) are on the official install page. Check: `trivy --version`.",
+        "Install Trivy with the official install script: `curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin`. The official install page shows how to pin a version and other ways (apt, Docker). Check: `trivy --version`.",
         "Scan the API image: `trivy image --severity HIGH,CRITICAL shopnotes-api:dev`. Read the table: Library, Vulnerability (CVE id), Severity, Installed Version, Fixed Version.",
         "Scan again and show only problems that have a fix: `trivy image --severity HIGH,CRITICAL --ignore-unfixed shopnotes-api:dev`. Write the number of findings for both scans in a file `docs/security/trivy-notes.md`.",
         "Fix OS findings by rebuilding on the newest base image: `docker build --pull -t shopnotes-api:dev ./api`. `--pull` downloads the newest `python:3.12-slim` with security patches.",
@@ -397,7 +397,7 @@
       "resources": [
         {
           "title": "Trivy: Installation",
-          "url": "https://trivy.dev/latest/getting-started/installation/"
+          "url": "https://trivy.dev/docs/latest/getting-started/installation/"
         },
         {
           "title": "Trivy on GitHub (aquasecurity/trivy)",

@@ -1,0 +1,531 @@
+{
+  "id": "s05",
+  "number": 5,
+  "title": "Terraform: the 3-tier app as code",
+  "weeks": "9-10",
+  "theme": "Rebuild the AWS 3-tier setup with Terraform modules, shared remote state, dev and prod workspaces and a plan on every pull request.",
+  "jobStory": "In this sprint you turn the hand-made AWS setup into Terraform code. You create a shared remote state in S3 with a DynamoDB lock, write network, app and database modules, and use workspaces for dev and prod. You add terraform plan to pull requests with OIDC, so no AWS keys live in GitHub. You destroy everything every evening to stay free, and you handle your first P1 incident: a 502 from Nginx.",
+  "outcomes": [
+    "I created a Terraform remote state in S3 with versioning, encryption and a DynamoDB lock.",
+    "I wrote the 3-tier AWS setup as reusable Terraform modules with switches for costly parts.",
+    "I used workspaces and tfvars files for dev and prod and destroyed them every evening.",
+    "I ran terraform plan on pull requests with a read-only role through GitHub OIDC.",
+    "I fixed a 502 Bad Gateway incident, wrote a blameless postmortem and added a smoke test."
+  ],
+  "tickets": [
+    {
+      "id": "s05-t01",
+      "key": "OPS-501",
+      "type": "task",
+      "title": "Install Terraform and create the remote state in S3 with a DynamoDB lock",
+      "priority": "high",
+      "estimateHours": 5,
+      "goal": "Terraform 1.x is installed, and an S3 bucket (versioned, encrypted, private) plus a DynamoDB lock table are ready to hold the team's Terraform state.",
+      "context": "Hi, clicking in the console was good for learning, but nobody can repeat it exactly. This sprint we write the infrastructure as code with Terraform. First we need a safe place for the state file: an S3 bucket that all of us share, and a DynamoDB table so two people cannot change the infrastructure at the same time.",
+      "steps": [
+        "Install Terraform from the official HashiCorp apt repo: `wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg`, then `echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list`, then `sudo apt update && sudo apt install -y terraform`. Check: `terraform version` (must be 1.x).",
+        "Give your ops group the two extra services Terraform needs: IAM > User groups > `shopnotes-ops` > Add permissions > attach `AmazonS3FullAccess` and `AmazonDynamoDBFullAccess`. (You need root or an admin for this one change.)",
+        "Delete the hand-made resources from sprint 4 so they do not cost money and do not clash with Terraform: the ALB, the instances, the RDS database (skip final snapshot), the target group, then the route tables, subnets, internet gateway, security groups and the VPC. Keep the key pair `shopnotes-key`.",
+        "Set variables in your shell: `ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)` and `BUCKET=shopnotes-tfstate-$ACCOUNT_ID`. Bucket names are global, so the account id makes yours unique.",
+        "Create the bucket: `aws s3api create-bucket --bucket $BUCKET --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1`.",
+        "Turn on versioning, so you can get an old state back after a mistake: `aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled`.",
+        "Block all public access: `aws s3api put-public-access-block --bucket $BUCKET --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true`. New buckets are already encrypted with SSE-S3; check it: `aws s3api get-bucket-encryption --bucket $BUCKET`.",
+        "Create the lock table with a small fixed capacity that stays in the always-free DynamoDB offer: `aws dynamodb create-table --table-name shopnotes-tf-lock --attribute-definitions AttributeName=LockID,AttributeType=S --key-schema AttributeName=LockID,KeyType=HASH --billing-mode PROVISIONED --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --region ap-south-1`. The key must be named exactly `LockID`.",
+        "In the repo make the folder `infra/` and the file `infra/versions.tf`: a `terraform` block with `required_version = \">= 1.10\"`, `required_providers { aws = { source = \"hashicorp/aws\", version = \"~> 6.0\" } }` and `backend \"s3\" { bucket = \"shopnotes-tfstate-<ACCOUNT_ID>\", key = \"shopnotes/terraform.tfstate\", region = \"ap-south-1\", dynamodb_table = \"shopnotes-tf-lock\", encrypt = true }` (in HCL each setting goes on its own line, without commas).",
+        "Create `infra/providers.tf`: `provider \"aws\" { region = \"ap-south-1\" }` with a `default_tags { tags = { Project = \"shopnotes\", Env = terraform.workspace, ManagedBy = \"terraform\" } }` block inside. Every resource gets these tags.",
+        "Run `cd infra && terraform init`. It must say `Successfully configured the backend \"s3\"`. Terraform 1.11 and newer may warn that `dynamodb_table` is deprecated and suggest `use_lockfile = true` (S3 native locking). That is OK; know both ways for interviews.",
+        "Add Terraform files to `.gitignore`: `.terraform/`, `*.tfstate`, `*.tfstate.*`, `*.tfplan`, `tfplan`, `crash.log`. Commit `.terraform.lock.hcl` (it pins the provider version). Merge `infra/` with a PR."
+      ],
+      "acceptance": [
+        "`terraform version` shows 1.x.",
+        "The state bucket has versioning Enabled, all four public access blocks on and default encryption.",
+        "The table `shopnotes-tf-lock` exists with the key `LockID` (String).",
+        "`terraform init` in `infra/` uses the S3 backend.",
+        "The sprint 4 hand-made resources are deleted and no `.tfstate` file is in Git."
+      ],
+      "evidence": [
+        "Output of `terraform init`",
+        "Output of `aws s3api get-bucket-versioning --bucket $BUCKET` and `aws dynamodb describe-table --table-name shopnotes-tf-lock --query 'Table.[TableName,KeySchema]'`",
+        "Link to the PR with `infra/versions.tf`"
+      ],
+      "hints": [
+        "`BucketAlreadyExists` means someone in the world has that name. Keep the account id in the name.",
+        "If `terraform init` says Access Denied, check that the S3 and DynamoDB policies are on your group and the region is ap-south-1.",
+        "Never edit or delete the state file by hand. Use `terraform state` commands."
+      ],
+      "explain": {
+        "en": "In this task I prepared Terraform for the team. I installed Terraform 1.x from the HashiCorp apt repo and deleted the hand-made AWS resources from the last sprint. Then I created the remote state: an S3 bucket with versioning, default encryption and all public access blocked, and a DynamoDB table with the LockID key for state locking. I wrote the S3 backend block and default tags for every resource, and ran terraform init. I know that newer Terraform can also lock with use_lockfile in S3 without DynamoDB.",
+        "hi": "Is task mein maine team ke liye Terraform ready kiya. HashiCorp apt repo se Terraform 1.x install kiya aur pichle sprint ke haath se bane AWS resources delete kiye. Phir remote state banaya: versioning, default encryption aur public access block wala S3 bucket, aur state locking ke liye LockID key wala DynamoDB table. S3 backend block aur har resource ke liye default tags likhe, aur terraform init chalaya. Mujhe pata hai ki naye Terraform mein DynamoDB ke bina S3 mein use_lockfile se bhi lock ho sakta hai."
+      },
+      "vocabulary": [
+        {
+          "term": "Infrastructure as Code",
+          "en": "writing servers and networks in files, so a tool can create them the same way every time",
+          "hi": "servers aur network ko files mein likhna, taaki tool har baar same tarah bana sake"
+        },
+        {
+          "term": "state file",
+          "en": "Terraform's record of what it created and the real ids",
+          "hi": "Terraform ka record ki usne kya banaya aur unki asli ids kya hain"
+        },
+        {
+          "term": "remote backend",
+          "en": "a shared place, like S3, where the state file is stored",
+          "hi": "shared jagah, jaise S3, jahan state file rakhi jaati hai"
+        },
+        {
+          "term": "state lock",
+          "en": "a lock that stops two people from changing the state at the same time",
+          "hi": "lock jo do logon ko ek saath state badalne se rokta hai"
+        },
+        {
+          "term": "bucket versioning",
+          "en": "S3 keeps old versions of every file, so you can go back",
+          "hi": "S3 har file ke purane versions rakhta hai, taaki wapas ja saken"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you keep Terraform state in S3 and not on your laptop?",
+          "a": "If the state is on my laptop, nobody else can run Terraform, and if my laptop breaks the state is lost. In S3 the whole team and CI use the same state. Versioning lets me restore an old state, and encryption and blocked public access keep it safe, because state can contain secrets."
+        },
+        {
+          "q": "What does the DynamoDB table do?",
+          "a": "It is the state lock. When someone runs plan or apply, Terraform writes a lock item with the LockID. If a second person starts at the same time, Terraform waits or fails instead of breaking the state. In Terraform 1.10 and newer, use_lockfile can do the same with a lock file in S3."
+        },
+        {
+          "q": "What files of a Terraform project do you commit?",
+          "a": "I commit the .tf files, the tfvars files without secrets, and .terraform.lock.hcl, which pins the provider versions. I never commit the .terraform folder, state files or plan files. Secrets come from environment variables like TF_VAR_db_password."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Terraform: Install",
+          "url": "https://developer.hashicorp.com/terraform/install"
+        },
+        {
+          "title": "Terraform: S3 backend",
+          "url": "https://developer.hashicorp.com/terraform/language/backend/s3"
+        },
+        {
+          "title": "Amazon S3: Using versioning",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html"
+        }
+      ]
+    },
+    {
+      "id": "s05-t02",
+      "key": "OPS-502",
+      "type": "project",
+      "title": "Write the 3-tier ShopNotes infrastructure as Terraform modules",
+      "priority": "high",
+      "estimateHours": 16,
+      "goal": "Three Terraform modules (network, app, database) create the same 3-tier setup as sprint 4, and one `terraform apply` builds it and one `terraform destroy` removes it.",
+      "context": "Hi, now please write the sprint 4 setup as code. Split it into three modules: network, app and database, so we can reuse them. Add switches for the parts that cost money (NAT instance, load balancer), so we turn them on only when we need them. Apply it, test it, and destroy it the same day.",
+      "steps": [
+        "Create the folders: `infra/modules/network`, `infra/modules/app`, `infra/modules/database`. Each module has `main.tf`, `variables.tf` and `outputs.tf`.",
+        "Root `infra/variables.tf`: `vpc_cidr` (string), `instance_type` (default `\"t3.micro\"`), `key_name` (default `\"shopnotes-key\"`), `my_ip` (string, your IP with /32), `enable_nat` (bool), `enable_alb` (bool), `app_public` (bool), and `db_password` (string, `sensitive = true`). In `infra/main.tf` add `locals { name = \"shopnotes-${terraform.workspace}\" }`.",
+        "Network module: `data \"aws_availability_zones\" \"available\" { state = \"available\" }`; `aws_vpc.this` with `cidr_block = var.cidr` and `enable_dns_hostnames = true`; `aws_internet_gateway.this`; `aws_subnet.public` with `count = 2`, `cidr_block = cidrsubnet(var.cidr, 8, count.index + 1)`, `availability_zone = data.aws_availability_zones.available.names[count.index]`, `map_public_ip_on_launch = true`; `aws_subnet.private` with `count = 2` and `cidrsubnet(var.cidr, 8, count.index + 11)`.",
+        "Network module routes: `aws_route_table.public` with a `route` block (`cidr_block = \"0.0.0.0/0\"`, `gateway_id = aws_internet_gateway.this.id`), `aws_route_table.private`, and `aws_route_table_association` for each subnet (use `count = 2`).",
+        "Network module NAT instance, only when `var.enable_nat` is true: `data \"aws_ami\" \"al2023\"` with `most_recent = true`, `owners = [\"amazon\"]` and a filter `name` = `[\"al2023-ami-2023.*-x86_64\"]`; `aws_instance.nat` with `count = var.enable_nat ? 1 : 0`, `subnet_id = aws_subnet.public[0].id`, `source_dest_check = false`, `user_data = file(\"${path.module}/nat-user-data.sh\")` (the script from OPS-402); `aws_route.private_nat` with `count = var.enable_nat ? 1 : 0`, `destination_cidr_block = \"0.0.0.0/0\"`, `network_interface_id = aws_instance.nat[0].primary_network_interface_id`.",
+        "Security groups: create `aws_security_group` resources without inline rules, and add each rule as its own `aws_vpc_security_group_ingress_rule` or `aws_vpc_security_group_egress_rule`. Important: Terraform removes the default allow-all outbound rule, so add an egress rule with `ip_protocol = \"-1\"` and `cidr_ipv4 = \"0.0.0.0/0\"` to every group. Give each group a Name tag like `${var.name}-app`.",
+        "NAT security group (network module): ingress all from `var.cidr`, SSH 22 from `var.my_ip`. Output it as `nat_sg_id`, plus `vpc_id`, `public_subnet_ids = aws_subnet.public[*].id`, `private_subnet_ids = aws_subnet.private[*].id` and `nat_public_ip = try(aws_instance.nat[0].public_ip, null)`.",
+        "App module: `data \"aws_ami\" \"ubuntu\"` with `owners = [\"099720109477\"]` (Canonical) and filter `name` = `[\"ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*\"]`; `aws_instance.app` with `subnet_id = var.app_public ? var.public_subnet_ids[0] : var.private_subnet_ids[0]`, `associate_public_ip_address = var.app_public`, `key_name = var.key_name`; and `aws_eip.app` with `count = var.app_public ? 1 : 0`, `domain = \"vpc\"`, `instance = aws_instance.app.id`, so the public server keeps one fixed IP while it exists.",
+        "App module security rules: when `var.enable_alb`, port 80 from the ALB group (`referenced_security_group_id`); when `var.app_public`, ports 80 and 443 from `0.0.0.0/0` and 22 from `var.my_ip`; when it is private, 22 from `var.nat_sg_id`. Use `count = var.enable_alb ? 1 : 0` and so on for each rule.",
+        "App module load balancer, only when `var.enable_alb`: an ALB security group (80 from `0.0.0.0/0`), `aws_lb.this` (`load_balancer_type = \"application\"`, `subnets = var.public_subnet_ids`), `aws_lb_target_group.app` (port 80, HTTP, `health_check { path = \"/api/health\" }`), `aws_lb_target_group_attachment.app` and `aws_lb_listener.http` (port 80, `default_action` forward). Outputs: `app_sg_id`, `app_private_ip`, `app_public_ip = try(aws_eip.app[0].public_ip, null)`, `alb_dns_name = try(aws_lb.this[0].dns_name, null)`.",
+        "Database module: `aws_db_subnet_group.this` with the private subnets, a DB security group with 5432 from `var.app_sg_id`, and `aws_db_instance.this` with `identifier = \"${var.name}-db\"`, `engine = \"postgres\"`, `engine_version = \"16\"`, `instance_class = \"db.t3.micro\"`, `allocated_storage = 20`, `db_name = \"shopnotes\"`, `username = \"shopnotes_admin\"`, `password = var.db_password`, `publicly_accessible = false`, `skip_final_snapshot = true`, `backup_retention_period = 1`, `multi_az = false`. Output `address = aws_db_instance.this.address`.",
+        "Root `infra/main.tf`: call the three modules with `source = \"./modules/network\"` etc. and pass the outputs from one to the next (for example `vpc_id = module.network.vpc_id`). Root `infra/outputs.tf`: `nat_public_ip`, `app_private_ip`, `app_public_ip`, `app_sg_id`, `alb_dns_name`, `db_address`.",
+        "Secrets and your IP come from the shell, never from Git: `export TF_VAR_my_ip=\"$(curl -s https://checkip.amazonaws.com)/32\"` and `read -s TF_VAR_db_password && export TF_VAR_db_password`.",
+        "Check the code: `terraform fmt -recursive`, `terraform init` (again, because modules were added), `terraform validate`.",
+        "For the first test use the default workspace with all switches on: `terraform plan -var vpc_cidr=10.0.0.0/16 -var enable_nat=true -var enable_alb=true -var app_public=false -out=tfplan`. Read the plan: how many resources will be added? Then `terraform apply tfplan`. RDS takes 5 to 10 minutes.",
+        "Deploy the app on the new server like in OPS-404 (or only check `curl http://<alb_dns_name>/api/health` after Nginx is set up) and look at `terraform output`.",
+        "Destroy everything the same day: `terraform destroy -var vpc_cidr=10.0.0.0/16 -var enable_nat=true -var enable_alb=true -var app_public=false`. Check that nothing is left: `aws ec2 describe-instances --filters Name=instance-state-name,Values=running --query 'Reservations[].Instances[].InstanceId'` and `aws rds describe-db-instances --query 'DBInstances[].DBInstanceIdentifier'` must be empty.",
+        "Commit the modules through a PR (no state, no plan files)."
+      ],
+      "acceptance": [
+        "`terraform validate` and `terraform fmt -check -recursive` pass.",
+        "One `terraform apply` creates the VPC, 4 subnets, NAT instance, app server, ALB and RDS, and `curl http://<alb_dns_name>/api/health` returns 200 after the app is installed.",
+        "Each module has its own variables and outputs; the root only connects them.",
+        "No password or IP address is written in a .tf or .tfvars file in Git.",
+        "After `terraform destroy`, no instance, database or load balancer is left."
+      ],
+      "evidence": [
+        "Summary line of `terraform apply` (for example `Apply complete! Resources: NN added`)",
+        "Output of `terraform output` (hide the IPs partly)",
+        "Summary line of `terraform destroy` and the empty describe commands"
+      ],
+      "hints": [
+        "`terraform state list` shows everything Terraform manages. Use it when you are lost.",
+        "If you see `InvalidParameterCombination` for RDS, check the engine version and the instance class together.",
+        "Use `terraform console` to test expressions like `cidrsubnet(\"10.0.0.0/16\", 8, 11)`."
+      ],
+      "explain": {
+        "en": "In this task I wrote our 3-tier AWS setup as Terraform code with three modules: network, app and database. The network module makes the VPC, the public and private subnets, the routes and an optional NAT instance. The app module makes the Ubuntu server, its security group rules and an optional load balancer, and the database module makes RDS PostgreSQL in the private subnets. I used count with true or false switches for the parts that cost money, and separate security group rule resources. I applied it, tested the app through the load balancer, and destroyed everything the same day.",
+        "hi": "Is task mein maine apna 3-tier AWS setup Terraform code mein teen modules ke saath likha: network, app aur database. Network module VPC, public aur private subnets, routes aur optional NAT instance banata hai. App module Ubuntu server, uske security group rules aur optional load balancer banata hai, aur database module private subnets mein RDS PostgreSQL banata hai. Paise lene wale parts ke liye true ya false switch ke saath count use kiya, aur security group rules ke alag resources banaye. Maine apply kiya, load balancer se app test kiya, aur usi din sab destroy kar diya."
+      },
+      "vocabulary": [
+        {
+          "term": "module",
+          "en": "a folder of Terraform code with inputs and outputs that you can reuse",
+          "hi": "Terraform code ka folder jiske inputs aur outputs hote hain aur jise dobara use kar sakte hain"
+        },
+        {
+          "term": "count",
+          "en": "a Terraform setting that makes 0, 1 or many copies of a resource",
+          "hi": "Terraform setting jo resource ki 0, 1 ya kai copies banati hai"
+        },
+        {
+          "term": "data source",
+          "en": "Terraform reads existing information, like the newest AMI, without creating it",
+          "hi": "Terraform pehle se maujood jaankari padhta hai, jaise newest AMI, bina kuch banaye"
+        },
+        {
+          "term": "plan",
+          "en": "Terraform shows what it will add, change or destroy before it does it",
+          "hi": "Terraform karne se pehle dikhata hai ki kya add, change ya destroy karega"
+        },
+        {
+          "term": "output",
+          "en": "a value a module or the root gives back, like an IP or a DNS name",
+          "hi": "value jo module ya root wapas deta hai, jaise IP ya DNS naam"
+        },
+        {
+          "term": "sensitive variable",
+          "en": "a variable Terraform hides in the plan and output",
+          "hi": "variable jise Terraform plan aur output mein chhupa deta hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why did you split the code into modules?",
+          "a": "Each module has one job: network, app or database. The root only connects them through inputs and outputs. This makes the code easier to read and test, and the same module can be used for dev and prod with different values."
+        },
+        {
+          "q": "How do you turn costly parts on and off?",
+          "a": "I used bool variables like enable_nat and enable_alb with count = var.enable_alb ? 1 : 0. When the switch is false, Terraform makes zero copies. Outputs use try() so they return null when the resource does not exist."
+        },
+        {
+          "q": "Why did you use separate security group rule resources?",
+          "a": "With aws_vpc_security_group_ingress_rule each rule is its own resource, so it is easy to add rules with count. Terraform also does not delete rules it does not manage, which matters because our deploy job adds a short SSH rule later. I remembered to add an egress rule, because Terraform removes the default one."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Terraform: Modules",
+          "url": "https://developer.hashicorp.com/terraform/language/modules"
+        },
+        {
+          "title": "Terraform AWS provider documentation",
+          "url": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs"
+        },
+        {
+          "title": "Terraform: The count meta-argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/count"
+        }
+      ]
+    },
+    {
+      "id": "s05-t03",
+      "key": "OPS-503",
+      "type": "task",
+      "title": "Use workspaces for dev and prod and destroy every evening",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "The dev and prod workspaces have their own state and settings from tfvars files, and simple scripts bring an environment up in the morning and down in the evening.",
+      "context": "Hi, we need two environments: dev for testing and prod for the shop owners. Same code, different settings. Use Terraform workspaces. To stay free, never run both at once, and destroy what you do not use every evening.",
+      "steps": [
+        "Create `infra/dev.tfvars`: `vpc_cidr = \"10.0.0.0/16\"`, `enable_nat = true`, `enable_alb = false`, `app_public = false`. Dev is private; turn on the ALB only when you test it (`-var enable_alb=true`).",
+        "Create `infra/prod.tfvars`: `vpc_cidr = \"10.1.0.0/16\"`, `enable_nat = false`, `enable_alb = false`, `app_public = true`. In sprint 6 prod gets a free duckdns.org name and a Let's Encrypt certificate on Nginx. An ALB cannot use that certificate, so prod uses one public server with an Elastic IP.",
+        "Create the workspaces: `terraform workspace new dev`, `terraform workspace new prod`, `terraform workspace list`. The star shows the current one.",
+        "In S3 see how the state is split: `aws s3 ls s3://shopnotes-tfstate-$ACCOUNT_ID --recursive` after the first apply in each workspace. Workspaces store their state under `env:/<workspace>/`.",
+        "Apply dev: `terraform workspace select dev`, `terraform plan -var-file=dev.tfvars -out=tfplan`, `terraform apply tfplan`. Check that resource names contain `shopnotes-dev` and the tag `Env = dev`.",
+        "Destroy dev: `terraform destroy -var-file=dev.tfvars`. Then do the same for prod with `prod.tfvars` and destroy it too.",
+        "Write `infra/up.sh`: `#!/usr/bin/env bash`, `set -euo pipefail`, `ENV=\"${1:?usage: up.sh dev|prod}\"`, `cd \"$(dirname \"$0\")\"`, `terraform workspace select \"$ENV\"`, `terraform apply -var-file=\"$ENV.tfvars\"`, `terraform output`.",
+        "Write `infra/down.sh` the same way with `terraform destroy -var-file=\"$ENV.tfvars\"`, and at the end print what is still running: `aws ec2 describe-instances --filters Name=instance-state-name,Values=running,stopped --query \"Reservations[].Instances[].[InstanceId,Tags[?Key=='Name']|[0].Value]\" --output table` and `aws rds describe-db-instances --query 'DBInstances[].DBInstanceIdentifier'`.",
+        "Make them runnable (`chmod +x infra/*.sh`), check with `shellcheck`, and use them for a full day: `./infra/up.sh dev` in the morning and `./infra/down.sh dev` in the evening.",
+        "Write the rules in `infra/README.md`: never run dev and prod at the same time in the lab, always run down.sh in the evening, and check the Billing page every week.",
+        "Commit the tfvars files (they have no secrets) and the scripts through a PR."
+      ],
+      "acceptance": [
+        "`terraform workspace list` shows `default`, `dev` and `prod`.",
+        "The S3 bucket has separate state files under `env:/dev/` and `env:/prod/`.",
+        "Resources in dev are named `shopnotes-dev-...` and in prod `shopnotes-prod-...`, and both have the Env tag.",
+        "`up.sh` and `down.sh` work and `down.sh` shows nothing left running.",
+        "Your AWS bill for the sprint is still 0 USD (or only credits)."
+      ],
+      "evidence": [
+        "Output of `terraform workspace list` and `aws s3 ls` of the state bucket",
+        "Output of `./infra/down.sh dev` with the empty check at the end",
+        "Screenshot of the Billing home page"
+      ],
+      "hints": [
+        "Always check the workspace before apply or destroy: `terraform workspace show`. Destroying the wrong one is a classic mistake.",
+        "If a destroy fails because RDS is still deleting, wait a few minutes and run it again.",
+        "Some teams use one folder per environment instead of workspaces. Be ready to explain both."
+      ],
+      "explain": {
+        "en": "In this task I set up two environments, dev and prod, with Terraform workspaces. Each workspace has its own state file in S3 under env:/ and its own tfvars file, so the same code makes different setups. Dev is private with a NAT instance, and prod is one public server with an Elastic IP, because in the next sprint it gets a Let's Encrypt certificate. Every resource has the workspace name in its name and in the Env tag. I wrote up.sh and down.sh scripts and destroyed the environments every evening to stay free.",
+        "hi": "Is task mein maine Terraform workspaces se do environments banaye, dev aur prod. Har workspace ki apni state file S3 mein env:/ ke neeche hai aur apni tfvars file hai, isliye ek hi code se alag setups bante hain. Dev private hai NAT instance ke saath, aur prod ek public server hai Elastic IP ke saath, kyunki agle sprint mein use Let's Encrypt certificate milega. Har resource ke naam aur Env tag mein workspace ka naam hai. Maine up.sh aur down.sh scripts likhi aur free rehne ke liye har shaam environments destroy kiye."
+      },
+      "vocabulary": [
+        {
+          "term": "workspace",
+          "en": "a separate state for the same Terraform code, like dev and prod",
+          "hi": "ek hi Terraform code ke liye alag state, jaise dev aur prod"
+        },
+        {
+          "term": "tfvars file",
+          "en": "a file with values for Terraform variables for one environment",
+          "hi": "ek environment ke Terraform variables ki values wali file"
+        },
+        {
+          "term": "environment",
+          "en": "one full copy of the system, like dev for tests or prod for users",
+          "hi": "system ki ek poori copy, jaise tests ke liye dev ya users ke liye prod"
+        },
+        {
+          "term": "Elastic IP",
+          "en": "a fixed public IP address that you can attach to an instance",
+          "hi": "fixed public IP address jo instance se jod sakte hain"
+        },
+        {
+          "term": "tag",
+          "en": "a key and value label on an AWS resource, like Env=dev",
+          "hi": "AWS resource par key aur value wala label, jaise Env=dev"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How do you manage dev and prod with Terraform?",
+          "a": "I use the same modules and code for both, and Terraform workspaces keep a separate state for each. The differences are in dev.tfvars and prod.tfvars, like the CIDR range and which parts are on. Names and tags include terraform.workspace, so I can always see which environment a resource belongs to."
+        },
+        {
+          "q": "What are the risks of workspaces?",
+          "a": "It is easy to forget which workspace is selected and destroy the wrong one. So my scripts always select the workspace from an argument and I check terraform workspace show. Some teams prefer one folder or one state per environment, with separate permissions for prod."
+        },
+        {
+          "q": "How do you keep the cloud cost at zero during learning?",
+          "a": "I never run dev and prod at the same time, I turn off the ALB and NAT when I do not need them, and I destroy the environment every evening with down.sh. The script also lists anything still running. Because it is all code, building it again in the morning takes only a few minutes."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Terraform: Workspaces",
+          "url": "https://developer.hashicorp.com/terraform/language/state/workspaces"
+        },
+        {
+          "title": "Terraform CLI: terraform workspace",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/workspace"
+        },
+        {
+          "title": "Terraform: Input variables and tfvars files",
+          "url": "https://developer.hashicorp.com/terraform/language/values/variables"
+        }
+      ]
+    },
+    {
+      "id": "s05-t04",
+      "key": "OPS-504",
+      "type": "task",
+      "title": "Run terraform plan on every pull request with OIDC (no AWS keys in GitHub)",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Every pull request that changes `infra/` gets a `terraform fmt`, `validate` and `plan` run in GitHub Actions, using a read-only AWS role through OIDC, and the plan is posted as a PR comment.",
+      "context": "Hi, people review Terraform changes without knowing what will really change in AWS. Please run terraform plan in CI and post the result on the pull request. Do not store AWS access keys in GitHub; use OIDC so GitHub gets a short-lived role for each run. The plan role must be read-only.",
+      "steps": [
+        "Your ops user cannot change IAM, and that is good. For this ticket only, attach `IAMFullAccess` to the group `shopnotes-ops` (as root). Remove it again at the end of the ticket.",
+        "Add GitHub as an identity provider: IAM > Identity providers > Add provider > OpenID Connect. Provider URL `https://token.actions.githubusercontent.com`, Audience `sts.amazonaws.com`. Add provider.",
+        "Create the role: IAM > Roles > Create role > Custom trust policy. Paste a policy with `\"Effect\": \"Allow\"`, `\"Principal\": {\"Federated\": \"arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com\"}`, `\"Action\": \"sts:AssumeRoleWithWebIdentity\"` and a `Condition` with `StringEquals`: `\"token.actions.githubusercontent.com:aud\": \"sts.amazonaws.com\"` and `\"token.actions.githubusercontent.com:sub\": \"repo:<your-github-user>/shopnotes:pull_request\"`. Only pull request runs of your repo can use this role.",
+        "Permissions: attach the managed policy `ReadOnlyAccess`. Name the role `shopnotes-terraform-plan` and create it.",
+        "Plan also writes the state lock, so add an inline policy to the role: `\"Effect\": \"Allow\"`, `\"Action\": [\"dynamodb:GetItem\", \"dynamodb:PutItem\", \"dynamodb:DeleteItem\"]`, `\"Resource\": \"arn:aws:dynamodb:ap-south-1:<ACCOUNT_ID>:table/shopnotes-tf-lock\"`.",
+        "Remove `IAMFullAccess` from the group again and test: `aws iam create-user --user-name test` must be denied.",
+        "In GitHub: repo > Settings > Secrets and variables > Actions. Variables tab: `AWS_PLAN_ROLE_ARN` = the role ARN. Secrets tab: `TF_VAR_DB_PASSWORD` (any strong value; plan only needs a value) and `TF_VAR_MY_IP` (your IP with /32).",
+        "Create `.github/workflows/terraform.yml`: `name: terraform`, `on:` `pull_request:` `paths: ['infra/**']`, and `permissions:` `contents: read`, `id-token: write` (needed for OIDC), `pull-requests: write` (for the comment).",
+        "One job `plan` on `ubuntu-24.04` with `defaults:` `run:` `working-directory: infra` and `env:` `TF_WORKSPACE: dev`, `TF_IN_AUTOMATION: \"true\"`, `TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}`, `TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}`.",
+        "Steps: `- uses: actions/checkout@v4`; `- uses: hashicorp/setup-terraform@v3` with `terraform_version:` the same version as `terraform version` on your laptop (for example `1.13.0`) and `terraform_wrapper: false`; `- uses: aws-actions/configure-aws-credentials@v4` with `role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}` and `aws-region: ap-south-1`.",
+        "Then: `- run: terraform fmt -check -recursive`, `- run: terraform init -input=false`, `- run: terraform validate`, `- run: terraform plan -input=false -no-color -var-file=dev.tfvars | tee plan.txt`.",
+        "Last step posts the plan: `env:` `GH_TOKEN: ${{ github.token }}` and `run: { echo '~~~'; tail -c 60000 plan.txt; echo '~~~'; } > comment.md && gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md`. GitHub comments have a size limit, so we keep only the end of the plan.",
+        "Open a PR that changes something small in `infra/` (for example a new tag). Watch the run: the log of the credentials step shows the assumed role, and the PR gets a comment with the plan.",
+        "Test that the role is read-only: in a test branch add a step `- run: aws s3 mb s3://should-fail-$RANDOM`. It must fail with AccessDenied. Remove the step."
+      ],
+      "acceptance": [
+        "There are no AWS access keys in the GitHub secrets; the workflow uses the OIDC role.",
+        "The role trust policy allows only `repo:<your-github-user>/shopnotes:pull_request`.",
+        "A PR that changes `infra/` gets fmt, validate and plan, and a comment with the plan.",
+        "A write action like `aws s3 mb` fails in CI with AccessDenied.",
+        "`IAMFullAccess` is removed from your group again."
+      ],
+      "evidence": [
+        "Link to a PR with the plan comment",
+        "The trust policy JSON of the role (account id hidden)",
+        "Log line of the failed `aws s3 mb` test"
+      ],
+      "hints": [
+        "`Not authorized to perform sts:AssumeRoleWithWebIdentity` usually means the `sub` in the trust policy does not match. For PRs it must end with `:pull_request`.",
+        "Without `id-token: write` in permissions, the OIDC step fails with a token error.",
+        "The plan job uses `TF_WORKSPACE=dev`, so the dev workspace must already exist from OPS-503."
+      ],
+      "explain": {
+        "en": "In this task I added terraform plan to our pull requests without storing any AWS keys in GitHub. I created an OIDC identity provider for GitHub in IAM and a role that only pull request runs of our repo can assume. The role has ReadOnlyAccess plus a small inline policy for the DynamoDB state lock. The workflow runs fmt, validate and plan for the dev workspace and posts the plan as a comment on the pull request. I tested that a write action in CI is denied, and I removed the temporary IAM rights from my user afterwards.",
+        "hi": "Is task mein maine bina koi AWS key GitHub mein rakhe pull requests par terraform plan add kiya. IAM mein GitHub ke liye OIDC identity provider banaya aur ek role banaya jise sirf hamare repo ke pull request runs assume kar sakte hain. Role ke paas ReadOnlyAccess hai aur DynamoDB state lock ke liye chhoti inline policy. Workflow dev workspace ke liye fmt, validate aur plan chalata hai aur plan ko pull request par comment ki tarah daalta hai. Maine test kiya ki CI mein write action deny hota hai, aur baad mein apne user se temporary IAM rights hata diye."
+      },
+      "vocabulary": [
+        {
+          "term": "OIDC",
+          "en": "a standard where GitHub proves who is running a job, so AWS can give a short-lived role",
+          "hi": "standard jisme GitHub prove karta hai ki job kaun chala raha hai, taaki AWS thodi der ka role de sake"
+        },
+        {
+          "term": "IAM role",
+          "en": "a set of permissions that someone can use for a short time, with no long-term keys",
+          "hi": "permissions ka set jise koi thodi der use kar sakta hai, bina lambi keys ke"
+        },
+        {
+          "term": "trust policy",
+          "en": "the part of a role that says who is allowed to use it",
+          "hi": "role ka woh hissa jo batata hai ki use kaun use kar sakta hai"
+        },
+        {
+          "term": "short-lived credentials",
+          "en": "keys that stop working after a short time, like one hour",
+          "hi": "keys jo thodi der baad, jaise ek ghante mein, kaam karna band kar deti hain"
+        },
+        {
+          "term": "plan comment",
+          "en": "the terraform plan output posted on the pull request for reviewers",
+          "hi": "terraform plan ka output jo reviewers ke liye pull request par daala jaata hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why use OIDC instead of AWS access keys in GitHub secrets?",
+          "a": "Access keys in secrets live for a long time and can leak, and someone must rotate them. With OIDC, GitHub gets a token for each run, and AWS gives a role for about one hour. There is nothing long-lived to steal, and the trust policy limits which repo and event can use the role."
+        },
+        {
+          "q": "How did you limit what the CI role can do?",
+          "a": "The trust policy allows only pull request runs of our repo. The permissions are ReadOnlyAccess plus write access to only the lock table. I tested that creating an S3 bucket from CI is denied. Apply would need a different role, for example only for the main branch with an approval."
+        },
+        {
+          "q": "Why post the plan on the pull request?",
+          "a": "Reviewers see the real effect of the code, for example that a change will replace the database. This stops dangerous changes before merge. It also leaves a record of what we expected to happen."
+        }
+      ],
+      "resources": [
+        {
+          "title": "GitHub Docs: Configuring OpenID Connect in Amazon Web Services",
+          "url": "https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws"
+        },
+        {
+          "title": "aws-actions/configure-aws-credentials on GitHub",
+          "url": "https://github.com/aws-actions/configure-aws-credentials"
+        },
+        {
+          "title": "hashicorp/setup-terraform on GitHub",
+          "url": "https://github.com/hashicorp/setup-terraform"
+        }
+      ]
+    },
+    {
+      "id": "s05-t05",
+      "key": "OPS-505",
+      "type": "incident",
+      "title": "Incident: ShopNotes shows 502 Bad Gateway after an Nginx change",
+      "priority": "high",
+      "estimateHours": 4,
+      "goal": "ShopNotes answers 200 again through Nginx, the root cause is written down, and a check is added so the same mistake cannot reach users again.",
+      "context": "[P1] Hi, ShopNotes is down: every page shows 502 Bad Gateway. The team changed the Nginx config in the last deploy. Please find the cause, fix it without changing the app code, and write a short postmortem. We reproduced it in the drill `drills/nginx-502-upstream/`.",
+      "steps": [
+        "Get the drill folder `drills/nginx-502-upstream/` from DevOps Lab and open a terminal in it. Read `README.md` first. Do not open `SOLUTION.md` until you have written your root cause in the DevOps Lab app.",
+        "Start a timeline in a text file now. Write the time and what you see at every step. A real incident needs this for the postmortem.",
+        "Start the drill: `docker compose up -d --build`, then see the problem: `curl -i http://localhost:8081/health`.",
+        "Check what is running: `docker compose ps`. Is every container Up? A container that is Up can still be broken.",
+        "Read the Nginx logs: `docker compose logs nginx`. Look for lines with `upstream` and `connect() failed`. Write down the address and port Nginx tries to reach.",
+        "Read the app logs: `docker compose logs app`. Find the address and port the app really listens on.",
+        "Read the Nginx config that is used: `cat nginx.conf` and `docker compose exec nginx cat /etc/nginx/conf.d/default.conf`.",
+        "Test from inside the Nginx container, the same way Nginx connects: `docker compose exec nginx wget -qO- http://app:<port>/health` with the port from the Nginx config, then with the port from the app log. Compare the results.",
+        "Fix the config file (not the app code). Then recreate Nginx so it reads the file again: `docker compose up -d --force-recreate nginx`, and test the config: `docker compose exec nginx nginx -t`.",
+        "Check the fix: `./check.sh` must print `PASS`. Also run the two curl commands from the README.",
+        "Write the root cause in the DevOps Lab app. Then read `SOLUTION.md` and compare.",
+        "In your shopnotes repo write `docs/postmortems/2026-nginx-502.md` (blameless, no names): Summary, Impact, Timeline, Root cause, Fix, What went well, What went wrong, Actions.",
+        "Do one prevention action in your own repo now: add a CI job `smoke` (needs `build`) that runs `echo POSTGRES_PASSWORD=ci-only-password > .env`, `docker compose up -d --build --wait`, and `curl -fsS http://localhost:8080/api/health`. A wrong Nginx upstream now fails in CI, not in production.",
+        "Clean up the drill: `docker compose down -v`."
+      ],
+      "acceptance": [
+        "`./check.sh` in the drill folder prints `PASS`.",
+        "The app code was not changed; only the Nginx config.",
+        "Your root cause is written in the DevOps Lab app before you opened SOLUTION.md.",
+        "`docs/postmortems/2026-nginx-502.md` has all 8 parts and a real timeline.",
+        "The new `smoke` job runs on PRs and passes."
+      ],
+      "evidence": [
+        "Output of `./check.sh`",
+        "The Nginx log line that showed the problem",
+        "Link to the postmortem and to a green run with the smoke job"
+      ],
+      "hints": [
+        "502 means Nginx is alive but could not get an answer from the server behind it. So look behind Nginx.",
+        "Compare two numbers: where Nginx sends traffic, and where the app listens.",
+        "`docker compose up -d --wait` waits until the health checks are healthy."
+      ],
+      "explain": {
+        "en": "In this task I handled a P1 incident where every page showed 502 Bad Gateway. I knew 502 means Nginx works but cannot get an answer from the upstream, so I read the Nginx error log and found connection refused to the upstream address. Then I compared the address in the Nginx config with the address the app really listens on, tested both from inside the Nginx container, and fixed the config without touching the app code. I recreated Nginx, ran nginx -t, and check.sh passed. Then I wrote a blameless postmortem and added a smoke test in CI that calls /api/health through Nginx.",
+        "hi": "Is task mein maine ek P1 incident handle kiya jisme har page 502 Bad Gateway dikha raha tha. Mujhe pata tha ki 502 ka matlab Nginx chal raha hai par upstream se jawab nahi mil raha, isliye Nginx ka error log padha aur upstream address par connection refused mila. Phir Nginx config ka address aur app jis address par sach mein sun raha hai, dono compare kiye, Nginx container ke andar se dono test kiye, aur app code chhue bina config fix kiya. Nginx recreate kiya, nginx -t chalaya, aur check.sh pass hua. Phir blameless postmortem likha aur CI mein smoke test add kiya jo Nginx ke through /api/health call karta hai."
+      },
+      "vocabulary": [
+        {
+          "term": "502 Bad Gateway",
+          "en": "the proxy could not get a good answer from the server behind it",
+          "hi": "proxy ko peeche wale server se sahi jawab nahi mila"
+        },
+        {
+          "term": "upstream",
+          "en": "the server that Nginx sends requests to",
+          "hi": "woh server jise Nginx requests bhejta hai"
+        },
+        {
+          "term": "postmortem",
+          "en": "a written review after an incident: what happened, why, and how to stop it",
+          "hi": "incident ke baad likha review: kya hua, kyun hua, aur dobara kaise rokein"
+        },
+        {
+          "term": "blameless",
+          "en": "we look for the broken process, not for a person to blame",
+          "hi": "hum toota hua process dhoondhte hain, kisi insaan ko blame nahi karte"
+        },
+        {
+          "term": "smoke test",
+          "en": "a quick test after a build or deploy that checks the main path works",
+          "hi": "build ya deploy ke baad chhota test jo check karta hai ki main raasta chal raha hai"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What does a 502 from Nginx tell you, and where do you look first?",
+          "a": "It tells me Nginx itself is running, but it could not get a valid answer from the upstream. So I look behind Nginx. First I read the Nginx error log, because it shows the upstream address and the error, for example connection refused or timed out."
+        },
+        {
+          "q": "How did you prove the root cause before you changed anything?",
+          "a": "I took the upstream address from the Nginx log and config, and the listen address from the app log. Then I called both from inside the Nginx container with wget. One failed and one worked, so I knew exactly what to change."
+        },
+        {
+          "q": "What did you do so it does not happen again?",
+          "a": "I wrote a blameless postmortem with a timeline and actions. In our repo I added a smoke job in CI that starts the stack with docker compose up --wait and calls /api/health through Nginx. So a wrong proxy setting now fails the pipeline before it reaches users."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Nginx: ngx_http_upstream_module",
+          "url": "https://nginx.org/en/docs/http/ngx_http_upstream_module.html"
+        },
+        {
+          "title": "Google SRE Book: Postmortem Culture",
+          "url": "https://sre.google/sre-book/postmortem-culture/"
+        },
+        {
+          "title": "Docker Docs: docker compose up (--wait)",
+          "url": "https://docs.docker.com/reference/cli/docker/compose/up/"
+        }
+      ]
+    }
+  ]
+}
