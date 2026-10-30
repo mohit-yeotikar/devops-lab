@@ -85,7 +85,7 @@ const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<co
     </div>
     <div class="card">
       <h3 style="margin-top:0">Submit your proof</h3>
-      <p class="help">Needed: {t.evidence.join(' · ')}</p>
+      <p class="help" set:html={'Needed: ' + t.evidence.map(inline).join(' · ')} />
       <form data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="submit" />
         <label>Links (one per line: GitHub repo, commit, screenshot on Imgur/Drive, Grafana share link)</label><textarea name="links" placeholder="https://github.com/you/shopnotes&#10;https://i.imgur.com/..." >{(evidence.links || []).join('\n')}</textarea>
         <label>Notes for the reviewer (what works, what was hard, command output)</label><textarea name="notes">{evidence.notes}</textarea>

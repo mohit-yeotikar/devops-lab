@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DevOps Lab · Trainee guide</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  :root { --text:#17181b; --text-2:#5b6068; --text-3:#8a8f97; --border:#e5e6e9; --soft:#f1f2f3; --signal:#2458e6; --ok:#167a46; --ok-soft:#e3f5ea; --warn:#8a5a00; --warn-soft:#fff1d6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.55 "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); margin: 0; }
+  h1 { font-size: 26pt; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 6pt; }
+  h2 { font-size: 16pt; letter-spacing: -.01em; margin: 0 0 8pt; padding-top: 4pt; break-after: avoid; }
+  h2 .n { display: inline-grid; place-items: center; width: 26pt; height: 26pt; border-radius: 50%; background: var(--text); color: #fff; font-size: 11pt; margin-right: 8pt; vertical-align: middle; }
+  p { margin: 0 0 8pt; }
+  .lead { font-size: 13pt; color: var(--text-2); max-width: 60ch; }
+  .hi { color: var(--text-3); font-style: italic; }
+  .step { break-inside: avoid; margin: 0 0 22pt; }
+  .step img { width: 100%; border: 1px solid var(--border); border-radius: 6pt; margin: 6pt 0 4pt; }
+  .cap { color: var(--text-3); font-size: 9.5pt; margin-bottom: 8pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin: 0 0 4pt; }
+  code { font: 10pt ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border: 1px solid var(--border); border-radius: 3pt; padding: 0 4pt; }
+  .box { border: 1px solid var(--border); border-radius: 6pt; padding: 10pt 12pt; margin: 8pt 0 12pt; break-inside: avoid; }
+  .box.ok { background: var(--ok-soft); border-color: #bfe4cc; }
+  .box.warn { background: var(--warn-soft); border-color: #f3dca3; }
+  .cover { height: 240mm; display: flex; flex-direction: column; justify-content: center; break-after: page; }
+  .cover .logo { display: inline-grid; place-items: center; width: 40pt; height: 40pt; border-radius: 10pt; background: var(--text); color: #fff; font-weight: 700; font-size: 20pt; margin-bottom: 18pt; }
+  .toc li { margin: 0 0 2pt; }
+  .toc { columns: 2; column-gap: 24pt; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+  th, td { text-align: left; padding: 5pt 6pt; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-2); font-weight: 500; }
+  .pb { break-before: page; }
+  a { color: var(--signal); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="logo">D</div>
+  <h1>DevOps Lab<br>How to use it, step by step</h1>
+  <p class="lead">A simple guide for trainees. From your first login to your portfolio. Read it once, then keep it open while you work.</p>
+  <p class="hi">Ye guide simple English me hai. Har step ke neeche Hindi me chhota sa matlab bhi hai.</p>
+  <p style="margin-top:24pt"><strong>Website:</strong> <a href="https://devops-lab.mohityeotikar.workers.dev">https://devops-lab.mohityeotikar.workers.dev</a><br>
+  <strong>Lab repo (for incident drills):</strong> <a href="https://github.com/mohit-yeotikar/devops-lab">https://github.com/mohit-yeotikar/devops-lab</a></p>
+  <div class="toc" style="margin-top:28pt">
+    <ol>
+      <li>What you need before you start</li>
+      <li>Create your account</li>
+      <li>Log in</li>
+      <li>Your home page</li>
+      <li>Open Sprint 1</li>
+      <li>Open a ticket and press Start</li>
+      <li>Do the steps, tick "Done means"</li>
+      <li>Explain it (the English coach)</li>
+      <li>Interview tab</li>
+      <li>Log your hours and submit proof</li>
+      <li>Ask the coach when stuck</li>
+      <li>Every week: one incident drill</li>
+      <li>Every week: one mock interview</li>
+      <li>Work log</li>
+      <li>Your portfolio</li>
+      <li>Profile: Hindi help, public portfolio, log out</li>
+      <li>Rules</li>
+      <li>Your daily routine</li>
+    </ol>
+  </div>
+</section>
+
+<div class="step">
+  <h2><span class="n">1</span>What you need before you start</h2>
+  <ul>
+    <li>A laptop with <strong>Ubuntu</strong> (or Windows with <strong>WSL2 + Ubuntu</strong>). Ticket OPS-101 shows how to install WSL2.</li>
+    <li><strong>Docker</strong> on the laptop (needed from Sprint 2 and for every incident drill).</li>
+    <li>A <strong>free AWS account</strong> (Free Tier). Nothing in the program costs money. Set a billing alert on day one (Sprint 4 shows how).</li>
+    <li>A <strong>GitHub account</strong>. All your code goes there. Reviewers check your repo links.</li>
+    <li>About <strong>2 to 4 hours every day</strong>, 5 days a week, for 24 weeks (12 sprints of 2 weeks).</li>
+  </ul>
+  <p class="hi">Ubuntu laptop, Docker, free AWS account aur GitHub account chahiye. Roz 2-4 ghante, hafte me 5 din.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">2</span>Create your account</h2>
+  <p>Open the website and click <strong>Start free</strong>. Fill the form:</p>
+  <ul>
+    <li><strong>Full name</strong>: your real name, same as on your documents. It will be on your experience letter.</li>
+    <li><strong>Email</strong>: an email you check every day.</li>
+    <li><strong>Username</strong>: small letters, numbers and <code>-</code> only. This becomes your portfolio link, for example <code>/u/harshada-kharade</code>.</li>
+    <li><strong>Password</strong>: 8 or more characters. Write it down in a safe place.</li>
+  </ul>
+  <img src="guide/01-signup.png" alt="Sign-up form">
+  <p class="cap">The sign-up page. Click "Create account" when done.</p>
+  <p class="hi">Apna asli naam likho, jo documents pe hai. Username chhote letters me. Password 8+ characters.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">3</span>Log in</h2>
+  <p>Next time, click <strong>Log in</strong>, enter your email and password. You stay logged in on that browser for 30 days.</p>
+  <img src="guide/02-login.png" alt="Login form">
+  <p class="hi">Dobara aane pe Log in pe click karo. Email aur password daalo.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">4</span>Your home page</h2>
+  <p>After login you see your home page. The four boxes at the top are your record:</p>
+  <ul>
+    <li><strong>% done</strong>: how many of the 60 tickets are approved.</li>
+    <li><strong>Hours</strong>: all hours you logged, and on how many days.</li>
+    <li><strong>Waiting for review</strong>: tickets you submitted that the reviewer has not checked yet.</li>
+    <li><strong>Days since you started</strong>: counts from your first ticket.</li>
+  </ul>
+  <p>Below that: <strong>Continue working</strong> (your open ticket), <strong>Next ticket</strong>, <strong>Today's plan</strong> and all 12 sprints.</p>
+  <img src="guide/03-home.png" alt="Home page">
+  <p class="cap">Home. Click any card to open it.</p>
+  <p class="hi">Home page pe tumhara progress dikhta hai. "Continue working" wala ticket roz kholo.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">5</span>Open Sprint 1</h2>
+  <p>Click <strong>Sprints</strong> in the top menu, then <strong>Sprint 1</strong>. A sprint is 2 weeks of work with 5 tickets. Read "What you do in this sprint" first. Do the tickets <strong>in order</strong>: OPS-101, then OPS-102, and so on. Each ticket builds on the one before.</p>
+  <img src="guide/04-sprint.png" alt="Sprint page">
+  <p class="hi">Ek sprint = 2 hafte, 5 tickets. Tickets order me karo, pehla pehle.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">6</span>Open a ticket and press Start</h2>
+  <p>A ticket looks like a message from your team lead at a real company. Read the <strong>Goal</strong> and the message. Then click <strong>Start this ticket</strong>. The status changes to <em>doing</em>, and your start date is saved.</p>
+  <p>The ticket page has five tabs: <strong>Ticket</strong>, <strong>Explain it</strong>, <strong>Interview</strong>, <strong>Proof &amp; hours</strong> and <strong>Ask coach</strong>. You will use all five.</p>
+  <img src="guide/05-ticket.png" alt="Ticket page">
+  <p class="cap">Ticket OPS-101 with its goal, the message from the team lead, and the five tabs.</p>
+  <p class="hi">Ticket kholo, Goal padho, "Start this ticket" dabao. Upar 5 tabs hain, sab use karne hain.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">7</span>Do the steps, tick "Done means"</h2>
+  <p>In the <strong>Ticket</strong> tab, follow the <strong>Steps</strong> one by one on your laptop. Type each command yourself. Do not copy-paste a whole block without reading it. If a command fails, read the error, then try again.</p>
+  <p>Under <strong>Done means</strong> is a checklist. Tick a line only when it is really true on your machine. It saves itself.</p>
+  <p>Stuck? Open <strong>Stuck? Open the hints</strong>, or use the <strong>Ask coach</strong> tab (step 11). Under <strong>Words to know</strong> are the technical words of this ticket with a Hindi line.</p>
+  <img src="guide/06-done-means.png" alt="Done means checklist">
+  <p class="cap">Tick each "Done means" line when it is true. It is saved automatically.</p>
+  <p class="hi">Steps laptop pe karo, commands khud type karo. "Done means" me tick tab karo jab sach me ho gaya ho.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">8</span>Explain it (the English coach)</h2>
+  <p>This is the most important tab for your interviews. First read <strong>How an engineer says it</strong>: a short model text in simple English, with the same idea in Hindi below.</p>
+  <p>Then write <strong>your own</strong> 5 to 7 sentences in the box. Start with "In this task I ...". Use past tense: "I installed", "I created", "I tested". Mistakes are fine. Click <strong>Check my explanation</strong>.</p>
+  <p>The coach gives you: a <strong>score out of 10</strong>, your text with the <strong>English corrected</strong>, what was missing, and a short <strong>script you can say</strong> in an interview. Read the script aloud 3 times. Then write again if the score is under 7.</p>
+  <img src="guide/07-explain.png" alt="Explain it tab">
+  <p class="cap">Explain it: read the model text, then write your own words below.</p>
+  <p class="hi">Apne shabdon me 5-7 line likho, "In this task I ..." se shuru karo. Coach English theek karega, score dega aur bolne ka script dega. Script 3 baar zor se padho.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">9</span>Interview tab</h2>
+  <p>Three questions an interviewer asks about this kind of work, each with a model answer. Open a question, read the answer, close it, and <strong>say it yourself</strong> without looking. Do this for every ticket. At the bottom is a button to start a mock interview on this sprint.</p>
+  <img src="guide/08-interview-tab.png" alt="Interview tab">
+  <p class="hi">Har ticket ke 3 interview sawaal hain. Jawab padho, band karo, phir khud bolo.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">10</span>Log your hours and submit proof</h2>
+  <p><strong>Every time you stop working</strong>, open <strong>Proof &amp; hours</strong> and log the hours: how many hours, which day, and one short line about what you did. Click <strong>Add</strong>. Be honest. Your hours are compared with your Git activity before the experience letter is written.</p>
+  <p>When all "Done means" lines are true, <strong>submit your proof</strong>:</p>
+  <ul>
+    <li><strong>Links</strong>, one per line: your GitHub repo, the commit, a screenshot (upload it to Imgur or Google Drive and paste the link), a Grafana share link, and so on. The ticket says exactly what is <em>Needed</em>.</li>
+    <li><strong>Notes for the reviewer</strong>: what works, what was hard, and paste the command output the ticket asks for.</li>
+  </ul>
+  <p>Click <strong>Submit for review</strong>. The status becomes <em>in review</em>. You can start the next ticket while you wait. The reviewer will <strong>approve</strong> it or <strong>ask for changes</strong> with a note. If changes are asked, fix them and submit again.</p>
+  <img src="guide/09-proof.png" alt="Proof and hours tab">
+  <p class="cap">Log hours at the top. Submit links and notes at the bottom.</p>
+  <p class="hi">Kaam band karte hi hours likho. Jab sab "Done means" sach ho, GitHub link, screenshot link aur notes daal ke "Submit for review" dabao. Reviewer approve karega ya changes maangega.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">11</span>Ask the coach when stuck</h2>
+  <p>The <strong>Ask coach</strong> tab is a chat. The coach knows this ticket. Write in simple English what you tried and what you see. Example: <em>"I ran docker compose up. The app container exits at once. What should I check?"</em> The coach answers simply and will not do the work for you. Also use it to ask the meaning of a word.</p>
+  <img src="guide/10-coach.png" alt="Ask coach tab">
+  <p class="hi">Atak gaye? Coach ko English me likho: kya kiya, kya dikh raha hai. Coach simple English me samjhayega.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">12</span>Every week: one incident drill</h2>
+  <p>Click <strong>Incidents</strong> in the top menu. A drill is a broken system that runs on your laptop with Docker. Users are "angry". You must find the cause and fix it, like an on-call engineer. There are 8 drills.</p>
+  <ol>
+    <li>Once: <code>git clone https://github.com/mohit-yeotikar/devops-lab.git</code></li>
+    <li>Open a drill on the website and read the story and the symptoms.</li>
+    <li>On the laptop: <code>cd devops-lab/drills/&lt;name&gt;</code> then <code>docker compose up -d</code></li>
+    <li>Investigate: <code>docker compose ps</code>, <code>docker compose logs</code>, <code>curl</code>, look at the config files.</li>
+    <li>On the website, write the <strong>root cause</strong> (1-3 sentences), <strong>how you fixed it</strong>, and the <strong>minutes</strong> it took. Click Submit.</li>
+    <li>The coach says <em>correct</em>, <em>partly</em> or <em>wrong</em>. Clean up with <code>docker compose down -v</code>.</li>
+  </ol>
+  <div class="box warn"><strong>Do not open SOLUTION.md before you submit.</strong> The point is to find it yourself. The Solution tab opens on the website after a correct answer or after two tries.</div>
+  <img src="guide/11-drills.png" alt="Incident drills page">
+  <p class="hi">Hafte me ek drill. Laptop pe Docker se kharab system chalao, wajah dhundho, website pe root cause likho. SOLUTION.md submit se pehle mat kholo.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">13</span>Every week: one mock interview</h2>
+  <p>Click <strong>Interview</strong>. Choose <strong>Everything I have worked on</strong> or one sprint, then <strong>Start interview</strong>. You get 7 questions, one at a time. Write your answer the way you would <strong>speak</strong> it: first person, short sentences, the tool name, the problem, what you did, the result.</p>
+  <p>After each answer you get a score, feedback and a <strong>better answer</strong>. At the end you get an average. Under 7? Read every "better answer" aloud and redo the interview in two days. Your last three scores show on your portfolio.</p>
+  <img src="guide/12-interview.png" alt="Mock interview page">
+  <p class="hi">Hafte me ek mock interview, 7 sawaal. Jaise bolte ho waise likho. 7 se kam score? "Better answer" zor se padho, 2 din baad dobara do.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">14</span>Work log</h2>
+  <p>Click <strong>Work log</strong> to see every hour you logged: total, working days, hours per week, and the full list. The reviewer and the experience letter use this list. It should grow every working day.</p>
+  <img src="guide/13-log.png" alt="Work log page">
+  <p class="hi">Work log tumhara proof hai. Ye roz badhna chahiye.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">15</span>Your portfolio</h2>
+  <p>Click <strong>Portfolio</strong>. This is your public page: <code>https://devops-lab.mohityeotikar.workers.dev/u/&lt;your-username&gt;</code>. It shows your hours, approved tickets, finished sprints, solved incidents, your projects with your own explanation and repo links, and the skills you demonstrated. Only <strong>approved</strong> work appears here. Put this link on your resume and LinkedIn.</p>
+  <img src="guide/14-portfolio.png" alt="Portfolio page">
+  <p class="hi">Portfolio tumhara public page hai. Sirf approved kaam dikhta hai. Ye link resume aur LinkedIn pe daalo.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">16</span>Profile: Hindi help, public portfolio, log out</h2>
+  <p>Click your name in the top menu. Here you can set your city, target role, GitHub and LinkedIn links and a short bio (2-3 simple English sentences; it shows on your portfolio).</p>
+  <ul>
+    <li><strong>Show Hindi help lines</strong>: on at the start. Switch it off after a few sprints, when you can read the English alone. In interviews there is no Hindi.</li>
+    <li><strong>Make my portfolio public</strong>: keep it on, so employers can open your link.</li>
+    <li><strong>Log out</strong> is at the bottom. The sun/moon button in the top right switches the website to dark colours if you like.</li>
+  </ul>
+  <img src="guide/15-profile.png" alt="Profile page">
+  <p class="hi">Profile me GitHub, LinkedIn aur bio daalo. Kuch sprints ke baad Hindi lines band kar do, English akele padhne ki aadat banao.</p>
+</div>
+
+<div class="step pb">
+  <h2><span class="n">17</span>Rules</h2>
+  <div class="box">
+    <ol>
+      <li><strong>Be honest with hours.</strong> Log only the time you really worked. Hours are checked against your Git commits.</li>
+      <li><strong>Your own words.</strong> In "Explain it" and in interviews, never paste the model text. The coach notices.</li>
+      <li><strong>Your own repo.</strong> All code in your own GitHub account, with commits made by you, on the days you logged.</li>
+      <li><strong>Never spend money.</strong> Stay in the AWS Free Tier. Set the billing alert. Stop EC2 instances when you finish for the day.</li>
+      <li><strong>Do not open SOLUTION.md</strong> of a drill before you submit your answer.</li>
+      <li><strong>Write in English</strong> on the website, even with mistakes. That is how your English gets better.</li>
+    </ol>
+  </div>
+  <p>The experience letter at the end states exactly what the log shows: first and last day, hours, sprints, approved tickets and incidents. Employers verify experience letters. A letter that is not true ends your offer, so the record must be real.</p>
+  <p class="hi">Sach hours, apne shabd, apna repo, paisa kharch nahi, solution pehle nahi, English me likho. Experience letter me wahi aayega jo log me hai.</p>
+</div>
+
+<div class="step">
+  <h2><span class="n">18</span>Your daily routine</h2>
+  <table>
+    <tr><th style="width:28%">When</th><th>What</th></tr>
+    <tr><td>Every working day</td><td>Open <strong>Home</strong>. Work 2-4 hours on your open ticket. Log the hours when you stop.</td></tr>
+    <tr><td>Every ticket</td><td>Tick "Done means", write "Explain it" until score 7+, read the 3 interview answers aloud, submit proof.</td></tr>
+    <tr><td>Once a week</td><td>One <strong>incident drill</strong> and one <strong>mock interview</strong>.</td></tr>
+    <tr><td>Every 2 weeks</td><td>Finish the sprint. Check that every ticket is submitted. Start the next sprint.</td></tr>
+    <tr><td>When the reviewer asks for changes</td><td>Read the note, fix it the same day, submit again.</td></tr>
+  </table>
+  <div class="box ok" style="margin-top:12pt"><strong>Start now:</strong> log in, open Sprint 1, press <strong>Start this ticket</strong> on OPS-101. <span class="hi">Abhi login karo, Sprint 1 kholo, OPS-101 start karo.</span></div>
+</div>
+
+</body>
+</html>
