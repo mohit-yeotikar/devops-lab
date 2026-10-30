@@ -48,6 +48,9 @@ pnpm exec wrangler secret put ANTHROPIC_API_KEY   # optional, enables Claude
 
 ## Trainee flow
 
+Printable step-by-step guide for trainees (simple English + Hindi lines, with screenshots):
+[`docs/trainee-guide.pdf`](docs/trainee-guide.pdf). Source: `docs/trainee-guide.html`; re-render with Chromium (`page.pdf`, A4).
+
 1. Sign up, open Sprint 1, start the first ticket.
 2. Do the steps on a laptop with Docker and a free AWS account (nothing in the curriculum costs money).
 3. Log hours, tick the acceptance list, submit links and notes as proof.
