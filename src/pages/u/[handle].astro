@@ -20,7 +20,7 @@ const { results: scores } = await db.prepare('SELECT score FROM interviews WHERE
     <h1>{u.name}</h1>
     <p class="sub">{u.target_role}{u.city ? ` · ${u.city}` : ''}{u.github && <> · <a href={u.github} target="_blank" rel="noopener">GitHub</a></>}{u.linkedin && <> · <a href={u.linkedin} target="_blank" rel="noopener">LinkedIn</a></>}</p>
     {u.bio && <p>{u.bio}</p>}
-    <div class="grid">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
       <div><div class="stat">{hrs.h.toFixed(0)} h<small>hands-on work logged</small></div></div>
       <div><div class="stat">{done.length}<small>tickets approved</small></div></div>
       <div><div class="stat">{sprintsDone.length}/{sprints.length}<small>sprints completed</small></div></div>

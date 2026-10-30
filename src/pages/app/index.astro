@@ -15,6 +15,7 @@ const inReview = tickets.filter((t) => prog.get(t.id)?.status === 'review');
 const next = tickets.find((t) => !prog.get(t.id) || prog.get(t.id)!.status === 'todo');
 const curSprint = sprints.find((s) => s.tickets.some((t) => prog.get(t.id)?.status !== 'done')) ?? sprints.at(-1);
 const welcome = Astro.url.searchParams.has('welcome');
+const days = u.started_at ? Math.max(1, Math.ceil((Date.now() - new Date(u.started_at.replace(' ', 'T') + 'Z').getTime()) / 86400_000)) : 0;
 ---
 <Base title="Home">
   {welcome && <div class="notice ok"><strong>Welcome, {u.name.split(' ')[0]}!</strong> Start with Sprint 1. Read the ticket, do the steps on your laptop, log your hours, then submit your proof. <span class="hi">Ticket padho, laptop pe steps karo, hours likho, proof submit karo.</span></div>}
@@ -24,7 +25,7 @@ const welcome = Astro.url.searchParams.has('welcome');
     <div class="card"><div class="stat">{pct}%<small>{done.length} of {tickets.length} tickets done</small></div><div class="bar" style="margin-top:8px"><i style={`width:${pct}%`}></i></div></div>
     <div class="card"><div class="stat">{hrs.h.toFixed(1)} h<small>logged on {hrs.days} working days</small></div></div>
     <div class="card"><div class="stat">{inReview.length}<small>waiting for review</small></div></div>
-    <div class="card"><div class="stat">{u.started_at ? Math.max(1, Math.ceil((Date.now() - new Date(u.started_at.replace(' ', 'T') + 'Z').getTime()) / 86400_000)) : 0} days<small>since you started</small></div></div>
+    <div class="card"><div class="stat">{days} {days === 1 ? 'day' : 'days'}<small>since you started</small></div></div>
   </div>
 
   {active.length > 0 && <><h2>Continue working</h2><div class="grid">{active.map((t) => <TicketCard t={t} p={prog.get(t.id)} />)}</div></>}
@@ -43,7 +44,7 @@ const welcome = Astro.url.searchParams.has('welcome');
   <h2>All sprints</h2>
   <div class="grid">
     {sprints.map((s) => { const d = s.tickets.filter((t) => prog.get(t.id)?.status === 'done').length; return (
-      <a class="card" href={`/app/sprints/${s.id}`} style="display:block;text-decoration:none;color:inherit">
+      <a class="card" href={`/app/sprints/${s.id}`}>
         <div class="help">Sprint {s.number} · weeks {s.weeks}</div><h3 style="margin:4px 0 8px">{s.title}</h3>
         <div class="bar"><i style={`width:${Math.round((d / s.tickets.length) * 100)}%`}></i></div><div class="help" style="margin-top:6px">{d}/{s.tickets.length} tickets</div>
       </a>); })}

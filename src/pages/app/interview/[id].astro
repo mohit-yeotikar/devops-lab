@@ -21,7 +21,7 @@ const i = as.length; const done = !!row.finished_at;
   </div>}
   {done && <div class="card notice ok" style="margin-top:14px"><h2 style="margin-top:0">Finished. Average score: {row.score?.toFixed(1)}/10</h2><p>{(row.score ?? 0) >= 7 ? 'Good. You are ready to tell this story to a real interviewer.' : 'Keep practising. Read each "better answer" aloud, then redo this interview in two days.'}</p><a class="btn" href="/app/interview">New interview</a></div>}
   {as.map((a, k) => <div class="card">
-    <div class="row" style="justify-content:space-between"><strong>Q{k + 1}. {qs[k].q}</strong><span class={`pill ${a.score >= 7 ? 'done' : a.score >= 4 ? 'doing' : 'changes'}`}>{a.score}/10</span></div>
+    <div class="row between"><strong>Q{k + 1}. {qs[k].q}</strong><span class={`pill ${a.score >= 7 ? 'done' : a.score >= 4 ? 'doing' : 'changes'}`}>{a.score}/10</span></div>
     <p class="help">You said: {a.a}</p>
     <p>{a.feedback}</p>
     <blockquote style="border-left:3px solid var(--brand);margin:8px 0;padding-left:12px"><strong>Better answer:</strong> {a.better}</blockquote>

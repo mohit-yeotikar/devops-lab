@@ -30,6 +30,11 @@ pnpm exec wrangler d1 migrations apply devops-lab --local --persist-to .wrangler
 pnpm exec wrangler dev --config dist/server/wrangler.json --port 8788 --persist-to .wrangler/state
 ```
 
+Without a Cloudflare login (`CLOUDFLARE_API_TOKEN`), remove the `ai` binding from `dist/server/wrangler.json` first; the pages
+render, only the coach is unavailable.
+
+The theme is light by default; the sun/moon button in the header switches to dark and remembers it per browser.
+
 The first account that signs up with the `ADMIN_EMAIL` from `wrangler.jsonc` becomes admin.
 Admins can promote others on `/admin/users/<id>`.
 

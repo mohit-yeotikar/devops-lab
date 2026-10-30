@@ -16,15 +16,13 @@ if (Astro.locals.user) return Astro.redirect('/app');
     <div class="card"><div class="stat">AI coach<small>fixes your English and asks interview questions</small></div></div>
   </div>
   <h2>How it works</h2>
-  <div class="grid">
-    <div class="card"><h3>1. Take a ticket</h3><p>Each ticket reads like a message from your team lead. You follow the steps on your own laptop and your own free AWS account.</p></div>
-    <div class="card"><h3>2. Show your proof</h3><p>Paste the repo link, the screenshot, the command output. A reviewer checks it like a real code review.</p></div>
-    <div class="card"><h3>3. Explain it</h3><p>Write what you did in your own words. The coach corrects your English and gives you a short script you can say in an interview. Hindi help is one click away.</p></div>
-    <div class="card"><h3>4. Build your record</h3><p>Hours, tickets and incidents go into your work log and public portfolio. This is the record behind your experience.</p></div>
+  <div class="grid howto">
+    <div class="card"><h3>Take a ticket</h3><p>Each ticket reads like a message from your team lead. You follow the steps on your own laptop and your own free AWS account.</p></div>
+    <div class="card"><h3>Show your proof</h3><p>Paste the repo link, the screenshot, the command output. A reviewer checks it like a real code review.</p></div>
+    <div class="card"><h3>Explain it</h3><p>Write what you did in your own words. The coach corrects your English and gives you a short script you can say in an interview. Hindi help is one click away.</p></div>
+    <div class="card"><h3>Build your record</h3><p>Hours, tickets and incidents go into your work log and public portfolio. This is the record behind your experience.</p></div>
   </div>
   <h2>What you will build</h2>
-  <div class="card">
-    <p>One company system called <strong>ShopNotes</strong> that grows sprint by sprint:</p>
-    <ol class="steps">{sprints.map((s) => <li><strong>Sprint {s.number}: {s.title}</strong> <span class="help">· weeks {s.weeks}</span><br/><span class="help">{s.theme}</span></li>)}</ol>
-  </div>
+  <p class="sub">One company system called <strong>ShopNotes</strong> that grows sprint by sprint, from a laptop to a monitored Kubernetes deployment on AWS.</p>
+  <div class="sprintlist">{sprints.map((s) => <div class="it"><span class="n">{String(s.number).padStart(2, '0')}</span><div><strong>{s.title}</strong> <span class="help">· weeks {s.weeks}</span><br/><span class="help">{s.theme}</span></div></div>)}</div>
 </Base>
