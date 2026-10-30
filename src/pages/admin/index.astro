@@ -14,7 +14,7 @@ const { results: queue } = await db.prepare(`SELECT p.*, u.name, u.handle FROM t
   <h2>Review queue ({queue.length})</h2>
   {queue.map((p) => { const t = ticketById(p.ticket_id); const ev = JSON.parse(p.evidence || '{}'); return (
     <div class="card">
-      <div class="row" style="justify-content:space-between"><div><strong><a href={`/admin/users/${p.user_id}`}>{p.name}</a></strong> · <a href={`/app/tickets/${p.ticket_id}`}>{t?.key} {t?.title}</a></div><span class="help">submitted {p.submitted_at} · {p.hours} h logged{p.explain_score != null ? ` · explain ${p.explain_score}/10` : ''}</span></div>
+      <div class="row between"><div><strong><a href={`/admin/users/${p.user_id}`}>{p.name}</a></strong> · <a href={`/app/tickets/${p.ticket_id}`}>{t?.key} {t?.title}</a></div><span class="help">submitted {p.submitted_at} · {p.hours} h logged{p.explain_score != null ? ` · explain ${p.explain_score}/10` : ''}</span></div>
       <p class="help">Needed: {t?.evidence.join(' · ')}</p>
       {ev.links?.length ? <ul class="steps">{ev.links.map((l: string) => <li><a href={l} target="_blank" rel="noopener">{l}</a></li>)}</ul> : <p class="help">No links.</p>}
       {ev.notes && <pre style="white-space:pre-wrap">{ev.notes}</pre>}

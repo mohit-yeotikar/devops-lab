@@ -17,6 +17,7 @@ const chat = await thread(db, u.id, `ticket:${t.id}:chat`, 10);
 const drill = t.type === 'incident' ? drillFor(t) : undefined;
 const steps = s.tickets; const idx = steps.findIndex((x) => x.id === t.id);
 const prev = steps[idx - 1], next = steps[idx + 1];
+const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<code>$1</code>');
 ---
 <Base title={`${t.key} ${t.title}`}>
   <p class="help"><a href="/app/sprints">Sprints</a> › <a href={`/app/sprints/${s.id}`}>Sprint {s.number}</a> › {t.key}</p>
@@ -36,11 +37,11 @@ const prev = steps[idx - 1], next = steps[idx + 1];
     <div class="card"><p><strong>Goal:</strong> {t.goal}</p><blockquote style="margin:0;border-left:3px solid var(--line);padding-left:12px;color:var(--muted)">{t.context}</blockquote></div>
     {drill && <div class="notice warn"><strong>Incident drill:</strong> this ticket uses <a href={`/app/drills/${drill}`}>drills/{drill}</a>. Open it, start the broken system on your laptop, find the cause, then come back and submit.</div>}
     <h2>Steps</h2>
-    <div class="card"><ol class="steps">{t.steps.map((st) => <li set:html={st.replace(/</g,'&lt;').replace(/`([^`]+)`/g, '<code>$1</code>')} />)}</ol></div>
+    <div class="card"><ol class="steps">{t.steps.map((st) => <li set:html={inline(st)} />)}</ol></div>
     <h2>Done means</h2>
     <div class="card">
       <form id="ckform" data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="checklist" />
-        <ul class="check">{t.acceptance.map((a, i) => <li><label><input type="checkbox" name="checked[]" value={i} checked={checked.has(i)} /> <span>{a}</span></label></li>)}</ul>
+        <ul class="check">{t.acceptance.map((a, i) => <li><label><input type="checkbox" name="checked[]" value={i} checked={checked.has(i)} /> <span set:html={inline(a)} /></label></li>)}</ul>
         <button type="submit" hidden>save</button>
       </form>
       <p class="help">Tick each line when it is true. Saved automatically.</p>

@@ -11,8 +11,8 @@ const best = new Map<string, string>(); res.forEach((r) => { if (!best.has(r.dri
   <p class="sub">A broken system starts on your laptop. Users are angry. Find the cause and fix it, like an on-call engineer. <span class="hi">Server kharab hai, tumhe dhundhna hai kyun. Jaise real on-call.</span></p>
   <div class="card"><strong>Before you start:</strong> clone the lab repo once: <code>git clone https://github.com/mohit-yeotikar/devops-lab.git</code>, then <code>cd devops-lab/drills/&lt;name&gt;</code> and <code>docker compose up -d</code>. Do not open SOLUTION.md until you submit.</div>
   <div class="grid">
-    {drills.map((d) => <a class="card" href={`/app/drills/${d.name}`} style="display:block;text-decoration:none;color:inherit">
-      <div class="row" style="justify-content:space-between"><span class="help">drills/{d.name}</span>{best.get(d.name) && <span class={`pill ${best.get(d.name) === 'correct' ? 'done' : 'doing'}`}>{best.get(d.name)}</span>}</div>
+    {drills.map((d) => <a class="card" href={`/app/drills/${d.name}`}>
+      <div class="row between"><span class="help">drills/{d.name}</span>{best.get(d.name) && <span class={`pill ${best.get(d.name) === 'correct' ? 'done' : 'doing'}`}>{best.get(d.name)}</span>}</div>
       <h3 style="margin:6px 0">{d.title}</h3></a>)}
     {drills.length === 0 && <p class="help">Drills are being added.</p>}
   </div>
