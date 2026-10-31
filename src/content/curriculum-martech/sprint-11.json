@@ -1,0 +1,362 @@
+{
+  "id": "m11",
+  "number": 11,
+  "title": "HubSpot, CRM and marketing automation",
+  "weeks": "21-22",
+  "theme": "Run the lead side of the business in a CRM: HubSpot objects and properties, lifecycle stages, forms, lead scoring, dealer routing workflows, offline conversions back to ad platforms, and Salesforce and CDP basics.",
+  "jobStory": "In this sprint you own the path from an ad click to a dealer sale. You set up a HubSpot free CRM that mirrors Voltra's dealer funnel, design lead scoring and routing to 300 dealers, and send qualified outcomes back to Google Ads and Meta so bidding learns from real sales, not form fills. You write the data architecture for HubSpot, Salesforce and a CDP, and you fix the complaint every marketer hears: 'the leads are bad'.",
+  "outcomes": [
+    "I set up a HubSpot free CRM with contacts, companies for dealers and deals, custom properties, lifecycle stages, lead status, a deal pipeline and a form that captures UTMs and the GCLID.",
+    "I designed a fit and engagement lead score, MQL and SQL rules, and dealer routing workflows with SLAs.",
+    "I designed and tested the offline conversion loop from the CRM to Google Ads and Meta with values per funnel stage.",
+    "I wrote the CRM data architecture and data hygiene SOP, including the HubSpot to Salesforce sync and a Segment CDP plan.",
+    "I found why dealers called the leads bad and fixed lead quality at the source."
+  ],
+  "tickets": [
+    {
+      "id": "m11-t01",
+      "key": "MKT-1101",
+      "type": "task",
+      "title": "Set up the HubSpot free CRM for the dealer lead funnel",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A working HubSpot free CRM that stores Voltra leads, dealers and deals with clean properties, clear lifecycle stages and a form that keeps the source of every lead.",
+      "context": "Hi, this is Neha, head of digital. Today our leads land in a spreadsheet and in dealer WhatsApp groups. We cannot say which campaign sells scooters. Before we buy any big CRM, I want a working model in HubSpot's free CRM that matches our dealer funnel: lead, test ride, booking, delivery.",
+      "steps": [
+        "Create a free HubSpot account at `hubspot.com` (free CRM, no card). Start the free HubSpot Academy course on CRM basics or inbound marketing to learn the interface. Set the time zone to Asia/Kolkata and the currency to INR in `Settings` → `Account defaults`.",
+        "In a Google Doc `Voltra CRM design v1`, map Voltra to HubSpot objects: contact = the buyer, company = the dealer (300 records), deal = one purchase opportunity for one scooter, ticket = after-sales question (not used yet). Write why the dealer is a company and not a contact.",
+        "Create custom properties in `Settings` → `Data Management` → `Properties` (menu names can move; use the settings search box). Contact properties: `model_interest` (dropdown), `city`, `pincode`, `preferred_language`, `gclid`, `fbclid`, `utm_source`, `utm_medium`, `utm_campaign`, `marketing_consent` (checkbox), `phone_verified` (yes/no), `voltra_lead_score` (number). Company properties: `dealer_id`, `dealer_city`, `dealer_pincodes_served`. Use lowercase internal names.",
+        "Write the definitions of lifecycle stages for Voltra in the doc: Subscriber (newsletter only), Lead (any form with a phone), Marketing Qualified Lead (score above the threshold), Sales Qualified Lead (dealer accepted), Opportunity (test ride done), Customer (booking paid or delivered). Write that lifecycle stage should move forward only, and that HubSpot does not move it backwards unless you clear it first.",
+        "Edit the `Lead status` property values for the dealer team: `New`, `Attempted to contact`, `Connected`, `Test ride booked`, `Unqualified - wrong number`, `Unqualified - no budget`, `Bad timing`. Write the difference: lifecycle stage = where the person is in the funnel; lead status = what sales is doing with them now.",
+        "Create a deal pipeline `Dealer sales` in the deals pipeline settings with stages: `Test ride booked`, `Test ride done`, `Booking paid`, `Delivered`, `Lost`. Set the win probability of each stage.",
+        "Create a form `Book a test ride` in `Marketing` → `Forms` with name, phone, email, city, pincode, model interest and a consent checkbox with clear text. Add hidden fields `utm_source`, `utm_medium`, `utm_campaign`, `gclid` with the same internal names as the properties, so HubSpot can fill them from the URL query string.",
+        "Share the form on a test page (HubSpot shareable form link or a free landing page). Open it with a URL like `?utm_source=google&utm_medium=cpc&utm_campaign=v2launch&gclid=TEST123` in an Incognito window and submit 3 test leads with different data.",
+        "Open each new contact and check: properties filled, `Original Source` set, lifecycle stage set to `Lead`, form submission in the activity timeline.",
+        "Import a CSV of 50 fake dealers (companies) and 100 fake contacts made in Google Sheets. Use `Import` with a mapping to your properties. Associate contacts to dealers by `dealer_id`.",
+        "Create a segment (formerly called a list) `New leads not contacted in 2 hours` with filters on create date and lead status, in `CRM` → `Segments`. Write how dealers would use it."
+      ],
+      "acceptance": [
+        "The CRM has contacts, companies (dealers) and deals, with the custom properties listed in the steps.",
+        "Lifecycle stages and lead status values are defined in the doc and in HubSpot, with the difference explained.",
+        "The `Dealer sales` pipeline has 5 stages with probabilities.",
+        "A test form submission shows UTM values and the GCLID on the contact record.",
+        "The import created 50 dealers and 100 contacts with associations."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra CRM design v1`",
+        "Screenshot of one test contact with UTM and GCLID properties filled",
+        "Screenshot of the `Dealer sales` pipeline and the import summary"
+      ],
+      "hints": [
+        "Hidden fields only fill from the URL if the query parameter name is the property's internal name.",
+        "Use fake data for test contacts (for example phone numbers that start with 90000). Never upload real customer data to a test account.",
+        "If a free-tier limit blocks a feature, write it down in the doc as 'needs paid tier' and continue."
+      ],
+      "explain": {
+        "en": "In this task I set up a HubSpot free CRM that matches our dealer funnel. I used contacts for buyers, companies for dealers and deals for each scooter sale. I created clean custom properties, including UTM fields and the Google click ID. I defined lifecycle stages for the funnel and lead status values for the sales work, and I built a dealer sales pipeline. I tested a form with hidden fields and imported test dealers and contacts with associations."
+      },
+      "vocabulary": [
+        { "term": "CRM", "en": "customer relationship management: the system that stores leads, customers and sales" },
+        { "term": "object", "en": "a type of record in the CRM, like contacts, companies or deals" },
+        { "term": "lifecycle stage", "en": "a HubSpot property that shows where a contact is in the funnel" },
+        { "term": "lead status", "en": "a HubSpot property that shows what sales is doing with a lead now" },
+        { "term": "GCLID", "en": "Google click ID: a code Google Ads adds to the landing page URL to link a click to a later conversion" },
+        { "term": "pipeline", "en": "the ordered stages a deal goes through until it is won or lost" }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between lifecycle stage and lead status in HubSpot?",
+          "a": "Lifecycle stage shows where the contact is in the whole funnel, from subscriber to customer, and should only move forward. Lead status is a sales working field that shows the current action, like attempted to contact or connected. Marketing owns the lifecycle stage rules, and sales updates lead status every day. Both are needed: one for funnel reporting and one for daily work and feedback."
+        },
+        {
+          "q": "How do you make sure the source of a lead is kept in the CRM?",
+          "a": "HubSpot's tracking code sets Original Source and Latest Source automatically. I also store UTM values and the GCLID in their own properties with hidden form fields, because I need the GCLID to send offline conversions to Google Ads. I keep lowercase UTM rules from our naming convention. Then I can report sales by campaign and close the loop with the ad platforms."
+        },
+        {
+          "q": "Why model dealers as companies?",
+          "a": "A dealer is a business with many people and many buyers, so the company object fits. It lets me associate leads and deals to a dealer, report by dealer and route new leads by the pincodes each dealer serves. Dealer staff can be contacts or users, but the dealer record itself is the company. This also matches how Salesforce would model it as an account."
+        }
+      ],
+      "resources": [
+        { "title": "HubSpot Knowledge Base: Use lifecycle stages", "url": "https://knowledge.hubspot.com/records/use-lifecycle-stages" },
+        { "title": "HubSpot Knowledge Base: Create and edit properties", "url": "https://knowledge.hubspot.com/properties/create-and-edit-properties" },
+        { "title": "HubSpot Knowledge Base: Set up and manage object pipelines", "url": "https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines" }
+      ]
+    },
+    {
+      "id": "m11-t02",
+      "key": "MKT-1102",
+      "type": "task",
+      "title": "Design lead scoring and dealer routing workflows",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "A tested lead score with MQL and SQL rules, and routing workflows that send each lead to the right dealer within the SLA.",
+      "context": "Hi, Arjun here, CMO. Dealers get every form fill at once, and many say they are flooded. I want to send them only leads worth a call, to the nearest dealer, and fast. Please design the score and the routing. If HubSpot free cannot run it, show me exactly how it would run.",
+      "steps": [
+        "Read the HubSpot Knowledge Base pages `Overview of the lead scoring tool` and `Create workflows`. Note which features need a paid tier (the lead scoring tool and workflows are in paid Marketing Hub or Sales Hub tiers). Plan to build the logic in a sheet, test it in the lab, and store a score in your free CRM property `voltra_lead_score`.",
+        "Create a Google Sheet `Voltra lead score v1`. Tab `Fit`: points for city served by a dealer (+20), pincode in a dealer area (+15), phone verified (+20), model interest given (+10), business email or fleet buyer (+10), outside service area (-30).",
+        "Tab `Engagement`: points for test ride request (+30), configurator complete (+15), price page view in last 7 days (+10), EMI calculator use (+10), brochure download (+5), email click (+5). Add decay: engagement points older than 30 days lose half their value.",
+        "Tab `Rules`: MQL when fit ≥ 40 and total ≥ 60; SQL when the dealer accepts the lead (lead status `Connected`); recycle to `Lead` nurture when status is `Bad timing`. Write why you need both fit and engagement (a student who clicks a lot is engaged but not a buyer).",
+        "Back-test the score: take 200 rows of fake past leads with a column `booked yes/no` (make them in the sheet with a believable pattern). Calculate the booking rate by score band (0-39, 40-59, 60-79, 80+). Adjust points until higher bands clearly book more. Write the final threshold.",
+        "Practise the logic in Practice → HubSpot lifecycle and scoring (`mk-hubspot`) in this app: build the score and run the test contacts. Note any rule that behaves differently from your sheet.",
+        "Write the routing design in the tab `Routing`: match lead pincode to `dealer_pincodes_served`; if no match, nearest dealer in the same city; if the dealer has more than N open leads, go to the next dealer; set `assigned_dealer` and contact owner; notify the dealer by email or by a webhook to the dealer system.",
+        "Write 3 workflows as specs with trigger, conditions, actions and goals (the way HubSpot workflows are built): `WF01 New lead scoring and MQL`, `WF02 Dealer routing and notification`, `WF03 SLA breach: no contact in 2 hours → reassign and alert the area manager`. Add `WF04 Recycle`: bad timing → nurture email series after 30 days.",
+        "Write the SLA in a table: first call within 2 hours in working hours, 3 call attempts in 48 hours, lead status updated the same day. Add the report that shows SLA breaches per dealer.",
+        "In your free CRM, set `voltra_lead_score` by hand on 10 test contacts using your sheet, then build a segment `MQL - ready for dealer` with filters score ≥ 60 and lifecycle stage = Lead. Check it has the right contacts."
+      ],
+      "acceptance": [
+        "The scoring sheet has fit and engagement points, decay, MQL and SQL rules and a final threshold.",
+        "The back-test shows booking rate by score band and the higher bands book more.",
+        "The `mk-hubspot` practice is done and differences are noted.",
+        "Four workflow specs have trigger, conditions, actions and goal.",
+        "The free CRM has a working `MQL - ready for dealer` segment based on the score property."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra lead score v1`",
+        "Screenshot of the `MQL - ready for dealer` segment with its filters",
+        "Screenshot of the solved scoring exercise in the `mk-hubspot` lab"
+      ],
+      "hints": [
+        "Start with few rules. A score with 40 rules is hard to explain to dealers and hard to fix.",
+        "Negative points matter as much as positive points. They stop junk leads from reaching dealers.",
+        "Write a workflow spec like a recipe: when this happens, if this is true, do these actions in this order."
+      ],
+      "explain": {
+        "en": "In this task I designed a lead score with fit points and engagement points, and engagement decays after 30 days. I back-tested it on past leads and set the MQL threshold where booking rates clearly went up. I designed routing by pincode to the nearest dealer with a capacity limit, and wrote workflow specs for scoring, routing, SLA breaches and recycling. I practised the logic in the lab and built a working MQL segment in the free CRM."
+      },
+      "vocabulary": [
+        { "term": "fit score", "en": "points based on who the lead is, like location or verified phone" },
+        { "term": "engagement score", "en": "points based on what the lead did, like a test ride request" },
+        { "term": "MQL", "en": "marketing qualified lead: a lead that meets the rules to go to sales" },
+        { "term": "SQL", "en": "sales qualified lead: a lead that sales has accepted as a real opportunity" },
+        { "term": "SLA", "en": "service level agreement: the agreed time and standard for a task, like calling a lead" },
+        { "term": "workflow", "en": "an automation that runs actions when a record meets the trigger rules" }
+      ],
+      "interview": [
+        {
+          "q": "How do you build a lead score that sales trusts?",
+          "a": "I build it with sales, from real data. I back-test the points on past leads and show the booking rate by score band, so the threshold is based on results, not opinion. I use fit and engagement separately and add decay. Then I review it every quarter with dealer feedback and change points when the data says so."
+        },
+        {
+          "q": "How do you route leads to 300 dealers?",
+          "a": "I route by pincode to the dealer that serves it, with a fallback to the nearest dealer in the city. I add a capacity rule so one dealer is not flooded, and an SLA rule that reassigns the lead if nobody calls in time. Every rule writes to a property, like assigned dealer and routing reason, so I can audit it. Reports show response time and conversion by dealer."
+        },
+        {
+          "q": "What do you do when the CRM tier does not have a feature you need?",
+          "a": "I separate the logic from the tool. I write the rules in a spec and test them with data, so the logic is proven before we pay. Then I compare options: a paid tier, a small integration, or a manual process for a pilot. The business case for the paid tier is easier when I can show the result of the pilot."
+        }
+      ],
+      "resources": [
+        { "title": "HubSpot Knowledge Base: Overview of the lead scoring tool", "url": "https://knowledge.hubspot.com/scoring/understand-the-lead-scoring-tool" },
+        { "title": "HubSpot Knowledge Base: Create workflows", "url": "https://knowledge.hubspot.com/workflows/create-workflows" },
+        { "title": "HubSpot Knowledge Base: Create segments", "url": "https://knowledge.hubspot.com/segments/create-active-or-static-lists" }
+      ]
+    },
+    {
+      "id": "m11-t03",
+      "key": "MKT-1103",
+      "type": "project",
+      "title": "Close the loop: send CRM outcomes back to Google Ads and Meta",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "Google Ads and Meta optimise to qualified leads and sales from the CRM, with values per funnel stage, instead of raw form fills.",
+      "context": "Hi, Neha here. Our Google Ads and Meta campaigns optimise to form submits. The cheapest form fills come from people who never pick up the phone. I want the ad platforms to learn from test rides and bookings in the CRM. Please design the full loop and test what you can without spending money.",
+      "steps": [
+        "Read the Google Ads Help pages `About offline conversion imports` and the enhanced conversions pages. In a Google Doc `Voltra offline conversion loop`, write the two options for Google Ads: upload by GCLID (needs the GCLID stored on the lead) and enhanced conversions for leads (uses hashed email or phone from the form, works when the GCLID is missing). Write when Voltra uses each.",
+        "Define the conversion stages and values in a table: `qualified_lead` (dealer connected), `test_ride_done`, `booking_paid`, `delivered`. Calculate a value for each from your m01 unit economics: value = average contribution margin × probability to reach delivery from that stage. Show the formula.",
+        "Decide which stage is the primary bidding goal. Balance value against volume and delay: for example `test_ride_done` as primary (enough volume, about 3-7 days after the click), `booking_paid` as secondary for reporting. Write what happens to Smart Bidding if the primary goal is rare or very late.",
+        "In your Google Ads test manager account, create the conversion actions: `Goals` → `Conversions` → `Summary` → `New conversion action` → `Import` → `CRMs, files or other data sources` → `Track conversions from clicks`. Name them like `crm_test_ride_done`. Set the count to `One`, the click-through window to 90 days, and the value rules. Take screenshots. (Test accounts never serve or spend; uploads may not process, which is fine for this exercise.)",
+        "Build the upload template in Google Sheets with the columns Google Ads expects for click conversions: `Google Click ID`, `Conversion Name`, `Conversion Time` (with time zone, for example `2026-11-02 14:30:00+05:30`), `Conversion Value`, `Conversion Currency`. Fill 10 rows from your HubSpot test contacts.",
+        "Write how the data moves without manual work. Option A: HubSpot's ads integration that syncs CRM lifecycle events to connected ad accounts (check which HubSpot tier your account needs). Option B: Google Ads Data Manager connection to HubSpot (`Tools` → `Data manager`). Option C: a scheduled export to Google Sheets or BigQuery and a scheduled upload. Recommend one with reasons.",
+        "Connect your Google Ads test account to HubSpot in the HubSpot ads settings if your account allows it, and take a screenshot. If it is not allowed in the free or test setup, write down the exact blocker.",
+        "Design the Meta side: Meta Conversions API for CRM leads, with the Meta lead ID or hashed email and phone, and the same stages as custom events. Write how you avoid double counting with the browser pixel (event ID for deduplication) and which event the campaign optimises to.",
+        "Write the consent and privacy rules: only send contacts with `marketing_consent` = true; hash email and phone with SHA-256 after normalising (lowercase, trim, phone in E.164 format like `+919876543210`); keep a record of what is sent and when.",
+        "Write the timing rules: upload at least daily; Google Ads accepts click conversions up to 90 days after the click; conversions uploaded later than the click-through window are rejected; check the upload diagnostics in `Goals` → `Conversions` → `Uploads`.",
+        "Design the reports: in HubSpot free, use `Original Source` and deal reports by `utm_campaign`; note that HubSpot multi-touch attribution reports need a paid Marketing Hub tier. In Looker Studio, plan a sheet-based report: leads → MQL → test ride → booking by campaign, with cost per stage.",
+        "Write a rollout plan with 4 weeks: week 1 data checks (GCLID capture rate above 90% on paid search leads), week 2 uploads as secondary goals only, week 3 compare, week 4 switch the primary goal on half of the campaigns as an experiment."
+      ],
+      "acceptance": [
+        "The doc explains GCLID upload and enhanced conversions for leads and when to use each.",
+        "Each funnel stage has a value with the formula shown, and one primary bidding goal is chosen with a reason.",
+        "The Google Ads test account has the CRM conversion actions with the right count, window and value settings.",
+        "The upload template has the correct columns and 10 filled rows with time zone in the time.",
+        "The Meta design covers deduplication, and the privacy rules cover consent, normalising and hashing.",
+        "The rollout plan uses an experiment before the primary goal is switched everywhere."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra offline conversion loop`",
+        "Screenshots of the conversion actions in the Google Ads test account",
+        "Link to the upload template sheet"
+      ],
+      "hints": [
+        "A goal that happens 30 days after the click is too slow for daily bidding. Pick a stage that is fast enough and still predicts sales.",
+        "Values do not need to be perfect. They need to rank stages and leads in the right order.",
+        "Never test with real customer emails. Use fake data and SHA-256 test strings."
+      ],
+      "explain": {
+        "en": "In this project I closed the loop between the CRM and the ad platforms. I defined CRM stages from qualified lead to delivery and gave each a value from our unit economics. I created import conversion actions in a Google Ads test account and built the upload template with the GCLID and time zone. I designed the automatic flow and the Meta Conversions API side with deduplication, hashing and consent rules. I planned a careful rollout with an experiment before we changed the bidding goal for all campaigns."
+      },
+      "vocabulary": [
+        { "term": "offline conversion import", "en": "sending conversions that happen outside the website, like a test ride, back to Google Ads" },
+        { "term": "enhanced conversions for leads", "en": "matching CRM leads to ad clicks with hashed email or phone instead of a click ID" },
+        { "term": "Conversions API", "en": "Meta's server-to-server way to send conversion events" },
+        { "term": "deduplication", "en": "making sure the same conversion is counted once when it arrives from two sources" },
+        { "term": "SHA-256 hashing", "en": "turning an email or phone into a fixed code that cannot be read back" }
+      ],
+      "interview": [
+        {
+          "q": "Why import offline conversions instead of optimising to form fills?",
+          "a": "Form fills are cheap to get and easy to fake, so bidding to them often finds low-quality leads. When I import qualified stages with values from the CRM, Smart Bidding learns which clicks become test rides and sales. This usually raises cost per lead but lowers cost per sale. I measure the result on cost per booking, not cost per lead."
+        },
+        {
+          "q": "How do you choose which CRM stage to optimise to?",
+          "a": "I look at volume, delay and how well the stage predicts revenue. A stage with too few conversions or a long delay makes bidding unstable. I often pick a mid-funnel stage like test ride done as the primary goal and send later stages as secondary or with higher values. I review the choice when volume grows."
+        },
+        {
+          "q": "What can go wrong with offline conversion uploads?",
+          "a": "The GCLID is not captured, or it is lost when a lead is merged or edited. Times are sent without a time zone, or after the click-through window, so they are rejected. Conversions can be double counted with a web tag. I check the GCLID capture rate, the upload diagnostics and a weekly CRM vs Google Ads reconciliation."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About offline conversion imports", "url": "https://support.google.com/google-ads/answer/2998031" },
+        { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" },
+        { "title": "HubSpot Knowledge Base: Connect your Google Ads account to HubSpot", "url": "https://knowledge.hubspot.com/ads/connect-your-google-ads-account-to-hubspot" }
+      ]
+    },
+    {
+      "id": "m11-t04",
+      "key": "MKT-1104",
+      "type": "docs",
+      "title": "Write the CRM data architecture and data hygiene SOP",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A clear architecture note and SOP for how customer data flows between HubSpot, Salesforce, a CDP and the ad platforms, and how it stays clean.",
+      "context": "Hi, Arjun here. The export partner uses Salesforce, the board asks about a CDP, and our duplicate leads are already a problem. Before anyone buys a tool, I need a document that shows how customer data should flow and who keeps it clean.",
+      "steps": [
+        "Create a Google Doc `Voltra CRM data architecture and SOP`. Section 1: a diagram (Google Drawings or Slides) with website and app, GTM and server-side GTM, GA4 360 and BigQuery, HubSpot, Salesforce (export partner), a CDP, Google Ads, Meta and DV360.",
+        "Section 2 `Systems of record`: a table with the data item (contact, consent, lead status, deal, booking, delivery, dealer) and the system that owns it. Example: booking and delivery are owned by the dealer management system; consent is owned by the CMP and the CRM.",
+        "Section 3 `HubSpot and Salesforce sync`: read `Connect HubSpot and Salesforce` on the HubSpot Knowledge Base. Describe the object mapping (HubSpot contact ↔ Salesforce lead or contact, company ↔ account, deal ↔ opportunity), field mappings with sync rules (`Prefer Salesforce unless blank`, `Always use Salesforce`, `Two-way`, `Don't sync`), an inclusion list so only qualified contacts sync, and API call limits. Note that the connector needs a paid HubSpot tier.",
+        "Section 4 `CDP basics with Segment`: explain sources (website, app, server), the main calls (`identify`, `track`, `page`, `group`), destinations (GA4, Google Ads, Meta, HubSpot, BigQuery), a tracking plan to enforce event names, and identity resolution into one profile. Write when Voltra needs a CDP and when BigQuery plus HubSpot is enough.",
+        "Section 5 `Identity`: list the keys (email, phone in E.164, HubSpot contact ID, booking ID, GA4 `user_id`, GCLID) and the matching order. Write the rule that phone is the main key for Indian dealer leads.",
+        "Section 6 `Data hygiene SOP`: duplicate rules (phone first, then email), the weekly duplicate review using HubSpot's manage duplicates tool, required fields on forms, picklists instead of free text for city and model, phone validation, lowercase UTMs, and an owner for each property.",
+        "Section 7 `Privacy`: consent capture and storage, purpose (service vs marketing), retention periods, deletion requests, and the rule that only consented contacts sync to ad platforms. Mention India's Digital Personal Data Protection Act 2023 and its Rules (notified in November 2025 with a phased start; check the current dates on `meity.gov.in`), and GDPR for the EU export sites.",
+        "Section 8 `Monthly data quality report`: 6 metrics with targets, for example duplicate rate, % leads with valid phone, % paid leads with GCLID, % contacts with consent value, % leads with dealer assigned, lead status update rate."
+      ],
+      "acceptance": [
+        "The document has 8 sections and a data flow diagram.",
+        "Each important data item has one system of record.",
+        "The Salesforce section names object mappings, sync rules, an inclusion list and API limits.",
+        "The CDP section explains the Segment calls and when a CDP is or is not needed.",
+        "The data quality report has 6 metrics with targets."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra CRM data architecture and SOP`",
+        "Link or image of the data flow diagram"
+      ],
+      "hints": [
+        "A tool does not fix bad data. Owners, rules and a weekly routine do.",
+        "Segment has a free plan if you want to try a source and a destination, but this ticket only needs the design.",
+        "Write the privacy section in plain words. Do not give legal advice; ask legal to review it."
+      ],
+      "explain": {
+        "en": "In this task I wrote how customer data should flow between our website, HubSpot, Salesforce, a CDP and the ad platforms. I named one system of record for each data item. I described the HubSpot and Salesforce sync with object mappings, sync rules and an inclusion list. I explained Segment's role as a CDP and when we really need one. I wrote a data hygiene SOP with duplicate rules and owners, a privacy section, and a monthly data quality report."
+      },
+      "vocabulary": [
+        { "term": "system of record", "en": "the one system that holds the true value of a piece of data" },
+        { "term": "CDP", "en": "customer data platform: a tool that collects customer data from many sources and sends it to many tools" },
+        { "term": "identity resolution", "en": "joining records of the same person from different systems into one profile" },
+        { "term": "sync rule", "en": "a rule that decides which system wins when the same field is different in two systems" },
+        { "term": "inclusion list", "en": "a list that controls which HubSpot contacts are synced to Salesforce" }
+      ],
+      "interview": [
+        {
+          "q": "Do we need a CDP?",
+          "a": "Only if we have a clear use case that the CRM and the warehouse cannot serve. A CDP helps when many sources must feed many tools in near real time with one identity and one tracking plan. If our main need is reporting and a few audience syncs, BigQuery plus the CRM and native integrations may be enough. I decide on use cases, data volume, team skills and cost, not on the trend."
+        },
+        {
+          "q": "How do you set up a HubSpot to Salesforce sync safely?",
+          "a": "I agree the object mapping first, then set a sync rule per field so it is clear which system wins. I use an inclusion list so only qualified contacts go to Salesforce and we save API calls. I test with a small list in a sandbox, then monitor sync errors every week. I document every mapping in one sheet."
+        },
+        {
+          "q": "How do you keep CRM data clean?",
+          "a": "I prevent bad data at entry with required fields, picklists, phone validation and lowercase UTMs. I set duplicate rules with phone as the main key for Indian leads and review duplicates weekly. Every property has an owner. A monthly data quality report with targets keeps it visible to management."
+        }
+      ],
+      "resources": [
+        { "title": "HubSpot Knowledge Base: Connect HubSpot and Salesforce", "url": "https://knowledge.hubspot.com/salesforce/install-the-hubspot-salesforce-integration" },
+        { "title": "HubSpot Knowledge Base: Deduplicate records in HubSpot", "url": "https://knowledge.hubspot.com/records/deduplication-of-records" }
+      ]
+    },
+    {
+      "id": "m11-t05",
+      "key": "MKT-1105",
+      "type": "incident",
+      "lab": "mk-hubspot",
+      "title": "Case: dealers say the leads are bad",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Find out with data why dealers reject leads, fix the causes at the source, and agree a lead quality measure with the dealers.",
+      "context": "Hi, Neha here. The dealer council meeting was hard today. Dealers say 7 of 10 leads are fake, wrong numbers or people who 'just asked a price'. Some want to stop taking our leads. The agency says the cost per lead is the best ever. Please find the truth in the data before the next council meeting.",
+      "steps": [
+        "First finish the practice lab: open Practice → HubSpot lifecycle and scoring (`mk-hubspot`) in this app and solve the lead quality case. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-1105` with a timeline: time, what you checked, what you saw.",
+        "Define 'bad lead' with the dealers in numbers first. Use lead status: `Unqualified - wrong number`, `Unqualified - no budget`, no answer after 3 attempts, duplicate. Calculate the bad lead rate from the lab data. Is it really 70%?",
+        "Break the bad lead rate down by source, campaign, form type (website form vs Google lead form vs Meta instant form), device, city and hour of day. Write the 2-3 cuts where bad leads are concentrated.",
+        "Check duplicates: the same phone with different emails or different spellings of a name. Calculate the duplicate rate and how many dealer calls it wastes.",
+        "Check response time: the median time from lead creation to first call, by dealer. Compare the connect rate for leads called within 1 hour vs after 24 hours. Write if part of the 'bad' leads are really slow follow-up.",
+        "Check the bidding goal: which conversion action do the paid campaigns optimise to? If it is a raw form submit, write how this pushes the platforms toward cheap, low-intent leads.",
+        "Write the root causes in order of impact, each with the number that proves it. Example: 'Meta instant forms with pre-filled fields and no phone check make 45% of wrong numbers; dealers in 4 cities call after 26 hours on median; campaigns optimise to form submit.'",
+        "Write the fixes at the source: phone verification by OTP or a higher-intent form type (for example Meta instant forms with a review step and a qualifying question); a qualifying question about purchase time; score threshold before routing (from MKT-1102); dedupe by phone; SLA and reassignment; switch bidding to `qualified_lead` or `test_ride_done` from MKT-1103.",
+        "Agree a shared measure with the dealers: `qualified lead rate` and `cost per test ride done`, reported weekly per dealer and per campaign. Add this to the Looker Studio plan.",
+        "Write a one-page summary for the dealer council: what we found, what marketing fixes, what dealers must do (update lead status the same day), and when we review again (in 4 weeks)."
+      ],
+      "acceptance": [
+        "The lab case is solved in the app.",
+        "Bad lead is defined in numbers, and the real bad lead rate is calculated.",
+        "The breakdown shows where bad leads are concentrated, with at least 3 cuts.",
+        "Root causes include lead source quality, follow-up speed and the bidding goal, each with evidence.",
+        "The fix list changes the source and the bidding goal, not only the dealer process.",
+        "A shared lead quality measure is defined for dealers and marketing."
+      ],
+      "evidence": [
+        "Screenshot of the solved lab in the app",
+        "Link to the Google Doc `Case MKT-1105`",
+        "The one-page summary for the dealer council"
+      ],
+      "hints": [
+        "'Bad leads' is often two problems: low-intent leads from marketing and slow calls from dealers. Measure both before you blame one side.",
+        "Lead forms inside an ad platform are easy to submit. That is good for volume and bad for intent unless you add friction.",
+        "If the campaigns optimise to form submits, the algorithm does exactly what you asked: more cheap form submits."
+      ],
+      "explain": {
+        "en": "In this case dealers said most leads were bad. I first defined a bad lead with clear statuses and measured the real rate. I broke it down by source, form type, city and time, and checked duplicates and dealer response times. I found three causes: in-platform lead forms without a phone check, slow follow-up in some cities, and campaigns that optimised to raw form fills. I fixed the source with verification and qualifying questions, added scoring, dedupe and SLAs, and moved bidding to qualified CRM stages. Then I agreed a shared quality measure with the dealers."
+      },
+      "vocabulary": [
+        { "term": "lead quality", "en": "how likely a lead is to become a real sale" },
+        { "term": "connect rate", "en": "the share of leads that sales reached on the phone" },
+        { "term": "instant form", "en": "a Meta lead form that opens inside the app, often pre-filled" },
+        { "term": "OTP", "en": "one-time password: a code sent by SMS to prove the phone number is real" },
+        { "term": "qualifying question", "en": "a form question that shows intent, like when you plan to buy" }
+      ],
+      "interview": [
+        {
+          "q": "Sales says the leads are bad. What do you do?",
+          "a": "I first agree what 'bad' means with sales, using lead statuses, and I measure it. Then I break it down by source, campaign, form type and region, and I check duplicates and response times. Usually it is a mix of low-intent sources and slow follow-up. I fix both sides and move the shared KPI from cost per lead to cost per qualified stage."
+        },
+        {
+          "q": "Why can a lower cost per lead be a bad sign?",
+          "a": "Ad platforms find the people most likely to do the action we optimise to. If that action is a simple form submit, they find people who submit forms easily, not people who buy. So cost per lead goes down while sales stay flat or fall. I check cost per test ride and cost per booking before I celebrate a lower CPL."
+        },
+        {
+          "q": "How do you improve lead quality without killing volume?",
+          "a": "I add the right friction: phone verification, one qualifying question, and a review step on in-platform forms. I route only leads above a score threshold and nurture the rest by email. I feed qualified outcomes back to the ad platforms, so they find better people over time. I test changes on part of the traffic and watch cost per qualified lead, not only total leads."
+        }
+      ],
+      "resources": [
+        { "title": "HubSpot Knowledge Base: Use lifecycle stages", "url": "https://knowledge.hubspot.com/records/use-lifecycle-stages" },
+        { "title": "HubSpot Knowledge Base: Build lead scores", "url": "https://knowledge.hubspot.com/scoring/build-lead-scores" },
+        { "title": "Google Ads Help: About offline conversion imports", "url": "https://support.google.com/google-ads/answer/2998031" }
+      ]
+    }
+  ]
+}

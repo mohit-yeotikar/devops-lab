@@ -1,0 +1,358 @@
+{
+  "id": "m12",
+  "number": 12,
+  "title": "Attribution, incrementality, MMM and leadership capstone",
+  "weeks": "23-24",
+  "theme": "Decide where the next rupee goes: attribution and its limits, incrementality tests, marketing mix modelling with Meridian and Robyn, budget allocation and forecasting, privacy, team and agency leadership, and the Voltra capstone plan.",
+  "jobStory": "In this sprint you move from running channels to steering the whole budget. You compare attribution models and show what they cannot prove. You design lift tests to measure what media really adds, build a marketing mix model with open-source tools, and turn its response curves into a budget and a forecast. You write the privacy and agency operating model, and you finish with Voltra's full-funnel measurement and media plan for the leadership team.",
+  "outcomes": [
+    "I compared last click, data-driven, position-based and other models on real journeys and documented what attribution can and cannot prove.",
+    "I designed and read a geo holdout test and planned conversion lift and brand lift studies with power, duration and decision rules.",
+    "I ran a marketing mix model with Google Meridian (and studied Meta Robyn) on sample data and turned response curves into a budget allocation and a forecast.",
+    "I wrote a privacy resilience note and a team and agency operating model with a RACI and KPIs.",
+    "I delivered Voltra's full-funnel measurement and media plan with a budget, a test roadmap, governance and a dashboard."
+  ],
+  "tickets": [
+    {
+      "id": "m12-t01",
+      "key": "MKT-1201",
+      "type": "task",
+      "title": "Compare attribution models and write their limits",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Leadership understands what each attribution model says about Voltra's channels, which model each tool uses, and what attribution cannot prove.",
+      "context": "Hi, this is Arjun, CMO. GA4 says paid search is our best channel, Meta says Meta is, and the DV360 report says display assisted half of all bookings. Everyone is right in their own tool. Please compare the models on our journeys and tell me in plain words what each number can and cannot be used for.",
+      "steps": [
+        "Open Practice → Attribution models (`mk-attribution`) in this app. Run the Voltra journeys through last click, first click, linear, time decay, position-based (40/20/40) and data-driven. Export or copy the credit by channel for each model.",
+        "Create a Google Sheet `Voltra attribution comparison`. Tab `Models`: a table with channels in rows and models in columns, showing credited bookings and the share of credit. Add a column `max-min` to show which channels move most between models.",
+        "Write one line per model: how it gives credit and which channel type it favours. For example: last click favours brand search and retargeting; first click favours prospecting video and display; data-driven compares paths with and without a touchpoint, using the account's own data.",
+        "Tab `Tools`: write which models each tool uses today. GA4: data-driven, paid and organic last click, and Google paid channels last click (first click, linear, time decay and position-based were removed in 2023). Google Ads: data-driven and last click. Also add: Meta (its own attribution settings with click and view windows), CM360 and DV360 (Floodlight post-click and post-view windows), HubSpot (contact and deal create attribution in paid tiers). Check each on the official help page and write the date.",
+        "In the GA4 demo account, open `Admin` → `Attribution settings` and note the reporting attribution model and the lookback windows (acquisition key events 7 or 30 days; other key events 30, 60 or 90 days). Then open `Advertising` → `Attribution` → `Model comparison` and take a screenshot comparing two models.",
+        "Tab `Why tools disagree`: list at least 6 reasons. Examples: each platform counts its own view-through conversions; different lookback windows; different conversion time (click date vs conversion date); walled gardens do not see each other's touchpoints; consent and cookie loss cut paths; cross-device gaps; modelled conversions.",
+        "Tab `Limits`: write what attribution cannot prove. It shows correlation along a path, not causation; it misses offline media (TV, outdoor, dealer events) and word of mouth; it over-credits channels that reach people who would buy anyway (brand search, retargeting); data-driven models still learn only from tracked paths.",
+        "Write the rule for Voltra: which number is used for what. Example: platform numbers for daily optimisation inside each platform; GA4 data-driven for cross-channel digital trends; lift tests for causal truth per channel; MMM for budget split across all media.",
+        "Write a one-page summary for the CMO with one chart (credit share by channel under 3 models) and the rule above."
+      ],
+      "acceptance": [
+        "The comparison table shows at least 6 models from the lab and the channels that move most.",
+        "The tools tab states which models GA4 and Google Ads support today, with the date checked.",
+        "At least 6 reasons why tools disagree, and at least 4 limits of attribution, are written.",
+        "The 'which number for what' rule is clear and fits on a few lines.",
+        "The summary has one chart and fits on one page."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra attribution comparison`",
+        "Screenshot of the GA4 model comparison in the demo account",
+        "Link to the one-page summary"
+      ],
+      "hints": [
+        "If a channel gains a lot under last click and loses a lot under first click, it is probably late in the journey, like brand search.",
+        "Data-driven attribution is better than rules, but it is still attribution: it cannot see what would have happened without the ad.",
+        "Keep the summary free of model jargon. Say what each number is good for."
+      ],
+      "explain": {
+        "en": "In this task I compared attribution models on Voltra's journeys. I saw that last click gives most credit to brand search and retargeting, and first click to prospecting video. I documented which models GA4, Google Ads and the other tools use today, and why the tools never agree. I wrote the limits of attribution: it shows paths, not cause and effect. I ended with a simple rule for which number to use for which decision."
+      },
+      "vocabulary": [
+        { "term": "attribution model", "en": "a rule or algorithm that splits credit for a conversion across touchpoints" },
+        { "term": "data-driven attribution", "en": "a model that uses your own path data to estimate each touchpoint's share of credit" },
+        { "term": "lookback window", "en": "how far back in time a touchpoint can get credit for a conversion" },
+        { "term": "view-through conversion", "en": "a conversion after someone saw an ad but did not click it" },
+        { "term": "walled garden", "en": "a big platform like Meta or Google that keeps its user data inside its own tools" }
+      ],
+      "interview": [
+        {
+          "q": "Why do Google Ads, Meta and GA4 report different conversion numbers?",
+          "a": "Each platform counts the conversions it can link to its own ads, including views, with its own windows and dates. GA4 sees only tracked website paths and gives credit across channels with one model. So the same booking can be claimed by several platforms. I never add platform numbers up; I use one cross-channel view for trends and experiments for causal truth."
+        },
+        {
+          "q": "Is data-driven attribution enough to set budgets?",
+          "a": "No. It is better than rules like last click, but it learns from tracked paths, so it cannot see people who would have bought anyway or offline effects. It also cannot see media without clicks or tracking, like TV or dealer events. I use it for digital optimisation and trends, and I use lift tests and MMM for budget decisions."
+        },
+        {
+          "q": "Which models are still in GA4?",
+          "a": "GA4 offers data-driven, paid and organic last click, and Google paid channels last click. First click, linear, time decay and position-based were removed in 2023. If a stakeholder needs a rule-based view, I can build it from the BigQuery export, but I explain that it is a view, not a truth. I always check the help pages because these settings change."
+        }
+      ],
+      "resources": [
+        { "title": "Analytics Help: Get started with attribution", "url": "https://support.google.com/analytics/answer/10596866" },
+        { "title": "Analytics Help: Select attribution settings", "url": "https://support.google.com/analytics/answer/10597962" },
+        { "title": "Google Ads Help: About data-driven attribution", "url": "https://support.google.com/google-ads/answer/6394265" }
+      ]
+    },
+    {
+      "id": "m12-t02",
+      "key": "MKT-1202",
+      "type": "incident",
+      "lab": "mk-incrementality",
+      "title": "Case: retargeting looks great, but is it incremental?",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Measure how many bookings Meta and display retargeting really add, and decide the retargeting budget on incremental return, not attributed return.",
+      "context": "Hi, Neha here. Retargeting shows a ROAS of 14 in Meta and 11 in DV360, far above every other channel. The agency wants to double it. I suspect it takes credit for people who would book anyway. Please prove it one way or the other before we move INR 50 lakh.",
+      "steps": [
+        "First finish the practice labs: open Practice → Attribution models (`mk-attribution`), then Practice → Incrementality and MMM (`mk-incrementality`) in this app, and solve the retargeting case. Write your result in the app before you go on.",
+        "Start a Google Doc `Case MKT-1202` with a timeline: time, what you checked, what you saw.",
+        "Write the hypothesis and the metric: 'Retargeting adds fewer bookings than attributed. Primary metric: incremental bookings and incremental ROAS (iROAS = incremental revenue / spend).'",
+        "Choose the method and write why. Compare: geo holdout (turn retargeting off in some cities, keep it on in matched cities), platform conversion lift (Meta conversion lift, Google Ads conversion lift based on users or on geography), and a PSA or ghost-ads control. For Voltra, recommend a geo holdout across cities because it covers Meta and DV360 together and uses CRM bookings.",
+        "Design the geo test in a Google Sheet `Retargeting geo test`. List 24 cities with weekly bookings for the last 26 weeks (use the lab data). Split them into test and control groups that match on the pre-period (similar trend and level). Show the pre-period fit as a chart and a correlation or error number.",
+        "Calculate power: with the weekly noise from the pre-period, what is the minimum detectable effect for a 4, 6 and 8 week test? Choose the duration that can detect the effect you care about. Write it down. Optional: try Meta's open-source GeoLift package in R or the lab's calculator for the market selection and power.",
+        "Write the rules before the test starts: test cells (retargeting off in the test group), what stays the same (all other media, prices, offers), the dates, the primary metric, and the decision rule. Example: 'If iROAS is below 2, cut retargeting by 50% and move the money to prospecting.'",
+        "Read the result from the lab: compare actual bookings in the test group with the counterfactual from the control group. Calculate incremental bookings, the confidence interval and iROAS. Compare it with the attributed ROAS of 14 and 11.",
+        "Write the decision and the new budget, with the money moved and where it goes. Write what you will re-test and when (incrementality changes with budget level and season).",
+        "Plan the brand side too: a Brand Lift study for the YouTube launch (in Google Ads or DV360), with the metrics (ad recall, awareness, consideration), the survey control group, and the minimum budget check with Google before booking.",
+        "Write a 6-line message to the CMO and the agency: the result, the decision, the budget change, and the next test."
+      ],
+      "acceptance": [
+        "The lab case is solved in the app.",
+        "The test design has a hypothesis, matched test and control cities with a pre-period fit, a power calculation, fixed rules and a decision rule written before the result.",
+        "Incremental bookings, a confidence interval and iROAS are calculated and compared with attributed ROAS.",
+        "The decision moves a stated amount of budget, with a re-test date.",
+        "A Brand Lift plan is included with metrics and a control group."
+      ],
+      "evidence": [
+        "Screenshot of the solved labs in the app",
+        "Link to the Google Sheet `Retargeting geo test`",
+        "Link to the Google Doc `Case MKT-1202` and the 6-line message"
+      ],
+      "hints": [
+        "Write the decision rule before you see the result. Otherwise the result will be explained away.",
+        "Retargeting reaches people who already showed intent. That is why its attributed ROAS is high and its incrementality is often low.",
+        "A test that is too short or has too few cities cannot find a small effect. Calculate power first."
+      ],
+      "explain": {
+        "en": "In this case retargeting showed a very high ROAS and the agency wanted to double it. I designed a geo holdout: I switched retargeting off in matched test cities and kept it on in control cities. I checked the pre-period fit and calculated the power before the test. The result showed that incremental ROAS was much lower than the attributed ROAS, so I cut retargeting and moved the money to prospecting. I also planned a Brand Lift study for the YouTube launch and a re-test date."
+      },
+      "vocabulary": [
+        { "term": "incrementality", "en": "the extra results that happened only because of the ads" },
+        { "term": "geo holdout", "en": "a test where ads are switched off in some regions and results are compared with similar regions" },
+        { "term": "counterfactual", "en": "what would have happened without the ads, estimated from the control group" },
+        { "term": "iROAS", "en": "incremental return on ad spend: incremental revenue divided by spend" },
+        { "term": "minimum detectable effect", "en": "the smallest real change a test can reliably find" },
+        { "term": "Brand Lift", "en": "a survey study that compares people who saw ads with people who did not, on brand metrics" }
+      ],
+      "interview": [
+        {
+          "q": "How do you measure if a channel is incremental?",
+          "a": "I run a controlled test where part of the audience or part of the regions does not get the ads, and I compare the results with a matched control. For channels that cross platforms, like retargeting on Meta and DV360, I prefer a geo holdout measured on CRM bookings. Inside one platform, I can use its conversion lift tool. I write the metric, duration, power and decision rule before the test starts."
+        },
+        {
+          "q": "Why is retargeting ROAS often overstated?",
+          "a": "Retargeting targets people who already visited and showed intent, and many of them would book anyway. Attribution gives retargeting credit because it was the last touch, not because it caused the booking. Lift tests often show a much lower incremental ROAS. I keep some retargeting for real reminders but cap its budget and frequency."
+        },
+        {
+          "q": "What makes a geo test trustworthy?",
+          "a": "The test and control regions must move together before the test, so I check the pre-period fit. The test must have enough power for the effect size I care about, so I calculate the duration and number of regions. Nothing else should change differently in test and control during the test. I report the confidence interval, not only the point estimate."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About Conversion Lift", "url": "https://support.google.com/google-ads/answer/12003020" },
+        { "title": "Display & Video 360 Help: Set up Brand Lift measurement", "url": "https://support.google.com/displayvideo/answer/9570506" }
+      ]
+    },
+    {
+      "id": "m12-t03",
+      "key": "MKT-1203",
+      "type": "task",
+      "title": "Build a marketing mix model and turn it into a budget and a forecast",
+      "priority": "high",
+      "estimateHours": 9,
+      "goal": "A working MMM on sample data with Google Meridian, a clear comparison with Meta Robyn, and a budget allocation and forecast for Voltra based on response curves.",
+      "context": "Hi, Arjun here. The CFO asked me how sure we are that the next INR 10 crore should go to YouTube and not to more search or to dealer events. Attribution cannot answer that. Please show me how a marketing mix model works, run one, and turn it into a budget we can defend.",
+      "steps": [
+        "Read the Meridian docs on `developers.google.com/meridian`: what Meridian is (a Bayesian MMM that can model at geo level and use reach and frequency), the data it needs, and how priors from experiments are used. Read the Robyn docs on `facebookexperimental.github.io/Robyn`: ridge regression, adstock, saturation, multi-objective search with Nevergrad and calibration with experiments.",
+        "Write a data plan for Voltra in a Google Sheet `Voltra MMM data plan`: KPI (weekly bookings or revenue by state), media (spend and impressions per channel, YouTube reach and frequency), controls (price changes, EV subsidy changes such as PM E-DRIVE, fuel prices, festive season, competitor launches, dealer count), granularity (weekly, by state), history (at least 2 years; 3 is better).",
+        "Open the Meridian getting-started notebook from the docs in Google Colab (free). Run it end to end with the sample data. Take screenshots of the model fit, the channel contribution, ROI with credible intervals and the response curves.",
+        "In the notebook, find where ROI priors are set. Write how you would use your geo test result from MKT-1202 as a prior for retargeting (for example a low ROI prior with a tight range), and why priors from experiments make the model more trustworthy.",
+        "Check the model quality and write it down: convergence diagnostics (for example R-hat close to 1), fit on held-out weeks, and whether results make business sense (no channel with a huge ROI that nobody believes).",
+        "Study Robyn on paper or run its R demo with the simulated weekly data if you have R. Write a comparison table: method (Bayesian vs ridge regression with hyperparameter search), adstock and saturation options, calibration, outputs (one posterior vs a set of Pareto-optimal models), language (Python vs R), effort.",
+        "Explain response curves in your own words: each channel has diminishing returns; average ROI and marginal ROI are different; the next rupee should go where marginal ROI is highest.",
+        "Create a Google Sheet `Voltra budget allocation`. Use a simple response curve per channel (for example `bookings = a × (1 - exp(-spend / b))`, with `a` and `b` read from the MMM output or the lab). Find the split of INR 48 crore per year that gives the most bookings under rules (no channel changes more than ±30% from today; minimum brand search budget). Use Google Sheets `Solver` add-on or a manual step search.",
+        "Add a forecast tab: bookings and cost per booking for 3 budget levels (INR 40, 48 and 56 crore) with a low, mid and high range. Write the main assumptions.",
+        "Write a one-page note for the CFO: what the model says, how sure we are (intervals), what we will test next to check it, and how often the model is refreshed (every quarter) and calibrated (with each new lift test)."
+      ],
+      "acceptance": [
+        "The data plan lists KPI, media, controls, granularity and history.",
+        "The Meridian notebook ran with sample data and the screenshots show fit, contribution, ROI and response curves.",
+        "The use of a lift test result as a prior is explained.",
+        "The Meridian vs Robyn table has at least 6 rows.",
+        "The budget sheet uses response curves with constraints, and the forecast shows 3 budget levels with ranges.",
+        "The CFO note explains uncertainty and the refresh and calibration plan."
+      ],
+      "evidence": [
+        "Link to the Colab notebook copy (view access) and the screenshots",
+        "Links to the Google Sheets `Voltra MMM data plan` and `Voltra budget allocation`",
+        "Link to the one-page CFO note"
+      ],
+      "hints": [
+        "If Colab runs out of memory, use fewer samples in the sampling step. This is practice; the shape of the results matters more than precision.",
+        "Average ROI tells you if a channel paid back. Marginal ROI tells you where the next rupee should go. Budgets follow marginal ROI.",
+        "Always show a range. A single number from an MMM looks more certain than it is."
+      ],
+      "explain": {
+        "en": "In this task I learned marketing mix modelling and ran Google Meridian on sample data in Colab. I wrote the data plan for Voltra with media, controls and at least two years of weekly data. I checked the model fit and diagnostics and explained how a lift test result can be a prior. I compared Meridian with Meta's Robyn. Then I used response curves to find a budget split with the highest marginal return under clear limits, and I made a forecast with ranges for three budget levels."
+      },
+      "vocabulary": [
+        { "term": "MMM", "en": "marketing mix modelling: a statistical model that estimates each channel's effect on sales from aggregated data over time" },
+        { "term": "adstock", "en": "the idea that an ad's effect carries over into the next weeks and slowly fades" },
+        { "term": "saturation", "en": "the point where more spend in a channel brings less and less extra result" },
+        { "term": "response curve", "en": "a curve that shows results for each level of spend in a channel" },
+        { "term": "marginal ROI", "en": "the return of the next extra rupee spent, not the average of all rupees" },
+        { "term": "prior", "en": "what the model believes before it sees the data, for example from a lift test" }
+      ],
+      "interview": [
+        {
+          "q": "When do you use MMM instead of attribution?",
+          "a": "I use MMM for budget allocation across all media, including offline and walled gardens, because it works on aggregated data and does not need user tracking. Attribution is better for fast, in-channel optimisation. MMM needs at least two years of clean weekly data and good control variables. I use both, and I calibrate the MMM with lift tests."
+        },
+        {
+          "q": "How do you compare Meridian and Robyn?",
+          "a": "Meridian is Google's Bayesian MMM in Python; it supports geo-level models, reach and frequency, and priors from experiments, and it gives credible intervals. Robyn is Meta's open-source MMM in R; it uses ridge regression with a hyperparameter search and gives a set of Pareto-optimal models to choose from, with calibration to experiments. Both model adstock and saturation. I choose by team skills, data granularity and how we want to use experiment results."
+        },
+        {
+          "q": "How do you turn an MMM into a budget?",
+          "a": "I take the response curve of each channel and move money from channels with low marginal ROI to channels with high marginal ROI, until the marginal returns are close. I add business constraints, like a minimum brand search budget and a maximum change per quarter. I show the forecast as a range and plan a lift test for the biggest change. Then I refresh the model each quarter."
+        }
+      ],
+      "resources": [
+        { "title": "Google Meridian documentation", "url": "https://developers.google.com/meridian" },
+        { "title": "Meta Robyn documentation", "url": "https://facebookexperimental.github.io/Robyn/" }
+      ]
+    },
+    {
+      "id": "m12-t04",
+      "key": "MKT-1204",
+      "type": "docs",
+      "title": "Write the privacy resilience note and the team and agency operating model",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "Leadership has one document that explains how Voltra's measurement survives privacy changes, and how the in-house team and agencies share the work.",
+      "context": "Hi, Neha here. The board asks two questions: 'Will our measurement break with new privacy rules?' and 'Do we pay the agencies for the right things?' Please write one document that answers both, so I can share it before the annual planning.",
+      "steps": [
+        "Create a Google Doc `Voltra measurement resilience and operating model`. Part A, section 1 `Current state`: list what Voltra already has from earlier sprints: Consent Mode v2 with a CMP, server-side GTM, enhanced conversions, offline conversion imports, GA4 360 BigQuery export, first-party CRM data.",
+        "Section 2 `Signal loss`: describe the sources in neutral words: users who decline consent; Safari and Firefox blocking third-party cookies; Chrome keeping third-party cookies with user choice; Google's October 2025 announcement retiring most Privacy Sandbox APIs. Check `https://privacysandbox.google.com/` and write the date you checked. Add app tracking limits on iOS.",
+        "Section 3 `Rules`: India's DPDP Act 2023 and its Rules (phased start; check dates on `meity.gov.in`), GDPR and the ePrivacy rules for the EU export sites, and Google's EU user consent policy. Write that legal must review this section.",
+        "Section 4 `Resilience plan`: a table of measures with owner and status: consented first-party data, server-side tagging, enhanced conversions and CAPI, modelled conversions, MMM and lift tests that do not need user-level tracking, clean rooms (for example Ads Data Hub or Amazon Marketing Cloud) as an option.",
+        "Part B, section 5 `Team`: draw the target team: performance lead, MarTech and analytics engineer, analyst, CRM manager, creative lead; and the agencies: media agency (search, social, programmatic), creative agency, a measurement partner if needed.",
+        "Section 6 `RACI`: a table for 10 activities (media plan, campaign build, bidding, tagging, conversion setup, reporting, lift tests, MMM, CRM workflows, budget changes) with Responsible, Accountable, Consulted, Informed for in-house and each agency.",
+        "Section 7 `Agency terms`: Voltra owns all ad accounts, DV360 advertiser, CM360, GA4 and data; fee model options (percentage of media, fixed retainer, hybrid with a performance part) and their incentives; principal-based buying must be disclosed; access to log-level and cost data; a 30-day exit and handover clause.",
+        "Section 8 `Agency KPIs and rhythm`: KPIs that the agency controls (cost per qualified lead, iROAS from tests, pacing accuracy, QA errors, report on time), a weekly call, a monthly business review and a quarterly business review with a scorecard."
+      ],
+      "acceptance": [
+        "The document has Part A (privacy resilience) and Part B (operating model) with all 8 sections.",
+        "The signal loss section is neutral, dated and links to the official status source.",
+        "The resilience plan has owners and status for each measure.",
+        "The RACI has 10 activities with exactly one Accountable per activity.",
+        "Agency terms state that Voltra owns accounts and data, and list fee model options with their incentives."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra measurement resilience and operating model`"
+      ],
+      "hints": [
+        "In a RACI, many people can be Responsible or Consulted, but only one person is Accountable.",
+        "A percentage-of-media fee rewards more spend, not better results. Write that down neutrally and propose a balance.",
+        "Describe privacy changes as facts with dates and sources. Do not predict."
+      ],
+      "explain": {
+        "en": "In this task I wrote one document for the board about privacy and the operating model. I described the current measurement setup and the sources of signal loss in neutral words, with the date I checked the official status. I listed the rules for India and the EU and a resilience plan with owners. Then I designed the team and the agency roles, a RACI for ten activities, agency terms where Voltra owns all accounts and data, and KPIs with a clear review rhythm."
+      },
+      "vocabulary": [
+        { "term": "signal loss", "en": "measurement data that is missing because of consent, browser or platform limits" },
+        { "term": "clean room", "en": "a secure place where two parties can analyse joined data without sharing user-level data" },
+        { "term": "RACI", "en": "a table that shows who is Responsible, Accountable, Consulted and Informed for each task" },
+        { "term": "principal-based buying", "en": "when an agency buys media for itself and resells it to the client at a mark-up" },
+        { "term": "QBR", "en": "quarterly business review: a meeting to review results and plans every three months" }
+      ],
+      "interview": [
+        {
+          "q": "How do you keep measurement working with less tracking?",
+          "a": "I build on consented first-party data and send it to the platforms through server-side tagging, enhanced conversions and conversion APIs. I accept that user-level data has gaps and use modelled conversions inside platforms. For budget decisions I rely on methods that do not need user tracking: lift tests and MMM. I review the privacy landscape every planning cycle with legal."
+        },
+        {
+          "q": "How do you manage agencies?",
+          "a": "I make sure we own the accounts and the data, and that roles are clear in a RACI. I agree KPIs the agency can control, like cost per qualified lead, pacing and QA quality, and I add incrementality results from tests. We have a weekly working call, a monthly review and a quarterly scorecard. Fees should reward results and transparency, not only spend."
+        },
+        {
+          "q": "What do you keep in-house and what do you give to agencies?",
+          "a": "I keep strategy, measurement, data, conversion setup, test design and budget decisions in-house, because they define what success is. Agencies are strong in execution at scale, creative production and platform know-how. I make sure in-house people can read and audit every account. This avoids lock-in and keeps knowledge in the company."
+        }
+      ],
+      "resources": [
+        { "title": "Privacy Sandbox: official status site", "url": "https://privacysandbox.google.com/" },
+        { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" }
+      ]
+    },
+    {
+      "id": "m12-t05",
+      "key": "MKT-1205",
+      "type": "project",
+      "title": "Capstone: Voltra full-funnel measurement and media plan",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A complete, defendable measurement and media plan for Voltra's next financial year, presented to leadership as a short deck with a working dashboard.",
+      "context": "Hi, Arjun here. You have built every piece this year. Now I need it in one plan for the board: how we measure, where the INR 48 crore goes, what we test, who does what, and how we will know it worked. Please present it in 10-12 slides and be ready for hard questions.",
+      "steps": [
+        "Collect your earlier deliverables in one Google Drive folder `Voltra capstone`: the KPI tree and measurement plan (m01), GA4 360 and GTM setup (m02-m03), BigQuery queries (m04), Google Ads, SA360, CM360 and DV360 plans (m05-m09), the Adobe SDR (m10), CRM and offline loop (m11), attribution, lift test and MMM (m12).",
+        "Write the `Measurement framework` page: the north-star metric (for example contribution margin from bookings and accessories), the KPI tree to channel KPIs, and the 'which number for what' rule from MKT-1201 (platform numbers, GA4, lift tests, MMM).",
+        "Draw the `Data architecture` slide: website and app → Consent Mode and CMP → GTM web and server-side → GA4 360 and Adobe (export sites) → BigQuery; ad platforms (Google Ads, SA360, CM360, DV360, Meta) with Floodlight and offline conversions; HubSpot and the dealer system; Looker Studio. Mark data owners.",
+        "Build the `Media plan` in a Google Sheet: channels (brand search, generic search, PMax, Demand Gen and YouTube, DV360 display and video, CTV, Meta prospecting and retargeting, dealer local, Amazon DSP test) by funnel stage, with annual budget, monthly phasing (festive season peaks), KPIs and targets. The total is INR 48 crore.",
+        "Justify the split with evidence: MMM response curves and marginal ROI from MKT-1203, the retargeting lift result from MKT-1202, and constraints (minimum brand search, launch bursts). Show the forecast with a low, mid and high range for bookings and cost per booking.",
+        "Write the `Test roadmap` for 12 months: at least 6 tests with hypothesis, method (geo holdout, conversion lift, Brand Lift, A/B test on landing pages), budget, duration and the decision each one informs. Plan the order so MMM is calibrated with new results each quarter.",
+        "Write `Governance`: naming conventions, the QA checklist for launches, change logs for GTM, Adobe and conversion actions, access reviews, the privacy rules from MKT-1204, and the RACI with agencies.",
+        "Build a Looker Studio dashboard `Voltra performance` with 2 pages using sample data (BigQuery public GA4 dataset and a Google Sheet with media and CRM numbers): page 1 executive view (spend, bookings, cost per booking, MER, pacing vs plan); page 2 funnel view (leads → MQL → test ride → booking by channel).",
+        "Write a `Risks` slide with 5 risks and mitigations, for example: data delays, model uncertainty, agency capacity, privacy changes, dealer follow-up quality.",
+        "Make a 10-12 slide Google Slides deck `Voltra FY plan - measurement and media`: summary with the 3 decisions you ask for, framework, architecture, budget and forecast, test roadmap, governance and team, dashboard, risks, next 90 days.",
+        "Rehearse: record a 10-minute presentation (for example with Google Meet recording or your phone). Then write answers to 5 hard questions a CFO or CEO could ask, such as 'Why not cut retargeting to zero?' and 'How sure are you about the forecast?'.",
+        "Ask a mentor or peer to review the deck with a simple score (clarity, evidence, feasibility, 1-5 each). Fix the two weakest points."
+      ],
+      "acceptance": [
+        "The deck has 10-12 slides and opens with a summary and 3 clear decisions.",
+        "The media plan totals exactly INR 48 crore, has monthly phasing and KPIs per channel.",
+        "The budget split is supported by MMM, lift test results and stated constraints, with a forecast range.",
+        "The test roadmap has at least 6 tests with methods, budgets, durations and decisions.",
+        "The Looker Studio dashboard has an executive page and a funnel page and works with view access.",
+        "Answers to 5 hard questions are written, and the reviewer score and your fixes are documented."
+      ],
+      "evidence": [
+        "Link to the Google Slides deck `Voltra FY plan - measurement and media`",
+        "Link to the media plan Google Sheet and the Looker Studio dashboard",
+        "Link to the 10-minute recording and the written answers to the 5 hard questions",
+        "The reviewer's scores and your list of fixes"
+      ],
+      "hints": [
+        "Lead with the decisions you need from leadership. Put details in the appendix.",
+        "Every number in the budget should point to a source: MMM, a test, a benchmark or a stated assumption.",
+        "Show uncertainty honestly. Leaders trust a range with a test plan more than a single perfect number."
+      ],
+      "explain": {
+        "en": "In my capstone I built Voltra's full-funnel measurement and media plan for the next year. I set the north-star metric and a clear rule for which number we use for which decision. I drew the data architecture from consent and tagging to BigQuery, the ad platforms and the CRM. I split a budget of 48 crore rupees across channels using MMM response curves, lift test results and business limits, with a forecast range. I added a twelve-month test roadmap, governance, a Looker Studio dashboard and a risk plan, and I presented it in a short deck."
+      },
+      "vocabulary": [
+        { "term": "north-star metric", "en": "the one main metric that shows if the business is growing in the right way" },
+        { "term": "MER", "en": "marketing efficiency ratio: total revenue divided by total marketing spend" },
+        { "term": "test roadmap", "en": "a planned list of experiments with dates and the decisions they will support" },
+        { "term": "phasing", "en": "how the yearly budget is split across months" },
+        { "term": "triangulation", "en": "using several methods, like attribution, tests and MMM, to check one answer" }
+      ],
+      "interview": [
+        {
+          "q": "Walk me through how you would build a measurement and media plan for a brand.",
+          "a": "I start with the business goal and the unit economics, and build a KPI tree down to channel KPIs. Then I check the data foundation: consent, tagging, conversions, CRM loop and the warehouse. I split the budget with MMM response curves and lift test results, add business constraints and show a forecast range. Finally I add a test roadmap, governance and a dashboard, so the plan improves every quarter."
+        },
+        {
+          "q": "How do you defend a budget split in front of a CFO?",
+          "a": "I show where each number comes from: MMM marginal returns, lift tests and clear assumptions. I show the forecast as a range and explain the main risks. I also show what we will test in the next quarter to reduce the biggest uncertainty. CFOs accept uncertainty when it is honest and when there is a plan to learn."
+        },
+        {
+          "q": "How do attribution, lift tests and MMM work together?",
+          "a": "They answer different questions. Attribution and platform data guide daily optimisation inside channels. Lift tests give causal truth for one channel at one time. MMM gives the big picture across all media and sets the budget split, and I calibrate it with the lift test results. When the three methods point in the same direction, I can move budget with confidence."
+        }
+      ],
+      "resources": [
+        { "title": "Google Meridian documentation", "url": "https://developers.google.com/meridian" },
+        { "title": "Analytics Help: Get started with attribution", "url": "https://support.google.com/analytics/answer/10596866" },
+        { "title": "Google Skillshop", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    }
+  ]
+}

@@ -211,7 +211,7 @@
       ],
       "resources": [
         { "title": "Google Ads Help: About responsive search ads", "url": "https://support.google.com/google-ads/answer/7684791" },
-        { "title": "Google Ads Help: About Quality Score for Search campaigns", "url": "https://support.google.com/google-ads/answer/140351" }
+        { "title": "Google Ads Help: Quality Score", "url": "https://support.google.com/google-ads/answer/140351" }
       ]
     },
     {
@@ -279,8 +279,8 @@
         }
       ],
       "resources": [
-        { "title": "Google Ads API: Upload click conversions", "url": "https://developers.google.com/google-ads/api/docs/conversions/upload-clicks" },
-        { "title": "Google Ads API: Enhanced conversions for leads", "url": "https://developers.google.com/google-ads/api/docs/conversions/enhanced-conversions/leads" },
+        { "title": "Google Ads API: Manage offline conversions", "url": "https://developers.google.com/google-ads/api/docs/conversions/upload-clicks" },
+        { "title": "Google Ads Help: Configure Google Tag Manager for enhanced conversions for leads", "url": "https://support.google.com/google-ads/answer/11347292" },
         { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" }
       ]
     },
@@ -349,7 +349,7 @@
       ],
       "resources": [
         { "title": "Google Ads Help: Ad Rank", "url": "https://support.google.com/google-ads/answer/1752122" },
-        { "title": "Google Ads Help: About Quality Score for Search campaigns", "url": "https://support.google.com/google-ads/answer/140351" }
+        { "title": "Google Ads Help: Quality Score", "url": "https://support.google.com/google-ads/answer/140351" }
       ]
     }
   ]

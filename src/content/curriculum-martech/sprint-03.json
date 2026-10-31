@@ -189,7 +189,7 @@
       ],
       "resources": [
         { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" },
-        { "title": "Google Ads Help: About test accounts", "url": "https://developers.google.com/google-ads/api/docs/best-practices/test-accounts" }
+        { "title": "Google Ads API Docs: Test accounts", "url": "https://developers.google.com/google-ads/api/docs/best-practices/test-accounts" }
       ]
     },
     {
@@ -272,8 +272,8 @@
         "Write the root causes and their effect: (1) defaults set too late, so Google tags ran without a default consent state; (2) missing `ad_user_data`, so Google Ads cannot use the data for EEA users and enhanced conversions do not apply; (3) the extra consent requirement plus no re-trigger, so the conversion tag never fired on the page where consent was given; (4) GA4 fell less because of behavioural modelling and because GA4 tags had no extra requirement.",
         "Fix it in the workspace: CMP tag back on Consent Initialization, all four types updated, remove the additional consent requirement from Google tags (they have built-in checks), and add the update trigger back for non-Google tags. Test again with Accept and Reject and record the results.",
         "Publish a version named `v15 - MKT-305 consent fix` with notes. Write the rollback plan if it fails (publish the last good version).",
-        "Write the media actions: in Google Ads, tell the team that smart bidding learned from the drop; consider a data exclusion for the broken dates (Tools → Bid strategies → Advanced controls → Data exclusions) so bidding ignores them.",
-        "Write the prevention steps: the banner is a tag change, so it follows the GTM SOP (Staging, Tag Assistant consent test, sign-off); add a daily alert on key events (GA4 Admin → Data display → custom insights, or a Looker Studio check) that fires if conversions drop more than 25% day over day.",
+        "Write the media actions: in Google Ads, tell the team that smart bidding learned from the drop; consider a data exclusion for the broken dates (Tools → Budgets and bidding → Bid strategies → Advanced controls → Data exclusions) so bidding ignores them.",
+        "Write the prevention steps: the banner is a tag change, so it follows the GTM SOP (Staging, Tag Assistant consent test, sign-off); add a daily alert on key events (a GA4 custom insight: Insights panel → Create, or a scheduled Looker Studio check) that fires if conversions drop more than 25% day over day.",
         "Write a one-page incident report: summary, impact, timeline, root causes, fix, data exclusion, prevention, owners."
       ],
       "acceptance": [

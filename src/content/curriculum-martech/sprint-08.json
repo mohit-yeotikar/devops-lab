@@ -1,0 +1,356 @@
+{
+  "id": "m08",
+  "number": 8,
+  "title": "Campaign Manager 360 and ad serving",
+  "weeks": "15-16",
+  "theme": "Use Campaign Manager 360 as Voltra's ad server and measurement hub: trafficking, Floodlight, click trackers and macros, verification, reach, path to conversion and attribution.",
+  "jobStory": "In this sprint you run the ad serving side of Voltra's media. There is no free Campaign Manager 360 account, so you learn the tool with the `mk-cm360` simulator lab, Skillshop and the Help Center, and you produce the files a senior ad ops lead owns. You write the trafficking SOP, build a trafficking sheet for the Glide launch, design and test Floodlight tags on the website, and solve a real case where Floodlight counts double. You end with a reporting pack for verification, reach and frequency, path to conversion and attribution.",
+  "outcomes": [
+    "I explained the role of an ad server and the CM360 structure from advertiser to creative, and wrote a trafficking SOP.",
+    "I built a trafficking sheet with placements, ads, creatives, landing pages, click trackers and macros.",
+    "I designed Floodlight counter and sales activities, built them in GTM and tested the requests.",
+    "I found why Floodlight counted conversions twice and fixed the tags and counting methods.",
+    "I designed a reporting pack for verification, reach and frequency, path to conversion and attribution."
+  ],
+  "tickets": [
+    {
+      "id": "m08-t01",
+      "key": "MKT-801",
+      "type": "docs",
+      "title": "Write the CM360 structure and trafficking SOP",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "Voltra has a short SOP that explains why we use an ad server, how CM360 is structured, how we name things and how a campaign goes from media plan to live tags.",
+      "context": "Hi, we now buy display and video directly from news sites, auto portals and apps, plus DV360. Every publisher reports different numbers. We moved to Campaign Manager 360 to have one count, but the team does not know the workflow. Please write the SOP we will all follow.",
+      "steps": [
+        "Before you start, open the `mk-cm360` lab in this app (menu `Practice`) and do the guided tour of the structure. Then open Skillshop (link in resources), search `Campaign Manager 360` and start the certification learning path. It is free.",
+        "Create a Google Doc `MKT-801 CM360 SOP`. Section 1, why an ad server: one neutral count of impressions and clicks across publishers, central creative control, Floodlight conversions, de-duplication across channels, verification and reach reports. Explain first-party vs third-party ad serving: the publisher's ad server (often Google Ad Manager) calls our CM360 tag.",
+        "Section 2, structure. Draw the hierarchy: account → advertiser (Voltra India) → campaign (Glide launch) → placement (one site, one size, one pricing) → ad (rules for which creative serves, with dates and rotation) → creative (the file or the VAST video). Add the other objects: sites (publishers), landing pages, Floodlight configuration (one per advertiser), creative assignments.",
+        "Explain the ad types in one table: standard ad, default ad (serves when no other ad fits), tracking ads (click tracker, impression tracker) and in-stream video ads. Write when to use a click tracker: when the publisher serves the creative itself (for example a native unit or a newsletter) and we only need to count the click.",
+        "Section 3, naming. Campaign `VOL_IN_GlideLaunch_2026Q4`; placement `Site_Format_Size_Pricing_Audience` (for example `AutoPortal_Display_300x250_CPM_ROS`); ad `Glide_Family_300x250_v1`; creative `Glide_Family_300x250_HTML5_v1`. Add three examples and the rule that names never contain spaces or special characters that break exports.",
+        "Section 4, workflow: (1) media plan signed; (2) create campaign and sites; (3) create placements from the plan in bulk; (4) upload creatives and check them; (5) create ads and assign creatives; (6) add landing pages and URL suffix; (7) export tags per site; (8) send tags to publishers; (9) check first impressions in reports within 24 to 48 hours; (10) weekly delivery check against the plan.",
+        "Section 5, quality checks before tags go out: dates match the plan, sizes match, landing pages work and carry the right parameters, default ad exists, SSL compliant creatives, click-through test on every ad.",
+        "Section 6, honest limits: CM360 counts only what its tags see; walled gardens like Meta and YouTube inside Google Ads do not serve CM360 tags in the same way, so plan click trackers or platform data for them. Write how you will report those channels.",
+        "Add a RACI for ad ops: media agency, publishers, creative agency, Voltra ad ops. Keep the SOP under five pages."
+      ],
+      "acceptance": [
+        "The SOP explains the role of an ad server and first-party vs third-party serving.",
+        "The hierarchy diagram is correct from account to creative and names the other objects.",
+        "Ad types, including click trackers and default ads, are explained with when to use them.",
+        "The naming rules have examples, and the workflow has at least ten steps with checks.",
+        "The limits and the RACI are included."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-801 CM360 SOP`",
+        "Screenshot on Google Drive of your `mk-cm360` lab tour result and your Skillshop progress"
+      ],
+      "hints": [
+        "A placement is the deal with one site for one size or format. The ad decides which creative fills it.",
+        "Keep the SOP short. Put long lists in a linked sheet.",
+        "If the Help Center uses a newer name for a menu, use the Help Center name."
+      ],
+      "explain": {
+        "en": "In this task I wrote Voltra's Campaign Manager 360 SOP. I explained why we use an ad server: one neutral count across publishers, central creative control and Floodlight conversions. I drew the structure from account and advertiser down to campaign, placement, ad and creative, and explained default ads and click trackers. I wrote naming rules with examples and a ten-step workflow from media plan to live tags with quality checks. I also wrote the limits for walled gardens and a RACI for ad ops."
+      },
+      "vocabulary": [
+        { "term": "ad server", "en": "a system that delivers the ad creative and counts impressions and clicks in one neutral way" },
+        { "term": "placement", "en": "one ad position bought on one site, with a size or format and a price" },
+        { "term": "creative", "en": "the actual ad file, like an HTML5 banner or a video" },
+        { "term": "default ad", "en": "an ad that serves when no other ad matches, so a placement is never empty" },
+        { "term": "click tracker", "en": "a tracking ad that only counts the click when the publisher shows the creative" },
+        { "term": "trafficking", "en": "setting up placements, ads and creatives in the ad server and sending tags to publishers" }
+      ],
+      "interview": [
+        {
+          "q": "Why does an advertiser need an ad server like CM360?",
+          "a": "Every publisher counts impressions and clicks in its own way, so the numbers do not add up. An ad server gives one neutral count across all sites, controls which creative serves, and connects to Floodlight for conversions with de-duplication. It also gives verification, reach and path to conversion reports across publishers. For a brand with many direct deals, it is the backbone of display measurement."
+        },
+        {
+          "q": "Explain the CM360 hierarchy.",
+          "a": "Under the account, each advertiser has campaigns. A campaign has placements, and each placement is one site, one size or format and one pricing. Ads decide which creatives serve in which placements, with dates and rotation, and the creative is the actual file. The Floodlight configuration sits at advertiser level and measures conversions for all its campaigns."
+        },
+        {
+          "q": "When do you use a click tracker?",
+          "a": "I use a click tracker when the publisher serves the creative itself, for example a native unit, a sponsored article or a newsletter. The click goes through CM360 and then to the landing page, so we count the click and can credit Floodlight conversions to it. We do not get CM360 impression counts or verification for that unit. I write that limit in the plan so reports are read correctly."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help: Overview of Campaign Manager 360", "url": "https://support.google.com/campaignmanager/answer/2709362" },
+        { "title": "Campaign Manager 360 Help: Trafficking workflow", "url": "https://support.google.com/campaignmanager/answer/3419088" },
+        { "title": "Skillshop: Campaign Manager 360 training", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    },
+    {
+      "id": "m08-t02",
+      "key": "MKT-802",
+      "type": "task",
+      "title": "Build the trafficking sheet for the Glide launch",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The Glide launch has a complete trafficking sheet: placements, ads, creatives, landing pages, URL suffix, click trackers and the tag notes each publisher needs.",
+      "context": "Hi, the media agency sent the Glide launch plan: six publishers, display, video and one newsletter. Publishers want tags by Thursday. Please build the trafficking sheet so we can traffic in one go, and add clear notes so the publishers set our tags up right.",
+      "steps": [
+        "First do the trafficking part of the `mk-cm360` lab (menu `Practice`): create placements, assign creatives and export tags in the simulator. Save your score.",
+        "Create a Google Sheet `MKT-802 Glide trafficking`. Tab `Plan` with the media plan: publisher, format, size, start, end, pricing (CPM, CPC, flat), units (impressions or clicks), rate, audience or section. Use six publishers: two news sites, one auto portal, one app network, one video publisher, one newsletter.",
+        "Tab `Placements`: one row per site, size and pricing, with the placement name from your SOP, compatibility (display, in-app display, in-stream video, or tracking for click trackers), tag format (iframe or JavaScript for display, VAST for in-stream video, click tracker for the newsletter), dates, cost structure and units. Group them in placement groups or packages where the deal is one price.",
+        "Tab `Creatives`: creative name, type (HTML5 zip, image, VAST video), size, file size limit from the publisher, click tag check for HTML5 (the `clickTag` variable must be used, not a hard-coded URL), and SSL check.",
+        "Tab `Ads`: ad name, type (standard, default, click tracker), placements assigned, creatives assigned, rotation (even, weighted or sequential for a story), dates, landing page.",
+        "Tab `Landing pages`: final URL per ad and a URL suffix with UTM parameters for GA4, for example `utm_source=cm360&utm_medium=display&utm_campaign=voltra_glide_launch&utm_content=%epid!_%ecid!`. Write what the CM360 macros do: `%epid!` inserts the placement ID and `%ecid!` the creative ID at click time. Add `%esid!` (site ID) where useful.",
+        "Tab `Tag notes`: for each publisher, write how they set up our tag. Display tags contain `ord=[timestamp]` as a cache-buster. The publisher must replace `[timestamp]` with their own random number macro, for example `%%CACHEBUSTER%%` in Google Ad Manager, so every impression makes a fresh request. To count the publisher's click and ours, they add their click macro, for example `%%CLICK_URL_UNESC%%`, in front of our click URL. For in-app placements, the device ID and limit ad tracking fields (`dc_rdid`, `dc_lat`) must be filled by the app macro. For any EU publisher, the `gdpr` and `gdpr_consent` parameters must be filled.",
+        "Write the newsletter click tracker: a tracking ad in CM360 gives a click URL that starts with `https://ad.doubleclick.net/ddm/trackclk/`. The newsletter links to it, and CM360 redirects to the landing page. Note that no impressions are counted.",
+        "Add a pre-launch QA tab: test each click URL in Incognito (lands on the right page with UTMs and the `dclid` or click parameters), check sizes and dates, check the default ad, and check that the first impressions appear in CM360 within 48 hours.",
+        "Write a short email to publishers with the tags attached and the three most important notes (cache-buster, click macro, dates)."
+      ],
+      "acceptance": [
+        "The lab trafficking part in this app is finished.",
+        "The sheet has the tabs `Plan`, `Placements`, `Creatives`, `Ads`, `Landing pages`, `Tag notes` and `QA`.",
+        "Every placement has a compatibility, tag format, pricing and dates that match the plan.",
+        "The URL suffix uses CM360 macros correctly, and the tag notes explain `[timestamp]`, `%%CACHEBUSTER%%` and the click macro.",
+        "The newsletter is set up as a click tracker with its limit written."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `MKT-802 Glide trafficking`",
+        "Link to the publisher email draft (Google Doc)",
+        "Screenshot on Google Drive of your `mk-cm360` trafficking score"
+      ],
+      "hints": [
+        "`%%CACHEBUSTER%%` is a publisher ad server macro (Google Ad Manager), not a CM360 macro. CM360 tags only hold the `[timestamp]` placeholder.",
+        "If a publisher does not replace `[timestamp]`, browsers may cache the tag and impressions will be under-counted.",
+        "HTML5 creatives must use the click tag so CM360 can track the click and set the landing page."
+      ],
+      "explain": {
+        "en": "In this task I built the trafficking sheet for the Glide launch with six publishers. I listed placements with compatibility, tag format, pricing and dates, and planned creatives, ads, rotation and landing pages. I added a URL suffix with UTM parameters and CM360 macros for placement and creative IDs. I wrote tag notes for each publisher: replace the timestamp with their cache-buster macro, add their click macro, and fill in-app and consent fields. I set the newsletter up as a click tracker and added a QA tab and a publisher email."
+      },
+      "vocabulary": [
+        { "term": "trafficking sheet", "en": "a sheet that lists every placement, ad, creative and landing page for a campaign" },
+        { "term": "cache-buster", "en": "a random number in the tag so the browser makes a new request every time" },
+        { "term": "macro", "en": "a placeholder in a tag or URL that the ad server fills with a real value" },
+        { "term": "click tag", "en": "the variable an HTML5 creative uses for its click, so the ad server can track it" },
+        { "term": "VAST", "en": "the standard format for video ad tags in video players" }
+      ],
+      "interview": [
+        {
+          "q": "What do you check before you send tags to publishers?",
+          "a": "I check that placements match the media plan in size, dates and pricing, and that each placement has a default ad. I click every ad in Incognito to confirm the landing page and parameters. I check creatives for the click tag and SSL. I send clear notes on the cache-buster and the click macro, because most delivery problems come from tags set up wrong on the publisher side."
+        },
+        {
+          "q": "What is a cache-buster and why does it matter?",
+          "a": "A cache-buster is a random value in the tag, in CM360 tags the `ord=[timestamp]` part. The publisher replaces it with their random macro, for example `%%CACHEBUSTER%%` in Google Ad Manager. Without it, the browser can reuse a cached response, so we under-count impressions and see gaps against the publisher. I always check it in the first-day delivery report."
+        },
+        {
+          "q": "How do you connect CM360 clicks to GA4?",
+          "a": "I add a URL suffix with UTM parameters at campaign or ad level, so GA4 sees the right source, medium and campaign. I use CM360 macros such as placement and creative IDs in `utm_content` to break results down. Where GA4 and CM360 are linked through the Google Marketing Platform, GA4 can also show CM360 dimensions. I keep the UTM naming the same as in our other channels."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help: Trafficking workflow", "url": "https://support.google.com/campaignmanager/answer/3419088" },
+        { "title": "Campaign Manager 360 Help: Mobile trafficking guidelines", "url": "https://support.google.com/campaignmanager/answer/3285848" }
+      ]
+    },
+    {
+      "id": "m08-t03",
+      "key": "MKT-803",
+      "type": "task",
+      "title": "Build and test Floodlight counter and sales tags in GTM",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The Floodlight activities planned in MKT-702 are specified for CM360 and built in a GTM container with the right counting methods, variables and order IDs, and tested in the browser.",
+      "context": "Hi, SA360 and DV360 both need Floodlight, and we want one clean set of tags on the website. Please turn the Floodlight plan into a build spec, set up the tags in GTM and prove that each one sends the right data once.",
+      "steps": [
+        "First do the Floodlight part of the `mk-cm360` lab (menu `Practice`): set counter and sales activities and see how each counting method counts the same user journey.",
+        "Open your sheet from MKT-702 and add tab `Build spec`: activity group, group tag string (`type`), activity name, activity tag string (`cat`), counting method, custom variables, value source, order ID source, trigger. Example: group `vltrl0` (Voltra Leads), activity `testr0` (Test Ride Request, counter, unique); group `vltrs0` (Voltra Sales), activity `bookg0` (Booking Deposit, sales, transactions).",
+        "Write the counting methods in your own words with one example each. Counter: Standard (every time), Unique (one per user per day), Per session (one per session). Sales: Transactions (each transaction with its revenue; use a unique order ID), Items sold (counts the quantity).",
+        "Write the lookback windows (default 30 days for clicks and for impressions, can be changed per configuration or activity) and how CM360 credits a conversion: a click wins over an impression; inside each the latest one counts in standard reports.",
+        "Use the free GTM container from m03 (a practice site or a demo page you control). Create GTM variables: `DLV - booking_id`, `DLV - value`, `DLV - model`, `DLV - city`. Push a test `dataLayer` event `test_ride_request` and `booking_deposit` with these fields from your demo page.",
+        "Create the tags. In GTM choose the tag type `Floodlight Counter` for the test ride: Advertiser ID `1234567` (a practice ID), group tag string `vltrl0`, activity tag string `testr0`, counting method `Unique`, custom variable `u1` = `{{DLV - model}}`. Then a `Floodlight Sales` tag for the booking: counting method `Transactions`, `Revenue` = `{{DLV - value}}`, `Order ID` = `{{DLV - booking_id}}`, `u1` and `u2`.",
+        "Use custom event triggers on `test_ride_request` and `booking_deposit`, not page view triggers on the thank-you page. Write why: page reloads and back buttons fire page view triggers again.",
+        "Add consent: the tags fire only with the right consent state from your Consent Mode v2 set-up (m03). Check the built-in consent settings on each tag.",
+        "Test in GTM `Preview` with Tag Assistant: each tag fires once per event. In Chrome DevTools → `Network`, filter `doubleclick` and read the request: `type=vltrl0`, `cat=testr0`, `u1=Glide`, `ord=` with the booking ID on the sales tag and a random number on the counter tag. The practice advertiser ID will not record data; you are testing the request.",
+        "Write a short QA table: activity, expected requests per event, seen requests, parameters correct (yes or no), screenshot link."
+      ],
+      "acceptance": [
+        "The lab Floodlight part in this app is finished.",
+        "The build spec lists every activity with group and activity tag strings, counting method, variables, value and order ID.",
+        "The GTM container has a Floodlight Counter and a Floodlight Sales tag on custom event triggers with consent settings.",
+        "The Network test shows one request per event with correct `type`, `cat`, `u` and `ord` values.",
+        "The QA table is complete."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the `Build spec` and QA tabs",
+        "Screenshot on Google Drive of the GTM tags and triggers",
+        "Screenshot on Google Drive of the Network requests in Chrome DevTools"
+      ],
+      "hints": [
+        "On sales tags `ord` is the order ID. On counter tags `ord` is a random number. Do not mix them up.",
+        "Tag strings in CM360 are short codes; in a real account you copy them from the activity in CM360, you do not invent them.",
+        "If the Network tab shows nothing, check that the trigger event name matches the `dataLayer` event exactly."
+      ],
+      "explain": {
+        "en": "In this task I turned the Floodlight plan into a build spec and built the tags in Google Tag Manager. I chose Unique counting for test ride requests and Transactions with an order ID for bookings, and I passed the model and city in custom variables without personal data. I used custom event triggers instead of thank-you page views, so a reload does not count again. I added consent settings, then tested every tag in Preview and in the Chrome Network tab. Each event sent one request with the right group, activity, variables and order ID."
+      },
+      "vocabulary": [
+        { "term": "counter activity", "en": "a Floodlight activity that counts actions like leads, without revenue" },
+        { "term": "sales activity", "en": "a Floodlight activity that counts transactions with revenue and an order ID" },
+        { "term": "counting method", "en": "the rule for how often one user's action is counted" },
+        { "term": "ord parameter", "en": "the order ID on sales tags, or a random number on counter tags" },
+        { "term": "lookback window", "en": "how many days after a click or impression a conversion can still be credited" }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between counter and sales activities?",
+          "a": "Counter activities count actions such as leads or sign-ups, and the counting method decides how often: every time, once per user per day, or once per session. Sales activities count transactions with revenue, and I always pass a unique order ID so duplicates can be removed. For Voltra, test ride requests are counter with Unique, and bookings are sales with Transactions. I choose the method by asking what the business wants to count."
+        },
+        {
+          "q": "How do you test a Floodlight tag?",
+          "a": "I use GTM Preview with Tag Assistant to see that the tag fires once on the right event. Then I check the request in the browser Network tab for the group and activity strings, the custom variables, the revenue and the order ID. After go-live I compare Floodlight counts with the CRM for a few days. I write the result in a QA table so others can repeat the test."
+        },
+        {
+          "q": "Why fire Floodlight on a custom event and not on the thank-you page?",
+          "a": "A thank-you page can load many times: refresh, back button, bookmarks or emails that link to it. A page view trigger counts each load, which inflates conversions. A custom event from the booking confirmation fires once, with the order ID. That makes the count match real business events."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help: How Floodlight counts conversions", "url": "https://support.google.com/campaignmanager/answer/2823400" },
+        { "title": "Campaign Manager 360 Help: Custom Floodlight variables", "url": "https://support.google.com/campaignmanager/answer/2823222" },
+        { "title": "Campaign Manager 360 Help: Use Chrome Developer Tools to check tags", "url": "https://support.google.com/campaignmanager/answer/2828688" }
+      ]
+    },
+    {
+      "id": "m08-t04",
+      "key": "MKT-804",
+      "type": "incident",
+      "lab": "mk-cm360",
+      "title": "Case: Floodlight counts double",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You find why Floodlight shows about twice as many bookings as the CRM, fix the tags and settings, and correct the reports people use.",
+      "context": "Hi, urgent. CM360 and SA360 show 1,840 booking deposits last month. The CRM has 930. The agency is using the Floodlight number to claim a record ROAS, and Finance does not trust any of it. Please find the cause and fix it this week.",
+      "steps": [
+        "First finish the practice lab: open `Practice` → `Campaign Manager 360 trafficking` (`mk-cm360`) in this app and solve the case part. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-804` with a timeline: time, what you checked, what you saw.",
+        "List the usual causes of double counts and how to check each: (1) the same activity fires twice, for example a hard-coded tag on the page and a GTM tag; (2) a page view trigger on a thank-you page that reloads; (3) a sales tag without a unique order ID, so the same booking is counted again; (4) counter method `Standard` where `Unique` was meant; (5) two activities for the same event added together in a custom column or report; (6) both click-through and view-through conversions summed without people knowing; (7) Google Ads counting the same booking from its own tag and from imported Floodlight.",
+        "In the lab, read the Floodlight report by activity and by order ID. Find how many order IDs appear more than once and how many conversions have an empty order ID.",
+        "In the lab page source and tag log, find where the tag fires. Show the duplicate requests with the same `cat` value within seconds.",
+        "Split the numbers: how much comes from duplicates, how much from view-through conversions, and how much from a second activity. Show the math that brings 1,840 close to the CRM number. Explain the gap that remains (bookings cancelled later, test bookings, time zone or lookback differences).",
+        "Write the fix: remove the hard-coded tag and keep only the GTM tag; move the trigger to the custom event; pass the booking ID as `ord`; set the right counting method; add a QA test to every release. Write that changes to counting methods affect future data, not past data.",
+        "Fix the reports: in SA360 and CM360 reports, show click-through and view-through conversions in separate columns; remove the second activity from the booking custom column; add a note on the dashboard for the broken period. In Google Ads, make sure only one booking source is primary.",
+        "Tell Smart Bidding: if SA360 or Google Ads bid on this Floodlight activity, the inflated period trained bidding on wrong data. Plan a data exclusion or a review of targets with the bidding owner.",
+        "Write the report: Summary, Impact (claimed vs real ROAS), Root cause, Fix, Report corrections, Prevention (tag audit every release, weekly Floodlight vs CRM check with a 10 percent alert band)."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your root cause is saved there.",
+        "At least six possible causes are listed with how to check each.",
+        "The numbers are split by cause and close the gap to the CRM, with the remaining gap explained.",
+        "The fix covers tags, triggers, order ID, counting method, reports and bidding.",
+        "The report has a prevention routine with a weekly check and an alert band."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case MKT-804` with the timeline and report",
+        "Screenshot on Google Drive of your finished lab result",
+        "The table that splits the 1,840 conversions by cause (in the doc)"
+      ],
+      "hints": [
+        "Count order IDs: if the same booking ID appears two times, the tag fires twice or the page reloads.",
+        "View-through conversions are not wrong, but they must not be presented as if every one came from a click.",
+        "Always check the page source and GTM together. Many sites have an old hard-coded tag nobody remembers."
+      ],
+      "explain": {
+        "en": "In this case I found why Floodlight showed about twice as many bookings as the CRM. I first finished the CM360 lab and then checked the usual causes one by one. I found a hard-coded tag firing next to the GTM tag, a thank-you page trigger that fired on reload, and view-through conversions added to the same column. I split the numbers by cause and showed how they close the gap to the CRM. I fixed the tags, the order ID and the reports, warned the bidding owner about the wrong data, and set a weekly Floodlight versus CRM check."
+      },
+      "vocabulary": [
+        { "term": "double counting", "en": "when one real conversion is recorded two or more times" },
+        { "term": "hard-coded tag", "en": "a tag written directly in the page code instead of managed in GTM" },
+        { "term": "view-through conversion", "en": "a conversion after someone saw an ad but did not click it" },
+        { "term": "click-through conversion", "en": "a conversion after someone clicked an ad" },
+        { "term": "alert band", "en": "the allowed difference between two numbers before someone must check" }
+      ],
+      "interview": [
+        {
+          "q": "Floodlight shows twice the bookings of the CRM. How do you investigate?",
+          "a": "I check order IDs first: duplicates or empty IDs show if the tag fires twice or the page reloads. Then I look at the page source and GTM for a second tag, and at the trigger type. I also check if view-through conversions or a second activity are added into the same column. I split the gap by cause with numbers, so the fix and the report correction are clear."
+        },
+        {
+          "q": "How do view-through conversions affect reports?",
+          "a": "View-through conversions are credited to an impression without a click within the lookback window. They are useful for display and video, but they over-claim if people read them as if every one came from a click. I always show them in a separate column and test their real value with lift tests. In budget decisions I give them less weight than click-through conversions unless a test proves them."
+        },
+        {
+          "q": "What happens to bidding after a period of inflated conversions?",
+          "a": "Smart Bidding learned from wrong data, so it may have bid too high on traffic that looked better than it was. After fixing the tags, I add a data exclusion for the broken period or review targets with the bidding owner. I watch the strategy for the next learning period. I also tell stakeholders that the ROAS claimed in that period was not real."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help: How Floodlight counts conversions", "url": "https://support.google.com/campaignmanager/answer/2823400" },
+        { "title": "Campaign Manager 360 Help: Use Chrome Developer Tools to check tags", "url": "https://support.google.com/campaignmanager/answer/2828688" }
+      ]
+    },
+    {
+      "id": "m08-t05",
+      "key": "MKT-805",
+      "type": "project",
+      "title": "Design the CM360 reporting pack: verification, reach, path to conversion and attribution",
+      "priority": "medium",
+      "estimateHours": 10,
+      "goal": "Voltra has a reporting pack spec for CM360 that shows media quality, reach and frequency, conversion paths and attribution, with clear rules on how to read each report.",
+      "context": "Hi, the CMO wants to know three things about the Glide launch: did real people see our ads, how many unique people did we reach and how often, and which channels work together before a booking. Please design the reports and tell us how to read them without fooling ourselves.",
+      "steps": [
+        "Replay the reporting part of the `mk-cm360` lab (menu `Practice`) and note the report types you see.",
+        "Create a Google Doc `MKT-805 CM360 reporting pack`. Section 1, verification: viewability with Active View (a display impression is viewable when at least 50 percent of the pixels are on screen for at least one second; for video, 50 percent for two seconds in a row), invalid traffic (impressions and clicks CM360 filters as invalid, for example bots), content and site quality, and geography (impressions outside India). Write which placement compatibility and tag set-up is needed for measurement.",
+        "Design the verification report: by site and placement, measurable rate, viewable rate, invalid traffic rate and out-of-geo rate. Set thresholds (for example viewable rate below 50 percent or invalid traffic above 3 percent → talk to the publisher; repeated → move budget). Write how this links to the insertion orders and make-goods with publishers.",
+        "Section 2, reach and frequency: use the Reach report for unique reach and average frequency by site and for the whole campaign, with de-duplication across sites. Write why reach cannot be added up across sites. Plan a campaign frequency cap in CM360 (for example 3 per user per week), and write its limit: it only works where CM360 serves the creative, not on click trackers or platforms that serve their own ads.",
+        "Section 3, path to conversion: use the Path to conversion report for the `Booking Deposit` activity. Show path length, time to conversion, the most common paths (for example `Video → Display → Search click`) and the share of conversions with view-through touches. Write how SA360 search clicks appear in these paths when Floodlight is shared.",
+        "Section 4, attribution: compare last click, last interaction, position based and data-driven attribution in the Attribution Modeling Tool for one month of the lab data. Write the conditions for data-driven attribution (enough conversions and paths) and why model choice moves credit between channels but does not create sales. Recommend one model for reporting and say how incrementality tests (m12) will check it.",
+        "Section 5, the pack: a list of scheduled reports in CM360 Report Builder (name, type, dimensions, metrics, date range, schedule, recipients), and a plan to send them to BigQuery through the Data Transfer Service (link to m04) for a Looker Studio dashboard. Add a mock-up of the dashboard page with four charts.",
+        "Build the mock-up in Looker Studio with a Google Sheet of sample numbers you make yourself (clearly labelled as sample). One page: viewability by site, reach and frequency, top paths, conversions by attribution model.",
+        "Section 6, reading rules: never add reach across sites; separate click-through and view-through; explain why CM360, GA4 and the CRM differ (cookies, consent, lookback, attribution); show sample size before conclusions.",
+        "Write a one-page summary for the CMO that answers her three questions with what the pack will show."
+      ],
+      "acceptance": [
+        "Verification, reach and frequency, path to conversion and attribution each have a report design with dimensions, metrics and thresholds.",
+        "The Active View definitions and the frequency cap limit are correct.",
+        "The attribution section compares at least four models and states the data-driven conditions.",
+        "The pack lists scheduled reports and the BigQuery and Looker Studio plan.",
+        "A Looker Studio mock-up with sample numbers and a CMO summary exist."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-805 CM360 reporting pack`",
+        "Link to the Looker Studio mock-up and the sample data sheet",
+        "Link to the one-page CMO summary"
+      ],
+      "hints": [
+        "Large display ads have a lower pixel rule for viewability. Check the Help Center for the exact size rule.",
+        "Unique reach in CM360 is an estimate across cookies and devices. Say so in the pack.",
+        "If paths are very short, the lookback window or consent may hide earlier touches. Mention it."
+      ],
+      "explain": {
+        "en": "In this project I designed the Campaign Manager 360 reporting pack for the Glide launch. I planned a verification report with viewability, invalid traffic and out-of-geo rates and set thresholds for action with publishers. I designed reach and frequency reports and a campaign frequency cap, and I wrote its limit on click trackers. I used path to conversion to show how channels work together before a booking, and compared four attribution models. I also planned scheduled reports into BigQuery and built a Looker Studio mock-up with sample data and a summary for the CMO."
+      },
+      "vocabulary": [
+        { "term": "viewability", "en": "whether an ad really had a chance to be seen on the screen" },
+        { "term": "Active View", "en": "Google's technology that measures viewability" },
+        { "term": "invalid traffic", "en": "impressions and clicks from bots or fraud, not from real people" },
+        { "term": "unique reach", "en": "the number of different people who saw the ad at least once" },
+        { "term": "path to conversion", "en": "the list of ad touches a person had before converting" },
+        { "term": "attribution model", "en": "the rule for how to share credit for a conversion between touches" }
+      ],
+      "interview": [
+        {
+          "q": "How do you judge the quality of display media?",
+          "a": "I look at viewability with Active View, invalid traffic and out-of-geo rates by site and placement. I set thresholds, for example viewable rate under 50 percent or invalid traffic above about 3 percent, and talk to the publisher when a site misses them. Repeated misses lead to make-goods or moving budget. Quality comes before cheap CPM."
+        },
+        {
+          "q": "Why can you not add reach across sites?",
+          "a": "The same person often sees ads on several sites. If I add the reach of each site, I count that person many times. The Reach report de-duplicates across sites and gives unique reach and average frequency for the whole campaign. I also say that unique reach is an estimate, because of cookies, devices and consent."
+        },
+        {
+          "q": "Which attribution model do you recommend and why?",
+          "a": "Where we have enough conversions and paths, I prefer data-driven attribution, because it learns credit from real paths instead of fixed rules. I still compare it with last click to see which channels gain or lose credit. Any model only moves credit; it does not prove that a channel created a sale. So I check the main budget decisions with incrementality tests such as geo holdouts."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help Center", "url": "https://support.google.com/campaignmanager" },
+        { "title": "Campaign Manager 360 Help: About Floodlight and Floodlight conversions", "url": "https://support.google.com/campaignmanager/answer/3027419" },
+        { "title": "Skillshop: Campaign Manager 360 training", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    }
+  ]
+}
