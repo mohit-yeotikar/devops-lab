@@ -144,7 +144,7 @@ export function mmmData(seed = 5) {
     spend.yt.push(r() < 0.25 ? 0 : Math.round(6 + r() * 18));
     spend.meta.push(Math.round(8 + r() * 16));
     festive.push(w >= 41 && w <= 45 ? 1 : 0);
-    spend.search.push(Math.round(6 + r() * 8 + festive[w] * 4));
+    spend.search.push(Math.round(2 + r() * 16 + festive[w] * 4));
   }
   const parts = {};
   for (const c of MMM_CH) parts[c.id] = adstock(spend[c.id], MMM_TRUE[c.id].decay).map((a) => MMM_TRUE[c.id].beta * hill(a, MMM_TRUE[c.id].K));

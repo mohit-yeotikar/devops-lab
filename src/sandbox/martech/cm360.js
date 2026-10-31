@@ -357,7 +357,7 @@ export function mount(el, ctx) {
       <label>Export (tab-separated, paste into Google Sheets)<textarea class="mono" rows="4" readonly>${esc(tagSheetTsv(pls, S.macros))}</textarea></label>`;
   }
   function paintFlForm() {
-    const type = $('.fl-type').value;
+    const type = $('.fl-type').value === 'sales' ? 'sales' : 'counter';
     $('.fl-dyn').innerHTML = `<div style="flex:1 1 200px"><label>Counting method<select class="fl-count">${COUNTING[type].map(([v, l]) => opt(v, l)).join('')}</select></label></div>` + (type === 'sales'
       ? `<div style="flex:1 1 200px"><label>ord =<select class="fl-ord">${ORD.map(([v, l]) => opt(v, l)).join('')}</select></label></div>
          <div style="flex:1 1 140px"><label>cost =<select class="fl-cost">${opt('1', '[Revenue] order value')}${opt('', '(not set)')}</select></label></div>

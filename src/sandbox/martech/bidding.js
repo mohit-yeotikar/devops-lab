@@ -157,7 +157,7 @@ export function mount(el, ctx) {
     <section class="card">
       <h3 style="margin-top:0">Campaign settings: Voltra VX1 bookings (Search)</h3>
       <div class="row" style="align-items:flex-end">
-        <div style="flex:1 1 200px"><label>Bid strategy<select class="b-st">${Object.entries(STRATEGIES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></label></div>
+        <div style="flex:1 1 200px"><label>Bid strategy<select class="b-st">${Object.entries(STRATEGIES).map(([k, v]) => `<option value="${k}"${S.cfg.strategy === k ? ' selected' : ''}>${v}</option>`).join('')}</select></label></div>
         <div style="flex:1 1 140px"><label>Daily budget (₹)<input class="b-daily" type="number" min="1000" max="100000" step="500" /></label></div>
         <div style="flex:1 1 130px" class="b-tcpa-w"><label>Target CPA (₹)<input class="b-tcpa" type="number" min="100" max="5000" step="10" /></label></div>
         <div style="flex:1 1 130px" class="b-troas-w"><label>Target ROAS (%)<input class="b-troas" type="number" min="50" max="1000" step="10" /></label></div>
@@ -191,7 +191,7 @@ export function mount(el, ctx) {
     </div>`;
   const $ = (s) => el.querySelector(s);
   const inputs = { st: $('.b-st'), daily: $('.b-daily'), tcpa: $('.b-tcpa'), troas: $('.b-troas') };
-  const fill = () => { inputs.st.value = S.cfg.strategy; inputs.daily.value = S.cfg.daily; inputs.tcpa.value = S.cfg.tcpa; inputs.troas.value = S.cfg.troas; };
+  const fill = () => { inputs.daily.value = S.cfg.daily; inputs.tcpa.value = S.cfg.tcpa; inputs.troas.value = S.cfg.troas; };
   fill();
   const lastCfg = () => (S.weeks.length ? S.weeks[S.weeks.length - 1].cfg : null);
 
