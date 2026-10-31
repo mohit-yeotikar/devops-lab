@@ -36,8 +36,6 @@ curl -i http://localhost:8088/health
 - `docker compose exec app python -c "import socket; print(socket.gethostbyname('postgres'))"`
 - Compare the host in `DATABASE_URL` with the service names in `docker-compose.yml`.
 
-> Hinglish: Database zinda hai, par app galat naam se dhoond raha hai. Naam ka chakkar hai, DNS check karo.
-
 ## Clean up
 
 ```bash

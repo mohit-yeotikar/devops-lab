@@ -39,8 +39,6 @@ curl -i http://localhost:8086/health      # now it fails
 - `docker compose exec postgres psql -U shopnotes -c "select count(*), state from pg_stat_activity group by state;"` (run it early, before all slots are used)
 - Read `app/app.py`: where is a connection opened, and where is it closed?
 
-> Hinglish: Har request nayi DB connection khol rahi hai aur band nahi kar rahi, toh 10 ke baad DB bolega "bas, aur jagah nahi".
-
 ## Clean up
 
 ```bash

@@ -43,8 +43,6 @@ Safety note: the log volume is a 20 MB `tmpfs` (memory). This drill never fills 
 - `docker compose exec app df -h /var/log/shopnotes`
 - `docker compose exec app ls -lh /var/log/shopnotes`
 
-> Hinglish: Disk full ho gaya toh app ek line bhi log nahi likh payega, aur seedha 500 dega. Pehle dekho jagah kisne khaayi.
-
 ## Clean up
 
 ```bash

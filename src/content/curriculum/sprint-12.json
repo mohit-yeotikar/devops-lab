@@ -53,14 +53,13 @@
         "Write the README for a new team member on their first day, not for yourself."
       ],
       "explain": {
-        "en": "In this task I documented the whole ShopNotes platform before handover. I drew the architecture in Mermaid, so it is text in Git and GitHub shows it as a diagram. The diagram has three parts: how code goes from a developer to the cluster, how a user request flows, and the operations tools like monitoring, secrets and backups. I rewrote the README with a quick start and tested it on a fresh clone. I also made one index of all runbooks with the date each one was last tested.",
-        "hi": "Is task mein maine handover se pehle poore ShopNotes platform ko document kiya. Architecture Mermaid mein banaya, isliye woh Git mein text hai aur GitHub use diagram ki tarah dikhata hai. Diagram ke teen hisse hain: code developer se cluster tak kaise jaata hai, user ki request kaise flow hoti hai, aur operations tools jaise monitoring, secrets aur backups. README ko quick start ke saath dobara likha aur fresh clone par test kiya. Saare runbooks ka ek index bhi banaya, har ek ki last tested date ke saath."
+        "en": "In this task I documented the whole ShopNotes platform before handover. I drew the architecture in Mermaid, so it is text in Git and GitHub shows it as a diagram. The diagram has three parts: how code goes from a developer to the cluster, how a user request flows, and the operations tools like monitoring, secrets and backups. I rewrote the README with a quick start and tested it on a fresh clone. I also made one index of all runbooks with the date each one was last tested."
       },
       "vocabulary": [
-        { "term": "Mermaid", "en": "a way to write diagrams as text that GitHub shows as pictures", "hi": "diagrams ko text mein likhne ka tareeka jise GitHub picture ki tarah dikhata hai" },
-        { "term": "handover", "en": "giving your work and knowledge to another person so they can run it", "hi": "apna kaam aur knowledge doosre ko dena taaki woh use chala sake" },
-        { "term": "quick start", "en": "the shortest steps to get the project running", "hi": "project chalane ke sabse chhote steps" },
-        { "term": "docs as code", "en": "keeping documentation in Git next to the code, with reviews", "hi": "documentation ko code ke saath Git mein rakhna, review ke saath" }
+        { "term": "Mermaid", "en": "a way to write diagrams as text that GitHub shows as pictures" },
+        { "term": "handover", "en": "giving your work and knowledge to another person so they can run it" },
+        { "term": "quick start", "en": "the shortest steps to get the project running" },
+        { "term": "docs as code", "en": "keeping documentation in Git next to the code, with reviews" }
       ],
       "interview": [
         { "q": "Can you draw and explain your project architecture?", "a": "Yes. A developer pushes code to GitHub, GitHub Actions tests and scans it, builds an image and writes the new tag into Git. Argo CD syncs the Helm chart to the Kubernetes cluster. Users come through a Traefik Ingress with TLS to the Nginx frontend and the Flask API, which uses Postgres. Prometheus, Grafana and Loki watch everything, and alerts go to Telegram." },
@@ -116,14 +115,13 @@
         "Increase the terminal and browser font size so text is readable in the video."
       ],
       "explain": {
-        "en": "In this task I updated our cost sheet and recorded a 10-minute demo of the platform. The cost sheet shows that the lab costs zero dollars, what it would cost after the free tier, and what a small production setup would cost. In the demo I pushed a live change and showed it going through CI, Argo CD and a rolling update. Then I showed the dashboards, a real alert in Telegram, our security setup and the tested backups. I wrote a script with times first and practised it, so the video was clear and on time.",
-        "hi": "Is task mein maine cost sheet update ki aur platform ka 10 minute ka demo record kiya. Cost sheet dikhati hai ki lab ka kharcha zero dollar hai, free tier ke baad kitna hoga, aur ek chhoti production setup kitne ki hogi. Demo mein maine ek live change push kiya aur dikhaya ki woh CI, Argo CD aur rolling update se kaise jaata hai. Phir dashboards, Telegram mein asli alert, security setup aur tested backups dikhaye. Pehle times ke saath script likhi aur practice ki, isliye video clear aur time par raha."
+        "en": "In this task I updated our cost sheet and recorded a 10-minute demo of the platform. The cost sheet shows that the lab costs zero dollars, what it would cost after the free tier, and what a small production setup would cost. In the demo I pushed a live change and showed it going through CI, Argo CD and a rolling update. Then I showed the dashboards, a real alert in Telegram, our security setup and the tested backups. I wrote a script with times first and practised it, so the video was clear and on time."
       },
       "vocabulary": [
-        { "term": "demo", "en": "a short show of a working system to other people", "hi": "doosron ko chalta hua system dikhane ka chhota show" },
-        { "term": "end to end", "en": "from the first step to the last step, all together", "hi": "pehle step se aakhri step tak, sab saath mein" },
-        { "term": "forecast", "en": "a guess of the future cost based on today's use", "hi": "aaj ke use ke hisaab se aage ke cost ka andaaza" },
-        { "term": "unlisted video", "en": "a video only people with the link can see", "hi": "video jo sirf link wale log dekh sakte hain" }
+        { "term": "demo", "en": "a short show of a working system to other people" },
+        { "term": "end to end", "en": "from the first step to the last step, all together" },
+        { "term": "forecast", "en": "a guess of the future cost based on today's use" },
+        { "term": "unlisted video", "en": "a video only people with the link can see" }
       ],
       "interview": [
         { "q": "How much does your platform cost?", "a": "The lab costs zero dollars per month because I use k3d on my laptop and the AWS free tier, with a zero-spend budget alert. After the free tier, the same small setup would cost a few dollars more. I also calculated a small production setup with the AWS Pricing Calculator. The biggest saving was using k3s instead of EKS." },
@@ -184,14 +182,13 @@
         "Use the same words as the job ad (for example 'CI/CD', 'Kubernetes', 'Terraform') when they are true for you."
       ],
       "explain": {
-        "en": "In this task I prepared to present my work. I wrote a one-page summary of the ShopNotes platform with the problem, what I built, the tools and my real numbers. I wrote a 60-second answer for 'Tell me about your project' and practised it aloud. I wrote one resume bullet per sprint in correct English, each starting with an action verb and ending with a result. I wrote it as a training project, because I want to be honest. I also updated my LinkedIn summary and added the repo and demo video.",
-        "hi": "Is task mein maine apna kaam present karne ki taiyaari ki. ShopNotes platform ka ek page ka summary likha: problem, maine kya banaya, tools aur mere asli numbers. 'Tell me about your project' ke liye 60 second ka answer likha aur zor se bol kar practice ki. Har sprint ke liye sahi English mein ek resume bullet likha, har ek action verb se shuru aur result par khatam. Ise training project likha, kyunki main honest rehna chahta hoon. LinkedIn summary bhi update ki aur repo aur demo video add kiya."
+        "en": "In this task I prepared to present my work. I wrote a one-page summary of the ShopNotes platform with the problem, what I built, the tools and my real numbers. I wrote a 60-second answer for 'Tell me about your project' and practised it aloud. I wrote one resume bullet per sprint in correct English, each starting with an action verb and ending with a result. I wrote it as a training project, because I want to be honest. I also updated my LinkedIn summary and added the repo and demo video."
       },
       "vocabulary": [
-        { "term": "resume bullet", "en": "one short line on a resume that shows one thing you did and the result", "hi": "resume ki ek chhoti line jo ek kaam aur uska result dikhati hai" },
-        { "term": "action verb", "en": "a doing word at the start of a bullet, like Built or Deployed", "hi": "bullet ki shuruaat mein kaam wala shabd, jaise Built ya Deployed" },
-        { "term": "elevator pitch", "en": "a very short talk about you or your project, about 60 seconds", "hi": "apne ya project ke baare mein bahut chhoti baat, lagbhag 60 second" },
-        { "term": "headline", "en": "the short line under your name on LinkedIn", "hi": "LinkedIn par naam ke neeche wali chhoti line" }
+        { "term": "resume bullet", "en": "one short line on a resume that shows one thing you did and the result" },
+        { "term": "action verb", "en": "a doing word at the start of a bullet, like Built or Deployed" },
+        { "term": "elevator pitch", "en": "a very short talk about you or your project, about 60 seconds" },
+        { "term": "headline", "en": "the short line under your name on LinkedIn" }
       ],
       "interview": [
         { "q": "Tell me about yourself.", "a": "I have a B.Sc. and I am a junior DevOps engineer. For the last six months I built a full DevOps platform for a small web app, from Linux and Docker to Kubernetes, GitOps and monitoring on AWS. I also practised incidents, backups and security like a real operations team. I enjoy automating work and I am looking for my first DevOps role." },
@@ -268,14 +265,13 @@
         "Every answer gets stronger with 'In my project I …'."
       ],
       "explain": {
-        "en": "In this task I prepared for DevOps interviews. I wrote my own answers to 30 common questions, from Linux and Git to Kubernetes, GitOps, monitoring, security and cost. For every answer I added a real example from the ShopNotes project. I practised aloud every day and recorded myself to improve. Then I did a 30-minute mock interview, got scores in four areas, and worked on my weakest area.",
-        "hi": "Is task mein maine DevOps interviews ki taiyaari ki. 30 common questions ke apne answers likhe, Linux aur Git se lekar Kubernetes, GitOps, monitoring, security aur cost tak. Har answer mein ShopNotes project ka ek asli example joda. Roz zor se bol kar practice ki aur khud ko record karke improve kiya. Phir 30 minute ka mock interview diya, chaar areas mein score mila, aur sabse kamzor area par kaam kiya."
+        "en": "In this task I prepared for DevOps interviews. I wrote my own answers to 30 common questions, from Linux and Git to Kubernetes, GitOps, monitoring, security and cost. For every answer I added a real example from the ShopNotes project. I practised aloud every day and recorded myself to improve. Then I did a 30-minute mock interview, got scores in four areas, and worked on my weakest area."
       },
       "vocabulary": [
-        { "term": "mock interview", "en": "a practice interview that feels like the real one", "hi": "practice interview jo asli interview jaisa lagta hai" },
-        { "term": "STAR method", "en": "answer story questions with Situation, Task, Action, Result", "hi": "kahani wale sawaalon ka jawab Situation, Task, Action, Result se dena" },
-        { "term": "follow-up question", "en": "a second question that goes deeper into your answer", "hi": "doosra sawaal jo aapke jawab mein aur gehraai tak jaata hai" },
-        { "term": "feedback", "en": "comments from others on what was good and what to improve", "hi": "doosron ke comments ki kya achha tha aur kya improve karna hai" }
+        { "term": "mock interview", "en": "a practice interview that feels like the real one" },
+        { "term": "STAR method", "en": "answer story questions with Situation, Task, Action, Result" },
+        { "term": "follow-up question", "en": "a second question that goes deeper into your answer" },
+        { "term": "feedback", "en": "comments from others on what was good and what to improve" }
       ],
       "interview": [
         { "q": "What do you do when you do not know the answer to a question?", "a": "I say honestly that I have not used it yet. Then I explain how I would find out, for example the official docs, a small test in my lab, or asking a senior. If I know something close, I connect it to that. Interviewers like honesty more than guessing." },
@@ -334,15 +330,14 @@
         "Keep the GitHub repo public (without secrets) so you can show it in interviews."
       ],
       "explain": {
-        "en": "In this final project I handed over the ShopNotes platform to another engineer. I wrote a handover document with access, daily tasks, open risks and costs, without any secrets inside. I tagged the final release v1.0.0 with a CHANGELOG. In the handover session I showed the system first, and then the new engineer did six real tasks alone, like a deploy, a log search and a restore, while I only watched. I fixed the docs where they got stuck, transferred all access, rotated my keys, cleaned up resources to keep the cost at zero, and got a written sign-off.",
-        "hi": "Is final project mein maine ShopNotes platform ek doosre engineer ko handover kiya. Ek handover document likha jisme access, daily tasks, open risks aur costs hain, bina kisi secret ke. Final release ko CHANGELOG ke saath v1.0.0 tag kiya. Handover session mein pehle maine system dikhaya, phir naye engineer ne chhe asli tasks akele kiye, jaise deploy, log search aur restore, aur main sirf dekhta raha. Jahan woh atke wahan docs fix kiye, saara access transfer kiya, apni keys rotate ki, cost zero rakhne ke liye resources clean kiye, aur likha hua sign-off liya."
+        "en": "In this final project I handed over the ShopNotes platform to another engineer. I wrote a handover document with access, daily tasks, open risks and costs, without any secrets inside. I tagged the final release v1.0.0 with a CHANGELOG. In the handover session I showed the system first, and then the new engineer did six real tasks alone, like a deploy, a log search and a restore, while I only watched. I fixed the docs where they got stuck, transferred all access, rotated my keys, cleaned up resources to keep the cost at zero, and got a written sign-off."
       },
       "vocabulary": [
-        { "term": "sign-off", "en": "a written OK from the person who accepts the work", "hi": "kaam accept karne wale insaan ka likha hua OK" },
-        { "term": "release tag", "en": "a Git tag like v1.0.0 that marks a fixed version", "hi": "Git tag jaise v1.0.0 jo ek fixed version mark karta hai" },
-        { "term": "access transfer", "en": "giving accounts and rights to the new owner and removing old ones", "hi": "naye owner ko accounts aur rights dena aur purane hatana" },
-        { "term": "retro", "en": "a meeting or note about what went well and what to improve", "hi": "meeting ya note ki kya achha gaya aur kya improve karna hai" },
-        { "term": "bus factor", "en": "how many people must leave before nobody knows how the system works", "hi": "kitne logon ke jaane se koi bhi system chalana nahi jaanega" }
+        { "term": "sign-off", "en": "a written OK from the person who accepts the work" },
+        { "term": "release tag", "en": "a Git tag like v1.0.0 that marks a fixed version" },
+        { "term": "access transfer", "en": "giving accounts and rights to the new owner and removing old ones" },
+        { "term": "retro", "en": "a meeting or note about what went well and what to improve" },
+        { "term": "bus factor", "en": "how many people must leave before nobody knows how the system works" }
       ],
       "interview": [
         { "q": "How do you hand over a system to another engineer?", "a": "I write a handover document with access, environments, regular tasks, open risks and costs. Then I show the system, and after that the new person does the main tasks alone while I watch. I fix the docs where they get stuck. At the end I transfer access, rotate my personal keys and get a written sign-off." },

@@ -14,6 +14,7 @@ Live: https://devops-lab.mohityeotikar.workers.dev (Cloudflare Workers + D1 + Wo
 | 8 incident drills (Docker Compose, single root cause, hidden solution) | `drills/<name>/` |
 | Login, sessions, roles (trainee / admin), ticket board, work log | `src/pages/app/*`, `src/pages/api/*`, `db/migrations` |
 | AI coach: explanation grading, English corrections, chat, interview and drill grading | `src/lib/ai.ts`, `src/pages/api/coach.ts`, `interview.ts`, `drill.ts` |
+| Practice terminal: 9 browser labs (Linux, logs, services, Git, Docker, Compose, 3 incidents), tasks checked live, hints, quiz | `src/sandbox/`, `/app/practice` |
 | Public portfolio | `/u/<handle>` |
 | Admin: review queue, trainee pages, experience letter | `/admin`, `/admin/letter/<id>` |
 
@@ -48,13 +49,13 @@ pnpm exec wrangler secret put ANTHROPIC_API_KEY   # optional, enables Claude
 
 ## Trainee flow
 
-Printable step-by-step guide for trainees (simple English + Hindi lines, with screenshots):
+Printable step-by-step guide for trainees (simple English, with screenshots):
 [`docs/trainee-guide.pdf`](docs/trainee-guide.pdf). Source: `docs/trainee-guide.html`; re-render with Chromium (`page.pdf`, A4).
 
-1. Sign up, open Sprint 1, start the first ticket.
+1. Sign up. Do the first practice lab, then open Sprint 1 and start the first ticket.
 2. Do the steps on a laptop with Docker and a free AWS account (nothing in the curriculum costs money).
 3. Log hours, tick the acceptance list, submit links and notes as proof.
-4. Write the explanation in their own words. The coach scores it, corrects the English and gives a script to say in interviews. Hindi helper lines can be switched off in the profile.
+4. Write the explanation in their own words. The coach scores it, corrects the English and gives a script to say in interviews.
 5. Once a week: one incident drill and one mock interview.
 6. A reviewer approves or asks for changes. Approved work appears on the portfolio.
 

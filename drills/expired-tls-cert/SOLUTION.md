@@ -52,5 +52,3 @@ A: `curl -k` tells curl to skip all certificate checks, so it hides the problem 
 ## Explain it (script)
 
 **English:** "Customers saw 'connection not private'. curl said 'certificate has expired', and openssl showed the notAfter date was 1 October 2025. The certificate was never renewed. I created a new certificate valid for one year, tested the Nginx config, and reloaded Nginx. Now HTTPS works without -k. Next, we will automate renewal and add an expiry alert 30 days before."
-
-**Hindi / Hinglish:** "Customers ko 'connection not private' dikh raha tha. curl ne bola 'certificate has expired', aur openssl me notAfter date 1 October 2025 thi. Certificate renew hi nahi hua tha. Maine ek saal ka naya certificate banaya, Nginx config test kiya aur Nginx reload kiya. Ab HTTPS bina -k ke chal raha hai. Aage renewal automate karenge aur expiry se 30 din pehle alert lagayenge."

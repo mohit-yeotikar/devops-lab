@@ -4,6 +4,8 @@ import Base from '../../../layouts/Base.astro';
 import TicketCard from '../../../components/TicketCard.astro';
 import { sprintById } from '../../../lib/curriculum';
 import { progressFor } from '../../../lib/db';
+import { labs } from '../../../sandbox/labs.js';
+const sprintLabs = labs.filter((l) => l.sprints.includes(Astro.params.id!));
 const s = sprintById(Astro.params.id!);
 if (!s) return new Response('Not found', { status: 404 });
 const prog = await progressFor(env.DB, Astro.locals.user!.id);
@@ -14,6 +16,7 @@ const prog = await progressFor(env.DB, Astro.locals.user!.id);
   <p class="sub">Weeks {s.weeks} · {s.theme}</p>
   <div class="card"><h3 style="margin-top:0">What you do in this sprint</h3><p>{s.jobStory}</p>
     <h3>When you finish, you can say:</h3><ul class="steps">{s.outcomes.map((o) => <li>{o}</li>)}</ul></div>
+  {sprintLabs.length > 0 && <div class="notice"><strong>Practise first:</strong> {sprintLabs.map((l, i) => <>{i > 0 && ' · '}<a href={`/app/practice/${l.id}`}>{l.title}</a></>)}. Each lab takes 15 to 25 minutes in the browser.</div>}
   <h2>Tickets</h2>
   <div class="grid">{s.tickets.map((t) => <TicketCard t={t} p={prog.get(t.id)} />)}</div>
 </Base>

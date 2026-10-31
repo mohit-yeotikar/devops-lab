@@ -1,53 +1,90 @@
 ---
 import { env } from '../../lib/env';
 import Base from '../../layouts/Base.astro';
-import TicketCard from '../../components/TicketCard.astro';
 import { sprints, tickets } from '../../lib/curriculum';
-import { progressFor, hoursFor } from '../../lib/db';
+import { progressFor, hoursFor, practiceRuns } from '../../lib/db';
+import { labs } from '../../sandbox/labs.js';
 const u = Astro.locals.user!;
 const db = env.DB;
-const prog = await progressFor(db, u.id);
-const hrs = await hoursFor(db, u.id);
-const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
+const [prog, hrs, runs] = await Promise.all([progressFor(db, u.id), hoursFor(db, u.id), practiceRuns(db, u.id)]);
+const st = (id: string) => prog.get(id)?.status ?? 'todo';
+const done = tickets.filter((t) => st(t.id) === 'done');
 const pct = Math.round((done.length / tickets.length) * 100);
-const active = tickets.filter((t) => ['doing', 'changes'].includes(prog.get(t.id)?.status ?? ''));
-const inReview = tickets.filter((t) => prog.get(t.id)?.status === 'review');
-const next = tickets.find((t) => !prog.get(t.id) || prog.get(t.id)!.status === 'todo');
-const curSprint = sprints.find((s) => s.tickets.some((t) => prog.get(t.id)?.status !== 'done')) ?? sprints.at(-1);
-const welcome = Astro.url.searchParams.has('welcome');
+const active = tickets.find((t) => ['changes', 'doing'].includes(st(t.id)));
+const next = tickets.find((t) => st(t.id) === 'todo');
+const focus = active ?? next;
+const inReview = tickets.filter((t) => st(t.id) === 'review').length;
+const cur = sprints.find((s) => s.tickets.some((t) => st(t.id) !== 'done')) ?? sprints.at(-1)!;
 const days = u.started_at ? Math.max(1, Math.ceil((Date.now() - new Date(u.started_at.replace(' ', 'T') + 'Z').getTime()) / 86400_000)) : 0;
+const labsDone = new Set(runs.map((r) => r.lab));
+const sprintLab = labs.find((l) => l.sprints.includes(cur.id) && !labsDone.has(l.id));
+const nextLabs = labs.filter((l) => !labsDone.has(l.id)).slice(0, 3);
+const hour = new Date().getUTCHours() + 5.5;
+const greet = hour % 24 < 12 ? 'Good morning' : hour % 24 < 17 ? 'Good afternoon' : 'Good evening';
+const first = u.name.split(' ')[0];
+const welcome = Astro.url.searchParams.has('welcome');
 ---
 <Base title="Home">
-  {welcome && <div class="notice ok"><strong>Welcome, {u.name.split(' ')[0]}!</strong> Start with Sprint 1. Read the ticket, do the steps on your laptop, log your hours, then submit your proof. <span class="hi">Ticket padho, laptop pe steps karo, hours likho, proof submit karo.</span></div>}
-  <h1>Hello, {u.name.split(' ')[0]}</h1>
-  <p class="sub">{curSprint ? <>You are in <strong>Sprint {curSprint.number}: {curSprint.title}</strong>.</> : 'All sprints done!'} </p>
-  <div class="grid">
-    <div class="card"><div class="stat">{pct}%<small>{done.length} of {tickets.length} tickets done</small></div><div class="bar" style="margin-top:8px"><i style={`width:${pct}%`}></i></div></div>
-    <div class="card"><div class="stat">{hrs.h.toFixed(1)} h<small>logged on {hrs.days} working days</small></div></div>
-    <div class="card"><div class="stat">{inReview.length}<small>waiting for review</small></div></div>
-    <div class="card"><div class="stat">{days} {days === 1 ? 'day' : 'days'}<small>since you started</small></div></div>
+  {welcome && <div class="notice ok"><strong>Welcome, {first}.</strong> Your first step is below. Read the ticket, do the steps on your laptop, log your hours, then submit your proof.</div>}
+  <div class="hello">
+    <div>
+      <h1>{greet}, {first}</h1>
+      <p class="sub">Sprint {cur.number} of {sprints.length}: {cur.title}</p>
+    </div>
+    {days > 0 && <span class="pill">Day {days}</span>}
   </div>
 
-  {active.length > 0 && <><h2>Continue working</h2><div class="grid">{active.map((t) => <TicketCard t={t} p={prog.get(t.id)} />)}</div></>}
-  {next && <><h2>Next ticket</h2><div class="grid"><TicketCard t={next} p={prog.get(next.id)} /></div></>}
+  {focus && (
+    <section class="card focus">
+      <div>
+        <p class="eyebrow">{active ? (st(active.id) === 'changes' ? 'Fix needed' : 'Continue') : 'Your next ticket'}</p>
+        <h2>{focus.key} · {focus.title}</h2>
+        <p>{focus.goal}</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href={`/app/tickets/${focus.id}`}>{active ? 'Open ticket' : 'Start ticket'}</a>
+        {sprintLab && <a class="btn sec" href={`/app/practice/${sprintLab.id}`}>Practise first</a>}
+      </div>
+    </section>
+  )}
 
-  <h2>Today's plan</h2>
+  <div class="stats">
+    <div class="card"><div class="stat">{pct}%<small>{done.length} of {tickets.length} tickets approved</small></div><div class="bar" style="margin-top:10px"><i style={`width:${pct}%`}></i></div></div>
+    <div class="card"><div class="stat">{hrs.h.toFixed(1)} h<small>logged on {hrs.days} {hrs.days === 1 ? 'day' : 'days'}</small></div></div>
+    <div class="card"><div class="stat">{inReview}<small>waiting for review</small></div></div>
+    <div class="card"><div class="stat">{labsDone.size}/{labs.length}<small>practice labs finished</small></div></div>
+  </div>
+
+  <div class="two">
+    <section class="card">
+      <h3 style="margin-top:0">Every working day</h3>
+      <ol class="week">
+        <li><span class="n">1</span><p>Open your ticket. Work 2 to 4 hours on your laptop.</p></li>
+        <li><span class="n">2</span><p>When you stop, log your hours in <strong>Proof &amp; hours</strong>. Be exact.</p></li>
+        <li><span class="n">3</span><p>Write 5 sentences in <strong>Explain it</strong>. Read the corrected text aloud.</p></li>
+        <li><span class="n">4</span><p>Once a week: one <a href="/app/drills">incident drill</a> and one <a href="/app/interview">mock interview</a>.</p></li>
+      </ol>
+    </section>
+    <section class="card">
+      <div class="row between"><h3 style="margin:0">Practice terminal</h3><a class="help" href="/app/practice">All labs</a></div>
+      <p class="help" style="margin:4px 0 8px">Learn a command in the browser before you use it on a real server.</p>
+      <ol class="week">
+        {nextLabs.map((l, i) => <li><span class="n">{i + 1}</span><p><a href={`/app/practice/${l.id}`}>{l.title}</a> <span class="help">· {l.minutes} min</span></p></li>)}
+        {nextLabs.length === 0 && <li><p>All labs finished. Repeat the incident labs before an interview.</p></li>}
+      </ol>
+    </section>
+  </div>
+
+  <h2>Sprints</h2>
   <div class="card">
-    <ol class="steps">
-      <li>Work 2 to 4 hours on your open ticket. Log the hours when you stop.</li>
-      <li>Write 5 sentences about what you did in the <strong>Explain it</strong> tab. The coach will correct your English.</li>
-      <li>Once a week: do one <a href="/app/drills">incident drill</a> and one <a href="/app/interview">mock interview</a>.</li>
-    </ol>
-    <p class="hi">Roz 2-4 ghante kaam, hours log karo, 5 line English me likho. Hafte me ek incident aur ek mock interview.</p>
-    <p class="help">New here? Read the <a href="https://github.com/mohit-yeotikar/devops-lab/blob/main/docs/trainee-guide.pdf" target="_blank" rel="noopener">step-by-step guide (PDF)</a>.</p>
-  </div>
-
-  <h2>All sprints</h2>
-  <div class="grid">
-    {sprints.map((s) => { const d = s.tickets.filter((t) => prog.get(t.id)?.status === 'done').length; return (
-      <a class="card" href={`/app/sprints/${s.id}`}>
-        <div class="help">Sprint {s.number} · weeks {s.weeks}</div><h3 style="margin:4px 0 8px">{s.title}</h3>
-        <div class="bar"><i style={`width:${Math.round((d / s.tickets.length) * 100)}%`}></i></div><div class="help" style="margin-top:6px">{d}/{s.tickets.length} tickets</div>
-      </a>); })}
+    <ul class="sprint-rows">
+      {sprints.map((s) => { const d = s.tickets.filter((t) => st(t.id) === 'done').length; return (
+        <li><a href={`/app/sprints/${s.id}`} class={s.id === cur.id ? 'cur' : ''}>
+          <span class="num">{String(s.number).padStart(2, '0')}</span>
+          <span class="t">{s.title}</span>
+          <span class="bar"><i style={`width:${Math.round((d / s.tickets.length) * 100)}%`}></i></span>
+          <span class="c">{d}/{s.tickets.length}</span>
+        </a></li>); })}
+    </ul>
   </div>
 </Base>

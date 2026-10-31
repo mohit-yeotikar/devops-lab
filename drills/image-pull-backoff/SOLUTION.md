@@ -59,5 +59,3 @@ A: I create a docker-registry secret with the registry login. Then I add it to t
 ## Explain it (script)
 
 **English:** "The 1.4.2 deploy failed because the image shopnotes-app:1.4.2 did not exist. The build for this tag was never done, so Docker and Kubernetes could not pull it. I built the image from the 1.4.2 source and loaded it, then redeployed. Now the app runs and /health is 200. To prevent this, the pipeline will pass the built tag to the deploy step automatically."
-
-**Hindi / Hinglish:** "1.4.2 ka deploy fail hua kyunki shopnotes-app:1.4.2 image exist hi nahi karti thi. Is tag ka build kabhi hua hi nahi, isliye Docker aur Kubernetes usko pull nahi kar paaye. Maine 1.4.2 ke source se image build ki, cluster me load ki aur redeploy kiya. Ab app chal raha hai aur /health 200 hai. Aage pipeline khud build wala tag deploy step ko dega."

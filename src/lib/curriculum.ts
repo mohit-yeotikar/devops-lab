@@ -1,7 +1,7 @@
 export type Ticket = {
   id: string; key: string; type: 'task' | 'project' | 'incident' | 'docs'; title: string; priority: string; estimateHours: number;
   goal: string; context: string; steps: string[]; acceptance: string[]; evidence: string[]; hints: string[];
-  explain: { en: string; hi: string }; vocabulary: { term: string; en: string; hi: string }[];
+  explain: { en: string }; vocabulary: { term: string; en: string }[];
   interview: { q: string; a: string }[]; resources: { title: string; url: string }[];
   drill?: string;
 };

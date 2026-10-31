@@ -45,3 +45,10 @@ export async function drillResults(db: D1Database, userId: string) {
   const { results } = await db.prepare('SELECT * FROM drill_results WHERE user_id = ? ORDER BY id DESC').bind(userId).all<{ id: number; drill: string; root_cause: string; fix: string; minutes: number | null; verdict: string; feedback: string; created_at: string }>();
   return results;
 }
+export type PracticeRun = { lab: string; commands: number; seconds: number | null; quiz_score: number | null; quiz_total: number | null; created_at: string };
+export async function practiceRuns(db: D1Database, userId: string) {
+  try {
+    const { results } = await db.prepare('SELECT lab, commands, seconds, quiz_score, quiz_total, created_at FROM practice_runs WHERE user_id = ? ORDER BY id DESC').bind(userId).all<PracticeRun>();
+    return results;
+  } catch { return [] as PracticeRun[]; } // table missing until migration 0002 is applied
+}

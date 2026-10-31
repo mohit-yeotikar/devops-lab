@@ -38,8 +38,6 @@ It prints `PASS` when the incident is fixed.
 - `docker compose ps` and `docker compose logs nginx`
 - What port is the app really listening on?
 
-> Hinglish: Bhai, 502 ka matlab Nginx zinda hai, par peeche wala app tak pahunch nahi pa raha. Logs dekho!
-
 ## Clean up
 
 ```bash

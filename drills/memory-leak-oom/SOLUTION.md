@@ -62,5 +62,3 @@ A: With a leak, more memory only makes the crash come later; it does not stop it
 ## Explain it (script)
 
 **English:** "The app was restarting under load. docker inspect showed OOMKilled true, exit code 137. Memory went up about half a megabyte per request and never came down. The cause was a cache in GET /notes with no size limit, and the key had a random number, so every request added a new 512 KB entry. I removed the cache and redeployed. Now memory stays flat during the load test and there are no restarts."
-
-**Hindi / Hinglish:** "Load aane pe app restart ho raha tha. docker inspect me OOMKilled true tha, exit code 137. Har request pe memory lagbhag aadha MB badh rahi thi aur kam nahi ho rahi thi. Wajah thi GET /notes ka cache jisme koi size limit nahi thi, aur key me random number tha, toh har request ek nayi 512 KB entry daal rahi thi. Maine cache hataya aur redeploy kiya. Ab load test me memory flat hai aur koi restart nahi."

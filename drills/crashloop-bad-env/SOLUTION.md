@@ -55,5 +55,3 @@ A: Yes, failing fast is good, because the problem is loud and clear in the logs.
 ## Explain it (script)
 
 **English:** "The app container was restarting again and again, so Nginx gave 502. I read the logs of the crashed container and saw 'invalid dsn'. The DATABASE_URL had a typo: postgressql with an extra s. I corrected it to postgresql and redeployed. Now the container stays up and /health is 200. To prevent this, we will check the config in CI and alert on restarts."
-
-**Hindi / Hinglish:** "App container baar baar restart ho raha tha, isliye Nginx 502 de raha tha. Maine crash hue container ke logs padhe, usme 'invalid dsn' tha. DATABASE_URL me typo tha: postgressql, ek extra s. Maine use postgresql kiya aur redeploy kiya. Ab container chal raha hai aur /health 200 hai. Aage CI me config check karenge aur restart pe alert lagayenge."

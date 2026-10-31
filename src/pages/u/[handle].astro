@@ -1,13 +1,15 @@
 ---
 import { env } from '../../lib/env';
 import Base from '../../layouts/Base.astro';
-import { userByHandle, progressFor, hoursFor, drillResults } from '../../lib/db';
+import { userByHandle, progressFor, hoursFor, drillResults, practiceRuns } from '../../lib/db';
+import { labs, labById } from '../../sandbox/labs.js';
 import { sprints, tickets, ticketById } from '../../lib/curriculum';
 const db = env.DB;
 const u = await userByHandle(db, Astro.params.handle!);
 const me = Astro.locals.user;
 if (!u || (!u.public_portfolio && me?.id !== u.id && me?.role !== 'admin')) return new Response('Not found', { status: 404 });
 const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const drills = await drillResults(db, u.id);
+const labsDone = [...new Set((await practiceRuns(db, u.id)).map((r) => r.lab))].map((id) => labById(id)?.title).filter(Boolean);
 const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
 const projects = done.filter((t) => t.type === 'project');
 const solvedDrills = [...new Set(drills.filter((d) => d.verdict === 'correct').map((d) => d.drill))];
@@ -37,6 +39,7 @@ const { results: scores } = await db.prepare('SELECT score FROM interviews WHERE
     {done.length === 0 && <p class="help">No approved tickets yet.</p>}
   </div>
   {solvedDrills.length > 0 && <><h2>Incidents solved</h2><div class="card"><ul class="steps">{solvedDrills.map((n) => <li>{n.replace(/-/g, ' ')}</li>)}</ul></div></>}
+  {labsDone.length > 0 && <><h2>Practice labs finished</h2><p>{labsDone.map((t) => <span class="pill" style="margin:0 6px 6px 0">{t}</span>)}</p></>}
   {skills.length > 0 && <><h2>Skills demonstrated</h2><p>{skills.map((s) => <span class="pill" style="margin:0 6px 6px 0;text-transform:none">{s}</span>)}</p></>}
   {scores.length > 0 && <p class="help">Recent mock-interview scores: {scores.map((s) => s.score.toFixed(1)).join(', ')} / 10</p>}
 </Base>

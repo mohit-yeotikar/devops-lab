@@ -1,12 +1,14 @@
 ---
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
-import { userById, progressFor, hoursFor, workLog, drillResults } from '../../../lib/db';
+import { userById, progressFor, hoursFor, workLog, drillResults, practiceRuns } from '../../../lib/db';
+import { labById } from '../../../sandbox/labs.js';
 import { sprints } from '../../../lib/curriculum';
 const db = env.DB;
 const u = await userById(db, Astro.params.id!);
 if (!u) return new Response('Not found', { status: 404 });
 const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const log = await workLog(db, u.id, 60); const drills = await drillResults(db, u.id);
+const practice = await practiceRuns(db, u.id);
 const submitBtn = (s: string) => s === 'review';
 ---
 <Base title={u.name}>
@@ -23,5 +25,6 @@ const submitBtn = (s: string) => s === 'review';
       <td>{submitBtn(p?.status ?? '') && <form data-api action="/api/admin/review" method="post" class="row"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="ticket" value={t.id} /><input name="note" placeholder="note" style="max-width:180px" /><button class="btn ok sm" name="decision" value="approve">Approve</button><button class="btn bad sm" name="decision" value="changes">Changes</button></form>}
       {p?.status === 'done' && <form data-api action="/api/admin/review" method="post"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="ticket" value={t.id} /><input type="hidden" name="note" value="Reopened by reviewer." /><button class="btn sec sm" name="decision" value="changes">Reopen</button></form>}</td></tr>); })}</tbody></table></div>)}
   <h2>Incidents</h2><div class="card"><table><tbody>{drills.map((d) => <tr><td>{d.created_at.slice(0, 10)}</td><td>{d.drill}</td><td><span class={`pill ${d.verdict === 'correct' ? 'done' : 'doing'}`}>{d.verdict}</span></td><td>{d.minutes ?? ''} min</td><td class="help">{d.root_cause}</td></tr>)}{drills.length === 0 && <tr><td class="help">None yet.</td></tr>}</tbody></table></div>
+  <h2>Practice labs</h2><div class="card"><table><tbody>{practice.map((r) => <tr><td>{r.created_at.slice(0, 10)}</td><td>{labById(r.lab)?.title ?? r.lab}</td><td>{r.commands} commands</td><td>{r.seconds != null ? Math.round(r.seconds / 60) + ' min' : ''}</td><td>{r.quiz_total ? `quiz ${r.quiz_score}/${r.quiz_total}` : ''}</td></tr>)}{practice.length === 0 && <tr><td class="help">None yet.</td></tr>}</tbody></table></div>
   <h2>Recent work log</h2><div class="card"><table><tbody>{log.map((r) => <tr><td>{r.day}</td><td>{r.hours} h</td><td>{r.ticket_id}</td><td class="help">{r.note}</td></tr>)}</tbody></table></div>
 </Base>

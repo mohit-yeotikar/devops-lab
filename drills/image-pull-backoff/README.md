@@ -46,8 +46,6 @@ kubectl -n shopnotes-imagepull get pods -w     # the app pod shows ErrImagePull 
 - `kubectl -n shopnotes-imagepull describe pod -l app=shopnotes-app` - read the Events.
 - Where should this image come from?
 
-> Hinglish: Image hi nahi mil rahi toh container kaise chalega? Pehle dekho image kahan se aani chahiye thi.
-
 ## Clean up
 
 ```bash

@@ -52,15 +52,14 @@
         "Do not expose Grafana with a public Ingress without a strong password and TLS."
       ],
       "explain": {
-        "en": "In this task I installed the kube-prometheus-stack Helm chart on our k3d cluster. It gives Prometheus for metrics, Grafana for dashboards and Alertmanager for alerts in one install. I turned off the etcd, scheduler and controller manager targets, because k3s runs them in one process and they show as down. I set a short retention so it fits on a laptop. Then I used the built-in dashboards and wrote my first PromQL queries for CPU and memory per pod.",
-        "hi": "Is task mein maine k3d cluster par kube-prometheus-stack Helm chart install kiya. Isse ek hi install mein metrics ke liye Prometheus, dashboards ke liye Grafana aur alerts ke liye Alertmanager mil jaate hain. etcd, scheduler aur controller manager targets off kiye, kyunki k3s inhe ek hi process mein chalata hai aur woh down dikhte hain. Retention chhota rakha taaki laptop par fit ho. Phir built-in dashboards dekhe aur pod ke CPU aur memory ke liye apni pehli PromQL queries likhi."
+        "en": "In this task I installed the kube-prometheus-stack Helm chart on our k3d cluster. It gives Prometheus for metrics, Grafana for dashboards and Alertmanager for alerts in one install. I turned off the etcd, scheduler and controller manager targets, because k3s runs them in one process and they show as down. I set a short retention so it fits on a laptop. Then I used the built-in dashboards and wrote my first PromQL queries for CPU and memory per pod."
       },
       "vocabulary": [
-        { "term": "metric", "en": "a number measured again and again over time, like CPU use", "hi": "ek number jo time ke saath baar-baar measure hota hai, jaise CPU use" },
-        { "term": "Prometheus", "en": "a tool that pulls metrics from targets and stores them", "hi": "tool jo targets se metrics kheenchta hai aur store karta hai" },
-        { "term": "scrape", "en": "when Prometheus reads the metrics page of a target", "hi": "jab Prometheus kisi target ka metrics page padhta hai" },
-        { "term": "PromQL", "en": "the query language of Prometheus", "hi": "Prometheus ki query language" },
-        { "term": "retention", "en": "how long the data is kept before it is deleted", "hi": "data delete hone se pehle kitne time tak rakha jaata hai" }
+        { "term": "metric", "en": "a number measured again and again over time, like CPU use" },
+        { "term": "Prometheus", "en": "a tool that pulls metrics from targets and stores them" },
+        { "term": "scrape", "en": "when Prometheus reads the metrics page of a target" },
+        { "term": "PromQL", "en": "the query language of Prometheus" },
+        { "term": "retention", "en": "how long the data is kept before it is deleted" }
       ],
       "interview": [
         { "q": "What does kube-prometheus-stack install?", "a": "It installs the Prometheus Operator, Prometheus, Alertmanager and Grafana. It also installs node-exporter for node metrics and kube-state-metrics for the state of Kubernetes objects. It comes with ready dashboards and alert rules. So in one Helm install I get a full monitoring setup." },
@@ -114,15 +113,14 @@
         "Use `rate()` only on counters (names ending in `_total` or `_bucket`), never on gauges."
       ],
       "explain": {
-        "en": "In this task I added Prometheus metrics to our Flask API with the prometheus-flask-exporter library. The API now shows request counts and request duration on /metrics. I added a ServiceMonitor to our Helm chart, so Prometheus finds the API by its labels. Then I built a RED dashboard in Grafana: request rate, error percent and the 95th percentile duration. I saved the dashboard as JSON in Git and load it with a ConfigMap, so it is not lost when Grafana restarts.",
-        "hi": "Is task mein maine prometheus-flask-exporter library se Flask API mein Prometheus metrics add kiye. Ab API /metrics par request count aur request duration dikhati hai. Helm chart mein ek ServiceMonitor add kiya, taaki Prometheus labels se API ko dhoondh le. Phir Grafana mein RED dashboard banaya: request rate, error percent aur 95th percentile duration. Dashboard ko JSON ki tarah Git mein save kiya aur ConfigMap se load kiya, taaki Grafana restart hone par bhi kho na jaaye."
+        "en": "In this task I added Prometheus metrics to our Flask API with the prometheus-flask-exporter library. The API now shows request counts and request duration on /metrics. I added a ServiceMonitor to our Helm chart, so Prometheus finds the API by its labels. Then I built a RED dashboard in Grafana: request rate, error percent and the 95th percentile duration. I saved the dashboard as JSON in Git and load it with a ConfigMap, so it is not lost when Grafana restarts."
       },
       "vocabulary": [
-        { "term": "RED method", "en": "watch Rate, Errors and Duration of requests for every service", "hi": "har service ke requests ka Rate, Errors aur Duration dekhna" },
-        { "term": "ServiceMonitor", "en": "a Kubernetes object that tells Prometheus which Service to scrape", "hi": "Kubernetes object jo Prometheus ko batata hai kaunsi Service scrape karni hai" },
-        { "term": "counter", "en": "a metric that only goes up, like total requests", "hi": "metric jo sirf badhta hai, jaise total requests" },
-        { "term": "histogram", "en": "a metric that counts values in buckets, used for durations", "hi": "metric jo values ko buckets mein count karta hai, duration ke liye use hota hai" },
-        { "term": "p95", "en": "95 out of 100 requests are faster than this value", "hi": "100 mein se 95 requests is value se fast hain" }
+        { "term": "RED method", "en": "watch Rate, Errors and Duration of requests for every service" },
+        { "term": "ServiceMonitor", "en": "a Kubernetes object that tells Prometheus which Service to scrape" },
+        { "term": "counter", "en": "a metric that only goes up, like total requests" },
+        { "term": "histogram", "en": "a metric that counts values in buckets, used for durations" },
+        { "term": "p95", "en": "95 out of 100 requests are faster than this value" }
       ],
       "interview": [
         { "q": "What is the RED method?", "a": "RED means Rate, Errors and Duration. For each service I watch how many requests per second come in, how many of them fail, and how long they take. These three numbers show what the user feels. I built one Grafana panel for each of them." },
@@ -175,15 +173,14 @@
         "Promtail is old and replaced by Alloy. Use Alloy for new setups."
       ],
       "explain": {
-        "en": "In this task I set up central logging for the cluster. Grafana Alloy runs in the cluster, finds all pods and sends their logs to Loki. I ran Loki in single binary mode with filesystem storage, because it is a small lab. I changed the API to write JSON logs, so I can filter by status and duration with LogQL. I wrote five useful queries for the team. Now we can read the logs of a pod even after it crashed and was deleted.",
-        "hi": "Is task mein maine cluster ke liye central logging setup ki. Grafana Alloy cluster mein chalta hai, saare pods ko dhoondhta hai aur unke logs Loki ko bhejta hai. Loki ko single binary mode mein filesystem storage ke saath chalaya, kyunki ye chhota lab hai. API ko JSON logs likhne ke liye badla, taaki LogQL se status aur duration par filter kar sakun. Team ke liye paanch useful queries likhi. Ab pod crash hoke delete ho jaaye, tab bhi uske logs padh sakte hain."
+        "en": "In this task I set up central logging for the cluster. Grafana Alloy runs in the cluster, finds all pods and sends their logs to Loki. I ran Loki in single binary mode with filesystem storage, because it is a small lab. I changed the API to write JSON logs, so I can filter by status and duration with LogQL. I wrote five useful queries for the team. Now we can read the logs of a pod even after it crashed and was deleted."
       },
       "vocabulary": [
-        { "term": "Loki", "en": "a log database from Grafana that indexes only labels, so it is cheap", "hi": "Grafana ka log database jo sirf labels index karta hai, isliye sasta hai" },
-        { "term": "Alloy", "en": "Grafana's collector that reads logs and metrics and sends them on", "hi": "Grafana ka collector jo logs aur metrics padhke aage bhejta hai" },
-        { "term": "LogQL", "en": "the query language for Loki, similar to PromQL", "hi": "Loki ki query language, PromQL jaisi" },
-        { "term": "label", "en": "a key and value that groups logs or metrics, like namespace=shopnotes-dev", "hi": "key aur value jo logs ya metrics ko group karta hai, jaise namespace=shopnotes-dev" },
-        { "term": "structured log", "en": "a log line written as JSON with named fields", "hi": "log line jo JSON mein named fields ke saath likhi ho" }
+        { "term": "Loki", "en": "a log database from Grafana that indexes only labels, so it is cheap" },
+        { "term": "Alloy", "en": "Grafana's collector that reads logs and metrics and sends them on" },
+        { "term": "LogQL", "en": "the query language for Loki, similar to PromQL" },
+        { "term": "label", "en": "a key and value that groups logs or metrics, like namespace=shopnotes-dev" },
+        { "term": "structured log", "en": "a log line written as JSON with named fields" }
       ],
       "interview": [
         { "q": "Why do we need central logging in Kubernetes?", "a": "Pods are short-lived. When a pod is deleted, kubectl logs cannot show its logs anymore. With Alloy and Loki every log line is stored in one place with labels like namespace and pod. So I can search logs of all pods together and also of pods that are gone." },
@@ -239,15 +236,14 @@
         "A good alert is about user pain and has a runbook. If an alert fires and nobody needs to act, delete it or make it a warning."
       ],
       "explain": {
-        "en": "In this project I defined our first SLO: 99.5 percent of API requests must succeed over 30 days. This gives an error budget of about 3.6 hours a month. I wrote alert rules as a PrometheusRule inside our Helm chart, so they are in Git and deployed by ArgoCD. One rule is a burn-rate alert that fires when we use the error budget too fast. I configured Alertmanager to send alerts to a Telegram group, with the bot token in a Kubernetes Secret. I tested it with a real fake outage and wrote down how long the alert took.",
-        "hi": "Is project mein maine hamara pehla SLO define kiya: 30 din mein API ki 99.5 percent requests successful honi chahiye. Isse mahine ka lagbhag 3.6 ghante ka error budget milta hai. Alert rules PrometheusRule ki tarah Helm chart ke andar likhe, taaki woh Git mein rahein aur ArgoCD deploy kare. Ek rule burn-rate alert hai jo tab fire hota hai jab error budget bahut tez kharch ho raha ho. Alertmanager ko Telegram group mein alert bhejne ke liye configure kiya, bot token Kubernetes Secret mein rakha. Ek fake outage karke test kiya aur likha ki alert aane mein kitna time laga."
+        "en": "In this project I defined our first SLO: 99.5 percent of API requests must succeed over 30 days. This gives an error budget of about 3.6 hours a month. I wrote alert rules as a PrometheusRule inside our Helm chart, so they are in Git and deployed by ArgoCD. One rule is a burn-rate alert that fires when we use the error budget too fast. I configured Alertmanager to send alerts to a Telegram group, with the bot token in a Kubernetes Secret. I tested it with a real fake outage and wrote down how long the alert took."
       },
       "vocabulary": [
-        { "term": "SLI", "en": "Service Level Indicator; the number we measure, like percent of good requests", "hi": "Service Level Indicator; jo number hum measure karte hain, jaise achhi requests ka percent" },
-        { "term": "SLO", "en": "Service Level Objective; the target for the SLI, like 99.5%", "hi": "Service Level Objective; SLI ka target, jaise 99.5%" },
-        { "term": "error budget", "en": "how much failure is allowed before we break the SLO", "hi": "SLO todne se pehle kitni failure allowed hai" },
-        { "term": "burn rate", "en": "how fast we are using the error budget", "hi": "error budget kitni tezi se kharch ho raha hai" },
-        { "term": "Alertmanager", "en": "the tool that groups alerts and sends them to people", "hi": "tool jo alerts ko group karke logon tak bhejta hai" }
+        { "term": "SLI", "en": "Service Level Indicator; the number we measure, like percent of good requests" },
+        { "term": "SLO", "en": "Service Level Objective; the target for the SLI, like 99.5%" },
+        { "term": "error budget", "en": "how much failure is allowed before we break the SLO" },
+        { "term": "burn rate", "en": "how fast we are using the error budget" },
+        { "term": "Alertmanager", "en": "the tool that groups alerts and sends them to people" }
       ],
       "interview": [
         { "q": "What is the difference between an SLI, an SLO and an SLA?", "a": "The SLI is what I measure, for example the percent of requests without a server error. The SLO is our internal target for it, for example 99.5 percent in 30 days. The SLA is a promise to the customer in a contract, often with money back, and it is usually lower than the SLO." },
@@ -300,14 +296,13 @@
         "More memory only makes the restart come later. The leak is still there."
       ],
       "explain": {
-        "en": "In this incident the API was killed again and again with OOMKilled and exit code 137. First I proved it was the memory limit and not a normal crash. Then I watched the memory with docker stats and saw it grow with every request to one endpoint and never go down. In the code I found data that was saved in a global object and never removed. I fixed the code instead of only raising the limit, and the memory stayed flat after the fix. I also suggested an alert when memory is above 80 percent of the limit.",
-        "hi": "Is incident mein API baar-baar OOMKilled aur exit code 137 ke saath kill ho rahi thi. Pehle maine prove kiya ki ye memory limit ki wajah se hai, normal crash nahi. Phir docker stats se memory dekhi, ek endpoint ki har request par memory badh rahi thi aur kabhi kam nahi hoti thi. Code mein mila ki data ek global object mein save ho raha tha aur kabhi hataya nahi jaata tha. Sirf limit badhane ki jagah code fix kiya, aur fix ke baad memory flat rahi. Ek alert bhi suggest kiya jab memory limit ke 80 percent se upar jaaye."
+        "en": "In this incident the API was killed again and again with OOMKilled and exit code 137. First I proved it was the memory limit and not a normal crash. Then I watched the memory with docker stats and saw it grow with every request to one endpoint and never go down. In the code I found data that was saved in a global object and never removed. I fixed the code instead of only raising the limit, and the memory stayed flat after the fix. I also suggested an alert when memory is above 80 percent of the limit."
       },
       "vocabulary": [
-        { "term": "OOMKilled", "en": "the container was stopped because it used more memory than its limit", "hi": "container ko band kiya gaya kyunki usne limit se zyada memory use ki" },
-        { "term": "memory leak", "en": "memory that the app takes and never gives back", "hi": "memory jo app leta hai aur kabhi wapas nahi deta" },
-        { "term": "working set", "en": "the memory a container really uses now; Kubernetes uses it for OOM decisions", "hi": "memory jo container abhi sach mein use kar raha hai; Kubernetes OOM ke liye ise dekhta hai" },
-        { "term": "SIGKILL", "en": "signal 9; it stops a process at once with no clean exit", "hi": "signal 9; process ko turant band kar deta hai, bina clean exit ke" }
+        { "term": "OOMKilled", "en": "the container was stopped because it used more memory than its limit" },
+        { "term": "memory leak", "en": "memory that the app takes and never gives back" },
+        { "term": "working set", "en": "the memory a container really uses now; Kubernetes uses it for OOM decisions" },
+        { "term": "SIGKILL", "en": "signal 9; it stops a process at once with no clean exit" }
       ],
       "interview": [
         { "q": "How do you know a pod was OOMKilled?", "a": "kubectl describe pod shows Last State Terminated with reason OOMKilled and exit code 137. Exit code 137 means the process got signal 9, SIGKILL. In Grafana I also see the memory line reach the limit just before the restart." },

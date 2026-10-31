@@ -58,34 +58,28 @@
         "If port 5000 is busy, find the program with `sudo ss -ltnp | grep 5000`."
       ],
       "explain": {
-        "en": "In this task I set up the company app on my Ubuntu laptop from zero. I installed Python, Git and PostgreSQL with apt. I created a database user, a database and a table from a SQL file. I made a Python virtual environment and wrote a small Flask API with a health check and two notes endpoints. The health check also tests the database, so it returns 503 when the database is down. I tested everything with curl and saved the code in Git with a .gitignore file.",
-        "hi": "Is task mein maine company ka app apne Ubuntu laptop par zero se setup kiya. apt se Python, Git aur PostgreSQL install kiya. Ek database user, database aur SQL file se table banaya. Python virtual environment banaya aur ek chhota Flask API likha jisme health check aur notes ke do endpoints hain. Health check database ko bhi check karta hai, isliye database band ho toh 503 deta hai. Sab kuch curl se test kiya aur code ko .gitignore ke saath Git mein save kiya."
+        "en": "In this task I set up the company app on my Ubuntu laptop from zero. I installed Python, Git and PostgreSQL with apt. I created a database user, a database and a table from a SQL file. I made a Python virtual environment and wrote a small Flask API with a health check and two notes endpoints. The health check also tests the database, so it returns 503 when the database is down. I tested everything with curl and saved the code in Git with a .gitignore file."
       },
       "vocabulary": [
         {
           "term": "virtual environment",
-          "en": "a private folder with its own Python packages for one project",
-          "hi": "ek project ke liye alag folder jisme uske apne Python packages hote hain"
+          "en": "a private folder with its own Python packages for one project"
         },
         {
           "term": "environment variable",
-          "en": "a setting given to a program from outside, not written in the code",
-          "hi": "program ko bahar se di gayi setting, jo code mein likhi nahi hoti"
+          "en": "a setting given to a program from outside, not written in the code"
         },
         {
           "term": "endpoint",
-          "en": "one URL of an API that does one job, like /health",
-          "hi": "API ka ek URL jo ek kaam karta hai, jaise /health"
+          "en": "one URL of an API that does one job, like /health"
         },
         {
           "term": "health check",
-          "en": "a small URL that tells if the app and its parts are working",
-          "hi": "chhota URL jo batata hai ki app aur uske parts theek chal rahe hain ya nahi"
+          "en": "a small URL that tells if the app and its parts are working"
         },
         {
           "term": "SQL injection",
-          "en": "an attack where bad text from a user changes the SQL query",
-          "hi": "attack jisme user ka galat text SQL query ko badal deta hai"
+          "en": "an attack where bad text from a user changes the SQL query"
         }
       ],
       "interview": [
@@ -159,34 +153,28 @@
         "If you made a mess in a branch, `git log --oneline` and `git restore <file>` help you go back."
       ],
       "explain": {
-        "en": "In this task I put our code on GitHub. I created an ed25519 SSH key, added the public key to GitHub and tested it with ssh -T. Then I worked like a real team: I made a feature branch, pushed it, and opened a pull request with a clear description and test output. I merged it with squash and merge, so main has one clean commit per change. I also made a merge conflict on purpose and fixed it by hand.",
-        "hi": "Is task mein maine apna code GitHub par daala. Ek ed25519 SSH key banayi, public key GitHub mein add ki aur ssh -T se test kiya. Phir real team ki tarah kaam kiya: feature branch banayi, push ki, aur clear description aur test output ke saath pull request khola. Squash and merge se merge kiya, taaki main branch mein har change ka ek saaf commit ho. Maine jaan bujh kar ek merge conflict bhi banaya aur haath se fix kiya."
+        "en": "In this task I put our code on GitHub. I created an ed25519 SSH key, added the public key to GitHub and tested it with ssh -T. Then I worked like a real team: I made a feature branch, pushed it, and opened a pull request with a clear description and test output. I merged it with squash and merge, so main has one clean commit per change. I also made a merge conflict on purpose and fixed it by hand."
       },
       "vocabulary": [
         {
           "term": "SSH key",
-          "en": "a pair of files (private and public) that proves who you are without a password",
-          "hi": "do files ka pair (private aur public) jo bina password ke aapki pehchaan prove karta hai"
+          "en": "a pair of files (private and public) that proves who you are without a password"
         },
         {
           "term": "branch",
-          "en": "a separate line of work in Git, so main stays safe",
-          "hi": "Git mein kaam ki alag line, taaki main branch safe rahe"
+          "en": "a separate line of work in Git, so main stays safe"
         },
         {
           "term": "pull request",
-          "en": "a request to merge your branch, where others can review the change",
-          "hi": "apni branch merge karne ki request, jahan dusre log change review kar sakte hain"
+          "en": "a request to merge your branch, where others can review the change"
         },
         {
           "term": "merge conflict",
-          "en": "Git cannot join two changes because they touch the same lines",
-          "hi": "jab do changes ek hi line ko badalte hain aur Git unhe khud jod nahi pata"
+          "en": "Git cannot join two changes because they touch the same lines"
         },
         {
           "term": "squash merge",
-          "en": "all commits of a branch become one commit on main",
-          "hi": "branch ke saare commits main par ek hi commit ban jaate hain"
+          "en": "all commits of a branch become one commit on main"
         }
       ],
       "interview": [
@@ -259,34 +247,28 @@
         "Use https://crontab.guru to read cron times in plain English."
       ],
       "explain": {
-        "en": "In this task I wrote two bash scripts. The health check calls the /health URL with curl and exits with code 1 if the app is not ok. The backup script runs pg_dump, compresses the file with gzip and deletes backups older than 7 days. I used set -euo pipefail so the script stops on the first error. I tested a real restore into a new database and the row count matched. Then I scheduled both scripts with cron and checked them with ShellCheck.",
-        "hi": "Is task mein maine do bash scripts likhi. Health check script curl se /health URL call karti hai aur app theek na ho toh exit code 1 deti hai. Backup script pg_dump chalati hai, gzip se file compress karti hai aur 7 din se purane backups delete karti hai. Maine set -euo pipefail use kiya taaki pehli error par script ruk jaaye. Maine naye database mein asli restore karke test kiya aur row count match hua. Phir dono scripts cron se schedule ki aur ShellCheck se check ki."
+        "en": "In this task I wrote two bash scripts. The health check calls the /health URL with curl and exits with code 1 if the app is not ok. The backup script runs pg_dump, compresses the file with gzip and deletes backups older than 7 days. I used set -euo pipefail so the script stops on the first error. I tested a real restore into a new database and the row count matched. Then I scheduled both scripts with cron and checked them with ShellCheck."
       },
       "vocabulary": [
         {
           "term": "exit code",
-          "en": "a number a program gives back when it ends; 0 means success",
-          "hi": "program khatam hone par jo number deta hai; 0 ka matlab success"
+          "en": "a number a program gives back when it ends; 0 means success"
         },
         {
           "term": "cron",
-          "en": "a Linux service that runs commands at fixed times",
-          "hi": "Linux service jo fixed time par commands chalati hai"
+          "en": "a Linux service that runs commands at fixed times"
         },
         {
           "term": "pg_dump",
-          "en": "a Postgres tool that saves a database into a file",
-          "hi": "Postgres ka tool jo database ko ek file mein save karta hai"
+          "en": "a Postgres tool that saves a database into a file"
         },
         {
           "term": "restore",
-          "en": "loading a backup back into a database",
-          "hi": "backup ko wapas database mein load karna"
+          "en": "loading a backup back into a database"
         },
         {
           "term": "pipe",
-          "en": "the | sign; it sends the output of one command into the next",
-          "hi": "| sign; ek command ka output agli command ko deta hai"
+          "en": "the | sign; it sends the output of one command into the next"
         }
       ],
       "interview": [
@@ -359,34 +341,28 @@
         "Read errors in `sudo tail -n 30 /var/log/nginx/error.log`."
       ],
       "explain": {
-        "en": "In this task I moved the API from the Flask dev server to gunicorn and ran it as a systemd service. I wrote a unit file with Restart=on-failure and an EnvironmentFile for the database URL, so no password is in the code. I killed the process with kill -9 and systemd started it again in a few seconds. Then I installed Nginx, served the web page from it and sent /api/ requests to gunicorn with proxy_pass. After a reboot everything started by itself. I read the logs with journalctl.",
-        "hi": "Is task mein maine API ko Flask dev server se hata kar gunicorn par chalaya aur systemd service banaya. Unit file mein Restart=on-failure aur database URL ke liye EnvironmentFile likha, taaki password code mein na rahe. Maine kill -9 se process maara aur systemd ne kuch second mein use wapas start kar diya. Phir Nginx install kiya, usse web page serve kiya aur /api/ wali requests proxy_pass se gunicorn ko bheji. Reboot ke baad sab apne aap start hua. Logs journalctl se padhe."
+        "en": "In this task I moved the API from the Flask dev server to gunicorn and ran it as a systemd service. I wrote a unit file with Restart=on-failure and an EnvironmentFile for the database URL, so no password is in the code. I killed the process with kill -9 and systemd started it again in a few seconds. Then I installed Nginx, served the web page from it and sent /api/ requests to gunicorn with proxy_pass. After a reboot everything started by itself. I read the logs with journalctl."
       },
       "vocabulary": [
         {
           "term": "systemd",
-          "en": "the Linux program that starts, stops and watches services",
-          "hi": "Linux ka program jo services ko start, stop aur monitor karta hai"
+          "en": "the Linux program that starts, stops and watches services"
         },
         {
           "term": "unit file",
-          "en": "a text file that tells systemd how to run one service",
-          "hi": "text file jo systemd ko batati hai ki ek service kaise chalani hai"
+          "en": "a text file that tells systemd how to run one service"
         },
         {
           "term": "gunicorn",
-          "en": "a production web server for Python apps",
-          "hi": "Python apps ke liye production web server"
+          "en": "a production web server for Python apps"
         },
         {
           "term": "reverse proxy",
-          "en": "a server that takes the request and sends it to the app behind it",
-          "hi": "server jo request leta hai aur peeche wale app ko bhejta hai"
+          "en": "a server that takes the request and sends it to the app behind it"
         },
         {
           "term": "journalctl",
-          "en": "the command to read logs that systemd collects",
-          "hi": "systemd ke collect kiye logs padhne ki command"
+          "en": "the command to read logs that systemd collects"
         }
       ],
       "interview": [
@@ -455,29 +431,24 @@
         "Use GitHub Markdown code blocks with three backticks so commands are easy to copy."
       ],
       "explain": {
-        "en": "In this task I wrote the README and the first runbook for ShopNotes. The README has an architecture diagram, the setup commands in the right order and the test commands with expected output. The runbook has four common problems, and each one has symptom, check and fix steps with real commands. I tested the README on a fresh Ubuntu in WSL and fixed the steps where I got stuck. Now a new person can set up the app without asking me.",
-        "hi": "Is task mein maine ShopNotes ka README aur pehla runbook likha. README mein architecture diagram hai, setup commands sahi order mein hain aur test commands expected output ke saath hain. Runbook mein chaar common problems hain, aur har ek ke liye symptom, check aur fix steps asli commands ke saath hain. Maine README ko WSL ke fresh Ubuntu par test kiya aur jahan atka wahan steps theek kiye. Ab naya banda bina mujhse puche app setup kar sakta hai."
+        "en": "In this task I wrote the README and the first runbook for ShopNotes. The README has an architecture diagram, the setup commands in the right order and the test commands with expected output. The runbook has four common problems, and each one has symptom, check and fix steps with real commands. I tested the README on a fresh Ubuntu in WSL and fixed the steps where I got stuck. Now a new person can set up the app without asking me."
       },
       "vocabulary": [
         {
           "term": "README",
-          "en": "the first file in a repo that explains what it is and how to use it",
-          "hi": "repo ki pehli file jo batati hai ki ye kya hai aur kaise use karna hai"
+          "en": "the first file in a repo that explains what it is and how to use it"
         },
         {
           "term": "runbook",
-          "en": "a document with steps to check and fix known problems",
-          "hi": "document jisme known problems ko check aur fix karne ke steps hote hain"
+          "en": "a document with steps to check and fix known problems"
         },
         {
           "term": "on-call",
-          "en": "the person who must answer alerts and fix problems at this time",
-          "hi": "woh banda jo is time alerts ka jawab dega aur problem fix karega"
+          "en": "the person who must answer alerts and fix problems at this time"
         },
         {
           "term": "Markdown",
-          "en": "a simple text format that GitHub shows with headings and code blocks",
-          "hi": "simple text format jise GitHub headings aur code blocks ke saath dikhata hai"
+          "en": "a simple text format that GitHub shows with headings and code blocks"
         }
       ],
       "interview": [

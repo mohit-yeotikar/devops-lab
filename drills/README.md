@@ -6,7 +6,7 @@ Trainees get `drills/<name>/README.md` (the alarm message + what "fixed" means) 
 
 ```
 drills/<name>/
-  README.md        # The alert, in simple English: what users see, what "fixed" means, how to check. Plus a Hinglish line.
+  README.md        # The alert, in simple English: what users see, what "fixed" means, how to check.
   docker-compose.yml
   <files the services need>   # nginx.conf, app.py, Dockerfile, init.sql, break.sh …
   SOLUTION.md      # Root cause, the fix commands, 3 interview questions with simple-English model answers, "how I explain it" script (en + hi).

@@ -8,7 +8,7 @@ const { results: past } = await db.prepare('SELECT id, scope, score, created_at,
 ---
 <Base title="Mock interview">
   <h1>Mock interview</h1>
-  <p class="sub">7 questions. Answer each one in writing, as you would speak. The coach scores you and shows a better answer. <span class="hi">Jaise bolte ho waise likho. Coach score dega aur behtar jawab dikhayega.</span></p>
+  <p class="sub">7 questions. Answer each one in writing, as you would speak. The coach scores you and shows a better answer.</p>
   <div class="card">
     <form data-api action="/api/interview" method="post" class="row" style="align-items:flex-end"><input type="hidden" name="action" value="start" />
       <div style="flex:1 1 240px"><label>Questions from</label><select name="scope"><option value="all" selected={scope === 'all'}>Everything I have worked on</option>{sprints.map((s) => <option value={s.id} selected={scope === s.id}>Sprint {s.number}: {s.title}</option>)}</select></div>

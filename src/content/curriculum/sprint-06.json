@@ -56,39 +56,32 @@
         "Use `ansible-doc ansible.posix.authorized_key` to read module options in the terminal."
       ],
       "explain": {
-        "en": "In this task I started configuration management with Ansible. I installed Ansible with pipx, gave the prod server a free duckdns.org name, and wrote an inventory and ansible.cfg. My first role, common, installs base packages, sets the time zone, creates a deploy user with an SSH key and passwordless sudo, and turns off password and root login for SSH. I used validate with visudo so a broken sudoers file cannot lock me out, and a handler restarts SSH only when the file changes. The second run showed changed=0, so the role is idempotent.",
-        "hi": "Is task mein maine Ansible ke saath configuration management shuru kiya. pipx se Ansible install kiya, prod server ko free duckdns.org naam diya, aur inventory aur ansible.cfg likhe. Mera pehla role, common, base packages install karta hai, time zone set karta hai, SSH key aur bina password sudo wala deploy user banata hai, aur SSH mein password aur root login band karta hai. visudo ke saath validate use kiya taaki kharab sudoers file mujhe lock out na kare, aur handler sirf file badalne par SSH restart karta hai. Dusre run mein changed=0 aaya, yani role idempotent hai."
+        "en": "In this task I started configuration management with Ansible. I installed Ansible with pipx, gave the prod server a free duckdns.org name, and wrote an inventory and ansible.cfg. My first role, common, installs base packages, sets the time zone, creates a deploy user with an SSH key and passwordless sudo, and turns off password and root login for SSH. I used validate with visudo so a broken sudoers file cannot lock me out, and a handler restarts SSH only when the file changes. The second run showed changed=0, so the role is idempotent."
       },
       "vocabulary": [
         {
           "term": "configuration management",
-          "en": "a tool sets up servers from code, the same way every time",
-          "hi": "tool code se servers ko har baar same tarah setup karta hai"
+          "en": "a tool sets up servers from code, the same way every time"
         },
         {
           "term": "inventory",
-          "en": "the Ansible list of servers and how to connect to them",
-          "hi": "Ansible ki servers ki list aur unse connect karne ka tarika"
+          "en": "the Ansible list of servers and how to connect to them"
         },
         {
           "term": "role",
-          "en": "a folder of Ansible tasks, files, templates and handlers for one job",
-          "hi": "ek kaam ke liye Ansible tasks, files, templates aur handlers ka folder"
+          "en": "a folder of Ansible tasks, files, templates and handlers for one job"
         },
         {
           "term": "idempotent",
-          "en": "running it again gives the same result and changes nothing new",
-          "hi": "dobara chalane par same result aata hai aur kuch naya nahi badalta"
+          "en": "running it again gives the same result and changes nothing new"
         },
         {
           "term": "handler",
-          "en": "a task that runs only when another task reports a change",
-          "hi": "task jo tabhi chalta hai jab koi dusra task change report kare"
+          "en": "a task that runs only when another task reports a change"
         },
         {
           "term": "SSH hardening",
-          "en": "settings that make SSH login safer, like no passwords",
-          "hi": "settings jo SSH login ko safe banati hain, jaise password band"
+          "en": "settings that make SSH login safer, like no passwords"
         }
       ],
       "interview": [
@@ -168,39 +161,32 @@
         "Run `ansible-playbook site.yml --check --diff` before a real run on prod."
       ],
       "explain": {
-        "en": "In this task I wrote Ansible roles for Docker, Nginx and the ShopNotes app. Database passwords are in an encrypted Ansible Vault file, and the role creates a limited database user with the community.postgresql modules. For deploys I built a blue/green pattern on one server: the new image version starts in the idle container, Ansible waits until its /health returns 200, and only then switches the Nginx upstream and reloads Nginx. Nginx reload is graceful, so no request is dropped. I proved it with a curl loop that showed only 200 codes during the deploy, and a version that is not healthy never gets traffic.",
-        "hi": "Is task mein maine Docker, Nginx aur ShopNotes app ke liye Ansible roles likhe. Database passwords encrypted Ansible Vault file mein hain, aur role community.postgresql modules se ek limited database user banata hai. Deploy ke liye maine ek server par blue/green pattern banaya: nayi image version khaali container mein start hoti hai, Ansible tab tak rukta hai jab tak uska /health 200 na de, aur tabhi Nginx upstream switch karke Nginx reload karta hai. Nginx reload graceful hota hai, isliye koi request drop nahi hoti. Maine curl loop se prove kiya jisme deploy ke dauran sirf 200 codes aaye, aur jo version healthy nahi hai use kabhi traffic nahi milta."
+        "en": "In this task I wrote Ansible roles for Docker, Nginx and the ShopNotes app. Database passwords are in an encrypted Ansible Vault file, and the role creates a limited database user with the community.postgresql modules. For deploys I built a blue/green pattern on one server: the new image version starts in the idle container, Ansible waits until its /health returns 200, and only then switches the Nginx upstream and reloads Nginx. Nginx reload is graceful, so no request is dropped. I proved it with a curl loop that showed only 200 codes during the deploy, and a version that is not healthy never gets traffic."
       },
       "vocabulary": [
         {
           "term": "blue/green deploy",
-          "en": "two copies of the app; the new one starts next to the old one and traffic switches when it is healthy",
-          "hi": "app ki do copies; nayi copy purani ke saath start hoti hai aur healthy hone par traffic switch hota hai"
+          "en": "two copies of the app; the new one starts next to the old one and traffic switches when it is healthy"
         },
         {
           "term": "zero downtime",
-          "en": "users see no errors while you deploy a new version",
-          "hi": "naya version deploy karte waqt users ko koi error nahi dikhta"
+          "en": "users see no errors while you deploy a new version"
         },
         {
           "term": "graceful reload",
-          "en": "Nginx loads the new config and lets old connections finish",
-          "hi": "Nginx naya config load karta hai aur purane connections ko poora hone deta hai"
+          "en": "Nginx loads the new config and lets old connections finish"
         },
         {
           "term": "Ansible Vault",
-          "en": "the Ansible feature that encrypts files with secrets",
-          "hi": "Ansible ka feature jo secrets wali files encrypt karta hai"
+          "en": "the Ansible feature that encrypts files with secrets"
         },
         {
           "term": "template",
-          "en": "a config file with variables that Ansible fills in for each server",
-          "hi": "variables wali config file jise Ansible har server ke liye bharta hai"
+          "en": "a config file with variables that Ansible fills in for each server"
         },
         {
           "term": "health gate",
-          "en": "a check that must pass before traffic goes to a new version",
-          "hi": "check jo naye version par traffic jaane se pehle pass hona chahiye"
+          "en": "a check that must pass before traffic goes to a new version"
         }
       ],
       "interview": [
@@ -273,39 +259,32 @@
         "Read `/var/log/letsencrypt/letsencrypt.log` on the server when certbot fails."
       ],
       "explain": {
-        "en": "In this task I added HTTPS to ShopNotes with a free Let's Encrypt certificate on our duckdns.org name. I used certbot certonly with the nginx plugin from Ansible, with a creates check so it runs only once, and a deploy hook that reloads Nginx after each renewal. My Nginx template has two modes: HTTP only before the certificate exists, and HTTPS with a redirect after it exists. I kept the redirect inside location so renewals still work on port 80. I checked the certificate with openssl, tested renewal with certbot renew --dry-run, and the second playbook run showed no changes.",
-        "hi": "Is task mein maine apne duckdns.org naam par free Let's Encrypt certificate ke saath ShopNotes mein HTTPS add kiya. Ansible se nginx plugin ke saath certbot certonly chalaya, creates check ke saath taaki ek hi baar chale, aur deploy hook lagaya jo har renewal ke baad Nginx reload karta hai. Mere Nginx template ke do modes hain: certificate se pehle sirf HTTP, aur certificate hone ke baad redirect ke saath HTTPS. Redirect ko location ke andar rakha taaki port 80 par renewal chalta rahe. openssl se certificate check kiya, certbot renew --dry-run se renewal test kiya, aur playbook ke dusre run mein koi change nahi aaya."
+        "en": "In this task I added HTTPS to ShopNotes with a free Let's Encrypt certificate on our duckdns.org name. I used certbot certonly with the nginx plugin from Ansible, with a creates check so it runs only once, and a deploy hook that reloads Nginx after each renewal. My Nginx template has two modes: HTTP only before the certificate exists, and HTTPS with a redirect after it exists. I kept the redirect inside location so renewals still work on port 80. I checked the certificate with openssl, tested renewal with certbot renew --dry-run, and the second playbook run showed no changes."
       },
       "vocabulary": [
         {
           "term": "TLS",
-          "en": "the encryption that makes HTTPS safe",
-          "hi": "encryption jo HTTPS ko safe banata hai"
+          "en": "the encryption that makes HTTPS safe"
         },
         {
           "term": "certificate",
-          "en": "a file that proves the server owns the domain name",
-          "hi": "file jo prove karti hai ki server us domain naam ka maalik hai"
+          "en": "a file that proves the server owns the domain name"
         },
         {
           "term": "Let's Encrypt",
-          "en": "a free certificate authority that gives 90-day certificates",
-          "hi": "free certificate authority jo 90 din ke certificates deti hai"
+          "en": "a free certificate authority that gives 90-day certificates"
         },
         {
           "term": "ACME challenge",
-          "en": "a test where Let's Encrypt checks that you control the domain",
-          "hi": "test jisme Let's Encrypt check karta hai ki domain aapke control mein hai"
+          "en": "a test where Let's Encrypt checks that you control the domain"
         },
         {
           "term": "redirect 301",
-          "en": "the server tells the browser to go to another URL for good",
-          "hi": "server browser ko hamesha ke liye dusre URL par jaane ko kehta hai"
+          "en": "the server tells the browser to go to another URL for good"
         },
         {
           "term": "renewal",
-          "en": "getting a new certificate before the old one expires",
-          "hi": "purana certificate expire hone se pehle naya certificate lena"
+          "en": "getting a new certificate before the old one expires"
         }
       ],
       "interview": [
@@ -381,34 +360,28 @@
         "Reusable workflows need `id-token: write` in the calling job too, or the token request fails."
       ],
       "explain": {
-        "en": "In this task I moved our deploys to GitHub Actions. After tests and the image build on main, a reusable deploy workflow runs in the production environment, which needs my approval. It gets AWS credentials through OIDC with a role that can only change the prod app security group, opens port 22 just for the runner IP, runs the Ansible blue/green deploy over SSH, does a smoke test, and always closes port 22 at the end. The SSH key, known hosts and vault password are environment secrets passed through env variables. The same workflow has a manual trigger, so rollback means deploying an older commit id with one click.",
-        "hi": "Is task mein maine apne deploys GitHub Actions par shift kiye. main par tests aur image build ke baad ek reusable deploy workflow production environment mein chalta hai, jiske liye meri approval chahiye. Ye OIDC se AWS credentials leta hai, ek aise role se jo sirf prod app ka security group badal sakta hai, sirf runner ke IP ke liye port 22 kholta hai, SSH par Ansible ka blue/green deploy chalata hai, smoke test karta hai, aur end mein hamesha port 22 band karta hai. SSH key, known hosts aur vault password environment secrets hain jo env variables se diye jaate hain. Isi workflow mein manual trigger hai, isliye rollback matlab ek click mein purana commit id deploy karna."
+        "en": "In this task I moved our deploys to GitHub Actions. After tests and the image build on main, a reusable deploy workflow runs in the production environment, which needs my approval. It gets AWS credentials through OIDC with a role that can only change the prod app security group, opens port 22 just for the runner IP, runs the Ansible blue/green deploy over SSH, does a smoke test, and always closes port 22 at the end. The SSH key, known hosts and vault password are environment secrets passed through env variables. The same workflow has a manual trigger, so rollback means deploying an older commit id with one click."
       },
       "vocabulary": [
         {
           "term": "continuous deployment",
-          "en": "every change that passes CI is deployed to servers automatically",
-          "hi": "jo change CI pass kare woh apne aap servers par deploy ho jaata hai"
+          "en": "every change that passes CI is deployed to servers automatically"
         },
         {
           "term": "environment (GitHub)",
-          "en": "a target like production with its own secrets, rules and approvals",
-          "hi": "production jaisa target jiske apne secrets, rules aur approvals hote hain"
+          "en": "a target like production with its own secrets, rules and approvals"
         },
         {
           "term": "reusable workflow",
-          "en": "a workflow that other workflows can call with inputs",
-          "hi": "workflow jise dusre workflows inputs ke saath call kar sakte hain"
+          "en": "a workflow that other workflows can call with inputs"
         },
         {
           "term": "rollback",
-          "en": "going back to the last good version after a bad deploy",
-          "hi": "kharab deploy ke baad pichle achhe version par wapas jaana"
+          "en": "going back to the last good version after a bad deploy"
         },
         {
           "term": "known_hosts",
-          "en": "a file with server keys, so SSH knows it talks to the right server",
-          "hi": "server keys ki file, taaki SSH ko pata ho ki sahi server se baat ho rahi hai"
+          "en": "a file with server keys, so SSH knows it talks to the right server"
         }
       ],
       "interview": [
@@ -484,39 +457,32 @@
         "Fix the writer first. If you only free space, it fills again in minutes."
       ],
       "explain": {
-        "en": "In this task I handled a P1 incident where every request returned 500 after a new log agent was deployed. I read the app log first and found a no space left on device error, so I checked the log volume with df and du and found one huge debug log file. The new sidecar was configured to write debug logs without stopping. I fixed its log level in the compose file so the fix survives a restart, then freed the space with truncate instead of rm, because a process may still hold the file open. check.sh passed, and on our real server I added Docker log rotation, a journald size limit and an 80% disk alert with Ansible.",
-        "hi": "Is task mein maine ek P1 incident handle kiya jisme naya log agent deploy hone ke baad har request 500 de rahi thi. Pehle app log padha aur usme no space left on device error mila, isliye df aur du se log volume check kiya aur ek bahut badi debug log file mili. Naya sidecar bina ruke debug logs likhne ke liye configured tha. Maine compose file mein uska log level theek kiya taaki fix restart ke baad bhi rahe, phir rm ki jagah truncate se jagah khaali ki, kyunki koi process file ko abhi bhi khula rakh sakta hai. check.sh pass hua, aur apne asli server par Ansible se Docker log rotation, journald size limit aur 80% disk alert lagaya."
+        "en": "In this task I handled a P1 incident where every request returned 500 after a new log agent was deployed. I read the app log first and found a no space left on device error, so I checked the log volume with df and du and found one huge debug log file. The new sidecar was configured to write debug logs without stopping. I fixed its log level in the compose file so the fix survives a restart, then freed the space with truncate instead of rm, because a process may still hold the file open. check.sh passed, and on our real server I added Docker log rotation, a journald size limit and an 80% disk alert with Ansible."
       },
       "vocabulary": [
         {
           "term": "disk full",
-          "en": "no free space is left, so programs cannot write files",
-          "hi": "koi khaali jagah nahi bachi, isliye programs files nahi likh sakte"
+          "en": "no free space is left, so programs cannot write files"
         },
         {
           "term": "log rotation",
-          "en": "old logs are moved, compressed or deleted when they get too big",
-          "hi": "purane logs bade hone par move, compress ya delete hote hain"
+          "en": "old logs are moved, compressed or deleted when they get too big"
         },
         {
           "term": "truncate",
-          "en": "make a file empty without deleting it",
-          "hi": "file ko delete kiye bina khaali karna"
+          "en": "make a file empty without deleting it"
         },
         {
           "term": "sidecar",
-          "en": "a helper container that runs next to the main app container",
-          "hi": "helper container jo main app container ke saath chalta hai"
+          "en": "a helper container that runs next to the main app container"
         },
         {
           "term": "inode",
-          "en": "a small record for each file; a disk can run out of them too",
-          "hi": "har file ka chhota record; disk mein ye bhi khatam ho sakte hain"
+          "en": "a small record for each file; a disk can run out of them too"
         },
         {
           "term": "log level",
-          "en": "how much detail a program writes, like debug, info or error",
-          "hi": "program kitni detail likhta hai, jaise debug, info ya error"
+          "en": "how much detail a program writes, like debug, info or error"
         }
       ],
       "interview": [

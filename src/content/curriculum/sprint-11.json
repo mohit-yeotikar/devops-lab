@@ -54,15 +54,14 @@
         "Prefer roles with temporary credentials over users with access keys."
       ],
       "explain": {
-        "en": "In this task I did an IAM least privilege audit of our AWS account. I checked that the root user has MFA and no access keys. I made the credential report and used service last-accessed data to see what each user and role really used. Then I wrote small policies with only those rights, checked them with IAM Access Analyzer, tested the tools, and removed AdministratorAccess. I rotated old access keys and moved CI to GitHub OIDC, so there are no long-lived keys in CI anymore.",
-        "hi": "Is task mein maine AWS account ka IAM least privilege audit kiya. Check kiya ki root user par MFA hai aur koi access key nahi hai. Credential report banayi aur service last-accessed data se dekha ki har user aur role asli mein kya use karta hai. Phir sirf utne rights wali chhoti policies likhi, IAM Access Analyzer se check ki, tools test kiye, aur AdministratorAccess hataya. Purani access keys rotate ki aur CI ko GitHub OIDC par le gaya, taaki CI mein ab koi long-lived keys na hon."
+        "en": "In this task I did an IAM least privilege audit of our AWS account. I checked that the root user has MFA and no access keys. I made the credential report and used service last-accessed data to see what each user and role really used. Then I wrote small policies with only those rights, checked them with IAM Access Analyzer, tested the tools, and removed AdministratorAccess. I rotated old access keys and moved CI to GitHub OIDC, so there are no long-lived keys in CI anymore."
       },
       "vocabulary": [
-        { "term": "least privilege", "en": "give only the rights that are really needed, nothing more", "hi": "sirf utne rights dena jitne sach mein chahiye, usse zyada nahi" },
-        { "term": "credential report", "en": "an IAM file that lists all users with password, MFA and key status", "hi": "IAM file jisme saare users ka password, MFA aur key status hota hai" },
-        { "term": "access key", "en": "a long-lived key pair for the AWS CLI or API", "hi": "AWS CLI ya API ke liye lambe time tak chalne wali key pair" },
-        { "term": "OIDC", "en": "a login standard; here GitHub proves who it is and AWS gives a short-lived role", "hi": "login standard; yahan GitHub apni pehchaan prove karta hai aur AWS short-lived role deta hai" },
-        { "term": "MFA", "en": "multi-factor authentication; a second code after the password", "hi": "multi-factor authentication; password ke baad ek doosra code" }
+        { "term": "least privilege", "en": "give only the rights that are really needed, nothing more" },
+        { "term": "credential report", "en": "an IAM file that lists all users with password, MFA and key status" },
+        { "term": "access key", "en": "a long-lived key pair for the AWS CLI or API" },
+        { "term": "OIDC", "en": "a login standard; here GitHub proves who it is and AWS gives a short-lived role" },
+        { "term": "MFA", "en": "multi-factor authentication; a second code after the password" }
       ],
       "interview": [
         { "q": "How did you find the rights a user really needs?", "a": "I used IAM service last-accessed data. It shows which AWS services each user or role used and when. I wrote a new policy with only those services and actions. Then I tested the tool and removed the old wide policy." },
@@ -117,15 +116,14 @@
         "Never use `--with-decryption` in a shell that records history on a shared server, and never print secrets in CI logs."
       ],
       "explain": {
-        "en": "In this task I moved all our secrets into AWS SSM Parameter Store as SecureString parameters. I chose Parameter Store because standard parameters are free, and Secrets Manager costs money per secret. The EC2 app now reads the database password at start with its instance role, which can read only our prod path. In Kubernetes I installed External Secrets Operator, and it creates the Kubernetes Secret from Parameter Store. I scanned the repo with gitleaks and rotated every password that was in the Git history.",
-        "hi": "Is task mein maine saare secrets AWS SSM Parameter Store mein SecureString parameters ki tarah daale. Parameter Store isliye chuna kyunki standard parameters free hain, aur Secrets Manager har secret ke paise leta hai. EC2 app ab start par apne instance role se database password padhti hai, jo sirf hamara prod path padh sakta hai. Kubernetes mein External Secrets Operator install kiya, jo Parameter Store se Kubernetes Secret bana deta hai. gitleaks se repo scan kiya aur Git history mein jo bhi password tha use rotate kiya."
+        "en": "In this task I moved all our secrets into AWS SSM Parameter Store as SecureString parameters. I chose Parameter Store because standard parameters are free, and Secrets Manager costs money per secret. The EC2 app now reads the database password at start with its instance role, which can read only our prod path. In Kubernetes I installed External Secrets Operator, and it creates the Kubernetes Secret from Parameter Store. I scanned the repo with gitleaks and rotated every password that was in the Git history."
       },
       "vocabulary": [
-        { "term": "SSM Parameter Store", "en": "an AWS service to store settings and encrypted secrets", "hi": "AWS service jisme settings aur encrypted secrets store karte hain" },
-        { "term": "SecureString", "en": "a parameter type that is stored encrypted with KMS", "hi": "parameter type jo KMS se encrypted store hota hai" },
-        { "term": "External Secrets Operator", "en": "a Kubernetes tool that copies secrets from a vault into Kubernetes Secrets", "hi": "Kubernetes tool jo vault se secrets ko Kubernetes Secrets mein copy karta hai" },
-        { "term": "rotate", "en": "change a password or key to a new value", "hi": "password ya key ko nayi value se badalna" },
-        { "term": "Sealed Secrets", "en": "a tool that encrypts a Secret so the encrypted file can be stored in Git", "hi": "tool jo Secret ko encrypt karta hai taaki encrypted file Git mein rakh sakein" }
+        { "term": "SSM Parameter Store", "en": "an AWS service to store settings and encrypted secrets" },
+        { "term": "SecureString", "en": "a parameter type that is stored encrypted with KMS" },
+        { "term": "External Secrets Operator", "en": "a Kubernetes tool that copies secrets from a vault into Kubernetes Secrets" },
+        { "term": "rotate", "en": "change a password or key to a new value" },
+        { "term": "Sealed Secrets", "en": "a tool that encrypts a Secret so the encrypted file can be stored in Git" }
       ],
       "interview": [
         { "q": "How do you manage secrets in your project?", "a": "All secrets are SecureString parameters in SSM Parameter Store. On EC2 the app reads them at start with an instance role that can read only its own path. In Kubernetes, External Secrets Operator syncs them into Kubernetes Secrets. Nothing is in Git, and there is one place to change a password." },
@@ -184,15 +182,14 @@
         "`--ignore-unfixed` hides problems that have no fix yet. Review them anyway once a month."
       ],
       "explain": {
-        "en": "In this project I added security checks to our pipeline and turned on TLS everywhere. Trivy scans our image, our repo and our Terraform and Helm code, and the build fails on critical problems that have a fix. I also pinned all GitHub Actions to commit SHAs to protect the pipeline itself. OWASP ZAP runs a baseline scan against the running app, and I fixed the missing security headers it found. On staging I used cert-manager with Let's Encrypt for a free certificate and a redirect to HTTPS. Between the app and RDS I used verify-full TLS with the AWS CA bundle and forced SSL on the database.",
-        "hi": "Is project mein maine pipeline mein security checks add kiye aur har jagah TLS on kiya. Trivy hamari image, repo aur Terraform aur Helm code scan karta hai, aur jin critical problems ka fix hai un par build fail ho jaata hai. Pipeline ko bachane ke liye saare GitHub Actions ko commit SHA par pin kiya. OWASP ZAP chalti hui app par baseline scan karta hai, aur jo security headers missing the woh maine fix kiye. Staging par cert-manager aur Let's Encrypt se free certificate liya aur HTTPS redirect lagaya. App aur RDS ke beech AWS CA bundle ke saath verify-full TLS use kiya aur database par SSL force kiya."
+        "en": "In this project I added security checks to our pipeline and turned on TLS everywhere. Trivy scans our image, our repo and our Terraform and Helm code, and the build fails on critical problems that have a fix. I also pinned all GitHub Actions to commit SHAs to protect the pipeline itself. OWASP ZAP runs a baseline scan against the running app, and I fixed the missing security headers it found. On staging I used cert-manager with Let's Encrypt for a free certificate and a redirect to HTTPS. Between the app and RDS I used verify-full TLS with the AWS CA bundle and forced SSL on the database."
       },
       "vocabulary": [
-        { "term": "vulnerability", "en": "a known weakness in software that an attacker can use", "hi": "software ki known kamzori jise attacker use kar sakta hai" },
-        { "term": "CVE", "en": "a public ID number for a known vulnerability", "hi": "known vulnerability ka public ID number" },
-        { "term": "DAST", "en": "testing a running app from outside, like ZAP does", "hi": "chalti hui app ko bahar se test karna, jaise ZAP karta hai" },
-        { "term": "cert-manager", "en": "a Kubernetes tool that gets and renews TLS certificates", "hi": "Kubernetes tool jo TLS certificates leta hai aur renew karta hai" },
-        { "term": "verify-full", "en": "a Postgres TLS mode that checks the certificate and the host name", "hi": "Postgres TLS mode jo certificate aur host name dono check karta hai" }
+        { "term": "vulnerability", "en": "a known weakness in software that an attacker can use" },
+        { "term": "CVE", "en": "a public ID number for a known vulnerability" },
+        { "term": "DAST", "en": "testing a running app from outside, like ZAP does" },
+        { "term": "cert-manager", "en": "a Kubernetes tool that gets and renews TLS certificates" },
+        { "term": "verify-full", "en": "a Postgres TLS mode that checks the certificate and the host name" }
       ],
       "interview": [
         { "q": "What security scans do you run in CI?", "a": "Trivy scans the Docker image for known vulnerabilities, the repo for secrets, and the Terraform and Helm files for bad settings. OWASP ZAP runs a baseline scan against the running app and checks things like security headers. The build fails on critical problems that have a fix. Reports are saved as build artifacts." },
@@ -249,15 +246,14 @@
         "Always run a delete script first with dry run and read the list. A wrong filter can delete the wrong thing."
       ],
       "explain": {
-        "en": "In this task I worked on cost control for our AWS account. I activated cost allocation tags and used Cost Explorer in the console to build a monthly cost sheet by service and by project tag. I created a zero-spend budget, so we get an email before we pay anything. I made sure every resource has Project and Env tags with default tags in Terraform. Then I wrote a cleanup script that finds lab EC2 instances, unattached EBS volumes and unused Elastic IPs by tag. It runs in dry-run mode by default and it never deletes a database.",
-        "hi": "Is task mein maine AWS account ke cost control par kaam kiya. Cost allocation tags activate kiye aur console mein Cost Explorer se service aur project tag ke hisaab se monthly cost sheet banayi. Zero-spend budget banaya, taaki kuch bhi pay karne se pehle email aa jaaye. Terraform ke default tags se ensure kiya ki har resource par Project aur Env tags hon. Phir ek cleanup script likha jo tag se lab EC2 instances, bina attach wale EBS volumes aur unused Elastic IPs dhoondhta hai. Ye by default dry-run mode mein chalta hai aur kabhi database delete nahi karta."
+        "en": "In this task I worked on cost control for our AWS account. I activated cost allocation tags and used Cost Explorer in the console to build a monthly cost sheet by service and by project tag. I created a zero-spend budget, so we get an email before we pay anything. I made sure every resource has Project and Env tags with default tags in Terraform. Then I wrote a cleanup script that finds lab EC2 instances, unattached EBS volumes and unused Elastic IPs by tag. It runs in dry-run mode by default and it never deletes a database."
       },
       "vocabulary": [
-        { "term": "Cost Explorer", "en": "the AWS page that shows what you spent and on which service", "hi": "AWS page jo dikhata hai kitna kharch hua aur kis service par" },
-        { "term": "cost allocation tag", "en": "a tag that AWS uses to split the bill, like Project", "hi": "tag jisse AWS bill ko baant-ta hai, jaise Project" },
-        { "term": "budget alert", "en": "an email when spend goes over a set amount", "hi": "email jab kharch ek set amount se upar jaaye" },
-        { "term": "dry run", "en": "a test mode that shows what would happen but changes nothing", "hi": "test mode jo dikhata hai kya hoga par kuch badalta nahi" },
-        { "term": "orphaned resource", "en": "a resource that nobody uses anymore but still costs money", "hi": "resource jise ab koi use nahi karta par paisa lagta rehta hai" }
+        { "term": "Cost Explorer", "en": "the AWS page that shows what you spent and on which service" },
+        { "term": "cost allocation tag", "en": "a tag that AWS uses to split the bill, like Project" },
+        { "term": "budget alert", "en": "an email when spend goes over a set amount" },
+        { "term": "dry run", "en": "a test mode that shows what would happen but changes nothing" },
+        { "term": "orphaned resource", "en": "a resource that nobody uses anymore but still costs money" }
       ],
       "interview": [
         { "q": "How do you control cloud cost?", "a": "First I tag every resource with Project and Env, using default tags in Terraform. I activate the tags for cost allocation and check Cost Explorer every month by service and by tag. A budget alert emails us before we spend money. And a cleanup script removes forgotten lab resources." },
@@ -309,15 +305,14 @@
         "A web server often keeps the old certificate in memory until it is reloaded, even when the file on disk is new."
       ],
       "explain": {
-        "en": "In this incident users saw a certificate warning in the browser. I used curl and openssl s_client to read the certificate the server really sends, and I saw that the notAfter date was in the past. Then I looked at why the automatic renewal did not work and found the one root cause. I fixed it, made the server load the new certificate, and checked the new dates with openssl. To prevent it, I wrote an alert that fires 14 days before any certificate expires.",
-        "hi": "Is incident mein users ko browser mein certificate warning dikh rahi thi. Maine curl aur openssl s_client se woh certificate padha jo server sach mein bhej raha tha, aur dekha ki notAfter date nikal chuki thi. Phir dekha ki automatic renewal kyun nahi chala aur ek root cause mila. Use fix kiya, server ko naya certificate load karwaya, aur openssl se nayi dates check ki. Prevention ke liye ek alert likha jo kisi bhi certificate ke expire hone se 14 din pehle fire hota hai."
+        "en": "In this incident users saw a certificate warning in the browser. I used curl and openssl s_client to read the certificate the server really sends, and I saw that the notAfter date was in the past. Then I looked at why the automatic renewal did not work and found the one root cause. I fixed it, made the server load the new certificate, and checked the new dates with openssl. To prevent it, I wrote an alert that fires 14 days before any certificate expires."
       },
       "vocabulary": [
-        { "term": "TLS certificate", "en": "a file that proves the server's name and allows encryption", "hi": "file jo server ka naam prove karti hai aur encryption allow karti hai" },
-        { "term": "notAfter", "en": "the last date a certificate is valid", "hi": "certificate valid rehne ki aakhri date" },
-        { "term": "renewal", "en": "getting a new certificate before the old one expires", "hi": "purana certificate expire hone se pehle naya lena" },
-        { "term": "openssl s_client", "en": "a command that connects to a TLS server and shows its certificate", "hi": "command jo TLS server se connect hoke uska certificate dikhata hai" },
-        { "term": "SAN", "en": "Subject Alternative Name; the list of host names a certificate is valid for", "hi": "Subject Alternative Name; un host names ki list jinke liye certificate valid hai" }
+        { "term": "TLS certificate", "en": "a file that proves the server's name and allows encryption" },
+        { "term": "notAfter", "en": "the last date a certificate is valid" },
+        { "term": "renewal", "en": "getting a new certificate before the old one expires" },
+        { "term": "openssl s_client", "en": "a command that connects to a TLS server and shows its certificate" },
+        { "term": "SAN", "en": "Subject Alternative Name; the list of host names a certificate is valid for" }
       ],
       "interview": [
         { "q": "How do you check when a certificate expires?", "a": "I run openssl s_client to connect to the server and pipe the result into openssl x509 with -dates. It shows notBefore and notAfter. This checks the certificate that the server really sends, not only the file on disk. I also check the host names in the SAN list." },

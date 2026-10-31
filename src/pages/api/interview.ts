@@ -6,7 +6,7 @@ import { progressFor, uid } from '../../lib/db';
 import { coach, parseJson } from '../../lib/ai';
 
 type Q = { q: string; ticketId: string };
-type A = { a: string; score: number; feedback: string; better: string; hi?: string };
+type A = { a: string; score: number; feedback: string; better: string };
 
 export const POST: APIRoute = async (ctx) => {
   const u = requireUser(ctx);
@@ -40,10 +40,10 @@ export const POST: APIRoute = async (ctx) => {
 QUESTION: ${q.q}
 MODEL ANSWER: ${model}
 ${t ? `CONTEXT TICKET: ${t.key} ${t.title}. ${t.explain.en}` : ''}
-Return JSON: {"score": 0-10, "feedback": "2-3 simple sentences: what was good, what was missing", "better": "a strong simple-English answer in first person, 3-5 sentences, that this trainee could say"${u.show_hindi ? ', "hi": "one Hinglish line with the main tip"' : ''}}`;
+Return JSON: {"score": 0-10, "feedback": "2-3 simple sentences: what was good, what was missing", "better": "a strong simple-English answer in first person, 3-5 sentences, that this trainee could say"}`;
     const raw = await coach(env, { system, turns: [{ role: 'user', content: answer }], json: true });
     const r = parseJson<Partial<A>>(raw, {});
-    const a: A = { a: answer, score: Math.max(0, Math.min(10, Math.round(Number(r.score ?? 5)))), feedback: r.feedback || '', better: r.better || '', hi: r.hi };
+    const a: A = { a: answer, score: Math.max(0, Math.min(10, Math.round(Number(r.score ?? 5)))), feedback: r.feedback || '', better: r.better || '' };
     as.push(a);
     const finished = as.length >= qs.length;
     const score = as.reduce((n, x) => n + x.score, 0) / as.length;

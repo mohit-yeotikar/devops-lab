@@ -5,7 +5,7 @@ const u = Astro.locals.user!; const db = env.DB;
 const row = await db.prepare('SELECT * FROM interviews WHERE id = ? AND user_id = ?').bind(Astro.params.id, u.id).first<{ id: string; questions: string; answers: string; score: number | null; finished_at: string | null }>();
 if (!row) return new Response('Not found', { status: 404 });
 const qs = JSON.parse(row.questions) as { q: string; ticketId: string }[];
-const as = JSON.parse(row.answers) as { a: string; score: number; feedback: string; better: string; hi?: string }[];
+const as = JSON.parse(row.answers) as { a: string; score: number; feedback: string; better: string }[];
 const i = as.length; const done = !!row.finished_at;
 ---
 <Base title="Mock interview">
@@ -25,6 +25,5 @@ const i = as.length; const done = !!row.finished_at;
     <p class="help">You said: {a.a}</p>
     <p>{a.feedback}</p>
     <blockquote style="border-left:3px solid var(--brand);margin:8px 0;padding-left:12px"><strong>Better answer:</strong> {a.better}</blockquote>
-    {a.hi && <p class="hi">{a.hi}</p>}
   </div>).reverse()}
 </Base>

@@ -55,14 +55,13 @@
         "If you use local images on k3d, set `api.image.repository: shopnotes-api` in `values-dev.yaml` and import the image as in OPS-701."
       ],
       "explain": {
-        "en": "In this task I turned many Kubernetes YAML files into one Helm chart. I moved the values that change between environments, like replicas, image tag and host name, into values files. I made one values file for dev and one for staging. I checked the chart with helm lint and helm template before I installed it. I also used helm history and helm rollback, so I know how to go back to the last good version quickly.",
-        "hi": "Is task mein maine bahut saari Kubernetes YAML files ko ek Helm chart mein badla. Jo values environment ke hisaab se badalti hain, jaise replicas, image tag aur host name, unhe values files mein daala. Dev ke liye ek values file aur staging ke liye ek alag banayi. Install karne se pehle helm lint aur helm template se chart check kiya. helm history aur helm rollback bhi use kiya, taaki jaldi se last good version par wapas ja sakun."
+        "en": "In this task I turned many Kubernetes YAML files into one Helm chart. I moved the values that change between environments, like replicas, image tag and host name, into values files. I made one values file for dev and one for staging. I checked the chart with helm lint and helm template before I installed it. I also used helm history and helm rollback, so I know how to go back to the last good version quickly."
       },
       "vocabulary": [
-        { "term": "Helm chart", "en": "a package of Kubernetes templates plus default values", "hi": "Kubernetes templates aur default values ka ek package" },
-        { "term": "release", "en": "one installed copy of a chart in a cluster", "hi": "cluster mein install kiya hua chart ka ek copy" },
-        { "term": "values file", "en": "a YAML file with settings that fill the templates", "hi": "YAML file jisme settings hoti hain jo templates mein bhari jaati hain" },
-        { "term": "rollback", "en": "going back to an older, working version", "hi": "purane, chalne wale version par wapas jaana" }
+        { "term": "Helm chart", "en": "a package of Kubernetes templates plus default values" },
+        { "term": "release", "en": "one installed copy of a chart in a cluster" },
+        { "term": "values file", "en": "a YAML file with settings that fill the templates" },
+        { "term": "rollback", "en": "going back to an older, working version" }
       ],
       "interview": [
         { "q": "Why did you use Helm?", "a": "Without Helm we had copies of the same YAML for every environment. With Helm I have one set of templates and a small values file per environment. Helm also keeps a history of releases, so I can roll back with one command. It makes deploys repeatable and less error-prone." },
@@ -113,14 +112,13 @@
         "Helm 3.8 and newer support OCI registries by default. You do not need `helm repo add` for OCI."
       ],
       "explain": {
-        "en": "In this task I stored our Helm chart in GitHub Container Registry as an OCI artifact. I packaged the chart, logged in with a token that has only package rights, and pushed it. Then I installed the chart directly from the registry to prove it works. I also made a GitHub Actions job that lints, packages and pushes a new chart version when the chart changes. Now any cluster can install a fixed chart version without our Git repo.",
-        "hi": "Is task mein maine apna Helm chart GitHub Container Registry mein OCI artifact ki tarah store kiya. Chart ko package kiya, sirf package rights wale token se login kiya, aur push kiya. Phir registry se seedha chart install karke check kiya ki kaam karta hai. Ek GitHub Actions job bhi banaya jo chart badalne par lint, package aur naya version push karta hai. Ab koi bhi cluster bina Git repo ke fixed chart version install kar sakta hai."
+        "en": "In this task I stored our Helm chart in GitHub Container Registry as an OCI artifact. I packaged the chart, logged in with a token that has only package rights, and pushed it. Then I installed the chart directly from the registry to prove it works. I also made a GitHub Actions job that lints, packages and pushes a new chart version when the chart changes. Now any cluster can install a fixed chart version without our Git repo."
       },
       "vocabulary": [
-        { "term": "OCI artifact", "en": "a file stored in a container registry using the same standard as images", "hi": "container registry mein images wale standard se store ki gayi file" },
-        { "term": "GHCR", "en": "GitHub Container Registry, a free place to store images and charts", "hi": "GitHub Container Registry, images aur charts rakhne ki free jagah" },
-        { "term": "personal access token", "en": "a password-like key for the GitHub API with limited rights", "hi": "GitHub API ke liye password jaisi key, limited rights ke saath" },
-        { "term": "scope", "en": "the list of things a token is allowed to do", "hi": "token ko kya-kya karne ki permission hai uski list" }
+        { "term": "OCI artifact", "en": "a file stored in a container registry using the same standard as images" },
+        { "term": "GHCR", "en": "GitHub Container Registry, a free place to store images and charts" },
+        { "term": "personal access token", "en": "a password-like key for the GitHub API with limited rights" },
+        { "term": "scope", "en": "the list of things a token is allowed to do" }
       ],
       "interview": [
         { "q": "Why did you store the Helm chart in an OCI registry?", "a": "We already store our images in GHCR, so the chart lives in the same place with the same login. Every chart version is fixed and cannot be changed, so a deploy is repeatable. Other teams can install it without access to our source code." },
@@ -177,15 +175,14 @@
         "If ArgoCD shows OutOfSync forever on the HPA or replicas, the HPA changes replicas. Do not set `replicas` in the Deployment when HPA is enabled, or add `ignoreDifferences` for `/spec/replicas`."
       ],
       "explain": {
-        "en": "In this project I set up GitOps with ArgoCD on our dev cluster. ArgoCD watches our Git repo and makes the cluster the same as the Helm chart and values in Git. I turned on automated sync with self-heal and prune, so manual changes in the cluster are removed. I changed the CI pipeline so it builds the image with the commit SHA as tag and then writes that tag into the values file in Git. ArgoCD sees the new commit and deploys it. To roll back, I only revert the commit in Git.",
-        "hi": "Is project mein maine dev cluster par ArgoCD ke saath GitOps setup kiya. ArgoCD hamare Git repo ko dekhta hai aur cluster ko Git wale Helm chart aur values jaisa bana deta hai. Automated sync ke saath self-heal aur prune on kiya, taaki cluster mein manual changes hat jaayein. CI pipeline badli, ab woh commit SHA ko tag bana ke image build karti hai aur phir woh tag Git ki values file mein likhti hai. ArgoCD naya commit dekhta hai aur deploy kar deta hai. Rollback ke liye bas Git mein commit revert karna hota hai."
+        "en": "In this project I set up GitOps with ArgoCD on our dev cluster. ArgoCD watches our Git repo and makes the cluster the same as the Helm chart and values in Git. I turned on automated sync with self-heal and prune, so manual changes in the cluster are removed. I changed the CI pipeline so it builds the image with the commit SHA as tag and then writes that tag into the values file in Git. ArgoCD sees the new commit and deploys it. To roll back, I only revert the commit in Git."
       },
       "vocabulary": [
-        { "term": "GitOps", "en": "a way of working where Git is the single source of truth for the cluster", "hi": "kaam karne ka tareeka jisme cluster ke liye Git hi single source of truth hota hai" },
-        { "term": "sync", "en": "making the cluster the same as what is written in Git", "hi": "cluster ko Git mein likhe hue jaisa bana dena" },
-        { "term": "self-heal", "en": "ArgoCD undoes manual changes that are not in Git", "hi": "ArgoCD un manual changes ko hata deta hai jo Git mein nahi hain" },
-        { "term": "prune", "en": "deleting objects from the cluster that were removed from Git", "hi": "cluster se woh objects delete karna jo Git se hata diye gaye" },
-        { "term": "drift", "en": "a difference between Git and what really runs", "hi": "Git aur jo asli mein chal raha hai unke beech ka farak" }
+        { "term": "GitOps", "en": "a way of working where Git is the single source of truth for the cluster" },
+        { "term": "sync", "en": "making the cluster the same as what is written in Git" },
+        { "term": "self-heal", "en": "ArgoCD undoes manual changes that are not in Git" },
+        { "term": "prune", "en": "deleting objects from the cluster that were removed from Git" },
+        { "term": "drift", "en": "a difference between Git and what really runs" }
       ],
       "interview": [
         { "q": "What is GitOps and why did you use it?", "a": "GitOps means the wanted state of the cluster is in Git and a tool like ArgoCD applies it. Nobody runs kubectl apply by hand. Every change is a commit, so we have review, history and easy rollback. It also removes drift, because ArgoCD fixes manual changes." },
@@ -242,15 +239,14 @@
         "k3s includes Traefik, so the same Ingress from the chart works on staging."
       ],
       "explain": {
-        "en": "In this task I built a staging Kubernetes cluster on one free-tier EC2 instance with k3s. I added swap because the machine has only 1 GB RAM. I opened the Kubernetes API port only to my own IP. I installed ShopNotes from our OCI chart with the staging values and used an sslip.io host name, so we got a public URL for free. I also wrote an architecture decision record that explains why we skip EKS: the control plane costs money every hour, and we have no budget yet.",
-        "hi": "Is task mein maine ek free-tier EC2 instance par k3s se staging Kubernetes cluster banaya. Machine mein sirf 1 GB RAM hai, isliye swap add kiya. Kubernetes API port sirf apne IP ke liye khola. ShopNotes ko hamare OCI chart se staging values ke saath install kiya aur sslip.io host name use kiya, jisse free mein public URL mil gaya. Ek architecture decision record bhi likha jo batata hai ki EKS kyun skip kiya: uska control plane har ghante paise leta hai aur abhi budget nahi hai."
+        "en": "In this task I built a staging Kubernetes cluster on one free-tier EC2 instance with k3s. I added swap because the machine has only 1 GB RAM. I opened the Kubernetes API port only to my own IP. I installed ShopNotes from our OCI chart with the staging values and used an sslip.io host name, so we got a public URL for free. I also wrote an architecture decision record that explains why we skip EKS: the control plane costs money every hour, and we have no budget yet."
       },
       "vocabulary": [
-        { "term": "k3s", "en": "a small, light Kubernetes made for small machines", "hi": "chhoti machines ke liye bana halka Kubernetes" },
-        { "term": "control plane", "en": "the brain of Kubernetes: API server, scheduler and database", "hi": "Kubernetes ka dimaag: API server, scheduler aur database" },
-        { "term": "kubeconfig", "en": "a file with the cluster address and the key to log in", "hi": "file jisme cluster ka address aur login ki key hoti hai" },
-        { "term": "ADR", "en": "Architecture Decision Record; a short note of a technical decision and why", "hi": "Architecture Decision Record; technical decision aur uski wajah ka chhota note" },
-        { "term": "single point of failure", "en": "one part that stops everything when it breaks", "hi": "ek hissa jo toot jaaye to sab kuch ruk jaata hai" }
+        { "term": "k3s", "en": "a small, light Kubernetes made for small machines" },
+        { "term": "control plane", "en": "the brain of Kubernetes: API server, scheduler and database" },
+        { "term": "kubeconfig", "en": "a file with the cluster address and the key to log in" },
+        { "term": "ADR", "en": "Architecture Decision Record; a short note of a technical decision and why" },
+        { "term": "single point of failure", "en": "one part that stops everything when it breaks" }
       ],
       "interview": [
         { "q": "Why did you not use EKS?", "a": "EKS charges for the control plane every hour, about 73 US dollars a month, even before we add worker nodes. That is not in the free tier. Our app is small, so one k3s node on a free-tier EC2 is enough for staging. I wrote this down in an ADR with the risks and with the point when we should move to EKS." },
@@ -302,14 +298,13 @@
         "Image names are case sensitive and GHCR names must be lowercase."
       ],
       "explain": {
-        "en": "In this incident the new pods could not pull their image, so the deploy got stuck in ImagePullBackOff. The old pods kept running because of the rolling update, so users saw no big outage. I read the exact error in the events and tried to pull the image by hand to see if it was the tag, the login or the network. I found the one real cause and fixed it in the config. As prevention I suggested a CI step that checks the image exists before the tag goes into Git.",
-        "hi": "Is incident mein naye pods apni image pull nahi kar pa rahe the, isliye deploy ImagePullBackOff mein atak gaya. Rolling update ki wajah se purane pods chalte rahe, to users ko bada outage nahi dikha. Maine events mein exact error padha aur image ko haath se pull karke dekha ki problem tag ki hai, login ki ya network ki. Ek asli cause mila aur config mein fix kiya. Prevention ke liye suggest kiya ki CI mein ek step ho jo Git mein tag likhne se pehle check kare ki image exist karti hai."
+        "en": "In this incident the new pods could not pull their image, so the deploy got stuck in ImagePullBackOff. The old pods kept running because of the rolling update, so users saw no big outage. I read the exact error in the events and tried to pull the image by hand to see if it was the tag, the login or the network. I found the one real cause and fixed it in the config. As prevention I suggested a CI step that checks the image exists before the tag goes into Git."
       },
       "vocabulary": [
-        { "term": "ImagePullBackOff", "en": "Kubernetes cannot download the image and waits before trying again", "hi": "Kubernetes image download nahi kar pa raha aur dobara try karne se pehle wait karta hai" },
-        { "term": "imagePullSecrets", "en": "a list of secrets with registry login used to pull private images", "hi": "registry login wale secrets ki list jo private images pull karne ke liye use hoti hai" },
-        { "term": "image tag", "en": "the version name of an image, the part after the colon", "hi": "image ka version naam, colon ke baad wala hissa" },
-        { "term": "manifest", "en": "the description of an image in the registry; if it is missing, the tag does not exist", "hi": "registry mein image ki details; agar missing hai to tag exist nahi karta" }
+        { "term": "ImagePullBackOff", "en": "Kubernetes cannot download the image and waits before trying again" },
+        { "term": "imagePullSecrets", "en": "a list of secrets with registry login used to pull private images" },
+        { "term": "image tag", "en": "the version name of an image, the part after the colon" },
+        { "term": "manifest", "en": "the description of an image in the registry; if it is missing, the tag does not exist" }
       ],
       "interview": [
         { "q": "A pod shows ImagePullBackOff. How do you debug it?", "a": "I run kubectl describe pod and read the events. The message tells me if the image is not found, if access is denied, or if there is a network error. Then I try docker pull with the same name and tag. After that I fix the tag, the pull secret, or the registry name." },

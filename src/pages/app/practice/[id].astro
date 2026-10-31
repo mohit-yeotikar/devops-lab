@@ -1,0 +1,111 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import { labById, labs } from '../../../sandbox/labs.js';
+import { practiceRuns } from '../../../lib/db';
+const lab = labById(Astro.params.id!);
+if (!lab) return new Response('Not found', { status: 404 });
+const u = Astro.locals.user!;
+const finished = (await practiceRuns(env.DB, u.id)).some((r) => r.lab === lab.id);
+const idx = labs.indexOf(lab);
+const next = labs[idx + 1];
+---
+<Base title={`Practice: ${lab.title}`}>
+  <div class="lab" data-lab={lab.id} data-user={u.id}>
+    <p class="crumbs"><a href="/app/practice">Practice</a> <span>/</span> {lab.topic}</p>
+    <header class="lab-head">
+      <div>
+        <h1>{lab.title}</h1>
+        <p class="sub">{lab.summary}</p>
+      </div>
+      <div class="lab-status">{finished && <span class="pill done">Finished before</span>}</div>
+    </header>
+
+    <details class="card intro" open>
+      <summary><strong>Before you start</strong> <span class="help">Read this once. It takes one minute.</span></summary>
+      <ol class="steps">{lab.intro.map((p) => <li>{p}</li>)}</ol>
+    </details>
+
+    <div class="lab-grid">
+      <div class="lab-main">
+        <p class="now-task" aria-live="polite"><b>Task <span class="now-n">1</span> of {lab.tasks.length}</b> <span class="now-text">{lab.tasks[0].text}</span></p>
+        <div class="term" aria-label="Practice terminal">
+          <div class="term-bar">
+            <span class="term-title">{`trainee@${lab.host || 'shopnotes-dev'}`}</span>
+            <span class="term-actions">
+              <button type="button" class="btn sec sm lab-help">help</button>
+              <button type="button" class="btn sec sm lab-reset">Reset lab</button>
+            </span>
+          </div>
+          <div class="term-screen" role="log" aria-live="polite"></div>
+          <label class="term-line">
+            <span class="term-prompt"></span>
+            <input class="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type a command" enterkeyhint="send" />
+          </label>
+        </div>
+        <section class="card explain-card">
+          <h3>What you just did</h3>
+          <div class="explain"></div>
+        </section>
+      </div>
+
+      <aside class="lab-side">
+        <div class="card tasks-card">
+          <div class="row between"><h3>Tasks</h3><span class="help lab-count">0 of {lab.tasks.length} done</span></div>
+          <div class="lab-bar"><i></i></div>
+          <ol class="tasks">
+            {lab.tasks.map((t, i) => (
+              <li data-task={i}>
+                <span class="tick" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" /></svg><b>{i + 1}</b></span>
+                <div>
+                  <p class="t-text">{t.text}</p>
+                  <p class="t-why">{t.why}</p>
+                  <div class="t-help">
+                    <button type="button" class="link t-hint">Hint</button>
+                    <button type="button" class="link t-show">Show the command</button>
+                  </div>
+                  <p class="t-hint-text">{t.hint}</p>
+                  <div class="t-cmd-text"><code>{t.cmd}</code> <button type="button" class="link t-use">Put in terminal</button></div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </aside>
+    </div>
+
+    <section class="lab-done card" hidden>
+      <div class="done-head">
+        <span class="done-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+        <div><h2>All tasks done</h2><p class="sub">Three quick questions to check you understood. Then the lab is saved as finished.</p></div>
+      </div>
+      <form class="quiz">
+        {lab.quiz.map((q, i) => (
+          <fieldset data-q={i}>
+            <legend>{i + 1}. {q.q}</legend>
+            <ul>{q.options.map((o, j) => <li><label><input type="radio" name={`q${i}`} value={j} /> <span>{o}</span></label></li>)}</ul>
+            <p class="why" hidden>{q.why}</p>
+          </fieldset>
+        ))}
+        <div class="quiz-result"></div>
+        <div class="row"><button class="btn" type="submit">Check my answers</button>{next && <a class="btn sec" href={`/app/practice/${next.id}`}>Next lab: {next.title}</a>}</div>
+      </form>
+    </section>
+
+    <div class="editor" hidden role="dialog" aria-modal="true" aria-label="Text editor">
+      <div class="editor-box">
+        <div class="editor-bar"><span class="editor-name"></span><span class="editor-state help"></span></div>
+        <textarea spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+        <div class="editor-foot">
+          <span class="help"><kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>Ctrl</kbd>+<kbd>X</kbd> close</span>
+          <span class="row"><button type="button" class="btn sec sm editor-close">Close</button><button type="button" class="btn sec sm editor-save">Save</button><button type="button" class="btn sm editor-saveclose">Save and close</button></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    import { boot } from '../../../sandbox/ui.js';
+    const root = document.querySelector<HTMLElement>('.lab');
+    if (root) boot(root);
+  </script>
+</Base>

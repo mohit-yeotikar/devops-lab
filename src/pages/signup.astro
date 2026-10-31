@@ -1,19 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
+import AuthShell from '../components/AuthShell.astro';
 if (Astro.locals.user) return Astro.redirect('/app');
 ---
 <Base title="Create your account">
-  <div class="card" style="max-width:460px;margin:30px auto">
-    <h1>Start your training</h1>
-    <p class="sub">Free. You need a laptop with Docker and a free AWS account.</p>
+  <AuthShell>
+  <div class="auth">
+    <h1>Create your account</h1>
+    <p class="sub">You need a laptop and a free AWS account. Use your real name: it goes on your experience letter.</p>
     <form data-api action="/api/auth/signup" method="post">
-      <label>Full name</label><input name="name" required autocomplete="name" placeholder="Harshada Kharade" />
+      <label>Full name</label><input name="name" required autocomplete="name" placeholder="As on your documents" />
       <label>Email</label><input name="email" type="email" required autocomplete="email" />
-      <label>Username <span class="help">(for your public portfolio link)</span></label><input name="handle" pattern="[a-z0-9-]{3,30}" placeholder="harshada-kharade" />
+      <label>Username <span class="help">(for your public portfolio link)</span></label><input name="handle" pattern="[a-z0-9-]{3,30}" placeholder="first-last" />
       <label>Password <span class="help">(8+ characters)</span></label><input name="password" type="password" minlength="8" required autocomplete="new-password" />
       <div class="out"></div>
-      <p><button class="btn" type="submit">Create account</button></p>
+      <button class="btn wide" type="submit">Create account</button>
     </form>
-    <p class="help">Already have an account? <a href="/login">Log in</a></p>
+    <p class="help center">Already have an account? <a href="/login">Log in</a></p>
   </div>
+  </AuthShell>
 </Base>

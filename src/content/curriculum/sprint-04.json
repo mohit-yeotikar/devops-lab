@@ -55,39 +55,32 @@
         "If an access key leaks, deactivate and delete it at once in IAM, then create a new one."
       ],
       "explain": {
-        "en": "In this task I made our AWS account safe before we built anything. I turned on MFA for the root user and created a 1 USD monthly budget with an email alert. I created a group with only the managed policies we need for EC2, VPC and RDS, plus read-only IAM and billing, and an IAM user with MFA in that group. I installed AWS CLI v2 and checked with sts get-caller-identity that I am the IAM user, not root. I also proved least privilege: creating an IAM user was denied.",
-        "hi": "Is task mein maine kuch bhi banane se pehle apna AWS account safe kiya. Root user par MFA lagaya aur email alert ke saath 1 USD ka monthly budget banaya. Ek group banaya jisme sirf zaroori managed policies hain EC2, VPC aur RDS ke liye, aur IAM aur billing read-only, aur us group mein MFA wala IAM user banaya. AWS CLI v2 install kiya aur sts get-caller-identity se check kiya ki main IAM user hoon, root nahi. Least privilege bhi prove kiya: IAM user banane ki command deny ho gayi."
+        "en": "In this task I made our AWS account safe before we built anything. I turned on MFA for the root user and created a 1 USD monthly budget with an email alert. I created a group with only the managed policies we need for EC2, VPC and RDS, plus read-only IAM and billing, and an IAM user with MFA in that group. I installed AWS CLI v2 and checked with sts get-caller-identity that I am the IAM user, not root. I also proved least privilege: creating an IAM user was denied."
       },
       "vocabulary": [
         {
           "term": "root user",
-          "en": "the first user of the AWS account; it can do everything, even close the account",
-          "hi": "AWS account ka pehla user; ye sab kuch kar sakta hai, account band bhi"
+          "en": "the first user of the AWS account; it can do everything, even close the account"
         },
         {
           "term": "MFA",
-          "en": "a second login step with a code from your phone",
-          "hi": "login ka dusra step, phone ke code ke saath"
+          "en": "a second login step with a code from your phone"
         },
         {
           "term": "least privilege",
-          "en": "give only the permissions that are really needed",
-          "hi": "sirf utni permissions dena jitni sach mein chahiye"
+          "en": "give only the permissions that are really needed"
         },
         {
           "term": "IAM policy",
-          "en": "a JSON document that says which AWS actions are allowed or denied",
-          "hi": "JSON document jo batata hai kaunse AWS actions allowed ya denied hain"
+          "en": "a JSON document that says which AWS actions are allowed or denied"
         },
         {
           "term": "access key",
-          "en": "an id and secret that the CLI uses to call AWS as a user",
-          "hi": "id aur secret jisse CLI user ban kar AWS ko call karta hai"
+          "en": "an id and secret that the CLI uses to call AWS as a user"
         },
         {
           "term": "budget alert",
-          "en": "an email from AWS when the cost passes a limit you set",
-          "hi": "AWS ki email jab cost aapki set ki limit se upar jaaye"
+          "en": "an email from AWS when the cost passes a limit you set"
         }
       ],
       "interview": [
@@ -162,39 +155,32 @@
         "The NAT public IP changes after stop and start. Look it up again with `aws ec2 describe-instances`."
       ],
       "explain": {
-        "en": "In this task I built the network for ShopNotes on AWS by hand. I created a VPC with two public and two private subnets in two availability zones, an internet gateway, and one route table for each type of subnet. Instead of a NAT Gateway, which costs money every hour, I launched a t3.micro NAT instance with iptables masquerade and turned off the source/destination check. I made one security group per tier, and each one only allows traffic from the tier in front of it. I also wrote down the cost rules, like stopping the instances every evening.",
-        "hi": "Is task mein maine ShopNotes ke liye AWS par network haath se banaya. Do availability zones mein do public aur do private subnets wala VPC banaya, ek internet gateway, aur har type ke subnet ke liye ek route table. NAT Gateway har ghante paise leta hai, isliye uski jagah t3.micro NAT instance chalaya jisme iptables masquerade hai, aur source/destination check band kiya. Har tier ka ek security group banaya, aur har ek sirf apne aage wale tier se traffic allow karta hai. Cost ke rules bhi likhe, jaise har shaam instances stop karna."
+        "en": "In this task I built the network for ShopNotes on AWS by hand. I created a VPC with two public and two private subnets in two availability zones, an internet gateway, and one route table for each type of subnet. Instead of a NAT Gateway, which costs money every hour, I launched a t3.micro NAT instance with iptables masquerade and turned off the source/destination check. I made one security group per tier, and each one only allows traffic from the tier in front of it. I also wrote down the cost rules, like stopping the instances every evening."
       },
       "vocabulary": [
         {
           "term": "VPC",
-          "en": "your own private network inside AWS",
-          "hi": "AWS ke andar aapka apna private network"
+          "en": "your own private network inside AWS"
         },
         {
           "term": "subnet",
-          "en": "a smaller part of the VPC network in one availability zone",
-          "hi": "VPC network ka chhota hissa jo ek availability zone mein hota hai"
+          "en": "a smaller part of the VPC network in one availability zone"
         },
         {
           "term": "internet gateway",
-          "en": "the door between the VPC and the internet",
-          "hi": "VPC aur internet ke beech ka darwaza"
+          "en": "the door between the VPC and the internet"
         },
         {
           "term": "NAT",
-          "en": "lets private machines go out to the internet without being reachable from it",
-          "hi": "private machines ko internet par bahar jaane deta hai, par bahar se koi unhe reach nahi kar sakta"
+          "en": "lets private machines go out to the internet without being reachable from it"
         },
         {
           "term": "route table",
-          "en": "rules that say where network traffic goes next",
-          "hi": "rules jo batate hain network traffic aage kahan jaayega"
+          "en": "rules that say where network traffic goes next"
         },
         {
           "term": "security group",
-          "en": "a firewall around an instance that allows only the traffic you list",
-          "hi": "instance ke aas-paas firewall jo sirf list kiya hua traffic allow karta hai"
+          "en": "a firewall around an instance that allows only the traffic you list"
         }
       ],
       "interview": [
@@ -264,34 +250,28 @@
         "Delete with Skip final snapshot only in the lab; in production you always keep a final snapshot."
       ],
       "explain": {
-        "en": "In this task I created our database with Amazon RDS for PostgreSQL 16. I used a DB subnet group with only the two private subnets and turned public access off, so the database is not on the internet. The security group allows port 5432 only from the app servers. I chose the free tier db.t3.micro with 20 GB, turned off storage autoscaling and did not use paid extras like Secrets Manager or Multi-AZ. I also prepared a separate app user that can only read and write rows, not change the schema.",
-        "hi": "Is task mein maine Amazon RDS for PostgreSQL 16 se apna database banaya. DB subnet group mein sirf do private subnets rakhe aur public access band kiya, isliye database internet par nahi hai. Security group port 5432 sirf app servers se allow karta hai. Free tier wala db.t3.micro 20 GB ke saath liya, storage autoscaling band kiya aur Secrets Manager ya Multi-AZ jaise paid extras use nahi kiye. Maine ek alag app user bhi ready kiya jo sirf rows padh aur likh sakta hai, schema nahi badal sakta."
+        "en": "In this task I created our database with Amazon RDS for PostgreSQL 16. I used a DB subnet group with only the two private subnets and turned public access off, so the database is not on the internet. The security group allows port 5432 only from the app servers. I chose the free tier db.t3.micro with 20 GB, turned off storage autoscaling and did not use paid extras like Secrets Manager or Multi-AZ. I also prepared a separate app user that can only read and write rows, not change the schema."
       },
       "vocabulary": [
         {
           "term": "RDS",
-          "en": "the AWS service that runs and manages databases for you",
-          "hi": "AWS service jo aapke liye database chalati aur manage karti hai"
+          "en": "the AWS service that runs and manages databases for you"
         },
         {
           "term": "DB subnet group",
-          "en": "the list of subnets where RDS may place the database",
-          "hi": "subnets ki list jahan RDS database rakh sakta hai"
+          "en": "the list of subnets where RDS may place the database"
         },
         {
           "term": "endpoint",
-          "en": "the DNS name you use to connect to the database",
-          "hi": "DNS naam jisse database se connect karte hain"
+          "en": "the DNS name you use to connect to the database"
         },
         {
           "term": "Multi-AZ",
-          "en": "a standby copy of the database in a second zone; it costs double",
-          "hi": "doosre zone mein database ki standby copy; iska kharcha double hota hai"
+          "en": "a standby copy of the database in a second zone; it costs double"
         },
         {
           "term": "sslmode=require",
-          "en": "a connection setting that forces an encrypted connection",
-          "hi": "connection setting jo encrypted connection zaroori banati hai"
+          "en": "a connection setting that forces an encrypted connection"
         }
       ],
       "interview": [
@@ -364,39 +344,32 @@
         "`psql` times out? Check that `shopnotes-db-sg` allows 5432 from `shopnotes-app-sg` and that you use the endpoint, not an IP."
       ],
       "explain": {
-        "en": "In this task I deployed ShopNotes by hand as a 3-tier app on AWS. The app server is an Ubuntu t3.micro in a private subnet, and I reach it with SSH ProxyJump through the NAT instance. On the server I ran the API with gunicorn under systemd and put Nginx in front for the web page and /api/. The data is in RDS PostgreSQL, and the app uses its own limited user with SSL. In front I created an internet-facing Application Load Balancer with a target group that checks /api/health. At the end of each day I delete the load balancer and stop the instances to stay free.",
-        "hi": "Is task mein maine ShopNotes ko AWS par haath se 3-tier app ki tarah deploy kiya. App server private subnet mein Ubuntu t3.micro hai, aur main NAT instance ke through SSH ProxyJump se usme jaata hoon. Server par API ko systemd ke andar gunicorn se chalaya aur web page aur /api/ ke liye aage Nginx lagaya. Data RDS PostgreSQL mein hai, aur app apne limited user se SSL ke saath connect karta hai. Sabse aage ek internet-facing Application Load Balancer banaya jiska target group /api/health check karta hai. Free rehne ke liye har din ke end mein load balancer delete karta hoon aur instances stop karta hoon."
+        "en": "In this task I deployed ShopNotes by hand as a 3-tier app on AWS. The app server is an Ubuntu t3.micro in a private subnet, and I reach it with SSH ProxyJump through the NAT instance. On the server I ran the API with gunicorn under systemd and put Nginx in front for the web page and /api/. The data is in RDS PostgreSQL, and the app uses its own limited user with SSL. In front I created an internet-facing Application Load Balancer with a target group that checks /api/health. At the end of each day I delete the load balancer and stop the instances to stay free."
       },
       "vocabulary": [
         {
           "term": "3-tier architecture",
-          "en": "an app split into web, app and database layers, each in its own network part",
-          "hi": "app ko web, app aur database layers mein baantna, har ek apne network hisse mein"
+          "en": "an app split into web, app and database layers, each in its own network part"
         },
         {
           "term": "Application Load Balancer",
-          "en": "an AWS service that spreads HTTP requests to healthy servers",
-          "hi": "AWS service jo HTTP requests healthy servers mein baant deti hai"
+          "en": "an AWS service that spreads HTTP requests to healthy servers"
         },
         {
           "term": "target group",
-          "en": "the list of servers behind a load balancer, with a health check",
-          "hi": "load balancer ke peeche servers ki list, health check ke saath"
+          "en": "the list of servers behind a load balancer, with a health check"
         },
         {
           "term": "bastion host",
-          "en": "a small server in a public subnet used to reach private servers with SSH",
-          "hi": "public subnet ka chhota server jisse private servers tak SSH karte hain"
+          "en": "a small server in a public subnet used to reach private servers with SSH"
         },
         {
           "term": "ProxyJump",
-          "en": "an SSH setting that connects through one server to reach another",
-          "hi": "SSH setting jo ek server ke through dusre server tak connect karti hai"
+          "en": "an SSH setting that connects through one server to reach another"
         },
         {
           "term": "SSH tunnel",
-          "en": "a safe channel through SSH that forwards a local port to a remote one",
-          "hi": "SSH ke through safe raasta jo local port ko remote port se jodta hai"
+          "en": "a safe channel through SSH that forwards a local port to a remote one"
         }
       ],
       "interview": [
@@ -464,29 +437,24 @@
         "Write prices in USD and the region (Mumbai). Prices differ between regions."
       ],
       "explain": {
-        "en": "In this task I wrote the architecture note for our AWS setup. It has a diagram of the three tiers, a table of all subnets and a table of every security group rule copied from the console. I made a cost table with the free offers and the real price of each part, with links to the AWS pricing pages and the date. I added tested commands to start and stop everything each day and the order to delete it all. I also listed what we would change for production, like Multi-AZ and a NAT Gateway.",
-        "hi": "Is task mein maine apne AWS setup ka architecture note likha. Isme teen tiers ka diagram hai, saare subnets ki table aur har security group rule ki table jo console se copy ki. Ek cost table banayi jisme free offers aur har part ki asli price hai, AWS pricing pages ke links aur date ke saath. Roz sab start aur stop karne ki tested commands likhi aur sab delete karne ka order bhi. Production ke liye kya badlenge, jaise Multi-AZ aur NAT Gateway, woh bhi list kiya."
+        "en": "In this task I wrote the architecture note for our AWS setup. It has a diagram of the three tiers, a table of all subnets and a table of every security group rule copied from the console. I made a cost table with the free offers and the real price of each part, with links to the AWS pricing pages and the date. I added tested commands to start and stop everything each day and the order to delete it all. I also listed what we would change for production, like Multi-AZ and a NAT Gateway."
       },
       "vocabulary": [
         {
           "term": "architecture diagram",
-          "en": "a picture that shows the parts of a system and how they connect",
-          "hi": "picture jo system ke parts aur unke connection dikhati hai"
+          "en": "a picture that shows the parts of a system and how they connect"
         },
         {
           "term": "availability zone",
-          "en": "one data center area inside an AWS region",
-          "hi": "AWS region ke andar ek data center area"
+          "en": "one data center area inside an AWS region"
         },
         {
           "term": "on-demand price",
-          "en": "the price per hour when you pay only for what you use",
-          "hi": "per ghante ki price jab sirf use ki hui cheez ka paisa dete ho"
+          "en": "the price per hour when you pay only for what you use"
         },
         {
           "term": "single point of failure",
-          "en": "one part that stops the whole system when it breaks",
-          "hi": "ek part jo toot jaaye toh poora system ruk jaata hai"
+          "en": "one part that stops the whole system when it breaks"
         }
       ],
       "interview": [
