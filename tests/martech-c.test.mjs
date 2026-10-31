@@ -224,3 +224,41 @@ test('incrementality: CMO case question', () => {
   assert.ok(IN.CMO_Q.c >= 0 && IN.CMO_Q.c < IN.CMO_Q.o.length);
   assert.ok(/1,100/.test(IN.CMO_Q.o[IN.CMO_Q.c]));
 });
+
+/* ---------------- mount: drive every task through the real event handlers (tiny DOM stub) ---------------- */
+const mk = () => { const handlers = {}; const e = { innerHTML: '', textContent: '', value: '', hidden: false, style: {}, dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, addEventListener: (t, f) => { (handlers[t] ||= []).push(f); }, handlers, closest: () => null, scrollIntoView() {}, querySelectorAll: () => [], kids: {} }; e.querySelector = (s) => (e.kids[s] ||= mk()); return e; };
+const T = (o = {}) => ({ dataset: {}, value: '', classList: { contains: () => false, add() {} }, closest: () => null, ...o });
+const fire = (node, type, target = T()) => node.handlers[type].forEach((f) => f({ target }));
+const mkctx = () => { const done = new Set(); return { done, ctx: { state: {}, save() {}, toast() {}, isDone: (id) => done.has(id), done: (id) => done.add(id), act() {} } }; };
+
+test('mount: every task of every lab can be completed through the UI handlers', () => {
+  { const H = HS; const { done, ctx } = mkctx(); const el = mk(); H.mount(el, ctx);
+    const pts = { ride: 30, price: 10, pages: 10, open: 10, budget: 15, fleet: 20, student: -15, nobudget: -20, jobs: -30 };
+    for (const [k, v] of Object.entries(pts)) fire(el, 'input', T({ dataset: { k }, value: String(v) }));
+    fire(el, 'input', T({ value: '40', classList: { contains: (c) => c === 'hs-th' } }));
+    const ev = H.evaluate(pts, 40); el.querySelector('.hs-p').value = (ev.precision * 100).toFixed(1); el.querySelector('.hs-r').value = (ev.recall * 100).toFixed(1); fire(el.querySelector('.hs-measure'), 'click');
+    fire(el.querySelector('.wf-trig'), 'change', T({ value: 'mql' })); fire(el.querySelector('.wf-re'), 'change', T({ value: 'form' })); fire(el.querySelector('.wf-fb'), 'change', T({ value: H.INSIDE }));
+    ctx.state.wf.steps = ['owner', 'task', 'notify', 'delay', 'branch']; fire(el.querySelector('.wf-check'), 'click');
+    H.QUESTIONS.forEach((q, qi) => { const b = { dataset: { q: String(qi), o: String(q.c) }, classList: { add() {} } }; fire(el.querySelector('.hs-q'), 'click', T({ closest: () => b })); });
+    assert.deepEqual([...done].sort(), HS.lab.tasks.map((t) => t.id).sort());
+  }
+  { const A = AT; const { done, ctx } = mkctx(); const el = mk(); A.mount(el, ctx);
+    el.querySelector('.at-under').value = 'yt'; fire(el.querySelector('.at-under-go'), 'click');
+    fire(el.querySelector('.at-brand'), 'click', T({ closest: () => ({ dataset: { o: String(A.BRAND_Q.c) }, classList: { add() {} } }) }));
+    fire(el.querySelector('.at-model'), 'change', T({ value: 'decay' })); fire(el.querySelector('.at-h'), 'input', T({ value: '14' }));
+    el.querySelector('.at-loss').value = 'psb'; fire(el.querySelector('.at-loss-go'), 'click');
+    const hp = A.handPath(A.buildData()); el.querySelector('.at-hand').value = '₹' + Math.round(A.handAnswer(hp)).toLocaleString('en-IN'); fire(el.querySelector('.at-hand-go'), 'click');
+    A.LIMITS.forEach((l, i) => fire(el.querySelector('.at-lim'), 'change', T({ dataset: { l: String(i) }, checked: l.ok }))); fire(el.querySelector('.at-lim-go'), 'click');
+    assert.deepEqual([...done].sort(), AT.lab.tasks.map((t) => t.id).sort());
+  }
+  { const I = IN; const { done, ctx } = mkctx(); const el = mk(); I.mount(el, ctx);
+    fire(el.querySelector('.g-pairs'), 'click'); fire(el.querySelector('.g-weeks'), 'input', T({ value: '8' }));
+    const R = I.geoReport(I.geoBase(), ctx.state.assign, 8); el.querySelector('.g-icpa').value = String(Math.round(R.spend / Math.round(R.incr))); el.querySelector('.g-iroas').value = (Math.round(R.incr) * 4800 / R.spend).toFixed(2); fire(el.querySelector('.g-calc'), 'click');
+    for (const c of I.MMM_CH) for (const f of ['decay', 'K']) fire(el.querySelector('.m-params'), 'input', T({ dataset: { p: c.id, f }, value: String(I.MMM_TRUE[c.id][f]) }));
+    const fit = I.fitMMM(I.mmmData(), I.MMM_TRUE); el.querySelector('.m-best').value = I.bestMarginal(fit, I.MMM_TRUE, I.currentPlan(I.mmmData())); fire(el.querySelector('.m-bestgo'), 'click');
+    const plan = I.currentPlan(I.mmmData()); const np = { ...plan, tv: plan.tv - 12, yt: plan.yt + 6, meta: plan.meta + 6 };
+    for (const [k, v] of Object.entries(np)) fire(el.querySelector('.m-roi'), 'change', T({ dataset: { plan: k }, value: String(v) }));
+    fire(el.querySelector('.c-opts'), 'click', T({ closest: () => ({ dataset: { o: String(I.CMO_Q.c) }, classList: { add() {} } }) }));
+    assert.deepEqual([...done].sort(), IN.lab.tasks.map((t) => t.id).sort());
+  }
+});

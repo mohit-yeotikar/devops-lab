@@ -205,7 +205,8 @@ const pc = (x, d = 1) => (x * 100).toFixed(d) + '%';
 
 export function mount(el, ctx) {
   const S = ctx.state;
-  S.model ??= 'linear'; S.h ??= 7; S.ans ??= {}; S.lim ??= {};
+  if (!MODELS[S.model]) S.model = 'linear';
+  if (!(S.h >= 1 && S.h <= 30)) S.h = 7; S.ans ??= {}; S.lim ??= {};
   const data = buildData();
   const total = totalValue(data);
   const hp = handPath(data);
@@ -264,8 +265,8 @@ export function mount(el, ctx) {
     $('.at-table').innerHTML = `<thead><tr><th>Channel</th>${Object.entries(MODELS).map(([k, v]) => `<th${k === m ? ' class="mtc-sel"' : ''}>${esc(v)}</th>`).join('')}<th>${esc(MODELS[m])} vs last click</th></tr></thead><tbody>${CHANNELS.map((c) => { const d = sh[c.id] - lc[c.id]; return `<tr><td>${esc(c.name)}</td>${Object.keys(MODELS).map((k) => `<td${k === m ? ' class="mtc-sel"' : ''}>${pc(all[k][c.id])}</td>`).join('')}<td class="${d > 0.005 ? 'ok' : d < -0.005 ? 'err' : ''}">${d >= 0 ? '+' : ''}${(d * 100).toFixed(1)} pts</td></tr>`; }).join('')}<tr><td><b>Total credit</b></td>${Object.keys(MODELS).map((k) => `<td>${lakh(Object.values(credit(k, data, h)).reduce((a, b) => a + b, 0))}</td>`).join('')}<td></td></tr></tbody>`;
     if (m === 'decay' && upperShare(data, h) >= UPPER_TARGET) ctx.done('at3');
   }
-  $('.at-model').addEventListener('change', (e) => { S.model = e.target.value; ctx.act(); ctx.save(); render(); });
-  $('.at-h').addEventListener('input', (e) => { S.h = Number(e.target.value); ctx.save(); render(); });
+  $('.at-model').addEventListener('change', (e) => { if (!MODELS[e.target.value]) return; S.model = e.target.value; ctx.act(); ctx.save(); render(); });
+  $('.at-h').addEventListener('input', (e) => { const h = Number(e.target.value); if (h >= 1 && h <= 30) { S.h = h; ctx.save(); render(); } });
   $('.at-h').addEventListener('change', () => ctx.act());
 
   $('.at-under-go').addEventListener('click', () => {

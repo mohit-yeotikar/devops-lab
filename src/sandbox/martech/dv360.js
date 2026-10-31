@@ -246,7 +246,7 @@ export function mount(el, ctx) {
     const li = S.li[S.cur];
     el.querySelectorAll('.dv-form [data-f]').forEach((x) => {
       const f = x.dataset.f;
-      if (x.type === 'checkbox') li[f] = x.checked;
+      if (x.getAttribute('type') === 'checkbox') li[f] = !!x.checked;
       else if (['bid', 'capN', 'view'].includes(f)) li[f] = Math.max(0, Math.min(f === 'bid' ? 1000 : 100, Number(x.value) || 0));
       else li[f] = x.value;
     });

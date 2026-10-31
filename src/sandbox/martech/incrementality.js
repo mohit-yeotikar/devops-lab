@@ -307,7 +307,7 @@ export function mount(el, ctx) {
   });
   $('.g-pairs').addEventListener('click', () => { S.assign = matchedPairs(base); ctx.act(); ctx.save(); geo(); });
   $('.g-clear').addEventListener('click', () => { S.assign = Array(GEO.length).fill(''); ctx.save(); geo(); });
-  $('.g-weeks').addEventListener('input', (e) => { S.weeks = Number(e.target.value); ctx.save(); geo(); });
+  $('.g-weeks').addEventListener('input', (e) => { const w = Number(e.target.value); if (w >= 1 && w <= MAX_POST) { S.weeks = w; ctx.save(); geo(); } });
   $('.g-weeks').addEventListener('change', () => ctx.act());
   $('.g-calc').addEventListener('click', () => {
     ctx.act();
@@ -356,7 +356,8 @@ export function mount(el, ctx) {
   }
   el.querySelector('.m-params').addEventListener('input', (e) => {
     const c = e.target.dataset.p; if (!c) return;
-    S.params[c][e.target.dataset.f] = Number(e.target.value); ctx.save(); mmm();
+    const v = Number(e.target.value); if (!Number.isFinite(v) || e.target.value === '') return;
+    S.params[c][e.target.dataset.f] = v; ctx.save(); mmm();
   });
   el.querySelector('.m-params').addEventListener('change', () => ctx.act());
   el.querySelector('.m-roi').addEventListener('change', (e) => {
