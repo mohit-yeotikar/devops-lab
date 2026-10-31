@@ -43,7 +43,7 @@ Admins can promote others on `/admin/users/<id>`.
 
 ```bash
 pnpm exec wrangler d1 migrations apply devops-lab --remote
-pnpm deploy
+pnpm run deploy        # build + D1 migrations + deploy
 pnpm exec wrangler secret put ANTHROPIC_API_KEY   # optional, enables Claude
 ```
 
