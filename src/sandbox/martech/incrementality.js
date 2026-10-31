@@ -290,12 +290,12 @@ export function mount(el, ctx) {
     const R = geoReport(base, S.assign, S.weeks);
     $('.g-chart').innerHTML = lineChart([{ y: R.T, cls: 'mtc-l1' }, { y: R.fitted, cls: 'mtc-l2' }], { mark: PRE - 0.5, label: 'Treatment vs scaled control by week' });
     const sig = R.lo > 0, bal = balanced(S.assign, R);
-    $('.g-kpis').innerHTML = `<div><span class="eyebrow">Pre-period fit error (MAPE)</span><span class="big ${R.mape <= MAPE_MAX ? 'ok' : 'err'}">${pc(R.mape, 1)}</span></div><div><span class="eyebrow">Incremental bookings</span><span class="big">${num(R.incr)}</span></div><div><span class="eyebrow">95% CI</span><span class="big ${sig ? 'ok' : ''}">${num(R.lo)} to ${num(R.hi)}</span></div><div><span class="eyebrow">Lift</span><span class="big">${pc(R.liftPct)}</span></div><div><span class="eyebrow">Meta spend</span><span class="big">${inr(R.spend)}</span></div><div><span class="eyebrow">Platform-reported conversions</span><span class="big">${num(R.platformConv)}</span></div><div><span class="eyebrow">iCPA</span><span class="big">${Number.isFinite(R.icpa) ? inr(R.icpa) : '–'}</span></div>`;
+    $('.g-kpis').innerHTML = `<div><span class="eyebrow">Pre-period fit error (MAPE)</span><span class="big ${R.mape <= MAPE_MAX ? 'ok' : 'err'}">${pc(R.mape, 1)}</span></div><div><span class="eyebrow">Incremental bookings</span><span class="big">${num(R.incr)}</span></div><div><span class="eyebrow">95% CI</span><span class="big ${sig ? 'ok' : ''}">${num(R.lo)} to ${num(R.hi)}</span></div><div><span class="eyebrow">Lift</span><span class="big">${pc(R.liftPct)}</span></div><div><span class="eyebrow">Meta spend</span><span class="big">${inr(R.spend)}</span></div><div><span class="eyebrow">Platform-reported conversions</span><span class="big">${num(R.platformConv)}</span></div>${ctx.isDone('in3') ? `<div><span class="eyebrow">iCPA</span><span class="big">${Number.isFinite(R.icpa) ? inr(R.icpa) : '–'}</span></div>` : ''}`;
     const msg = [];
     if (g.t < 4 || g.c < 4) msg.push('Use at least 4 cities in each group, so one city\'s local event cannot decide the result.');
     if (R.mape > MAPE_MAX) msg.push('The control does not track the treatment before launch. The metros grow faster than smaller cities; mix both types into each group.');
     if (bal && !sig) msg.push('Balanced, but the confidence interval still includes zero. The test is too short to tell. Add weeks.');
-    if (bal && sig) msg.push(`Clean read: about ${num(R.incr)} extra bookings (${pc(R.liftPct)} lift). Meta claims ${num(R.platformConv)} conversions for the same spend, so platform CPA ${inr(PLATFORM_CPA)} vs incremental CPA ${inr(R.icpa)}.`);
+    if (bal && sig) msg.push(`Clean read: about ${num(R.incr)} extra bookings (${pc(R.liftPct)} lift). Meta claims ${num(R.platformConv)} conversions for the same spend. Now calculate what one extra booking really cost.`);
     $('.g-msg').innerHTML = msg.length ? `<div class="notice ${bal && sig ? 'ok' : 'warn'}">${msg.map(esc).join(' ')}</div>` : '';
     if (bal) ctx.done('in1');
     if (bal && sig) ctx.done('in2');
@@ -317,8 +317,8 @@ export function mount(el, ctx) {
     if (!(R.lo > 0 && balanced(S.assign, R))) { $('.g-calcout').innerHTML = '<div class="notice warn">First get a balanced test with a confidence interval above zero. An iCPA from an inconclusive test is noise.</div>'; return; }
     const v = (s) => Number(String($(s).value).replace(/[^0-9.\-]/g, ''));
     const okC = Math.abs(v('.g-icpa') - R.icpa) <= R.icpa * 0.02, okR = Math.abs(v('.g-iroas') - R.iroas) <= Math.max(0.05, R.iroas * 0.02);
-    if (okC && okR) { ctx.done('in3'); $('.g-calcout').innerHTML = `<div class="notice ok"><strong>Right.</strong> iCPA = ${inr(R.spend)} ÷ ${num(R.incr)} = ${inr(R.icpa)}. iROAS = ${num(R.incr)} × ₹4,800 ÷ ${inr(R.spend)} = ${R.iroas.toFixed(2)}. Every ₹1 on Meta returns about ₹${R.iroas.toFixed(1)} of contribution. Positive, but far less than the platform CPA suggests (₹4,800 ÷ ₹400 = 12).</div>`; }
-    else $('.g-calcout').innerHTML = `<div class="notice warn">${okC ? 'iCPA is right.' : 'Check iCPA: spend ÷ incremental bookings (use the unrounded numbers shown).'} ${okR ? 'iROAS is right.' : 'Check iROAS: incremental bookings × 4,800 ÷ spend.'}</div>`;
+    if (okC && okR) { ctx.done('in3'); geo(); $('.g-calcout').innerHTML = `<div class="notice ok"><strong>Right.</strong> iCPA = ${inr(R.spend)} ÷ ${num(R.incr)} = ${inr(R.icpa)}. iROAS = ${num(R.incr)} × ₹4,800 ÷ ${inr(R.spend)} = ${R.iroas.toFixed(2)}. Every ₹1 on Meta returns about ₹${R.iroas.toFixed(1)} of contribution. Positive, but far less than the platform CPA suggests (₹4,800 ÷ ₹400 = 12).</div>`; }
+    else $('.g-calcout').innerHTML = `<div class="notice warn">${okC ? 'iCPA is right.' : 'Check iCPA: Meta spend ÷ incremental bookings, using the numbers shown above.'} ${okR ? 'iROAS is right.' : 'Check iROAS: incremental bookings × 4,800 ÷ spend.'}</div>`;
   });
 
   /* ---- MMM ---- */
@@ -368,6 +368,7 @@ export function mount(el, ctx) {
     ctx.act();
     const fit = fitMMM(data, S.params), v = $('.m-best').value;
     if (!v) return ctx.toast('Choose a channel.');
+    if (!fit) return ctx.toast('Fit the model first.');
     const right = bestMarginal(fit, S.params, plan0);
     if (v === right) { ctx.done('in5'); $('.m-bestout').innerHTML = `<div class="notice ok"><strong>Right: ${esc(MMM_CH.find((c) => c.id === right).name)}.</strong> Its response curve is still steep at today's spend. The channel with the lowest marginal ROI is closest to saturation: money there buys little extra.</div>`; }
     else $('.m-bestout').innerHTML = '<div class="notice warn">Not that one. Compare the "Next ₹1 returns" column, not the average ROI.</div>';

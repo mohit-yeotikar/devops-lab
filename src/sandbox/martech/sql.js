@@ -424,7 +424,8 @@ WHERE e.event_name = 'generate_lead'</pre>
   const $ = (s) => el.querySelector(s);
   const ta = $('.s-sql'), sel = $('.s-task');
   const firstOpen = () => lab.tasks.find((t) => !ctx.isDone(t.id))?.id || lab.tasks[0].id;
-  sel.value = S.sel && !ctx.isDone(S.sel) ? S.sel : firstOpen();
+  const setSel = (v) => { try { sel.value = v; } catch { for (const o of sel.querySelectorAll('option')) o.toggleAttribute('selected', o.value === v); } };
+  setSel(S.sel && !ctx.isDone(S.sel) ? S.sel : firstOpen());
   let db = null, exp = null;
 
   ta.addEventListener('input', () => { S.sql = ta.value; ctx.save(); });
@@ -463,7 +464,7 @@ WHERE e.event_name = 'generate_lead'</pre>
     else if (c.msg) html = `<div class="notice warn"><strong>Not task ${n(chosen)} yet.</strong> ${esc(c.msg)}</div>`;
     $('.s-msg').innerHTML = html;
     newly.forEach((id) => ctx.done(id));
-    if (newly.includes(sel.value) || ctx.isDone(sel.value)) { const nx = firstOpen(); if (!ctx.isDone(nx)) { sel.value = nx; S.sel = nx; ctx.save(); } }
+    if (newly.includes(sel.value) || ctx.isDone(sel.value)) { const nx = firstOpen(); if (!ctx.isDone(nx)) { setSel(nx); S.sel = nx; ctx.save(); } }
   }
 
   import('alasql').then((m) => {
