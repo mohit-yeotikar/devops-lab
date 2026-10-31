@@ -10,6 +10,7 @@ const u = Astro.locals.user!;
       <label>Full name</label><input name="name" value={u.name} required />
       <label>Username</label><input name="handle" value={u.handle} pattern="[a-z0-9-]{3,30}" /><p class="help">Portfolio link: /u/{u.handle}</p>
       <label>City</label><input name="city" value={u.city} placeholder="Pune, Maharashtra" />
+      <label>Training track</label><select name="track"><option value="devops" selected={u.track !== 'cro'}>DevOps Engineer</option><option value="cro" selected={u.track === 'cro'}>CRO and Analytics Specialist</option><option value="martech" selected={u.track === 'martech'}>MarTech and Performance Marketing</option></select><p class="help">Your progress in each track is kept. Switching only changes which sprints you see.</p>
       <label>Target role</label><input name="target_role" value={u.target_role} />
       <label>GitHub profile URL</label><input name="github" value={u.github} placeholder="https://github.com/yourname" />
       <label>LinkedIn URL</label><input name="linkedin" value={u.linkedin} placeholder="https://linkedin.com/in/yourname" />

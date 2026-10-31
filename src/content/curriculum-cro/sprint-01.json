@@ -1,0 +1,464 @@
+{
+  "id": "c01",
+  "number": 1,
+  "title": "How online stores make money",
+  "weeks": "1-2",
+  "theme": "Build the GlowShop practice store and learn the funnel and the three numbers that drive online revenue: CR, AOV and RPV.",
+  "jobStory": "In this sprint you join GlowShop as a junior CRO and analytics specialist. You build a practice copy of the store on a free Shopify dev store with real products and variants. You learn the funnel from visit to order and the key numbers that every CRO team watches: conversion rate, average order value and revenue per visitor. You build the team metrics sheet in Google Sheets, you list all the small and big actions a customer can take, and you write a one-page note that explains how GlowShop makes money.",
+  "outcomes": [
+    "I set up a Shopify dev store with the Dawn theme, 8 products with size variants, collections and test orders.",
+    "I built a Google Sheet that calculates CR, AOV, RPV, funnel step rates and absolute and relative lift.",
+    "I listed the micro and macro conversions of the store and matched them to GA4 event names.",
+    "I found the biggest leak in a month of funnel data and showed in dollars what a fix is worth.",
+    "I wrote a one-page note that explains how GlowShop makes money and which numbers we will improve."
+  ],
+  "tickets": [
+    {
+      "id": "c01-t01",
+      "key": "CRO-101",
+      "type": "project",
+      "title": "Set up the GlowShop practice store on Shopify",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "A free Shopify dev store with the Dawn theme, 8 GlowShop products with 30 ml and 50 ml variants, 3 collections and 3 test orders.",
+      "context": "Hi, welcome to GlowShop! We never test on the live store, so you need your own practice store. Please build a small copy of GlowShop on a free Shopify dev store. We will use it in every sprint for tracking, research and tests, so set it up with care.",
+      "steps": [
+        "Create a free Shopify Partner account at https://www.shopify.com/partners (click Join now). Use your own email. You do not need a credit card and you never pay for a dev store.",
+        "Open the Dev Dashboard at https://dev.shopify.com/dashboard/ and log in with the same account. Click Stores, then Create store. (If your account still shows the old Partner Dashboard, use Stores → Add store → Create development store.) Name it `glowshop-practice-<yourname>`. This name becomes your address `glowshop-practice-<yourname>.myshopify.com`.",
+        "Finish the setup flow. Shopify opens the admin of the new store. Write down three things in a note: the admin URL, the store URL and the store password. Find the password in Online Store → Preferences → Password protection. Dev stores are always protected by a password, and that is fine for us.",
+        "Set the store basics: Settings → General → Store details: store name `GlowShop Practice`. In Store defaults set Currency to `US Dollar (USD)`, the time zone to your own time zone and the unit system to Metric. Click Save.",
+        "Check the theme: Online Store → Themes. The current theme must be Dawn (Shopify's free theme). If it is not, click Add theme → Visit Theme Store, search `Dawn`, click Try theme, then Publish.",
+        "Create the products: Products → Add product. Make 8 products: `Vitamin C Glow Serum`, `Hyaluronic Hydra Serum`, `Niacinamide Clear Serum`, `Retinol Night Serum`, `Daily Moisture Cream`, `Rich Repair Night Cream`, `Gentle Foam Cleanser`, `SPF 50 Day Fluid`. Give each a short description (2-3 sentences), a free image (for example from https://unsplash.com, search `skincare bottle`), Vendor `GlowShop` and Product type `Serum`, `Cream`, `Cleanser` or `Sunscreen`.",
+        "Add variants to every product: on the product page, in the Variants box click Add options like size or color. Option name: `Size`. Option values: `30 ml` and `50 ml`. Click Done. Give each variant its own price (for example serum 30 ml = 29.00, 50 ml = 42.00; creams 34.00 / 49.00; cleanser 18.00 / 26.00; sunscreen 24.00 / 35.00).",
+        "Give each variant a SKU so we can track it later: click the variant, then in Inventory tick This product has a SKU or barcode and enter a SKU like `GS-VCS-30` and `GS-VCS-50` (GS = GlowShop, VCS = Vitamin C Serum, 30 = size). Set inventory to 100 for each variant. Click Save.",
+        "Create 3 collections: Products → Collections → Create collection. Make `Serums`, `Moisturisers` and `Best sellers`. Use Collection type Manual and add the right products. Save each.",
+        "Add the collections to the menu: Online Store → Navigation → Main menu → Add menu item. Add `Serums`, `Moisturisers` and `Best sellers` and link each to its collection. Save menu.",
+        "Set up free test payments: Settings → Payments. In Payment providers click Choose a provider (or See all other providers) and select Test payment gateway (its older name is Bogus Gateway). Click Activate. Now every order is a test order and no real money moves.",
+        "Set a simple shipping rate: Settings → Shipping and delivery → General shipping rates → Manage. Add a rate `Standard` for 5.00 USD and a free rate for orders over 60 USD. Save.",
+        "Place 3 test orders as a customer: open the store URL in an Incognito window, enter the store password, add products to the cart and go to checkout. Use a fake name and address. At payment use the card number `1`, any CVV like `111`, a future expiry date and the name on card `Test payment gateway` (see the Shopify help page in Resources). Make one order with 1 item, one with 2 items and one over 60 USD.",
+        "Check the orders in the admin: Orders. You must see 3 orders marked as test orders. Open one and note the order number (like `#1001`).",
+        "Take screenshots: the home page, one product page showing the Size picker, the cart, the checkout page and the Orders list. Save them in a Google Drive folder `GlowShop CRO training / CRO-101`."
+      ],
+      "acceptance": [
+        "The store uses the Dawn theme and opens with the store password.",
+        "There are 8 products, each with a `Size` option with the values `30 ml` and `50 ml`, its own price and a SKU.",
+        "The 3 collections are in the main menu and each shows the right products.",
+        "Settings → Payments shows Test payment gateway as active.",
+        "The Orders list shows at least 3 test orders, one of them over 60 USD with free shipping."
+      ],
+      "evidence": [
+        "The store URL and the store password (the password is only for the practice store, so it is safe to share with your lead).",
+        "Link to the Google Drive folder with the 5 screenshots (home, product page, cart, checkout, Orders list).",
+        "A list of your 16 SKUs (8 products × 2 sizes) pasted as text."
+      ],
+      "hints": [
+        "If you cannot find Choose a provider, first deactivate Shopify Payments: Settings → Payments → Manage → Deactivate.",
+        "If the checkout says the payment failed, check that you typed the card number `1` (not 2 or 3).",
+        "The test order must be more than 1 USD, or the Test payment gateway will not accept it."
+      ],
+      "explain": {
+        "en": "In this task I built a practice copy of the GlowShop store on a free Shopify dev store. I used the free Dawn theme and created 8 skincare products. Each product has two sizes, 30 ml and 50 ml, with its own price and a SKU. I made three collections and added them to the main menu. I turned on Shopify's Test payment gateway, so I could place test orders without real money. I placed three test orders and checked them in the Orders list."
+      },
+      "vocabulary": [
+        {
+          "term": "dev store",
+          "en": "a free Shopify store for building and testing; it cannot take real orders"
+        },
+        {
+          "term": "variant",
+          "en": "one version of a product, for example the 50 ml size"
+        },
+        {
+          "term": "SKU",
+          "en": "a short code that names one variant, like GS-VCS-30"
+        },
+        {
+          "term": "collection",
+          "en": "a group of products, like all serums"
+        },
+        {
+          "term": "test order",
+          "en": "an order made with a fake card to check the checkout; no money moves"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you work on a practice store and not on the live store?",
+          "a": "A practice store lets me try tracking code and changes without any risk. If I break something, real customers do not see it and the company does not lose sales. The Shopify dev store is free and works like a real store. I use test orders, so no real money moves."
+        },
+        {
+          "q": "Why did you give every variant a SKU?",
+          "a": "The SKU names one exact product and size. Later I send the SKU as item_id in GA4 events. Then I can see which size sells, and I can match GA4 data with Shopify orders. A clear SKU pattern also helps the team read reports fast."
+        },
+        {
+          "q": "How did you place test orders?",
+          "a": "I turned on Shopify's Test payment gateway under Settings and Payments. Then I bought products in an Incognito window and paid with the card number 1. Shopify marks these orders as test orders. I made one small order, one with two items and one over the free shipping limit."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Shopify dev docs: Dev stores",
+          "url": "https://shopify.dev/docs/api/development-stores"
+        },
+        {
+          "title": "Shopify Help: Activating a payment gateway in test mode",
+          "url": "https://help.shopify.com/en/manual/checkout-settings/test-orders/payments-test-mode"
+        },
+        {
+          "title": "Shopify Help: Adding and updating products",
+          "url": "https://help.shopify.com/en/manual/products/add-update-products"
+        }
+      ]
+    },
+    {
+      "id": "c01-t02",
+      "key": "CRO-102",
+      "type": "task",
+      "title": "Build the GlowShop metrics sheet in Google Sheets",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A Google Sheet that calculates CR, AOV, RPV, funnel step rates and lift for GlowShop, by country and device.",
+      "context": "Hi, every Monday we talk about the same numbers: conversion rate, average order value and revenue per visitor. Please build our metrics sheet from last month's numbers. The formulas must be right, because the whole team will copy this sheet.",
+      "steps": [
+        "Practise first: open Practice → Metrics drill in this app. Finish all rounds until you can calculate CR, AOV, RPV, step rates and lift without help.",
+        "Create a new Google Sheet at https://sheets.new and name it `GlowShop metrics - CRO-102`. Share it as Anyone with the link → Viewer.",
+        "On a tab `Data`, make these columns in row 1: `Country`, `Device`, `Sessions`, `Sessions with add to cart`, `Sessions reached checkout`, `Orders`, `Revenue (USD)`.",
+        "Enter last month's GlowShop numbers in rows 2-5: US desktop: 40,000 sessions, 3,600 sessions with add to cart, 1,800 reached checkout, 1,200 orders, 62,400 USD revenue. US mobile: 90,000 / 6,300 / 2,700 / 1,350 / 62,100. CA desktop: 12,000 / 960 / 420 / 210 / 10,500. CA mobile: 28,000 / 1,680 / 560 / 224 / 9,856 (Canada revenue is already changed to USD).",
+        "In row 6 write `Total` and use `=SUM(C2:C5)` for every number column.",
+        "Add the main metrics to the right. `CR` (conversion rate) = Orders / Sessions: in H2 write `=F2/C2` and format it as percent with 2 decimals (Format → Number → Percent). `AOV` (average order value) = Revenue / Orders: in I2 `=G2/F2`, format as currency. `RPV` (revenue per visitor, here per session) = Revenue / Sessions: in J2 `=G2/C2`. Fill down to row 6.",
+        "Check yourself: total CR must be 1.76%, total AOV 48.54 USD and total RPV 0.85 USD. Also check that RPV = CR × AOV in every row (add a check column `=H2*I2-J2`, it must be 0).",
+        "Add the funnel step rates: `Add to cart rate` = Sessions with add to cart / Sessions, `Cart to checkout` = Reached checkout / Add to cart, `Checkout to order` = Orders / Reached checkout. Format as percent.",
+        "Make a tab `Lift`. Write two cells: `CR before` = 1.80% and `CR after` = 2.00%. Calculate `Absolute lift` = after − before (0.20 percentage points) and `Relative lift` = (after − before) / before (11.1%). Write one sentence under it that says why these two numbers are different.",
+        "Make a tab `Country`. Use `=SUMIF(Data!A2:A5,\"US\",Data!C2:C5)` style formulas to get US and Canada totals. Calculate CR, AOV and RPV for each country. Canada must show about 1.09% CR and the US about 1.96%.",
+        "Make a chart: select the step rates of the 4 rows and Insert → Chart → Column chart. Title it `Funnel step rates by country and device`.",
+        "Add a tab `Notes` with 3 short sentences: which row has the lowest CR, which step is weakest for that row, and one question you want to ask the team about it."
+      ],
+      "acceptance": [
+        "The `Data` tab has the 4 rows and a Total row, and every number comes from a formula (no typed results).",
+        "Total CR is 1.76%, total AOV is 48.54 USD and total RPV is 0.85 USD.",
+        "The check column RPV − CR × AOV is 0 in every row.",
+        "The `Lift` tab shows 0.20 percentage points absolute and 11.1% relative lift.",
+        "The `Country` tab shows US CR about 1.96% and Canada CR about 1.09%."
+      ],
+      "evidence": [
+        "Link to the Google Sheet (Anyone with the link can view).",
+        "Screenshot of the step rates chart.",
+        "Screenshot of your finished Metrics drill result in this app."
+      ],
+      "hints": [
+        "If a cell shows `#DIV/0!`, the cell under the line is empty or 0. Check the row numbers in your formula.",
+        "Percent points and percent are not the same: 1.8% to 2.0% is +0.2 points but +11.1%.",
+        "Use `$` in a formula (like `$C$6`) when a cell must not move when you copy the formula."
+      ],
+      "explain": {
+        "en": "In this task I built the GlowShop metrics sheet in Google Sheets. I entered one month of sessions, add to cart sessions, checkouts, orders and revenue by country and device. I calculated conversion rate, average order value and revenue per visitor with formulas. I checked that revenue per visitor is equal to conversion rate times average order value. I also calculated the step rates of the funnel and the difference between absolute and relative lift. I saw that Canada mobile has the lowest conversion rate."
+      },
+      "vocabulary": [
+        {
+          "term": "conversion rate (CR)",
+          "en": "orders divided by sessions, shown as a percent"
+        },
+        {
+          "term": "average order value (AOV)",
+          "en": "revenue divided by orders; how much one order is worth"
+        },
+        {
+          "term": "revenue per visitor (RPV)",
+          "en": "revenue divided by sessions or users; it joins CR and AOV in one number"
+        },
+        {
+          "term": "funnel",
+          "en": "the steps a visitor takes from the first page to the order"
+        },
+        {
+          "term": "relative lift",
+          "en": "the change divided by the old value, in percent"
+        },
+        {
+          "term": "percentage point",
+          "en": "the simple difference between two percents, like 2.0% minus 1.8%"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between CR, AOV and RPV?",
+          "a": "CR is orders divided by sessions, so it shows how many visits turn into an order. AOV is revenue divided by orders, so it shows how big one order is. RPV is revenue divided by sessions, and it is equal to CR times AOV. I like RPV because a change can raise CR but lower AOV, and RPV shows the full result."
+        },
+        {
+          "q": "Conversion rate went from 1.8% to 2.0%. How much is the lift?",
+          "a": "The absolute lift is 0.2 percentage points. The relative lift is 0.2 divided by 1.8, which is about 11.1%. I always say which one I mean, because people mix them up. Test tools usually show the relative lift."
+        },
+        {
+          "q": "Why do you split the numbers by country and device?",
+          "a": "A total number can hide a big problem in one group. In our data the total CR was 1.76%, but Canada mobile was only 0.8%. When I split the data I can see where to look first. It also helps me size the money we can win in each group."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Dimensions and metrics",
+          "url": "https://support.google.com/analytics/answer/9143382"
+        },
+        {
+          "title": "Google Docs Editors Help: SUMIF function",
+          "url": "https://support.google.com/docs/answer/3093583"
+        }
+      ]
+    },
+    {
+      "id": "c01-t03",
+      "key": "CRO-103",
+      "type": "task",
+      "title": "Map the micro and macro conversions of the store",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A list of every important action a visitor can take on GlowShop, marked as micro or macro, with the GA4 event name we will use for it.",
+      "context": "Hi, a purchase is our main goal, but most visitors do not buy on the first visit. We need to see the small steps too, like viewing a product or adding to cart. Please walk through the store like a customer and list all these actions. In sprint 3 we will track them in GA4.",
+      "steps": [
+        "Open your practice store in an Incognito window on your laptop and enter the password. Then open it on your phone too (or use Chrome DevTools: press F12, click the phone icon `Toggle device toolbar` and choose `iPhone 12 Pro`).",
+        "Walk the full path like a new customer: home page → a collection → a product → choose a size → add to cart → cart → checkout → order. Take a screenshot of every page on mobile.",
+        "Also try the side paths: search for `serum`, use the menu, open the cart drawer, change the quantity in the cart, remove an item, enter an email in the footer newsletter form, and open a policy page.",
+        "Create a Google Sheet `GlowShop conversions - CRO-103` with the columns: `Action`, `Page`, `Micro or macro`, `GA4 event name`, `Type of event`, `Why it matters`.",
+        "Fill in at least 12 actions. A macro conversion is the main business goal (a purchase). A micro conversion is a smaller step that shows interest (for example add to cart or newsletter sign up).",
+        "Find the right GA4 event name for each action in Google's recommended events list (see Resources). Use the exact names, for example `view_item_list`, `select_item`, `view_item`, `add_to_cart`, `view_cart`, `remove_from_cart`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase`, `search`, `generate_lead`, `sign_up`, `login`.",
+        "In `Type of event` write one of: `automatically collected` (like `page_view`, `session_start`, `first_visit`), `enhanced measurement` (like `scroll`, `view_search_results`, `form_start`), `recommended` (the e-commerce events above) or `custom` (only if no recommended name fits, for example `size_selected`).",
+        "Mark which 2-3 events should be key events in GA4 later. `purchase` is always one. Write one sentence for each to explain why.",
+        "Draw the funnel in the sheet: one row per step from `session_start` to `purchase` with the 6 main e-commerce events in order.",
+        "Add a short note at the top: which actions do we NOT want to make key events and why (for example `scroll`, because it says nothing about buying)."
+      ],
+      "acceptance": [
+        "The sheet has at least 12 actions, and each has a page, micro or macro, a GA4 event name and a type.",
+        "All e-commerce event names match Google's recommended event names exactly (lowercase with underscores).",
+        "Only 2-3 events are marked as key events, and `purchase` is one of them.",
+        "The funnel rows show the 6 main e-commerce steps in the right order."
+      ],
+      "evidence": [
+        "Link to the Google Sheet (Anyone with the link can view).",
+        "Link to a Google Drive folder with the mobile screenshots of the full path."
+      ],
+      "hints": [
+        "If two names look possible, use the one in the Google recommended events list. Do not invent a name like `addToCart`.",
+        "A macro conversion brings money (or the main goal). Almost everything else is micro.",
+        "The newsletter sign up is often `generate_lead` or `sign_up`; pick one and write why."
+      ],
+      "explain": {
+        "en": "In this task I walked through the practice store like a customer on mobile and on desktop. I wrote down every important action, like viewing a product, adding to cart and buying. I marked the purchase as the macro conversion and the smaller steps as micro conversions. For each action I chose the exact GA4 recommended event name, like view_item and add_to_cart. I also chose only two or three key events, so the reports stay clear. This list became the base of our tracking plan."
+      },
+      "vocabulary": [
+        {
+          "term": "macro conversion",
+          "en": "the main goal of the site, for a shop it is the purchase"
+        },
+        {
+          "term": "micro conversion",
+          "en": "a small step that shows interest, like add to cart"
+        },
+        {
+          "term": "event",
+          "en": "one action that GA4 records, like page_view or purchase"
+        },
+        {
+          "term": "recommended event",
+          "en": "an event name that Google defines, with fixed parameter names"
+        },
+        {
+          "term": "key event",
+          "en": "an event you mark in GA4 as very important for the business"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between a micro and a macro conversion?",
+          "a": "A macro conversion is the main goal, and for GlowShop it is the purchase. Micro conversions are small steps before it, like view_item, add_to_cart or a newsletter sign up. I track micro conversions because most visitors do not buy on the first visit. They show me where people stop in the funnel."
+        },
+        {
+          "q": "Why do you use Google's recommended event names?",
+          "a": "GA4 knows these names and fills the e-commerce reports with them. If I write addToCart instead of add_to_cart, the reports stay empty. The recommended names also have fixed parameters, like items and value. So other people and tools can read our data easily."
+        },
+        {
+          "q": "Why not mark every event as a key event?",
+          "a": "If everything is important, nothing is important. Too many key events make the reports noisy and confuse ad tools that learn from them. I marked purchase and one or two strong signals only. The other events are still tracked and I can use them in explorations."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Recommended events",
+          "url": "https://support.google.com/analytics/answer/9267735"
+        },
+        {
+          "title": "Google Analytics Help: About key events",
+          "url": "https://support.google.com/analytics/answer/9267568"
+        },
+        {
+          "title": "Google Analytics Help: Enhanced measurement events",
+          "url": "https://support.google.com/analytics/answer/9216061"
+        }
+      ]
+    },
+    {
+      "id": "c01-t04",
+      "key": "CRO-104",
+      "type": "task",
+      "title": "Find the biggest leak and show what a fix is worth",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "A short analysis that shows which funnel step loses the most orders and how many dollars per month a realistic fix would bring.",
+      "context": "Hi, our CEO asks the same question every month: 'Where do we lose the most money?'. Please use your metrics sheet to find the weakest step in the funnel. Then show in dollars what we win if we fix it, so we can pick our first project.",
+      "steps": [
+        "Open your sheet from CRO-102 and add a new tab `Leak`. Copy the 4 rows (US desktop, US mobile, CA desktop, CA mobile) with their step rates.",
+        "For each row, compare each step rate with the best row (US desktop: add to cart 9.0%, cart to checkout 50.0%, checkout to order 66.7%). Write the gap in percentage points for each step.",
+        "Pick two realistic goals. Goal A: US mobile cart to checkout goes from 42.9% to 50.0%. Goal B: CA mobile checkout to order goes from 40.0% to 50.0%. Do not compare mobile with desktop 1:1, because mobile always converts lower.",
+        "Calculate Goal A step by step with formulas: new checkouts = 6,300 × 50% = 3,150. New orders = new checkouts × the old checkout to order rate (50%) = 1,575. Extra orders = 1,575 − 1,350 = 225. Extra revenue = 225 × AOV 46.00 = 10,350 USD per month.",
+        "Calculate Goal B the same way: new orders = 560 × 50% = 280, extra orders = 56, extra revenue = 56 × 44.00 = 2,464 USD per month.",
+        "Make a small table `Opportunity`: Goal, Segment, Step, Old rate, New rate, Extra orders per month, Extra revenue per month, Extra revenue per year (× 12). Sort by revenue, biggest first.",
+        "Look at your practice store data too: in the Shopify admin open Analytics → Reports, type `conversion` in the search box and open the conversion report (for example `Conversion rate breakdown` or `Conversion rate over time`). Write down which funnel steps Shopify shows. Note: Shopify reports do not count test orders, so your test orders are not in it.",
+        "Write 5 sentences under the table: the biggest leak, the money it is worth, why you think the step is weak (only ideas, not facts yet), what data you still need, and which goal we should start with."
+      ],
+      "acceptance": [
+        "The `Leak` tab shows the gap for every step and every row, with formulas.",
+        "Goal A shows 225 extra orders and 10,350 USD per month; Goal B shows 56 extra orders and 2,464 USD per month.",
+        "The opportunity table is sorted by money and has a yearly column.",
+        "The 5 sentences clearly separate facts (numbers) from ideas (possible causes)."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the `Leak` tab.",
+        "Screenshot of the Shopify conversion report of your practice store.",
+        "Paste your 5 sentences as text."
+      ],
+      "hints": [
+        "Change only one step at a time and keep the other rates the same. Then you know where the money comes from.",
+        "A bigger percent gap is not always more money. A small gap on a big segment can be worth more.",
+        "If you cannot find the report, use the search box at the top of Analytics → Reports."
+      ],
+      "explain": {
+        "en": "In this task I used our metrics sheet to find the weakest step of the funnel. I compared the step rates of each country and device with the best segment. Then I chose two realistic goals and calculated the extra orders and the extra revenue for each goal. Raising the US mobile cart to checkout rate to 50% was worth about 10,350 dollars per month. I wrote the result in a sorted opportunity table. I kept facts and ideas apart, because the causes still need research."
+      },
+      "vocabulary": [
+        {
+          "term": "leak",
+          "en": "a step in the funnel where many visitors leave"
+        },
+        {
+          "term": "step rate",
+          "en": "the percent of people who go from one step to the next"
+        },
+        {
+          "term": "segment",
+          "en": "one group of visitors, like Canada mobile"
+        },
+        {
+          "term": "opportunity sizing",
+          "en": "calculating how much money a fix can bring"
+        },
+        {
+          "term": "benchmark",
+          "en": "a number you compare with, like the best segment"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How do you decide which part of the funnel to work on first?",
+          "a": "I look at the step rates by segment and find the biggest gaps. Then I turn each gap into extra orders and extra revenue with a realistic goal. The step with the most money and a realistic fix comes first. A big percent gap on a small segment can be worth less than a small gap on a big one."
+        },
+        {
+          "q": "Why did you not set the mobile goal equal to desktop?",
+          "a": "Mobile visitors often browse and buy later on desktop, so mobile always converts lower. If I use desktop as the goal, the money looks too big. I chose a goal close to another mobile segment instead. That gives a number the team can believe."
+        },
+        {
+          "q": "Why are your test orders not in the Shopify reports?",
+          "a": "Shopify does not count test orders in its reports, because they are not real sales. So the practice store reports show sessions but not my test orders. For checks with orders I use the Orders list and its export. In production I compare GA4 with real Shopify orders."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Shopify Help: Shopify reports",
+          "url": "https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports"
+        },
+        {
+          "title": "Baymard Institute: Cart abandonment rate statistics",
+          "url": "https://baymard.com/lists/cart-abandonment-rate"
+        }
+      ]
+    },
+    {
+      "id": "c01-t05",
+      "key": "CRO-105",
+      "type": "docs",
+      "title": "Write the one-page note: how GlowShop makes money",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "A one-page Google Doc that explains how GlowShop makes money, our funnel, our key numbers and where CRO can help.",
+      "context": "Hi, new people in marketing and product often do not know our numbers. Please write a one-page note that anyone can read in five minutes. Use simple words and your own numbers from this sprint.",
+      "steps": [
+        "Create a Google Doc at https://docs.new and name it `How GlowShop makes money`. Share it as Anyone with the link → Commenter.",
+        "Section 1 `What we sell`: GlowShop sells serums, creams, a cleanser and sunscreen in two sizes in the US (USD) and Canada (CAD, English and French). Say in one sentence why we sell two sizes (a cheaper size to try, a bigger size with more value).",
+        "Section 2 `The money formula`: write `Revenue = Sessions × CR × AOV` and `RPV = CR × AOV`. Explain each part in one simple sentence with last month's numbers (170,000 sessions, 1.76% CR, 48.54 USD AOV, 0.85 USD RPV).",
+        "Section 3 `Our funnel`: a small table with the steps (session, add to cart, reached checkout, order), the totals and the step rates. Copy the numbers from your sheet.",
+        "Section 4 `Where we lose money`: the top 2 opportunities from CRO-104 with dollars per month.",
+        "Section 5 `What CRO will do`: 3 short bullets, for example measure the funnel correctly (sprints 2-4), research why people leave, and test fixes. Add one line that we look at RPV, not only CR, so we do not win orders and lose order value.",
+        "Section 6 `Words we use`: 5 terms with one-line meanings (CR, AOV, RPV, micro conversion, macro conversion).",
+        "Keep it to one page: File → Page setup, check that the text fits on one A4 or Letter page. Short sentences only.",
+        "Ask one person (a friend or classmate) to read it and tell you one thing that is not clear. Fix it and write their feedback as a comment."
+      ],
+      "acceptance": [
+        "The Doc fits on one page and has the 6 sections.",
+        "All numbers match the CRO-102 and CRO-104 sheets.",
+        "The money formula and RPV = CR × AOV are written and explained.",
+        "There is at least one comment with reader feedback and a fix."
+      ],
+      "evidence": [
+        "Link to the Google Doc (Anyone with the link can comment).",
+        "Export of the Doc as PDF (File → Download → PDF) uploaded to your Google Drive folder, with the link."
+      ],
+      "hints": [
+        "Write for a person who has never seen our data. If a sentence needs a second read, cut it in two.",
+        "Use a table for numbers, not long sentences.",
+        "One page is the limit. Move details to a link to your sheet."
+      ],
+      "explain": {
+        "en": "In this task I wrote a one-page note that explains how GlowShop makes money. I explained the formula: revenue is sessions times conversion rate times average order value. I added our funnel table with real numbers and the two biggest leaks in dollars. I also wrote what the CRO team will do next and a short list of words. A friend read it and I fixed the part that was not clear."
+      },
+      "vocabulary": [
+        {
+          "term": "D2C",
+          "en": "direct to consumer; the brand sells to customers on its own website"
+        },
+        {
+          "term": "stakeholder",
+          "en": "a person who cares about the result and makes decisions, like the CEO"
+        },
+        {
+          "term": "one-pager",
+          "en": "a short document that fits on one page"
+        },
+        {
+          "term": "CRO",
+          "en": "conversion rate optimisation; the work of making more visitors buy"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How would you explain how an online shop makes money in one sentence?",
+          "a": "Revenue is sessions times conversion rate times average order value. So we can grow by getting more visitors, by turning more visitors into buyers, or by making each order bigger. CRO works mostly on the last two. I like to show this with our real numbers."
+        },
+        {
+          "q": "Why did you write the note for people outside the CRO team?",
+          "a": "Marketing and product people make decisions that change our numbers. If they understand the funnel and RPV, they ask better questions and support our tests. A short note with real numbers is easier than a long report. I tested it with one reader and fixed the unclear part."
+        },
+        {
+          "q": "Why do you watch RPV and not only conversion rate?",
+          "a": "A change can bring more orders but smaller orders. For example a big discount can raise CR and lower AOV. RPV joins both, so it shows if we really earn more per visitor. I still look at CR and AOV to see why RPV moved."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Drive Help: Share files from Google Drive",
+          "url": "https://support.google.com/drive/answer/2494822"
+        },
+        {
+          "title": "Nielsen Norman Group: How users read on the web",
+          "url": "https://www.nngroup.com/articles/how-users-read-on-the-web/"
+        }
+      ]
+    }
+  ]
+}

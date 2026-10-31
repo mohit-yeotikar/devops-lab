@@ -1,7 +1,7 @@
 export type User = {
   id: string; email: string; handle: string; name: string; role: 'trainee' | 'admin';
   city: string; github: string; linkedin: string; bio: string; target_role: string;
-  show_hindi: number; public_portfolio: number; created_at: string; started_at: string | null; last_seen_at: string | null;
+  show_hindi: number; public_portfolio: number; track: string; created_at: string; started_at: string | null; last_seen_at: string | null;
 };
 export type Progress = {
   user_id: string; ticket_id: string; status: 'todo' | 'doing' | 'review' | 'changes' | 'done';

@@ -2,12 +2,13 @@
 import { env } from '../../lib/env';
 import Base from '../../layouts/Base.astro';
 import { userByHandle, progressFor, hoursFor, drillResults, practiceRuns } from '../../lib/db';
-import { labs, labById } from '../../sandbox/labs.js';
-import { sprints, tickets, ticketById } from '../../lib/curriculum';
+import { labById } from '../../sandbox/registry.js';
+import { track, trackOf } from '../../lib/curriculum';
 const db = env.DB;
 const u = await userByHandle(db, Astro.params.handle!);
 const me = Astro.locals.user;
 if (!u || (!u.public_portfolio && me?.id !== u.id && me?.role !== 'admin')) return new Response('Not found', { status: 404 });
+const T = track(trackOf(u)); const { sprints, tickets } = T;
 const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const drills = await drillResults(db, u.id);
 const labsDone = [...new Set((await practiceRuns(db, u.id)).map((r) => r.lab))].map((id) => labById(id)?.title).filter(Boolean);
 const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
@@ -17,7 +18,7 @@ const sprintsDone = sprints.filter((s) => s.tickets.every((t) => prog.get(t.id)?
 const skills = [...new Set(done.flatMap((t) => t.vocabulary.map((v) => v.term)))].slice(0, 30);
 const { results: scores } = await db.prepare('SELECT score FROM interviews WHERE user_id = ? AND finished_at IS NOT NULL ORDER BY created_at DESC LIMIT 3').bind(u.id).all<{ score: number }>();
 ---
-<Base title={`${u.name} · DevOps portfolio`} description={u.bio || `${u.name}'s DevOps training portfolio`}>
+<Base title={`${u.name} · ${T.short} portfolio`} description={u.bio || `${u.name}'s ${T.short} training portfolio`}>
   <div class="card">
     <h1>{u.name}</h1>
     <p class="sub">{u.target_role}{u.city ? ` · ${u.city}` : ''}{u.github && <> · <a href={u.github} target="_blank" rel="noopener">GitHub</a></>}{u.linkedin && <> · <a href={u.linkedin} target="_blank" rel="noopener">LinkedIn</a></>}</p>

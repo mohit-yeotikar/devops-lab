@@ -2,21 +2,23 @@
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
 import { userById, progressFor, hoursFor, workLog, drillResults, practiceRuns } from '../../../lib/db';
-import { labById } from '../../../sandbox/labs.js';
-import { sprints } from '../../../lib/curriculum';
+import { labById } from '../../../sandbox/registry.js';
+import { track, trackOf, TRACKS, TRACK_IDS } from '../../../lib/curriculum';
 const db = env.DB;
 const u = await userById(db, Astro.params.id!);
 if (!u) return new Response('Not found', { status: 404 });
+const T = track(trackOf(u)); const sprints = T.sprints;
 const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const log = await workLog(db, u.id, 60); const drills = await drillResults(db, u.id);
 const practice = await practiceRuns(db, u.id);
 const submitBtn = (s: string) => s === 'review';
 ---
 <Base title={u.name}>
   <p class="help"><a href="/admin">Admin</a> › {u.name}</p>
-  <h1>{u.name} <span class="pill">{u.role}</span></h1>
+  <h1>{u.name} <span class="pill">{u.role}</span> <span class="pill review">{T.short}</span></h1>
   <p class="sub">{u.email} · <a href={`/u/${u.handle}`}>portfolio</a> · <a href={`/admin/letter/${u.id}`}>experience letter</a> · started {u.started_at ?? '—'} · {hrs.h.toFixed(1)} h on {hrs.days} days</p>
   <div class="row">
     <form data-api action="/api/admin/user" method="post"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="action" value="role" /><input type="hidden" name="role" value={u.role === 'admin' ? 'trainee' : 'admin'} /><button class="btn sec sm" type="submit">{u.role === 'admin' ? 'Make trainee' : 'Make admin'}</button></form>
+    <form data-api action="/api/admin/user" method="post" class="row"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="action" value="track" /><select name="track" style="width:auto">{TRACK_IDS.map((id) => <option value={id} selected={id === T.id}>{TRACKS[id].short}</option>)}</select><button class="btn sec sm" type="submit">Change track</button></form>
     <form data-api action="/api/admin/user" method="post" onsubmit="return confirm('Delete this account and all its data?')"><input type="hidden" name="user" value={u.id} /><input type="hidden" name="action" value="delete" /><button class="btn bad sm" type="submit">Delete account</button></form>
   </div>
   <h2>Tickets</h2>

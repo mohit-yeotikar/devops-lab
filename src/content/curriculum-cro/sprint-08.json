@@ -1,0 +1,353 @@
+{
+  "id": "c08",
+  "number": 8,
+  "title": "From research to hypotheses and a roadmap",
+  "weeks": "15-16",
+  "theme": "Turn the GlowShop research into strong hypotheses, choose the right metrics, score the ideas, and present a 6-test roadmap.",
+  "jobStory": "In this sprint you plan the work of the next months. You turn research findings into clear hypotheses, and you choose a primary metric, secondary metrics and guardrail metrics for each one. You score the ideas with ICE, PIE and PXL and you decide which ideas need a test and which are just fixes. At the end you build a 6-test roadmap and present it to the team like a real CRO specialist.",
+  "outcomes": [
+    "I wrote 12 hypotheses from research, each with data, a change, an audience and a metric.",
+    "I wrote a metrics dictionary with primary, secondary and guardrail metrics and their GA4 events.",
+    "I scored ideas with ICE, PIE and PXL in Google Sheets and compared the rankings.",
+    "I sorted ideas into test, just fix, investigate and drop, and shipped two just-fix changes with a change log.",
+    "I built a 6-test roadmap and presented it in a 10-slide deck with a recorded talk."
+  ],
+  "tickets": [
+    {
+      "id": "c08-t01",
+      "key": "CRO-801",
+      "type": "task",
+      "title": "Turn research findings into strong hypotheses",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "A hypothesis backlog in Google Sheets has 12 hypotheses, each linked to evidence and written in one fixed format.",
+      "context": "Hi, we have a lot of research now: the GA4 funnel, Clarity, surveys, reviews and the UX audit. But 'make the page better' is not a plan. Please turn the findings into clear hypotheses in one format, each one linked to the evidence.",
+      "steps": [
+        "Practise first: open Practice → Hypotheses and prioritisation in this app and do the part about writing hypotheses.",
+        "Collect your inputs in one list: the research summary (CRO-604), the behaviour log (CRO-602), the PDP audit and its 'test later' items (CRO-701, CRO-704), and the two case docs (CRO-605, CRO-705).",
+        "Create a Google Sheet `GlowShop – hypothesis backlog` with columns: `ID`, `Problem (what we saw)`, `Evidence links`, `Page`, `Audience` (device, country, new or returning), `Change`, `Expected effect`, `Primary metric`, `Hypothesis`, `Status`.",
+        "Write 12 problems from your research, one per row, with IDs `H01` to `H12`. Each problem must have at least one evidence link (a Clarity recording, a GA4 screenshot, a review theme or an audit row).",
+        "For each problem write the change. Keep it to one main change, for example 'show the delivery date under the Add to cart button', not 'redesign the page'.",
+        "Write the full hypothesis in column I with this format: `Because we saw [data], we believe that [change] for [audience] will [effect]. We will know when [primary metric] goes up.` Example: 'Because we saw that 38% of survey answers worry about shipping cost and Clarity shows taps on the price, we believe that showing free shipping over $50 under the price for mobile visitors will raise add to cart. We will know when the mobile add_to_cart rate goes up.'",
+        "Check each hypothesis with these questions and fix it if one answer is 'no': Is it based on data? Is there one change? Is the audience clear? Can we measure the metric in GA4 today? Could the result be negative?",
+        "Make 3 hypotheses for Canada, using what you know from earlier sprints (CAD prices, French language, shipping time), because Canada converts lower than the US.",
+        "Add a tab `Bad examples`. Write 3 weak hypotheses (like 'A green button is better') and explain in one line why each is weak.",
+        "Share the sheet with view access."
+      ],
+      "acceptance": [
+        "The backlog has 12 hypotheses with IDs H01-H12.",
+        "Every row has at least one evidence link.",
+        "Every hypothesis uses the 'Because we saw … we believe … for … will … We will know when …' format.",
+        "At least 3 hypotheses are about Canadian visitors.",
+        "The `Bad examples` tab has 3 weak hypotheses with a reason each."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop – hypothesis backlog` (view access)",
+        "Copy of your best hypothesis and one sentence on why it is strong"
+      ],
+      "hints": [
+        "If you cannot point to evidence, it is an opinion, not a hypothesis. Move it to an 'Ideas' tab.",
+        "One change per hypothesis. If you change three things, you will not know which one worked.",
+        "Write the metric with its GA4 event name, like `add_to_cart`, so everybody knows how to measure it."
+      ],
+      "explain": {
+        "en": "In this task I turned our research into 12 clear hypotheses. I used one format: because we saw some data, we believe a change for an audience will have an effect, and we will know it by one metric. Every hypothesis has a link to the evidence, like a Clarity recording or a review theme. I checked each one for data, one change, a clear audience and a metric we can measure. I also wrote three hypotheses for Canada and three bad examples to show the difference."
+      },
+      "vocabulary": [
+        { "term": "hypothesis", "en": "a clear guess, based on data, that a change will improve a metric" },
+        { "term": "backlog", "en": "a list of ideas and work that waits to be done" },
+        { "term": "evidence", "en": "data or facts that show a problem is real" },
+        { "term": "audience", "en": "the group of visitors the change is for" }
+      ],
+      "interview": [
+        {
+          "q": "What makes a good CRO hypothesis?",
+          "a": "A good hypothesis starts from data, not from taste. It has one change, a clear audience and one primary metric. I use the format: because we saw this, we believe this change for this audience will have this effect, and we will know it by this metric."
+        },
+        {
+          "q": "Can you give an example of a hypothesis you wrote?",
+          "a": "Survey answers and Clarity showed that people worry about shipping cost. So I wrote: because we saw this, we believe that showing free shipping over $50 under the price for mobile visitors will raise add to cart. We will know when the mobile add to cart rate goes up."
+        },
+        {
+          "q": "Why is 'a green button is better' a bad hypothesis?",
+          "a": "It has no data behind it and no reason why green should help. It also has no audience and no metric. Even if it wins, we learn nothing we can use again. A good hypothesis teaches us something about our customers."
+        }
+      ],
+      "resources": [
+        { "title": "CXL: How to write a hypothesis for A/B testing", "url": "https://cxl.com/blog/how-to-build-a-strong-ab-testing-plan-that-gets-results/" },
+        { "title": "NN/g: 10 usability heuristics", "url": "https://www.nngroup.com/articles/ten-usability-heuristics/" }
+      ]
+    },
+    {
+      "id": "c08-t02",
+      "key": "CRO-802",
+      "type": "docs",
+      "title": "Write the GlowShop metrics dictionary",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A shared metrics dictionary defines every primary, secondary and guardrail metric we use, with its formula, GA4 events and where to see it.",
+      "context": "Hi, in our last meeting three people used 'conversion rate' for three different things. Before we start testing, we need one dictionary of metrics. Please write it, and for each hypothesis choose the primary, secondary and guardrail metrics.",
+      "steps": [
+        "Read the GA4 help page on e-commerce events (link in Resources) and list the events you track since sprint 4: `view_item_list`, `view_item`, `add_to_cart`, `view_cart`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase`.",
+        "Create a Google Doc `GlowShop – metrics dictionary`. Start with a short part 'Why this doc': one meaning per metric, used by everybody.",
+        "Add a table with columns: `Metric`, `Simple meaning`, `Formula`, `GA4 events / fields`, `Where to see it`, `Good for`. Fill at least 12 metrics: Sessions, Users, Conversion rate (purchases / sessions), Add to cart rate (sessions with add_to_cart / sessions), Checkout start rate, Checkout completion rate, AOV, RPV, Revenue, Bounce rate, Refund or return rate, Page load time (LCP).",
+        "For each metric write where to see it: the Looker Studio dashboard page (CRO-504), a GA4 report path (for example Reports → Monetization → Ecommerce purchases), or Shopify Analytics.",
+        "Write a part 'Primary, secondary and guardrail'. Explain in 2 sentences each: the primary metric decides if the test wins; secondary metrics help us understand why; guardrail metrics must not get worse.",
+        "Write simple rules: 1) every test has exactly one primary metric; 2) the primary metric should be as close to the change as possible but still matter for money (for a product page change: add to cart rate or RPV); 3) RPV or conversion rate is always a guardrail if the primary is a micro conversion; 4) page speed and refund rate are guardrails for big page changes.",
+        "In your hypothesis backlog (CRO-801), add three columns: `Primary metric`, `Secondary metrics`, `Guardrail metrics`. Fill them for all 12 hypotheses using names from the dictionary only.",
+        "Check that you can really measure each primary metric: open GA4 Explore → Free form and build it for the last 28 days (for example, sessions with `add_to_cart` by device). If you cannot build it, change the metric or write what tracking is missing.",
+        "Add a part 'Words to know' at the end with 6-8 terms in simple English.",
+        "Ask a friend to read the doc and explain conversion rate and RPV back to you. If they cannot, make the text simpler. Share the doc with view access."
+      ],
+      "acceptance": [
+        "The dictionary defines at least 12 metrics, each with a formula and the GA4 events or fields.",
+        "Each metric has a 'Where to see it' value.",
+        "The doc explains primary, secondary and guardrail metrics and has the 4 rules.",
+        "All 12 hypotheses in the backlog have one primary metric, secondary metrics and guardrail metrics from the dictionary.",
+        "At least 3 primary metrics were built in GA4 Explore to prove they can be measured."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GlowShop – metrics dictionary` (view access)",
+        "Link to the updated hypothesis backlog with the three metric columns",
+        "Screenshot on Google Drive of one primary metric built in a GA4 Free form exploration"
+      ],
+      "hints": [
+        "Be exact about the base: per session or per user. 'Conversion rate' must say which one.",
+        "A guardrail is not a second goal. It is a safety check, like 'refunds must not go up'.",
+        "Use the same metric names as in Looker Studio, so the dashboard and the doc agree."
+      ],
+      "explain": {
+        "en": "In this task I wrote a metrics dictionary for the whole team. For each metric I wrote a simple meaning, the formula, the GA4 events and where to see it. I explained the difference between primary, secondary and guardrail metrics and wrote four simple rules. Then I chose these three types of metrics for all twelve hypotheses. I also built some primary metrics in GA4 Explore to prove that we can measure them."
+      },
+      "vocabulary": [
+        { "term": "primary metric", "en": "the one metric that decides if a test wins" },
+        { "term": "secondary metric", "en": "a metric that helps explain why the result happened" },
+        { "term": "guardrail metric", "en": "a metric that must not get worse, like revenue or refunds" },
+        { "term": "micro conversion", "en": "a small step before the sale, like add to cart" },
+        { "term": "metrics dictionary", "en": "a document that gives one clear meaning for every metric" }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between primary, secondary and guardrail metrics?",
+          "a": "The primary metric decides if the test wins, and there is only one. Secondary metrics help me understand why, for example the checkout start rate. Guardrail metrics must not get worse, like revenue per visitor or refunds. If a guardrail drops, I do not ship the change even if the primary wins."
+        },
+        {
+          "q": "Why did you write a metrics dictionary?",
+          "a": "People used conversion rate for different things, per session or per user. That makes reports confusing. The dictionary gives one meaning, one formula and one place to see each metric. Now the dashboard, the tests and the meetings use the same words."
+        },
+        {
+          "q": "Which primary metric would you choose for a product page test?",
+          "a": "I would choose the add to cart rate, because it is close to the change and has enough data. But it can rise while sales do not. So I add conversion rate or revenue per visitor as a guardrail."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Measure ecommerce", "url": "https://support.google.com/analytics/answer/12200568" },
+        { "title": "GA4 help: Key events", "url": "https://support.google.com/analytics/answer/13128484" }
+      ]
+    },
+    {
+      "id": "c08-t03",
+      "key": "CRO-803",
+      "type": "task",
+      "title": "Score ideas with ICE, PIE and PXL",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The hypothesis backlog is scored with ICE, PIE and PXL by formula, and you can explain why the top ideas are on top.",
+      "context": "Hi, we have 12 hypotheses but we can only test a few each quarter. Please score them so we can choose with numbers, not with who talks loudest. Try ICE, PIE and PXL, compare them, and tell us which one we should use as a team.",
+      "steps": [
+        "Practise first: open Practice → Hypotheses and prioritisation in this app and do the ICE scoring part.",
+        "Read the CXL article on the PXL framework (link in Resources). Write the PXL questions in your notes.",
+        "In your backlog sheet make a tab `ICE`. Columns: `ID`, `Hypothesis` (use `='Backlog'!I2`), `Impact 1-10`, `Confidence 1-10`, `Ease 1-10`, `ICE score`. Formula: `=AVERAGE(C2:E2)` (some teams multiply; write which one you use and why).",
+        "Write a short scale for each ICE score at the top of the tab so you score in the same way every time. Example for Confidence: 9-10 = 3 sources agree, 5-6 = one source, 1-2 = only an opinion.",
+        "Make a tab `PIE`. Columns: `Potential 1-10` (how bad is the page now), `Importance 1-10` (how much traffic and money goes through the page; use sessions and revenue from your Looker Studio dashboard), `Ease 1-10`, `PIE score` = `=AVERAGE(...)`.",
+        "Make a tab `PXL`. Columns with yes = 1 and no = 0 (use Insert → Checkbox and `=N(C2)` to turn it into a number): Is the change above the fold? Is it noticeable in 5 seconds? Does it add or remove an element? Does it make the task easier? Is it supported by user testing or recordings? Is it supported by qualitative data (survey, reviews)? Is it supported by digital analytics (GA4)? Is it on a high-traffic page? Ease of implementation: 3 = under 4 hours, 2 = under 1 day, 1 = under 3 days, 0 = more. Total with `=SUM(...)`.",
+        "Score all 12 hypotheses in all three tabs. For every score of 8 or more for Impact or Confidence, add a short reason in a comment (right-click → Comment).",
+        "Make a tab `Compare`. Show the rank of each hypothesis in each model with `=RANK(F2,F$2:F$13)` (and the same for PIE and PXL). Use conditional formatting (Format → Conditional formatting → Color scale) to color the ranks.",
+        "Look at the hypotheses that rank very differently in the models. Write 2-3 sentences for each one on why.",
+        "Ask a friend or another trainee to score the same 12 with ICE without seeing your scores. Compare. Write which model gave more similar results between two people.",
+        "Write your recommendation in the `Compare` tab: which model the team should use and why (for example: PXL, because the yes/no questions give less personal opinion)."
+      ],
+      "acceptance": [
+        "The tabs ICE, PIE, PXL and Compare exist and every score is calculated by a formula.",
+        "ICE has written scales for Impact, Confidence and Ease.",
+        "PXL uses checkboxes for the yes/no questions and a sum formula.",
+        "The Compare tab shows ranks for all three models with color scales.",
+        "A second person's ICE scores are compared and there is a clear recommendation for one model."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the ICE, PIE, PXL and Compare tabs (view access)",
+        "Screenshot on Google Drive of the Compare tab",
+        "Your recommendation in 3-4 sentences"
+      ],
+      "hints": [
+        "If all ideas get 7 or 8, your scale is not clear. Use the full range from 1 to 10.",
+        "Importance in PIE should come from real numbers, like sessions and revenue for the page.",
+        "Scores are a tool for discussion, not the final truth. Write your reasons."
+      ],
+      "explain": {
+        "en": "In this task I scored our 12 hypotheses with three models: ICE, PIE and PXL. I wrote clear scales so that I score the same way every time. For PIE I used real traffic and revenue from our dashboard. For PXL I used yes or no questions with checkboxes, so there is less personal opinion. I compared the ranks of all three models and asked another person to score with ICE too. I recommended PXL for the team because two people gave more similar results with it."
+      },
+      "vocabulary": [
+        { "term": "prioritisation", "en": "deciding which work to do first" },
+        { "term": "ICE", "en": "a score from Impact, Confidence and Ease" },
+        { "term": "PIE", "en": "a score from Potential, Importance and Ease" },
+        { "term": "PXL", "en": "a scoring model by CXL with yes or no questions" },
+        { "term": "conditional formatting", "en": "a sheet rule that colors cells based on their values" }
+      ],
+      "interview": [
+        {
+          "q": "How do you prioritise test ideas?",
+          "a": "I score every hypothesis with a framework. I tried ICE, PIE and PXL in Google Sheets with formulas. I like PXL because it uses yes or no questions, like 'is it above the fold' or 'is it backed by analytics'. This gives less personal opinion than a score from 1 to 10."
+        },
+        {
+          "q": "What is the problem with ICE?",
+          "a": "ICE is fast, but the scores are very personal. Two people can give the same idea a 4 and a 9. I reduced this with written scales, for example confidence 9 means three sources agree. I also compared my scores with another person."
+        },
+        {
+          "q": "Do you always test the idea with the top score?",
+          "a": "Not always. The score starts a discussion. I also look at things like whether two tests touch the same page at the same time, or if the page has enough traffic for a test. Sometimes a top idea is a clear fix and does not need a test at all."
+        }
+      ],
+      "resources": [
+        { "title": "CXL: PXL, a better way to prioritize A/B tests", "url": "https://cxl.com/blog/better-way-prioritize-ab-tests/" },
+        { "title": "Google Sheets help: Conditional formatting", "url": "https://support.google.com/docs/answer/78413" }
+      ]
+    },
+    {
+      "id": "c08-t04",
+      "key": "CRO-804",
+      "type": "task",
+      "title": "Decide: test, just fix, investigate or drop",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "Every hypothesis has a clear decision with a reason, and two 'just fix' changes are live on the practice store with a change log.",
+      "context": "Hi, not every idea needs an A/B test. A broken link is just a fix. A page with little traffic cannot run a test in a normal time. Please sort every idea into test, just fix, investigate or drop, and ship two of the just-fix changes now.",
+      "steps": [
+        "Write a simple decision guide at the top of a new tab `Decision` in your backlog sheet: Just fix = a bug, a clear usability problem, or a change with almost no risk. Test = we are not sure it helps, it could hurt, and the page has enough traffic. Investigate = we need more data first (more recordings, a survey). Drop = low score and weak evidence.",
+        "For the traffic question, look at weekly sessions and purchases of the page in your Looker Studio dashboard (use the demo account numbers as GlowShop numbers). Write them next to each hypothesis.",
+        "Use a free online A/B sample size calculator for a rough check: base rate = the current rate of the primary metric, minimum effect = 10% relative. Write the visitors needed per variant. If the page needs more than 6 weeks of traffic, the decision cannot be 'Test' (you will learn the math properly in sprint 9).",
+        "Give every hypothesis a decision and write a reason in one sentence.",
+        "Choose two 'Just fix' items. Make the changes on the practice store in a duplicate theme, the same way as in CRO-704: Duplicate → Customize → change → preview on mobile → Publish.",
+        "Write both changes in the `Change log` tab: date and time, page, change, reason, hypothesis ID, screenshot before and after.",
+        "Add a GA4 annotation for each change if your property has annotations (in a report chart, or Admin → Data display → Annotations). If you do not see it, the change log is enough.",
+        "Plan the 'before and after' check: write which metric you will compare, which dates (for example 14 days before and 14 days after), and one reason why this is weaker than an A/B test (other things change at the same time).",
+        "Update the `Status` column in the backlog: `Test`, `Just fix – done`, `Investigate`, `Drop`."
+      ],
+      "acceptance": [
+        "The decision guide is written at the top of the `Decision` tab.",
+        "All 12 hypotheses have a decision and a one-sentence reason.",
+        "Each 'Test' hypothesis has weekly traffic and a rough sample size written next to it.",
+        "Two just-fix changes are live and logged with before and after screenshots.",
+        "A before/after plan with metric and dates is written for both changes."
+      ],
+      "evidence": [
+        "Link to the backlog sheet with the `Decision` and `Change log` tabs (view access)",
+        "Screenshots on Google Drive of the two just-fix changes, before and after",
+        "Your before/after measurement plan in 3-5 lines"
+      ],
+      "hints": [
+        "If you are not sure between 'Test' and 'Just fix', ask: could this change hurt sales? If yes, test it.",
+        "Low traffic does not mean 'do nothing'. It can mean 'just fix' for clear problems, or 'test a bigger change'.",
+        "Keep the old theme in the library, so you can go back if a fix breaks something."
+      ],
+      "explain": {
+        "en": "In this task I decided what to do with every hypothesis. I wrote a simple guide: just fix, test, investigate or drop. I checked weekly traffic and did a rough sample size check, so we do not plan tests that would take too long. I shipped two clear fixes on the practice store in a duplicate theme and wrote them in the change log. I also planned how to compare data before and after, and I wrote why this is weaker than an A/B test."
+      },
+      "vocabulary": [
+        { "term": "just fix", "en": "a change that is so clear that we do it without a test" },
+        { "term": "sample size", "en": "how many visitors a test needs to give a reliable answer" },
+        { "term": "minimum detectable effect", "en": "the smallest change a test can find with its traffic" },
+        { "term": "before/after analysis", "en": "comparing data from before a change with data after it" },
+        { "term": "annotation", "en": "a note on a chart that marks the date of a change" }
+      ],
+      "interview": [
+        {
+          "q": "When do you not run an A/B test?",
+          "a": "I do not test bugs or clear usability problems; I just fix them. I also do not test when the page has too little traffic, because the test would take months. In that case I fix clear problems or wait for more data. Tests are for ideas where we are not sure and the change could hurt."
+        },
+        {
+          "q": "How do you measure a change that was not tested?",
+          "a": "I write the date in a change log and add an annotation. Then I compare the same metric for the same number of days before and after. I say clearly that this is weaker than a test, because other things like ads or season also change."
+        },
+        {
+          "q": "How did you check if a test was possible?",
+          "a": "I looked at weekly sessions and the current rate of the primary metric. I used a free sample size calculator with a 10% relative effect. If the test needed more than about six weeks of traffic, I did not plan it as a test."
+        }
+      ],
+      "resources": [
+        { "title": "CXL: Prioritize A/B tests with PXL", "url": "https://cxl.com/blog/better-way-prioritize-ab-tests/" },
+        { "title": "Shopify help: Duplicate a theme", "url": "https://help.shopify.com/en/manual/online-store/themes/managing-themes/duplicating-themes" }
+      ]
+    },
+    {
+      "id": "c08-t05",
+      "key": "CRO-805",
+      "type": "project",
+      "title": "Build the 6-test roadmap and present it",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A 6-test roadmap in Google Sheets with dates and owners, and a 10-slide deck with a recorded presentation that the team can approve.",
+      "context": "Hi, this is the big one. Next week you present our CRO plan for the next quarter to the CEO and the marketing lead. Please build a roadmap of 6 tests with dates, metrics and owners, and a short deck. Keep it simple: they want to know what we test, why, and what money it can bring.",
+      "steps": [
+        "Take the hypotheses with the decision 'Test' from CRO-804 and the best scores from CRO-803. Choose 6. Make sure they do not run on the same page at the same time, and that at least one is for Canada.",
+        "In your backlog sheet make a tab `Roadmap` with columns: `Test ID` (T01-T06), `Hypothesis ID`, `Name`, `Page`, `Audience`, `Primary metric`, `Guardrails`, `Weekly visitors`, `Planned weeks`, `Start date`, `End date`, `Owner`, `Design and dev needs`, `Status`.",
+        "Plan the dates: each test runs full weeks (at least 2 full business weeks), plus 1 week for building and QA. Use `=WORKDAY(J2, I2*5)` or simply `=J2 + I2*7` for the end date.",
+        "Make a simple timeline in a tab `Timeline`: column A = test name, column B = start date (`=Roadmap!J2`), column C = end date (`=Roadmap!K2`), rows 2-7 for the 6 tests. In D1:P1 write the Monday date of each of the 13 weeks of the quarter. Select D2:P7 → Format → Conditional formatting → 'Custom formula is' → `=AND(D$1>=$B2, D$1<=$C2)` → choose a fill color. Now the weeks of each test are colored.",
+        "Estimate the value of each test in money, simply: weekly revenue of the page × expected lift (use a careful 5%) × 52 weeks × chance to win (use 30%). Write the formula in a column `Expected yearly value` and explain that it is only a rough estimate.",
+        "Create a Google Slides deck `GlowShop – CRO roadmap Q1` with 10 slides: 1 Title; 2 Summary in 3 bullets; 3 Where we lose money (the funnel with numbers); 4 What research showed (top 5 problems); 5 How we chose (scoring); 6 The 6 tests (table); 7 Timeline; 8 Metrics and guardrails; 9 What we already fixed (just-fix items); 10 What we need from you (decisions, dev time).",
+        "Use one idea per slide, big numbers, few words. Use screenshots from Clarity and your Looker Studio dashboard as proof. Put the source under every number.",
+        "Write speaker notes for each slide (View → Show speaker notes) in simple sentences.",
+        "Practise once, then record a 7-10 minute talk. Use your free computer screen recorder: on Windows press Win+Alt+R (Xbox Game Bar) or use the Snipping Tool video mode; on Mac press Cmd+Shift+5. Upload the video to Google Drive.",
+        "Prepare answers to 5 questions the CEO may ask, for example: 'Why not test the homepage?', 'What if a test loses?', 'How long until we see money?'. Put them in a last hidden slide (right-click the slide → Skip slide).",
+        "Share the sheet, the deck and the video with view access."
+      ],
+      "acceptance": [
+        "The `Roadmap` tab has 6 tests with all columns filled, including dates, primary metric, guardrails and owner.",
+        "No two tests run on the same page at the same time, and at least one test is for Canada.",
+        "The `Timeline` tab colors the weeks of each test with conditional formatting.",
+        "Each test has an expected yearly value with the formula visible.",
+        "The deck has 10 slides with speaker notes and a hidden slide with 5 prepared answers.",
+        "A recorded talk of 7-10 minutes is on Google Drive."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the `Roadmap` and `Timeline` tabs (view access)",
+        "Link to the Google Slides deck `GlowShop – CRO roadmap Q1` (view access)",
+        "Link to the recorded presentation on Google Drive (view access)"
+      ],
+      "hints": [
+        "If you have too many good tests, do the ones with the most traffic first. They finish faster.",
+        "The CEO cares about money and risk. Start with the summary slide, not with methods.",
+        "Say 'expected' and 'rough estimate' for money numbers. Never promise a fixed lift."
+      ],
+      "explain": {
+        "en": "In this project I built a 6-test roadmap for the next quarter. I chose tests with good scores, enough traffic and no overlap on the same page. I planned dates in full weeks and made a timeline with conditional formatting. For each test I made a rough money estimate with a careful lift and a chance to win. Then I made a 10-slide deck with proof from Clarity and our dashboard. I recorded the talk and prepared answers to the questions the CEO may ask."
+      },
+      "vocabulary": [
+        { "term": "roadmap", "en": "a plan that shows what we do and when" },
+        { "term": "business cycle", "en": "the normal weekly rhythm of buying, so tests run full weeks" },
+        { "term": "overlap", "en": "two tests that change the same page at the same time" },
+        { "term": "expected value", "en": "the possible gain multiplied by the chance that it happens" },
+        { "term": "stakeholder", "en": "a person who cares about the work and helps decide, like the CEO" }
+      ],
+      "interview": [
+        {
+          "q": "How did you build your test roadmap?",
+          "a": "I took the hypotheses that should be tested and had the best scores. I checked the traffic so each test can finish in a few weeks, and I made sure two tests do not run on the same page at the same time. I gave each test dates, an owner, a primary metric and guardrails. Then I showed it as a simple timeline."
+        },
+        {
+          "q": "How do you show the value of CRO to a CEO?",
+          "a": "I start with where we lose money in the funnel. Then I show the tests with a rough yearly value: page revenue times a careful lift times a chance to win. I say clearly that it is an estimate. I also show the quick fixes we already did, so they see progress."
+        },
+        {
+          "q": "What do you say if the CEO asks 'What if a test loses?'",
+          "a": "A losing test is not wasted. It stops us from shipping a change that would hurt sales, and it teaches us something about our customers. Many tests do not win. That is why we run a plan of several tests and not only one."
+        }
+      ],
+      "resources": [
+        { "title": "CXL: How to build a strong A/B testing plan", "url": "https://cxl.com/blog/how-to-build-a-strong-ab-testing-plan-that-gets-results/" },
+        { "title": "Google Sheets help: Conditional formatting with custom formulas", "url": "https://support.google.com/docs/answer/78413" },
+        { "title": "Google Slides help: Present slides with speaker notes", "url": "https://support.google.com/docs/answer/1696787" }
+      ]
+    }
+  ]
+}

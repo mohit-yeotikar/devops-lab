@@ -1,0 +1,472 @@
+{
+  "id": "c03",
+  "number": 3,
+  "title": "Tag Manager and the dataLayer",
+  "weeks": "5-6",
+  "theme": "Connect the practice store to your own GA4 property through Google Tag Manager, and send clean events from the dataLayer.",
+  "jobStory": "In this sprint you build the tracking base for GlowShop. You create your own GA4 property and a Google Tag Manager container and install them on the practice store. You learn the dataLayer and how variables, triggers and tags work together, and you check every event in GTM Preview and GA4 DebugView before you publish. You fix your first tracking bug and write the tracking plan and naming rules that the team will follow.",
+  "outcomes": [
+    "I created a GA4 property and a web data stream for the Shopify practice store with the right settings.",
+    "I installed Google Tag Manager in the Dawn theme and sent the Google tag through GTM.",
+    "I pushed view_item and add_to_cart to the dataLayer and sent them to GA4 with variables, triggers and tags.",
+    "I tested every change in GTM Preview and GA4 DebugView and published named container versions.",
+    "I found and fixed a missing add_to_cart event and wrote the tracking plan and naming rules."
+  ],
+  "tickets": [
+    {
+      "id": "c03-t01",
+      "key": "CRO-301",
+      "type": "task",
+      "title": "Create the GA4 property for the practice store",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "A GA4 property `GlowShop Practice` with a web data stream for the practice store, the right currency and time zone, and 14 months data retention.",
+      "context": "Hi, now we need our own GA4, not only the demo. Please create a GA4 property for your practice store and set it up the way we do for real clients. Do not install any code yet; in the next ticket we will send everything through Tag Manager.",
+      "steps": [
+        "Open https://analytics.google.com with your Google account. If you have no account yet, click Start measuring and create an account named `GlowShop Training`. Otherwise click Admin (gear icon, bottom left) → Create → Property.",
+        "Property name: `GlowShop Practice`. Reporting time zone: the same time zone as your Shopify store. Currency: `US Dollar ($)`. Click Next.",
+        "Choose an industry (Beauty & Fitness) and a business size (Small). For business objectives choose `Drive online sales` (or `Get baseline reports`). Click Create and accept the terms.",
+        "Choose a platform: Web. Website URL: `https://glowshop-practice-<yourname>.myshopify.com`. Stream name: `GlowShop Practice web`. Keep Enhanced measurement on. Click Create and continue (in some versions: Create stream).",
+        "GA4 now shows install instructions. Do NOT install the code in the theme. Copy only the Measurement ID that starts with `G-` and save it in your notes. You find it later in Admin → Data collection and modification → Data streams → your stream.",
+        "Check enhanced measurement: in the stream, click the gear next to Enhanced measurement. Keep Page views, Scrolls, Outbound clicks, Site search, Form interactions and File downloads on. Under Page views → Show advanced settings, keep Page changes based on browser history events on. Save.",
+        "Set data retention: Admin → Data collection and modification → Data retention. Change Event data retention to 14 months. Click Save. Write in your notes why (explorations can only look back as far as this setting).",
+        "Check the property settings: Admin → Property settings → Property details. Confirm the time zone and currency.",
+        "Make sure no other tool sends data to this property. In the Shopify admin open Settings → Apps and sales channels (or Apps in the left menu) and check that the Google & YouTube app is not connected to this GA4 property. If it is, disconnect GA4 there. Two senders would count every event twice.",
+        "Add your lead as a user so they can check your work: Admin → Account access management (or Property access management) → + → Add users. Use the email your lead gives you and the role Viewer. If you have no lead email, skip this and share screenshots instead.",
+        "Write a small `Setup log` Google Doc: property name, property ID (Admin → Property details), Measurement ID, stream URL, time zone, currency, retention, and the date. This is the first page of our tracking documentation."
+      ],
+      "acceptance": [
+        "A property `GlowShop Practice` exists with one web data stream for your myshopify.com URL.",
+        "Time zone matches the Shopify store and the currency is USD.",
+        "Event data retention is set to 14 months.",
+        "No tracking code was added to the theme in this ticket, and the Google & YouTube app does not send to this property.",
+        "The Setup log Doc lists the property ID and the Measurement ID."
+      ],
+      "evidence": [
+        "Screenshot of Admin → Data streams → your web stream with the Measurement ID.",
+        "Screenshot of the Data retention page showing 14 months.",
+        "Link to the `Setup log` Google Doc."
+      ],
+      "hints": [
+        "The Measurement ID starts with `G-`. The property ID is only numbers. Do not mix them up.",
+        "You can change the time zone later, but old data keeps the old time zone. Set it right now.",
+        "If the Create button is grey, check that you are in Admin with an account where you are an Administrator."
+      ],
+      "explain": {
+        "en": "In this task I created a GA4 property for the GlowShop practice store. I set the time zone to match Shopify and the currency to US dollars. I created a web data stream with enhanced measurement and saved the Measurement ID. I changed the data retention to 14 months, so explorations can look back further. I did not install code in the theme, because we send everything through Google Tag Manager. I wrote all settings in a setup log."
+      },
+      "vocabulary": [
+        {
+          "term": "data stream",
+          "en": "the source that sends data into a GA4 property, like one website"
+        },
+        {
+          "term": "Measurement ID",
+          "en": "the G- code that tells tags which GA4 stream to send data to"
+        },
+        {
+          "term": "property ID",
+          "en": "the number that names the GA4 property in Admin and APIs"
+        },
+        {
+          "term": "data retention",
+          "en": "how long GA4 keeps user-level data for explorations"
+        },
+        {
+          "term": "double tracking",
+          "en": "two tools send the same event, so every number is counted twice"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What settings do you check when you create a GA4 property for a shop?",
+          "a": "I check that the time zone matches the shop system and the currency matches the store currency. I keep enhanced measurement on and I set data retention to 14 months. I also make sure only one tool sends data, so nothing is counted twice. I write all of it in a setup log."
+        },
+        {
+          "q": "Why did you not paste the GA4 code into the theme?",
+          "a": "We manage all tags in Google Tag Manager. If I add GA4 in the theme and also in GTM, every page view is counted twice. With GTM I can change tags, test them in Preview and publish versions without editing the theme each time."
+        },
+        {
+          "q": "Why set data retention to 14 months?",
+          "a": "The default is 2 months. Explorations can only use data inside the retention period, so with 2 months I cannot compare this month with last year. Standard reports are not affected, but explorations are. So I always change it on day one."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Set up Analytics for a website and/or app",
+          "url": "https://support.google.com/analytics/answer/9304153"
+        },
+        {
+          "title": "Google Analytics Help: Data retention",
+          "url": "https://support.google.com/analytics/answer/7667196"
+        }
+      ]
+    },
+    {
+      "id": "c03-t02",
+      "key": "CRO-302",
+      "type": "task",
+      "title": "Install Google Tag Manager on the Dawn theme",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "A GTM container runs on every storefront page and sends the Google tag to your GA4 property, tested in Preview and DebugView and published as version 1.",
+      "context": "Hi, we want one place to manage all our tags, and that is Google Tag Manager. Please install GTM in the Dawn theme of your practice store and send the GA4 Google tag through it. Test it well before you publish, and give the version a clear name.",
+      "steps": [
+        "Practise first: open Practice → GTM workbench in this app and finish the parts about the container, the Google tag and Preview.",
+        "Open https://tagmanager.google.com → Create account. Account name: `GlowShop Training`. Country: yours. Container name: `glowshop-practice-<yourname>.myshopify.com`. Target platform: Web. Click Create and accept the terms.",
+        "GTM shows two code boxes. Keep this window open. You can open it again later with Admin → Install Google Tag Manager. Write the container ID (starts with `GTM-`) in your Setup log.",
+        "Make a backup of the theme: in Shopify open Online Store → Themes. On the current Dawn theme click the `…` button → Duplicate. The copy is your backup.",
+        "On the current theme click `…` → Edit code. Open `layout/theme.liquid`. Paste the first GTM box (the `<script>` part) right after the `<head>` line, as high as possible. Paste the second box (the `<noscript>` part) right after the line that starts with `<body`. Click Save.",
+        "Note: this code runs on the storefront pages (home, collection, product, cart). It does not run in Shopify checkout. We add checkout tracking with a custom pixel in sprint 4.",
+        "Check the install: open your store in a normal window, enter the password, open Chrome DevTools (F12) → Console and type `dataLayer`. You must see an array with a `gtm.js` entry. In the Network tab, filter `gtm.js` and check the status is 200.",
+        "In GTM create a constant variable: Variables → User-Defined Variables → New → Constant. Value: your `G-` Measurement ID. Name: `CONST - GA4 Measurement ID`. Save.",
+        "Create the Google tag: Tags → New. Name: `Google Tag - GA4`. Tag Configuration → Google Tag. Tag ID: `{{CONST - GA4 Measurement ID}}`. Triggering → `Initialization - All Pages`. Save.",
+        "Click Preview (top right). Enter your store URL and click Connect. A new tab opens your store; enter the store password there. Tag Assistant must say Connected. Click the `Initialization` event on the left and check that `Google Tag - GA4` is under Tags Fired.",
+        "Open GA4 → Admin → Data display → DebugView. While Preview is running, click through 3 pages of your store. You must see `page_view` events and `session_start` in DebugView.",
+        "Go back to GTM and click Submit. Version name: `v1 - Google tag on all pages`. Version description: what you added and how you tested it. Click Publish.",
+        "Close Preview. Open your store in an Incognito window and check GA4 → Reports → Realtime overview: you must see 1 active user."
+      ],
+      "acceptance": [
+        "`dataLayer` in the browser console shows a `gtm.js` entry on the home page, a collection page and a product page.",
+        "GTM Preview shows `Google Tag - GA4` fired on `Initialization`.",
+        "GA4 DebugView shows `page_view` and `session_start` from your Preview session.",
+        "GTM has a published version named `v1 - Google tag on all pages` with a description.",
+        "A backup copy of the theme exists."
+      ],
+      "evidence": [
+        "Screenshot of Tag Assistant showing `Google Tag - GA4` under Tags Fired.",
+        "Screenshot of GA4 DebugView with `page_view` events.",
+        "Screenshot of GTM → Versions showing version 1 with its name.",
+        "Paste the 3 lines of `theme.liquid` around each GTM snippet (to show where you put them)."
+      ],
+      "hints": [
+        "If Tag Assistant does not connect, enter the store password in the new tab first and then reload the page.",
+        "If DebugView is empty, wait one minute, and check that the property selected at the top of GA4 is `GlowShop Practice`.",
+        "Ad blockers can block GTM. Turn them off for your store while you test."
+      ],
+      "explain": {
+        "en": "In this task I installed Google Tag Manager on the Shopify practice store. I made a backup of the Dawn theme and pasted the two GTM snippets into theme.liquid, one in the head and one after the body tag. I checked the dataLayer in the browser console. Then I created a constant variable with the Measurement ID and a Google tag that fires on Initialization on all pages. I tested it in GTM Preview and GA4 DebugView. Finally I published version 1 with a clear name and description."
+      },
+      "vocabulary": [
+        {
+          "term": "Google Tag Manager (GTM)",
+          "en": "a free tool to add and manage tracking tags without changing site code each time"
+        },
+        {
+          "term": "container",
+          "en": "the GTM box that holds all tags, triggers and variables of one website"
+        },
+        {
+          "term": "Google tag",
+          "en": "the main GA4 tag that loads GA4 and sends page views"
+        },
+        {
+          "term": "Preview mode",
+          "en": "a GTM test mode that shows which tags fire, only for you"
+        },
+        {
+          "term": "DebugView",
+          "en": "a GA4 screen that shows test events live, one by one"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How did you install GTM on Shopify?",
+          "a": "I made a backup of the theme first. Then I opened Edit code and pasted the GTM script high in the head of theme.liquid and the noscript part right after the body tag. I checked in the console that dataLayer had the gtm.js entry. GTM in the theme does not run in checkout, so for checkout we use a Shopify custom pixel."
+        },
+        {
+          "q": "How do you test a GTM change before you publish?",
+          "a": "I click Preview and connect Tag Assistant to the store. I check which tags fired on which event. At the same time I look at GA4 DebugView to see that the events arrive with the right parameters. Only then I submit a version with a clear name and description."
+        },
+        {
+          "q": "Why did you use a constant variable for the Measurement ID?",
+          "a": "If the Measurement ID is in one variable, all tags use the same value. When the ID changes, I change only one place. It also stops typing mistakes in many tags. It is a small habit that keeps the container clean."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Tag Manager Help: Install a web container",
+          "url": "https://support.google.com/tagmanager/answer/6103696"
+        },
+        {
+          "title": "Tag Manager Help: Preview and debug containers",
+          "url": "https://support.google.com/tagmanager/answer/6107056"
+        },
+        {
+          "title": "Google Analytics Help: Monitor events in DebugView",
+          "url": "https://support.google.com/analytics/answer/7201382"
+        }
+      ]
+    },
+    {
+      "id": "c03-t03",
+      "key": "CRO-303",
+      "type": "project",
+      "title": "Send view_item and add_to_cart through the dataLayer",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "The product page pushes `view_item` and the add to cart button pushes `add_to_cart` to the dataLayer with GA4 e-commerce data, and GTM sends both to GA4.",
+      "context": "Hi, page views alone do not tell us much. We need to know which products people look at and add to the cart, with the size and the price. Please push these two events to the dataLayer from the theme and send them to GA4 with GTM. Use the GA4 e-commerce format exactly, because the GA4 reports need it.",
+      "steps": [
+        "Practise first: open Practice → GTM workbench in this app and finish the parts about the dataLayer, Data Layer Variables and Custom Event triggers.",
+        "Read the GA4 e-commerce guide for developers (link in Resources), the parts `view_item` and `add_to_cart`. Note the rule: push `{ ecommerce: null }` before each e-commerce event, so old data does not mix with new data.",
+        "Create the file: in Edit code, open the folder `snippets` → Add a new snippet → name it `glowshop-datalayer`. Paste this code and Save: `{% if template.name == 'product' %}{% assign v = product.selected_or_first_available_variant %}<script> window.dataLayer = window.dataLayer || []; window.dataLayer.push({ ecommerce: null }); window.dataLayer.push({ event: 'view_item', ecommerce: { currency: {{ cart.currency.iso_code | json }}, value: {{ v.price | divided_by: 100.0 }}, items: [{ item_id: {{ v.sku | json }}, item_name: {{ product.title | json }}, item_variant: {{ v.title | json }}, item_brand: {{ product.vendor | json }}, item_category: {{ product.type | json }}, price: {{ v.price | divided_by: 100.0 }}, quantity: 1 }] } }); </script>{% endif %}`",
+        "Load the snippet: open `layout/theme.liquid` and add the line `{% render 'glowshop-datalayer' %}` inside the `<head>`, right ABOVE the GTM script. Save. Now the data is in the dataLayer before GTM reads it.",
+        "Test it: open a product page, choose nothing, open DevTools → Console and type `dataLayer`. You must see the `view_item` object with `item_id` like `GS-VCS-30` and `price` like `29`. Price must be in dollars, not cents.",
+        "Add the add_to_cart code to the same snippet, under the `{% endif %}`. Dawn sends a `cart-update` message (`PUB_SUB_EVENTS.cartUpdate`) after a product is added; you can see it in `assets/product-form.js`. Paste: `<script> document.addEventListener('DOMContentLoaded', function () { if (typeof subscribe !== 'function') return; subscribe(PUB_SUB_EVENTS.cartUpdate, function (e) { if (!e || e.source !== 'product-form' || !e.cartData) return; var li = e.cartData; var q = document.querySelector('input.quantity__input'); var qty = q ? (parseInt(q.value, 10) || 1) : 1; var price = li.price / 100; window.dataLayer = window.dataLayer || []; window.dataLayer.push({ ecommerce: null }); window.dataLayer.push({ event: 'add_to_cart', ecommerce: { currency: {{ cart.currency.iso_code | json }}, value: price * qty, items: [{ item_id: li.sku, item_name: li.product_title, item_variant: li.variant_title, item_brand: li.vendor, price: price, quantity: qty }] } }); }); }); </script>`",
+        "Test it: on a product page choose `50 ml`, click Add to cart, then type `dataLayer` in the Console. The last entry must be `add_to_cart` with the 50 ml SKU and price. If nothing appears, open `assets/product-form.js` and check that the theme still uses `PUB_SUB_EVENTS.cartUpdate` with `source: 'product-form'`.",
+        "In GTM create Data Layer Variables (Variables → New → Data Layer Variable, Version 2): `DLV - ecommerce.value` (name `ecommerce.value`), `DLV - ecommerce.currency` (name `ecommerce.currency`), `DLV - ecommerce.items` (name `ecommerce.items`).",
+        "Create two triggers (Triggers → New → Custom Event): `CE - view_item` with Event name `view_item`, and `CE - add_to_cart` with Event name `add_to_cart`. Both fire on All Custom Events.",
+        "Create the tag `GA4 - Event - view_item`: Tag type Google Analytics: GA4 Event. Measurement ID `{{CONST - GA4 Measurement ID}}`. Event name `view_item`. Event parameters: `currency` = `{{DLV - ecommerce.currency}}`, `value` = `{{DLV - ecommerce.value}}`. Open More settings → Ecommerce and tick Send Ecommerce data with Data source `Data Layer`. Trigger: `CE - view_item`. Save.",
+        "Create `GA4 - Event - add_to_cart` the same way with Event name `add_to_cart` and trigger `CE - add_to_cart`.",
+        "Click Preview, connect to the store, open a product page and add a product to the cart. In Tag Assistant click the `view_item` event: check the Tags tab (tag fired), the Variables tab (value and currency have values) and the Data Layer tab (items array). Do the same for `add_to_cart`.",
+        "In GA4 DebugView click the `add_to_cart` event and check the `items` and `value` parameters. Take screenshots.",
+        "Test 3 more cases and write the result in a Google Sheet `CRO-303 QA`: a product with quantity 2, a different size, and adding from the collection page Quick add (if your Dawn version has it on). Write `pass` or `fail` and what you saw.",
+        "Submit and publish the GTM version `v2 - view_item and add_to_cart from dataLayer` with a description of the new variables, triggers and tags.",
+        "Next day, check GA4 → Reports → Monetization → Ecommerce purchases: your items must show `Items viewed` and `Items added to cart`."
+      ],
+      "acceptance": [
+        "On a product page, `dataLayer` shows `view_item` with `currency`, `value` and one item with `item_id` = the SKU, before the `gtm.js` entry.",
+        "After add to cart, `dataLayer` shows `add_to_cart` with the right SKU, size, price in dollars and quantity.",
+        "GTM Preview shows both GA4 event tags fired on their custom events, and the variables are not `undefined`.",
+        "GA4 DebugView shows `view_item` and `add_to_cart` with an items array.",
+        "GTM version 2 is published with a name and description, and the QA sheet has at least 5 test rows."
+      ],
+      "evidence": [
+        "Paste the full code of `snippets/glowshop-datalayer.liquid`.",
+        "Screenshots: Tag Assistant Data Layer tab for `add_to_cart`, and GA4 DebugView with the `add_to_cart` items.",
+        "Link to the Google Sheet `CRO-303 QA`.",
+        "Screenshot of GTM → Versions with version 2."
+      ],
+      "hints": [
+        "If the price shows 2900 instead of 29, you forgot `divided_by: 100.0` in Liquid or `/ 100` in JavaScript.",
+        "If the Custom Event trigger does not fire, the event name in the trigger must match the dataLayer exactly, including lower case and underscores.",
+        "If `item_id` is empty, the variant has no SKU. Add SKUs in Products (see CRO-101)."
+      ],
+      "explain": {
+        "en": "In this task I sent product views and add to cart events from the Shopify theme to GA4 through the dataLayer. I wrote a Liquid snippet that pushes view_item on the product page with the SKU, size and price in dollars. For add to cart I listened to the cart update message of the Dawn theme and pushed add_to_cart. In GTM I made Data Layer Variables, Custom Event triggers and GA4 event tags with e-commerce data from the dataLayer. I tested every case in Preview and DebugView, wrote a QA sheet and published version 2."
+      },
+      "vocabulary": [
+        {
+          "term": "dataLayer",
+          "en": "a JavaScript list on the page where the site puts data for GTM to read"
+        },
+        {
+          "term": "Data Layer Variable",
+          "en": "a GTM variable that reads one value from the dataLayer"
+        },
+        {
+          "term": "Custom Event trigger",
+          "en": "a GTM trigger that fires when the dataLayer gets an event with a given name"
+        },
+        {
+          "term": "Liquid",
+          "en": "the template language of Shopify themes"
+        },
+        {
+          "term": "QA",
+          "en": "quality checks; testing that something works before you release it"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the dataLayer and why do you use it?",
+          "a": "The dataLayer is a JavaScript list on the page. The website pushes clean data into it, like the product, the price and the event name. GTM reads it and sends it to GA4. This is more stable than reading text from the page, which breaks when the design changes."
+        },
+        {
+          "q": "Why do you push ecommerce null before an e-commerce event?",
+          "a": "GTM merges values in the dataLayer. If I do not clear the ecommerce object, items from an older event can mix into the new one. Pushing ecommerce null first resets it. Google recommends this in the e-commerce guide."
+        },
+        {
+          "q": "How did you test the add_to_cart event?",
+          "a": "I added products with different sizes and quantities and checked the dataLayer in the console. In GTM Preview I checked that the tag fired and that the variables had values. In GA4 DebugView I opened the event and checked the items and value. I wrote each test case in a QA sheet as pass or fail."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google for Developers: Measure ecommerce (GA4)",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/ecommerce"
+        },
+        {
+          "title": "Google for Developers: The data layer",
+          "url": "https://developers.google.com/tag-platform/tag-manager/datalayer"
+        },
+        {
+          "title": "Shopify dev docs: Liquid reference",
+          "url": "https://shopify.dev/docs/api/liquid"
+        }
+      ]
+    },
+    {
+      "id": "c03-t04",
+      "key": "CRO-304",
+      "type": "incident",
+      "lab": "cro-gtm",
+      "title": "Case: add_to_cart is missing in GA4",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You find why `add_to_cart` stopped reaching GA4, fix it in GTM, and write an incident note with a prevention step.",
+      "context": "Hi, the marketing team says the `add_to_cart` numbers in GA4 dropped to almost zero after someone changed GTM yesterday. Purchases still come in, so the shop works. Please find the cause in GTM, fix it and tell us how we stop it next time.",
+      "steps": [
+        "First finish the practice lab: open Practice → GTM workbench in this app and solve the broken container case. Write down the root cause the lab shows. Do this before you touch your real container.",
+        "Create a Google Doc `Case CRO-304 - add_to_cart missing` with the sections Summary, Timeline, Checks, Root cause, Fix, Prevention.",
+        "Set up the case in your own container. In GTM, click the workspace name at the top (Current Workspace) → + and create a new workspace `case-304`. Free GTM accounts allow 3 workspaces.",
+        "In this workspace make the typical mistake: open the trigger `CE - add_to_cart` and change the Event name to `addToCart`. Save. Do not publish yet.",
+        "Start Preview from the `case-304` workspace. Add a product to the cart. In Tag Assistant click the `add_to_cart` event on the left. Look at Tags Not Fired: `GA4 - Event - add_to_cart` is there. Click it and read the trigger condition with the red cross. Take a screenshot.",
+        "Check the other usual causes one by one and write the result in the Checks section: (1) is the event in the dataLayer at all (Data Layer tab)? (2) does the trigger event name match exactly? (3) is the tag paused (Tags list shows a pause icon)? (4) is the Measurement ID right in the tag? (5) is the event in GA4 DebugView? (6) was the GTM version with the change published (Versions list)?",
+        "Use Workspace changes to see what was changed: GTM → Overview shows the changed items in this workspace. In a real case, open Versions and compare two versions to find who changed what and when.",
+        "Fix it: change the trigger back to `add_to_cart` and test again in Preview. The tag must fire and GA4 DebugView must show the event.",
+        "Clean up: the fix is only a return to the published state, so do not publish this workspace. Delete the workspace (Workspaces list → `case-304` → `…` → Delete) and confirm.",
+        "Write the incident note: Summary (3 sentences), Timeline, Root cause (trigger name did not match the dataLayer event name, which is case sensitive), Fix, and Prevention (for example: a test in Preview for every key event before every publish, a QA checklist, version descriptions, and naming rules from CRO-305).",
+        "Add one more section `Data impact`: explain that GA4 cannot get back the lost days, and how you would mark this in reports (for example a GA4 annotation or a note in the dashboard for these dates)."
+      ],
+      "acceptance": [
+        "The GTM workbench lab in this app is finished and its root cause is in the Doc.",
+        "The Doc has a screenshot of `GA4 - Event - add_to_cart` under Tags Not Fired with the failed trigger condition.",
+        "All 6 checks are written with a result.",
+        "After the fix, Preview shows the tag fired and DebugView shows `add_to_cart`.",
+        "The test workspace is deleted, and the live container is the same as before the case."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case CRO-304 - add_to_cart missing`.",
+        "Screenshots: Tags Not Fired with the trigger condition, and DebugView after the fix.",
+        "Screenshot of GTM → Versions showing no new published version from this case."
+      ],
+      "hints": [
+        "Tag Assistant shows each event on the left. Always click the exact event, not the page summary.",
+        "Event names are case sensitive: `addToCart`, `add_to_cart` and `Add_to_cart` are three different names.",
+        "If you published by mistake, go to Versions, open the old version and click Publish to roll back."
+      ],
+      "explain": {
+        "en": "In this case the add_to_cart event stopped reaching GA4 after a GTM change. First I solved the GTM workbench lab in the app. Then I made the same bug in a test workspace in my own container by changing the trigger name to addToCart. In Preview the tag was under Tags Not Fired and the trigger condition showed the mismatch. I checked the other usual causes too, like a paused tag and a wrong Measurement ID. I fixed the trigger, tested it in DebugView, deleted the test workspace and wrote an incident note with prevention steps."
+      },
+      "vocabulary": [
+        {
+          "term": "workspace",
+          "en": "a separate draft area in GTM where you can change things without touching other drafts"
+        },
+        {
+          "term": "Tags Not Fired",
+          "en": "the part of Tag Assistant that lists tags that did not run on an event"
+        },
+        {
+          "term": "case sensitive",
+          "en": "big and small letters are different, so add_to_cart is not Add_to_cart"
+        },
+        {
+          "term": "rollback",
+          "en": "going back to an older working version"
+        },
+        {
+          "term": "annotation",
+          "en": "a note on a date in a report that explains something unusual"
+        }
+      ],
+      "interview": [
+        {
+          "q": "An event stopped in GA4. How do you find the cause?",
+          "a": "I start GTM Preview and do the action myself. I check if the event is in the dataLayer, if the trigger fires and if the tag fires. Then I check GA4 DebugView to see if the hit arrives. In this case the trigger name was addToCart but the dataLayer sent add_to_cart, so the tag never fired."
+        },
+        {
+          "q": "How do you stop this from happening again?",
+          "a": "We test every key event in Preview before each publish, with a short QA checklist. Every version gets a clear name and description, so we can find changes fast. We also follow naming rules, and event names always match the GA4 recommended names exactly."
+        },
+        {
+          "q": "Can you get the lost data back?",
+          "a": "No. GA4 only has the events that were sent, so the missing days stay missing. I mark the dates in our reports and dashboard so nobody reads them as a real drop. If needed, I can estimate the missing numbers from Shopify cart data, but I label them as estimates."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Tag Manager Help: Preview and debug containers",
+          "url": "https://support.google.com/tagmanager/answer/6107056"
+        },
+        {
+          "title": "Tag Manager Help: About triggers",
+          "url": "https://support.google.com/tagmanager/answer/7679316"
+        }
+      ]
+    },
+    {
+      "id": "c03-t05",
+      "key": "CRO-305",
+      "type": "docs",
+      "title": "Write the tracking plan and GTM naming rules",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "A tracking plan sheet that lists every GlowShop event with its trigger, parameters and test status, plus the naming rules for GTM.",
+      "context": "Hi, soon more people will work in our GTM container. Without rules, it becomes a mess fast. Please write our tracking plan and the naming rules. Every new tag must follow them from now on.",
+      "steps": [
+        "Create a Google Sheet `GlowShop tracking plan` and share it as Anyone with the link → Commenter.",
+        "Tab `Events`. Columns: `Event name`, `When it fires`, `Where (page)`, `Source (theme dataLayer / GTM / custom pixel / GA4 automatic)`, `GTM trigger`, `GTM tag`, `Parameters`, `Key event?`, `Status (live / planned)`, `Last tested`, `Tested by`.",
+        "Fill in the live events: `page_view`, `session_start`, `view_item`, `add_to_cart`. Fill in the planned events for sprint 4: `view_item_list`, `view_cart`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase`. Use your list from CRO-103.",
+        "Tab `Parameters`: one row per parameter: `currency`, `value`, `items`, `transaction_id`, `item_id`, `item_name`, `item_variant`, `item_brand`, `item_category`, `price`, `quantity`. For each write the type (text, number, array), an example and the rule (for example `item_id` = variant SKU like `GS-VCS-50`; `price` in dollars, not cents).",
+        "Tab `Naming rules`. Write: tags `<Tool> - <Type> - <event>` (for example `GA4 - Event - add_to_cart`); triggers `<Type> - <detail>` (for example `CE - add_to_cart`, `Click - Add to cart button`); variables `<Type> - <name>` (for example `DLV - ecommerce.value`, `CONST - GA4 Measurement ID`); event names lowercase with underscores and GA4 recommended names first; versions `vN - what changed`.",
+        "Tab `Release checklist`: 6-8 checks to do before every GTM publish, for example Preview tested, DebugView checked, no `undefined` variables, version name and description written, tracking plan updated.",
+        "Rename anything in your GTM container that does not follow the rules, test in Preview, and publish `v3 - rename to naming rules`.",
+        "Fill `Last tested` with today's date for every live event after you test it again."
+      ],
+      "acceptance": [
+        "The sheet has the 4 tabs: Events, Parameters, Naming rules, Release checklist.",
+        "The Events tab has all 10 events, with live and planned status.",
+        "The Parameters tab says `item_id` = SKU and price in dollars.",
+        "All names in the GTM container follow the rules, and version 3 is published."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop tracking plan`.",
+        "Screenshot of the GTM Tags, Triggers and Variables lists after renaming.",
+        "Screenshot of GTM → Versions with version 3."
+      ],
+      "hints": [
+        "Keep the rules short. If a rule needs a paragraph, nobody will follow it.",
+        "Renaming a variable in GTM updates the tags that use it, but test in Preview anyway.",
+        "Write examples next to every rule. People copy examples more than they read rules."
+      ],
+      "explain": {
+        "en": "In this task I wrote the GlowShop tracking plan in Google Sheets. It lists every live and planned event, where it fires, its trigger, its tag and its parameters. I wrote clear rules for each parameter, for example that item_id is the variant SKU and the price is in dollars. I also wrote naming rules for tags, triggers, variables and versions, and a release checklist. Then I renamed my GTM items to follow the rules and published a new version."
+      },
+      "vocabulary": [
+        {
+          "term": "tracking plan",
+          "en": "a document that lists every event, when it fires and what data it sends"
+        },
+        {
+          "term": "naming convention",
+          "en": "fixed rules for how we name things, so everyone can read them"
+        },
+        {
+          "term": "release checklist",
+          "en": "a short list of checks you do before you publish a change"
+        },
+        {
+          "term": "version",
+          "en": "a saved state of the GTM container that you can publish or roll back to"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is a tracking plan and why do you need one?",
+          "a": "A tracking plan lists every event, when it fires, where the data comes from and which parameters it sends. It is the single place of truth for developers, analysts and marketers. When a number looks strange, I check the plan first. It also tells us what was last tested and by whom."
+        },
+        {
+          "q": "What naming rules did you use in GTM?",
+          "a": "Tags start with the tool and the type, like GA4 - Event - add_to_cart. Triggers start with the trigger type, like CE for Custom Event. Variables start with the variable type, like DLV or CONST. With these rules anyone can find and understand an item fast."
+        },
+        {
+          "q": "What is on your release checklist?",
+          "a": "I test in Preview, check the events in DebugView and make sure no variable is undefined. I write a version name and description. I update the tracking plan with the date of the test. It takes ten minutes and prevents most tracking bugs."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google for Developers: GA4 recommended events reference",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events"
+        },
+        {
+          "title": "Tag Manager Help: Publishing, versions, and approvals",
+          "url": "https://support.google.com/tagmanager/answer/6107163"
+        }
+      ]
+    }
+  ]
+}

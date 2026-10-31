@@ -1,0 +1,367 @@
+{
+  "id": "c05",
+  "number": 5,
+  "title": "Traffic, UTMs and dashboards",
+  "weeks": "9-10",
+  "theme": "Know where GlowShop visitors come from, tag every link the same way, and show CR, AOV and RPV by channel in one Looker Studio dashboard.",
+  "jobStory": "In this sprint you make the traffic data clean. You write the UTM rules that the marketing team must use and you learn how GA4 puts each session into a channel like Paid Social or Organic Search. You find and fix Unassigned traffic, and you learn why GA4, Meta and Shopify give different numbers for the same sale. At the end you build the CRO dashboard in Looker Studio that the whole team will open every Monday.",
+  "outcomes": [
+    "I wrote a UTM rules sheet with allowed values and a link builder that the marketing team can use.",
+    "I explained how GA4 default channel groups work and I fixed links that fell into Unassigned.",
+    "I compared attribution models in GA4 and wrote a short note on why tools show different numbers.",
+    "I built a Looker Studio dashboard with CR, AOV and RPV by channel, device and country, with calculated fields and filters.",
+    "I solved a real case where paid social looked like it sold nothing, because of broken UTM tags."
+  ],
+  "tickets": [
+    {
+      "id": "c05-t01",
+      "key": "CRO-501",
+      "type": "task",
+      "title": "Write the GlowShop UTM rules and a link builder sheet",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "GlowShop has one shared Google Sheet with UTM rules, allowed values and a builder that makes correct campaign links.",
+      "context": "Hi, our marketing people tag links in different ways. One person writes 'Facebook', another 'fb', another 'meta-ads'. In GA4 this makes a mess, and some sales land in the wrong channel. Please make one UTM rules sheet with fixed values and a builder, so everybody makes the same links.",
+      "steps": [
+        "Practise first: open Practice → UTMs and GA4 channels in this app. Do the first part of the lab (build and read UTM links) before you start.",
+        "Read the Google help page 'Collect campaign data with custom URLs' (link in Resources). Write down the five main parameters: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`. Also note `utm_id`.",
+        "Read the Google help page 'Default channel group' (link in Resources). For each channel (Paid Social, Organic Social, Email, Paid Search, Display, Affiliates, Referral), write down which `utm_medium` values GA4 expects. Example: Email needs a medium like `email`; Paid Social needs a social source and a medium that matches `paid` or `cpc`.",
+        "Create a new Google Sheet named `GlowShop – UTM rules`. Make a tab `Rules` and write these rules, one per row: 1) always lowercase; 2) no spaces, use `_` between words; 3) `utm_source` = the platform (facebook, instagram, google, klaviyo, tiktok, pinterest); 4) `utm_medium` = the type of traffic (paid_social, cpc, email, organic_social, affiliate, referral); 5) `utm_campaign` = `yyyy_mm_market_name`, for example `2026_11_us_black_friday`; 6) `utm_content` = the ad or the link inside the email; 7) never put UTMs on internal links of the store.",
+        "Make a tab `Allowed values` with three columns: `source`, `medium`, `GA4 channel it should land in`. Fill at least 12 rows. Example: `facebook | paid_social | Paid Social`, `instagram | organic_social | Organic Social`, `klaviyo | email | Email`, `google | cpc | Paid Search`.",
+        "Select the source column in `Allowed values`, then in the menu click Data → Named ranges and name it `sources`. Do the same for the medium column and name it `mediums`.",
+        "Make a tab `Builder` with these columns: A `Landing page URL`, B `utm_source`, C `utm_medium`, D `utm_campaign`, E `utm_content`, F `Final URL`, G `Check`.",
+        "Add dropdowns: select column B, click Data → Data validation → Add rule → Criteria 'Dropdown (from a range)' → range `='Allowed values'!A2:A40`, and choose 'Reject the input'. Do the same for column C with the medium column.",
+        "In F2 write this formula and copy it down: `=IF(A2=\"\",\"\",A2&IF(REGEXMATCH(A2,\"\\?\"),\"&\",\"?\")&\"utm_source=\"&B2&\"&utm_medium=\"&C2&\"&utm_campaign=\"&LOWER(SUBSTITUTE(D2,\" \",\"_\"))&IF(E2=\"\",\"\",\"&utm_content=\"&LOWER(SUBSTITUTE(E2,\" \",\"_\"))))`.",
+        "In G2 write a check that shows an error when the campaign name has capital letters or spaces: `=IF(D2=\"\",\"\",IF(REGEXMATCH(D2,\"[A-Z ]\"),\"Fix: lowercase, no spaces\",\"OK\"))`. Copy it down.",
+        "Make 6 test links for your practice store, for example a product page link for a Meta ad, an Instagram bio link and a Klaviyo email link. Compare one of them with the official Google Campaign URL Builder (`https://ga-dev-tools.google/campaign-url-builder/`). The result must be the same.",
+        "Test 3 of the links: in Chrome, first open your practice store and enter the store password. Then open each link in the same window. Next day, open GA4 → Reports → Acquisition → Traffic acquisition and change the table dimension to 'Session source / medium'. Find your three sources.",
+        "Share the sheet: click Share → General access → 'Anyone with the link' → Viewer."
+      ],
+      "acceptance": [
+        "The sheet has the tabs `Rules`, `Allowed values` (12 or more rows) and `Builder`.",
+        "Columns B and C in `Builder` only accept values from the dropdown.",
+        "The formula in column F makes a correct link, also when the landing page URL already has a `?` in it.",
+        "Column G shows 'Fix: lowercase, no spaces' when you type a campaign name with a capital letter.",
+        "At least 3 test sources are visible in GA4 Traffic acquisition with 'Session source / medium'."
+      ],
+      "evidence": [
+        "Link to your Google Sheet `GlowShop – UTM rules` (view access)",
+        "Screenshot on Google Drive of the GA4 Traffic acquisition table showing your 3 test sources",
+        "One final link from your builder and the same link made with the Google Campaign URL Builder"
+      ],
+      "hints": [
+        "If the visit has no UTMs in GA4, you probably hit the password page first. Enter the password, then open the UTM link again.",
+        "If you made an internal traffic filter in GA4 earlier, your own visits are removed. Set the filter to 'Testing' in Admin → Data collection and modification → Data filters while you test.",
+        "GA4 can take 24-48 hours to show new data in standard reports. Realtime shows it faster."
+      ],
+      "explain": {
+        "en": "In this task I made one UTM rules sheet for the whole marketing team. I wrote simple rules, like always lowercase and no spaces. I made a list of allowed sources and mediums and wrote which GA4 channel each one lands in. I built a link builder with dropdowns and a formula, so people cannot type wrong values. I tested three links on our practice store and checked them in the GA4 Traffic acquisition report."
+      },
+      "vocabulary": [
+        { "term": "UTM parameter", "en": "a small tag at the end of a link that tells GA4 where the visit came from" },
+        { "term": "source", "en": "the website or tool that sent the visitor, like facebook or google" },
+        { "term": "medium", "en": "the type of traffic, like email, cpc or paid_social" },
+        { "term": "campaign", "en": "the name of one marketing action, like a sale in November" },
+        { "term": "data validation", "en": "a rule in a sheet that only allows some values in a cell" }
+      ],
+      "interview": [
+        {
+          "q": "Why do you need UTM rules in a company?",
+          "a": "Without rules, every person tags links in a different way. Then GA4 shows 'Facebook', 'facebook' and 'fb' as three different sources, and some visits land in the wrong channel. I made one sheet with allowed values and a builder. So every link is the same and the reports are clean."
+        },
+        {
+          "q": "What is the difference between utm_source and utm_medium?",
+          "a": "The source is who sent the visitor, for example facebook or klaviyo. The medium is the type of traffic, for example paid_social or email. GA4 uses both to decide the channel. So the medium is very important for channel reports."
+        },
+        {
+          "q": "Should you use UTMs on links inside your own website?",
+          "a": "No. A UTM on an internal link starts a new session with a new source. Then the real source, like Google, is lost. I only use UTMs on links outside the store, like ads, emails and social posts."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Collect campaign data with custom URLs", "url": "https://support.google.com/analytics/answer/10917952" },
+        { "title": "GA4 help: Default channel group", "url": "https://support.google.com/analytics/answer/9756891" },
+        { "title": "Google Campaign URL Builder", "url": "https://ga-dev-tools.google/campaign-url-builder/" }
+      ]
+    },
+    {
+      "id": "c05-t02",
+      "key": "CRO-502",
+      "type": "task",
+      "title": "Read GA4 channels and find Unassigned traffic",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You can explain how GA4 puts each session into a channel, you find the causes of Unassigned traffic and you create a custom channel group for GlowShop.",
+      "context": "Hi, in last month's report 9% of sessions were 'Unassigned'. Nobody knows what this is, so we cannot say which channel sells. Please find out what goes into Unassigned and set up a GlowShop channel group that shows the truth.",
+      "steps": [
+        "Practise first: open Practice → UTMs and GA4 channels in this app and finish the part about channel rules.",
+        "Open the GA4 demo account (Google Merchandise Store). Go to Reports → Acquisition → Traffic acquisition. Set the date range to the last 28 days.",
+        "Look at the first table column. It is 'Session primary channel group (Default Channel Group)'. Write down the top 8 channels with sessions, key events and revenue in a new Google Sheet `GlowShop – channels`.",
+        "Click the dimension dropdown above the table and change it to 'Session source / medium'. Click the '+' next to it and add 'Session primary channel group' as a second dimension. Now you can see which source and medium goes into which channel.",
+        "Type `unassigned` in the search box above the table. Write down every source / medium that lands in Unassigned and its number of sessions.",
+        "For each Unassigned row, write the reason in your sheet. Use the default channel rules from the Google help page. Typical reasons: a medium with a typo (`e-mail`, `Paid-Social`), a source GA4 does not know, `(not set)` from a broken tag, or events sent without a session.",
+        "Now make the same problem on your own property. Use your UTM builder from CRO-501, but make 3 bad links on purpose: `utm_medium=social_paid`, `utm_medium=newsletter` and `utm_source=fb_ads&utm_medium=ads`. Open each in a new Chrome Incognito window (enter the store password first).",
+        "Next day, open your own GA4 property → Traffic acquisition with 'Session source / medium' + 'Session primary channel group'. Check which channel each bad link got. Write the result next to your guess.",
+        "Create a custom channel group: Admin → Data display → Channel groups → Create new channel group. Name it `GlowShop channels`. It starts as a copy of the default group.",
+        "Edit the 'Email' channel and add a condition: Medium exactly matches `newsletter`. Click 'Add new channel' and make `Partners` with the condition Medium exactly matches `affiliate` OR `partner`. Drag `Partners` above 'Referral' because GA4 checks the rules from top to bottom. Save.",
+        "Go back to Traffic acquisition. Click the dimension dropdown and choose 'Session GlowShop channels' (your custom group). Custom channel groups also work on old data, so check that your `newsletter` test session now shows as Email.",
+        "In your sheet, add a tab `Unassigned fixes` with three columns: problem, root cause, fix (a UTM rule change, a custom channel rule, or a tracking fix)."
+      ],
+      "acceptance": [
+        "The sheet lists every Unassigned source / medium from the demo account with a reason.",
+        "Your 3 bad test links are visible in your GA4 property and each one has the channel you saw and the channel you guessed.",
+        "The custom channel group `GlowShop channels` exists, with `newsletter` mapped to Email and a `Partners` channel above Referral.",
+        "The `newsletter` test session shows as Email when you use the custom channel group in Traffic acquisition."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop – channels` (view access)",
+        "Screenshot on Google Drive of the edit screen of your `GlowShop channels` channel group",
+        "Screenshot on Google Drive of Traffic acquisition with your custom channel group as the dimension"
+      ],
+      "hints": [
+        "GA4 checks channel rules in order. The first rule that matches wins, so the order of channels matters.",
+        "A property can have only two custom channel groups. Do not make test groups you do not need.",
+        "If you do not see Admin → Data display, you need the Editor role on the property."
+      ],
+      "explain": {
+        "en": "In this task I learned how GA4 puts every session into a channel. GA4 looks at the source and the medium and checks a list of rules from top to bottom. I found the Unassigned traffic in the demo account and wrote the reason for each row. I made three bad links on purpose and checked where they landed. Then I created a custom channel group for GlowShop that maps our own medium names to the right channel. Custom channel groups also work on old data, so the past reports became correct too."
+      },
+      "vocabulary": [
+        { "term": "default channel group", "en": "Google's fixed list of rules that puts each session into a channel" },
+        { "term": "Unassigned", "en": "sessions where no channel rule matched" },
+        { "term": "custom channel group", "en": "your own list of channel rules that you make in GA4 Admin" },
+        { "term": "session", "en": "one visit to the website, it ends after 30 minutes without action" },
+        { "term": "(not set)", "en": "GA4 did not get a value for this dimension" }
+      ],
+      "interview": [
+        {
+          "q": "What does Unassigned mean in GA4?",
+          "a": "Unassigned means GA4 could not match the session to any channel rule. Most of the time the medium has a strange value, like a typo, or the source is unknown. I search the Traffic acquisition table for Unassigned and look at the source and medium. Then I fix the UTM rules or add a custom channel rule."
+        },
+        {
+          "q": "Why did you make a custom channel group and not just change the default one?",
+          "a": "You cannot change the default channel group in GA4. A custom channel group is a copy that I can edit. I added our own medium names, like newsletter, and a Partners channel. It also works on old data, so I did not lose history."
+        },
+        {
+          "q": "Why does the order of channel rules matter?",
+          "a": "GA4 checks the rules from top to bottom and stops at the first match. If Referral is above Partners, a partner link can land in Referral. So I put the more specific channel higher in the list."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Default channel group", "url": "https://support.google.com/analytics/answer/9756891" },
+        { "title": "GA4 help: Custom channel groups", "url": "https://support.google.com/analytics/answer/13051316" },
+        { "title": "GA4 help: Access the demo account", "url": "https://support.google.com/analytics/answer/6367342" }
+      ]
+    },
+    {
+      "id": "c05-t03",
+      "key": "CRO-503",
+      "type": "docs",
+      "title": "Write the attribution note: why GA4, Meta and Shopify show different numbers",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "The team has a one-page note that explains attribution in simple words and shows a real model comparison from GA4.",
+      "context": "Hi, the marketing lead says Meta shows 120 sales last month, GA4 shows 70 from Paid Social, and Shopify shows 'Social' 40. She thinks the tracking is broken. Often it is not broken, the tools just count in different ways. Please write one page that explains this, with a real example from GA4.",
+      "steps": [
+        "Read the GA4 help page 'Get started with attribution' (link in Resources). Write down in your own words: what is an attribution model, what is a lookback window, and what is the difference between 'data-driven' and 'paid and organic last click'.",
+        "Open your own GA4 property → Admin → Data display → Attribution settings. Take a screenshot. Write down the reporting attribution model and the two lookback windows (acquisition key events and all other key events). Do not change them.",
+        "Open the GA4 demo account (Google Merchandise Store). Go to Advertising → Attribution → Model comparison. If your account shows the reports under other names, use the left menu search and type 'model comparison'.",
+        "Choose the key event `purchase`. Compare 'Data-driven' with 'Paid and organic last click'. Choose the dimension 'Default channel group'. Write in your sheet the key events per channel for both models and the % change.",
+        "Open Advertising → Attribution → Conversion paths (some accounts call it Attribution paths). Look at the top 5 paths for `purchase`. Write down how many paths have more than one channel, for example 'Organic Search → Direct'.",
+        "Open Reports → Acquisition → Traffic acquisition and Reports → Acquisition → User acquisition. Compare the first user channel with the session channel for Paid Social or Organic Social. Note why they are different: user acquisition shows how the user came the first time, traffic acquisition shows each session.",
+        "Create a Google Doc named `GlowShop – Why tools show different numbers`. Use these headings: 1) The question, 2) What attribution means, 3) How each tool counts (GA4, Meta Ads Manager, Shopify), 4) Example from GA4 (your table), 5) What we use for which decision, 6) Words to know.",
+        "In part 3, write these facts in simple words: Meta counts a sale after a click or a view of the ad inside its attribution window, also on other devices, and gives the sale to the day of the ad. GA4 gives the sale to channels with its model and only sees what its tag sees (cookies, consent). Shopify 'Sessions by referrer' and its own attribution look at the last visit before the order.",
+        "In part 5, write a simple rule for the team, for example: 'We use GA4 with the GlowShop channel group to compare channels. We use Meta numbers only to compare ads inside Meta. We use Shopify for the real number of orders and revenue.'",
+        "Ask one friend who does not work in marketing to read the doc. Change every sentence that they did not understand. Then share the doc with view access."
+      ],
+      "acceptance": [
+        "The doc has all 6 headings and fits on 1-2 pages.",
+        "Part 4 has a table with key events by channel for two models and the % change.",
+        "Part 3 explains each tool in 2-4 simple sentences, with no words that are not explained in part 6.",
+        "Part 5 says clearly which tool the team uses for which decision."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GlowShop – Why tools show different numbers` (view access)",
+        "Screenshot on Google Drive of your property's Attribution settings",
+        "Screenshot on Google Drive of the Model comparison report in the demo account"
+      ],
+      "hints": [
+        "If the attribution reports are empty, choose a longer date range, for example the last 90 days.",
+        "Do not try to make the numbers equal. The goal is to explain why they are different.",
+        "Keep each sentence under 15 words. Short sentences are easier for the whole team."
+      ],
+      "explain": {
+        "en": "In this task I wrote a one-page note about attribution. Attribution means how a tool decides which channel gets the credit for a sale. I checked our GA4 attribution settings and I compared two models in the GA4 demo account. I showed that some channels get more credit with data-driven than with last click. I explained why Meta, GA4 and Shopify count differently, and I wrote which tool we use for which decision."
+      },
+      "vocabulary": [
+        { "term": "attribution", "en": "how a tool gives the credit for a sale to channels" },
+        { "term": "attribution model", "en": "the rule for giving credit, like last click or data-driven" },
+        { "term": "lookback window", "en": "how many days back a tool looks for a click or view before the sale" },
+        { "term": "conversion path", "en": "the list of channels a user used before the sale" },
+        { "term": "first user channel", "en": "the channel that brought the user for the very first time" }
+      ],
+      "interview": [
+        {
+          "q": "Why does Meta show more sales than GA4?",
+          "a": "Meta counts a sale after a click and sometimes after a view of the ad, also on other devices. GA4 only sees what its tag sees, and it gives credit with its own model. So the same sale can count in Meta and in another channel in GA4. This is normal and I explain it before anyone thinks the tracking is broken."
+        },
+        {
+          "q": "What is the difference between data-driven and last click attribution?",
+          "a": "Last click gives all the credit to the last channel before the sale. Data-driven looks at many paths and shares the credit between the channels that helped. Upper funnel channels like social often get more credit with data-driven. I compared both in the Model comparison report."
+        },
+        {
+          "q": "Which number do you trust for revenue?",
+          "a": "For the real number of orders and revenue I trust Shopify, because it is the order system. For comparing channels I use GA4 with a clean channel group. For comparing ads inside Meta I use Meta Ads Manager. Each tool has one job."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Get started with attribution", "url": "https://support.google.com/analytics/answer/10596866" },
+        { "title": "GA4 help: Attribution settings", "url": "https://support.google.com/analytics/answer/10597962" }
+      ]
+    },
+    {
+      "id": "c05-t04",
+      "key": "CRO-504",
+      "type": "project",
+      "title": "Build the GlowShop CRO dashboard in Looker Studio",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A shared Looker Studio dashboard shows sessions, CR, AOV and RPV by channel, device and country, with a date control and filters.",
+      "context": "Hi, every Monday we open five reports to see how the store did. Please build one CRO dashboard in Looker Studio. It must show conversion rate, average order value and revenue per visitor, and we must be able to split them by channel, device and country (US vs Canada).",
+      "steps": [
+        "Plan first. In a Google Doc, sketch the dashboard on paper or in a drawing: page 1 'Overview' (scorecards + trend), page 2 'Channels', page 3 'Device and country'. Write which metric goes where.",
+        "Make sure you can see the GA4 demo account in your Google account (it has real e-commerce data). Your practice store has little data, so you build on the demo first and add your own property later.",
+        "Open `https://lookerstudio.google.com` → Create → Report. In 'Add data to report' choose the 'Google Analytics' connector, then the demo account → the 'GA4 – Google Merchandise Store' property → Add → Add to report.",
+        "Rename the report (click 'Untitled Report' at the top left) to `GlowShop – CRO dashboard`. Go to Theme and layout and choose a simple theme with good contrast.",
+        "Create three calculated fields: click Resource → Manage added data sources → Edit → Add a field → Add calculated field. Field 1: name `CR`, formula `Transactions / Sessions`, type Number → Percent. Field 2: `AOV`, formula `Purchase revenue / Transactions`, type Currency (USD). Field 3: `RPV`, formula `Purchase revenue / Sessions`, type Currency (USD). Click Save and Done.",
+        "On page 1, click Insert → Scorecard five times. Set the metrics: Sessions, Transactions, CR, AOV, RPV. In each scorecard go to Setup → Comparison date range → 'Previous period', so you see the change.",
+        "Click Insert → Date range control and put it at the top. Set the default to 'Last 28 days'.",
+        "Add Insert → Time series chart with dimension Date and metrics Sessions and CR. In Style, put CR on the right axis.",
+        "Add page 2 (Page → New page) named 'Channels'. Insert a Table with dimension 'Session primary channel group' (in some accounts the field is called 'Session default channel group') and metrics Sessions, Transactions, CR, AOV, RPV, Purchase revenue. Sort by Sessions, descending. In Style, turn on 'Heatmap' for CR and RPV.",
+        "Add page 3 'Device and country'. Insert a Bar chart with dimension 'Device category' and metric CR. Insert a Table with dimension Country and metrics Sessions, CR, AOV, RPV. Add Insert → Drop-down list control with the field Country, so a reader can choose only United States or Canada.",
+        "Copy the date range control to pages 2 and 3, or right-click it and choose 'Make report-level', so it works on every page.",
+        "Check your numbers: open GA4 → Reports → Monetization → Ecommerce purchases (or Overview) for the same dates. Transactions and revenue in Looker Studio must match GA4. Write any difference in a text box at the bottom of page 1.",
+        "Add a fourth page 'Practice store'. Click Resource → Manage added data sources → Add a data source → Google Analytics → your own GA4 property. Copy the Channels table to this page and change its data source to your own property. Add the calculated fields to this data source too.",
+        "Add a text box on page 1 with 'How to read this dashboard': what CR, AOV and RPV mean, in one line each.",
+        "Click View to check the dashboard as a reader. Then click Share → Manage access → change 'Restricted' to 'Anyone with the link can view'. Copy the link."
+      ],
+      "acceptance": [
+        "The report has 4 pages: Overview, Channels, Device and country, Practice store.",
+        "The calculated fields CR, AOV and RPV exist and show the right formats (%, USD).",
+        "Scorecards show a comparison with the previous period.",
+        "The date range control and the country filter change the charts.",
+        "Transactions and revenue match the GA4 report for the same dates, or the difference is explained on page 1.",
+        "The link opens in a private window without a login request for editing (view access)."
+      ],
+      "evidence": [
+        "Shared view link to the Looker Studio report `GlowShop – CRO dashboard`",
+        "Screenshot on Google Drive of the calculated field editor with the RPV formula",
+        "Screenshot on Google Drive of page 3 with the country filter set to Canada"
+      ],
+      "hints": [
+        "If a chart shows a quota error, the GA4 API has a limit per hour. Wait one hour or use fewer charts per page.",
+        "If the calculated field shows wrong numbers, check that you used the metric fields (blue) and not dimensions (green).",
+        "Small differences between Looker Studio and GA4 can come from sampling or thresholding. Big differences mean a wrong date range or a wrong field."
+      ],
+      "explain": {
+        "en": "In this project I built the CRO dashboard for GlowShop in Looker Studio. I connected it to GA4 and made three calculated fields: conversion rate, average order value and revenue per visitor. I made pages for the overview, channels, and device and country, with a date control and a country filter. I checked my numbers against the GA4 report and wrote down the small differences. Now the team opens one link every Monday instead of five reports."
+      },
+      "vocabulary": [
+        { "term": "Looker Studio", "en": "a free Google tool to build dashboards from data like GA4" },
+        { "term": "connector", "en": "the part of Looker Studio that brings data from one tool, like GA4" },
+        { "term": "calculated field", "en": "a new metric that you make with a formula from other metrics" },
+        { "term": "scorecard", "en": "a chart that shows one big number" },
+        { "term": "RPV", "en": "revenue per visitor: revenue divided by sessions" },
+        { "term": "control", "en": "a filter on the dashboard, like a date picker or a dropdown" }
+      ],
+      "interview": [
+        {
+          "q": "Why do you show RPV and not only conversion rate?",
+          "a": "Conversion rate only counts orders. A change can bring more orders but smaller orders. RPV is revenue divided by sessions, so it shows conversion rate and order value together. I show CR, AOV and RPV side by side so the team sees the full picture."
+        },
+        {
+          "q": "How did you make the CR field in Looker Studio?",
+          "a": "I added a calculated field to the GA4 data source with the formula Transactions divided by Sessions, and I set the type to Percent. Because I used metric fields, Looker Studio divides the totals for every row. I checked the result against the numbers in GA4."
+        },
+        {
+          "q": "How do you know the dashboard is correct?",
+          "a": "I compared transactions and revenue with the GA4 e-commerce report for the same dates. They matched, and I wrote the small differences on the first page. I also changed the filters and checked that the totals still made sense."
+        }
+      ],
+      "resources": [
+        { "title": "Looker Studio help: About calculated fields", "url": "https://support.google.com/looker-studio/answer/6299685" },
+        { "title": "Looker Studio help: Share reports", "url": "https://support.google.com/looker-studio/answer/7459147" },
+        { "title": "Looker Studio help center", "url": "https://support.google.com/looker-studio" }
+      ]
+    },
+    {
+      "id": "c05-t05",
+      "key": "CRO-505",
+      "type": "incident",
+      "lab": "cro-utm",
+      "title": "Case: paid social looks like it sells nothing",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You find why Meta ad sales are missing from Paid Social in GA4, fix the tagging, and fix old data with a channel rule.",
+      "context": "Hi, urgent one. Meta Ads Manager says our Instagram ads made 85 sales last month, but GA4 shows almost 0 purchases in Paid Social. The CEO wants to stop all Meta ads tomorrow. Please find out what is wrong before we make that decision.",
+      "steps": [
+        "First finish the practice lab: open Practice → UTMs and GA4 channels in this app and solve the case part. Write your root cause in the app before you go on.",
+        "Write a short timeline in a Google Doc `Case CRO-505` while you work: time, what you checked, what you saw.",
+        "Look at how the team tagged the ads. In this case the URL parameters in Meta were `utm_source=fb_ads&utm_medium=social_paid&utm_campaign={{campaign.name}}`. Check this against the GA4 default channel rules: is `fb_ads` a known social source? Does `social_paid` match the Paid Social medium rule? Write your answer.",
+        "Reproduce it on your practice store. With your builder from CRO-501, make a link to a product page with exactly those broken parameters (use `glow_test` as the campaign name). Enter the store password, then open the link in a new Incognito window and buy one product with the Shopify test payment (Bogus Gateway, card number `1`).",
+        "Make a second link with the fixed parameters: `utm_source=facebook&utm_medium=paid_social&utm_campaign=glow_test_fixed`. Open it in a new Incognito window and make a second test purchase.",
+        "Next day, open your GA4 property → Reports → Acquisition → Traffic acquisition. Use 'Session source / medium' plus 'Session primary channel group'. Find both test sessions. The broken one should be in Unassigned or another wrong channel, the fixed one in Paid Social.",
+        "Check where the purchase went: Explore → Free form. Rows: 'Session source / medium'. Values: Sessions, Ecommerce purchases, Purchase revenue. Filter: 'Session campaign' contains `glow_test`. Take a screenshot.",
+        "Fix the future: write the correct Meta URL parameters in your UTM rules sheet: `utm_source=facebook` (or `instagram`), `utm_medium=paid_social`, `utm_campaign={{campaign.name}}`, `utm_content={{ad.name}}`. In Meta Ads Manager these go into the ad's 'URL parameters' field under Tracking. Do not change any real ad account.",
+        "Fix the past: in Admin → Data display → Channel groups → `GlowShop channels`, edit 'Paid Social' and add a condition group with OR: Source exactly matches `fb_ads` AND Medium exactly matches `social_paid`. Make sure Paid Social is above Unassigned rules in the list. Save.",
+        "Check the fix in Traffic acquisition with the dimension 'Session GlowShop channels'. The broken test session must now be in Paid Social.",
+        "Write the case report in your Doc: Summary, Impact (what decision was almost made), Root cause, Fix for the future, Fix for the past, How we stop it next time (the builder with dropdowns), and one line on why Meta will still show more sales than GA4 (link to your CRO-503 note)."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your root cause is saved there.",
+        "Both test purchases are visible in GA4 with their source / medium.",
+        "The broken session is in a wrong channel in the default group and in Paid Social in `GlowShop channels`.",
+        "The UTM rules sheet has the correct Meta URL parameters.",
+        "The case report has all 7 parts and a clear advice to the CEO."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case CRO-505` with the timeline and report",
+        "Screenshot on Google Drive of the Free form exploration with both test sessions",
+        "Screenshot on Google Drive of the edited Paid Social rule in `GlowShop channels`"
+      ],
+      "hints": [
+        "If you cannot see the test order in GA4, check your purchase tracking from sprint 4 first in DebugView.",
+        "Old data can not be changed by a new UTM. Only a custom channel group can show old sessions in the right channel.",
+        "Your advice should be about the data, not about the ads. The ads may work well. The tags were wrong."
+      ],
+      "explain": {
+        "en": "In this case Meta showed many sales, but GA4 showed almost none in Paid Social. I found that the ads used a source and a medium that GA4 does not know, so the sales went to Unassigned. I reproduced it on our practice store with two test purchases, one with the broken tags and one with the fixed tags. I fixed the future with the correct URL parameters in our rules sheet. I fixed the past with a rule in our custom channel group. I told the CEO that the ads were not the problem, the tags were."
+      },
+      "vocabulary": [
+        { "term": "URL parameters (Meta)", "en": "the field in a Meta ad where you add the UTM tags" },
+        { "term": "dynamic parameter", "en": "a value like {{campaign.name}} that Meta fills in for each ad" },
+        { "term": "reproduce", "en": "make the same problem happen again on purpose to study it" },
+        { "term": "root cause", "en": "the real first reason for a problem" }
+      ],
+      "interview": [
+        {
+          "q": "Tell me about a time when the data almost led to a wrong decision.",
+          "a": "Our CEO wanted to stop Meta ads because GA4 showed no sales from Paid Social. I checked the tags and saw that the ads used fb_ads and social_paid, which GA4 does not know. The sales were in Unassigned. I fixed the tags and added a custom channel rule, and the sales showed in Paid Social. We kept the ads."
+        },
+        {
+          "q": "How do you fix old data in GA4 when the UTMs were wrong?",
+          "a": "You cannot change the old sessions. But a custom channel group works on old data too. I added a rule that puts source fb_ads with medium social_paid into Paid Social. So the old reports show the right channel when we use our channel group."
+        },
+        {
+          "q": "How do you stop this problem from coming back?",
+          "a": "I put the correct URL parameters in our UTM rules sheet and the builder has dropdowns, so people cannot type their own values. I also check the Unassigned share in the dashboard every week. If it goes up, I look at the new source and medium values."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Default channel group", "url": "https://support.google.com/analytics/answer/9756891" },
+        { "title": "GA4 help: Custom channel groups", "url": "https://support.google.com/analytics/answer/13051316" },
+        { "title": "Shopify help: Test orders with Bogus Gateway", "url": "https://help.shopify.com/en/manual/checkout-settings/test-orders" }
+      ]
+    }
+  ]
+}

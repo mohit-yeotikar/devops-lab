@@ -1,0 +1,356 @@
+{
+  "id": "m05",
+  "number": 5,
+  "title": "Google Ads: search mastery",
+  "weeks": "9-10",
+  "theme": "Build Voltra's Search account the way a senior does it: clean structure, the right match types, strong ads, true conversion data from the CRM, and a calm diagnosis when CPC jumps.",
+  "jobStory": "In this sprint you take over Google Ads Search for Voltra Mobility. You rebuild the account structure in a free Google Ads test manager account, so nothing can serve or spend. You plan keywords, match types and negatives, write responsive search ads, and set up conversion actions that follow the dealer funnel from lead to delivery. You design enhanced conversions for leads and the offline conversion import from the CRM. You finish with a real case: CPC doubled and conversions stayed flat.",
+  "outcomes": [
+    "I built a Search account structure with a naming convention in a Google Ads test manager account.",
+    "I planned keywords with Keyword Planner and set match types, negative keyword lists and a search terms routine.",
+    "I wrote responsive search ads and assets that pass ad strength checks without heavy pinning.",
+    "I designed conversion actions and values for the dealer funnel, enhanced conversions for leads and the offline import from the CRM.",
+    "I diagnosed a CPC increase with Ad Rank, Quality Score and auction insights, and wrote a root cause report."
+  ],
+  "tickets": [
+    {
+      "id": "m05-t01",
+      "key": "MKT-501",
+      "type": "task",
+      "title": "Build the Voltra Search account structure in a test manager account",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Voltra has a clean Search account structure with a naming convention, built in a Google Ads test account that cannot serve ads or spend money.",
+      "context": "Hi, our agency built the Search account campaign by campaign over three years. Brand, product and dealer keywords sit in the same ad groups, and nobody can read the names. Before we touch the live account, please design the target structure and build it in a test account so the team can click through it.",
+      "steps": [
+        "Use a Google account that is not linked to any real Google Ads account (create a new Gmail if needed). Open the Google Ads API page `Test accounts` (link in resources) and click the blue button to create a test manager account. The account page must show a red `Test account` label. Test accounts never serve ads and never spend.",
+        "In the test manager account, click `Accounts` → the plus icon → `Create new account`. Name it `Voltra | IN | Search | TEST`, currency `INR`, time zone `(GMT+05:30) India Standard Time`. Currency and time zone cannot be changed later, so write this rule in your doc.",
+        "Create a Google Sheet `MKT-501 Voltra Search structure`. Tab `Campaigns` with columns: campaign name, goal, products, geo, language, budget share, bid strategy (planned), notes.",
+        "Plan these campaigns: `SRCH_IN_Brand_Exact` (brand terms like `voltra scooter`), `SRCH_IN_Generic_EScooter` (for example `electric scooter price`), `SRCH_IN_Generic_E3W` (electric auto, cargo three-wheeler), `SRCH_IN_Competitor` (rival brand terms, kept apart because CPC and conversion rate differ), `SRCH_IN_Dealer_Local` (for example `ev scooter showroom near me`, one per top city cluster) and `SRCH_IN_Accessories` (store products). Write why each one is separate: different budget, goal, bid target or reporting need.",
+        "Write the naming convention in tab `Naming`: `Channel_Country_Theme_MatchFocus` for campaigns, `Theme_Subtheme` for ad groups (for example `EScooter_Price`, `EScooter_Subsidy`), and labels for owner and launch date. Add three good and three bad examples.",
+        "In tab `Settings`, decide for each campaign: networks (turn off Display Network for Search campaigns; decide on Search Partners and write why), locations with `Presence: people in or regularly in your included locations`, languages (English and Hindi for India, because Google uses the user's language settings, not the keyword language), ad schedule, and which campaigns share a budget (normally none).",
+        "Build it in the test account: `Campaigns` → plus → `New campaign` → objective `Leads` (or `Create a campaign without guidance`) → type `Search`. Create at least four of the planned campaigns with two ad groups each and the settings from your sheet. Do not add billing; test accounts do not need it.",
+        "Add labels: on the campaign list, tick the campaigns, click `Label` and create `Owner_InHouse`, `Launch_2026Q4`, `Funnel_Lead`.",
+        "Open the account from the manager account view and take a screenshot of the campaign list with the red test label and your names.",
+        "Write a short `Why this structure` section (10 lines max) in the sheet: how it helps Smart Bidding (enough conversions per campaign), budget control, brand vs non-brand reporting and dealer reporting."
+      ],
+      "acceptance": [
+        "The test manager account and one test client account exist and show the red `Test account` label.",
+        "At least four Search campaigns with two ad groups each follow the naming convention.",
+        "The sheet has the tabs `Campaigns`, `Naming` and `Settings` with a reason for every campaign split.",
+        "Display Network is off in every Search campaign, and the location option is `Presence`.",
+        "No billing details were entered anywhere."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `MKT-501 Voltra Search structure`",
+        "Screenshot on Google Drive of the campaign list in the test account with the red test label",
+        "Screenshot on Google Drive of one campaign's settings page (networks, locations, languages)"
+      ],
+      "hints": [
+        "If the new account has no red label, you created a production account. Stop, do not add billing, and create the test manager account from the developer page again.",
+        "Do not over-split. A campaign with fewer than about 30 conversions a month gives Smart Bidding little data. Split only when budget, goal or target is different.",
+        "Test accounts show empty metrics. That is normal; you are testing structure, not results."
+      ],
+      "explain": {
+        "en": "In this task I designed the target Search account structure for Voltra and built it in a Google Ads test manager account, so nothing could serve or spend. I split campaigns only where the budget, goal or bid target was different: brand, generic scooters, three-wheelers, competitors, local dealer searches and accessories. I wrote a naming convention with good and bad examples and added labels for owner and launch date. I chose Presence for locations and turned off the Display Network in Search campaigns. I also explained how this structure gives Smart Bidding enough data per campaign and gives clean brand and non-brand reporting."
+      },
+      "vocabulary": [
+        { "term": "test manager account", "en": "a free Google Ads manager account for practice; its client accounts never serve ads and never spend" },
+        { "term": "account structure", "en": "how campaigns and ad groups are split, and why" },
+        { "term": "brand vs non-brand", "en": "searches with our brand name compared with searches for the product type" },
+        { "term": "Presence location option", "en": "show ads only to people who are in or regularly in the target area" },
+        { "term": "label", "en": "a tag you add to campaigns, ads or keywords to filter and report on them" }
+      ],
+      "interview": [
+        {
+          "q": "How do you decide when to split a Search campaign?",
+          "a": "I split only when something real is different: the budget, the goal, the bid target, the geo or a reporting need such as brand versus non-brand. Every extra split takes conversion data away from Smart Bidding, so I keep campaigns large enough to have about 30 or more conversions a month. For Voltra I kept brand, competitor and dealer searches apart because their CPC and conversion rate are very different. Inside a campaign I group ad groups by theme so ads and landing pages match the search."
+        },
+        {
+          "q": "Why do you separate brand and non-brand?",
+          "a": "Brand searches are cheap and convert well because the person already wants us. If I mix them with non-brand, the blended CPA looks great and hides weak generic performance. Separate campaigns let me set different targets and budgets, and give a fair view of how much new demand we really buy. I also check incrementality of brand spend from time to time, because some of those clicks would come through organic results anyway."
+        },
+        {
+          "q": "Why did you practise in a test account and what are its limits?",
+          "a": "A test account cannot serve ads or spend, so I can build and click through a full structure with no risk to the live account or the budget. The limits are that metrics stay empty, and features like bid simulations, conversion uploads and billing do not work there. I use it to review structure, settings and naming with the team. Performance questions I answer from the live account data or from a lab."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads API: Test accounts", "url": "https://developers.google.com/google-ads/api/docs/best-practices/test-accounts" },
+        { "title": "Google Ads Help: Determine a bid strategy based on your goals", "url": "https://support.google.com/google-ads/answer/2472725" }
+      ]
+    },
+    {
+      "id": "m05-t02",
+      "key": "MKT-502",
+      "type": "task",
+      "title": "Keywords, match types, negatives and a search terms routine",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Voltra has a researched keyword plan with match types, shared negative keyword lists and a weekly search terms routine the team can follow.",
+      "context": "Hi, our generic campaigns use only broad match and we pay for searches like `electric scooter repair`, `ev scooter fire news` and `second hand scooter`. At the same time, the team is afraid to drop broad match because Smart Bidding likes it. Please give me a clear keyword and negatives plan that we can defend.",
+      "steps": [
+        "Before you start, open the `mk-auction` lab in this app (menu `Practice`) and read the part on search terms and relevance. A keyword is only a signal; the auction runs on the search term.",
+        "Keyword Planner does not give data in a test account. Use a normal Google Ads account for research only: at `ads.google.com` choose `Switch to Expert Mode` and then `Create an account without a campaign`. Never enter billing. Open `Tools` → `Planning` → `Keyword Planner` → `Discover new keywords`.",
+        "Enter seeds: `electric scooter`, `ev scooter price`, `electric scooter subsidy`, `electric auto rickshaw`, `ev scooter showroom`. Location `India`, language `English` and then `Hindi`. Download the ideas as CSV. Without spend you see ranges for volume; that is enough for planning.",
+        "In a Google Sheet `MKT-502 Voltra keywords`, tab `Keywords`, group the ideas into the ad groups from MKT-501. Add columns: keyword, ad group, intent (buy, research, support, jobs, used), volume range, top-of-page bid range, match type, reason.",
+        "Set match types with a written rule. Exact match `[voltra zip price]` for brand and top converters, where you want full control. Phrase match `\"electric scooter price\"` where word order and meaning matter. Broad match only in campaigns that run Smart Bidding with good conversion data, because broad match uses signals like landing page and other keywords in the ad group. Write why close variants mean exact match is no longer exact.",
+        "Build shared negative keyword lists in tab `Negatives`: `NEG_Support` (repair, service centre, battery replacement), `NEG_Used` (second hand, used, olx), `NEG_Jobs` (job, dealership vacancy, salary), `NEG_News` (fire, recall news, accident). Choose the negative match type for each. Remember negatives do not match close variants, so add plurals and common misspellings yourself.",
+        "Add the lists in the test account: `Tools` → `Shared library` → `Exclusion lists` (in some accounts it is `Negative keyword lists`). Create each list and apply it to the generic and competitor campaigns. Add brand terms as negatives in the generic campaigns so brand traffic stays in the brand campaign.",
+        "Add the keywords to the test campaigns. In the generic campaign, add a `Brand list` restriction plan in your sheet: when broad match is on, write which brand terms you would add as a brand exclusion.",
+        "Write the weekly search terms routine in tab `Routine`: `Campaigns` → `Insights and reports` → `Search terms`; filter by cost greater than 0 and conversions = 0 in the last 30 days; add the bad terms as negatives in the right list; add the good converting terms as exact or phrase keywords; check the `Match type` column to see which keyword caught them. Add how much spend is hidden in the `Other search terms` row and why you cannot see it.",
+        "Use this sample for a dry run and classify each term (add, negate, ignore) with a reason: `voltra zip on road price`, `electric scooter fire`, `best ev scooter under 1 lakh`, `ola s1 vs voltra`, `ev scooter service near me`, `electric scooter loan`, `voltra dealership franchise`, `used electric scooter delhi`."
+      ],
+      "acceptance": [
+        "The keyword sheet has at least 60 keywords mapped to ad groups with intent and match type.",
+        "The match type rule explains exact, phrase and broad with close variants and Smart Bidding.",
+        "Four shared negative lists exist in the test account and are applied to the right campaigns.",
+        "The search terms routine names the exact report path, filters and decision rules.",
+        "The eight sample search terms each have a decision and a reason."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `MKT-502 Voltra keywords` with the tabs `Keywords`, `Negatives` and `Routine`",
+        "Screenshot on Google Drive of the shared negative keyword lists in the test account",
+        "The Keyword Planner CSV export on Google Drive"
+      ],
+      "hints": [
+        "If Keyword Planner asks you to make a campaign first, look for the small link to switch to Expert Mode. Close the tab if it asks for billing.",
+        "`voltra dealership franchise` is not a buyer; think about which list it belongs to.",
+        "Negative broad match blocks the search only if all the words appear, in any order."
+      ],
+      "explain": {
+        "en": "In this task I built Voltra's keyword plan with Keyword Planner and grouped the ideas by intent and ad group. I wrote a clear rule for match types: exact for brand and top converters, phrase where meaning matters, and broad only with Smart Bidding and good conversion data. I created four shared negative keyword lists for support, used scooters, jobs and news searches, and I added brand terms as negatives in the generic campaigns. I also wrote a weekly search terms routine with filters and decision rules. Then I tested it on eight sample search terms."
+      },
+      "vocabulary": [
+        { "term": "search term", "en": "the exact words a person typed; the keyword only decides if the ad can show" },
+        { "term": "close variant", "en": "a search Google treats as the same meaning, like a plural, a misspelling or a reordered phrase" },
+        { "term": "negative keyword", "en": "a word that stops your ad from showing for searches that contain it" },
+        { "term": "shared negative list", "en": "one list of negatives that you apply to many campaigns at once" },
+        { "term": "intent", "en": "what the person wants to do with the search, such as buy, compare or get support" }
+      ],
+      "interview": [
+        {
+          "q": "When do you use broad match today?",
+          "a": "I use broad match when the campaign runs Smart Bidding on reliable conversion data, ideally value-based. Broad match uses more signals, like the landing page and the other keywords in the ad group, so with good bidding it finds new converting searches. Without good conversion data it can waste money, so I start those campaigns with exact and phrase. I always pair broad match with strong shared negatives, brand controls and a weekly search terms review."
+        },
+        {
+          "q": "How do you manage negative keywords at scale?",
+          "a": "I keep shared lists by theme, such as support, used, jobs and news, and apply them to every relevant campaign. Brand negatives sit in generic campaigns so brand traffic stays in the brand campaign. Because negatives do not match close variants, I add plurals and common misspellings myself. I review the lists every month so I do not block good traffic by mistake."
+        },
+        {
+          "q": "What do you look for in a search terms report?",
+          "a": "I sort by cost and look at terms with spend but no conversions, and at converting terms that are not yet keywords. I check which keyword and match type caught each term, because that shows where matching is too loose. I also note the share of cost in the hidden other search terms row. The output is always an action: negate, add as a keyword, or move to a better ad group."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About keyword matching options", "url": "https://support.google.com/google-ads/answer/7478529" },
+        { "title": "Google Ads Help: About negative keywords", "url": "https://support.google.com/google-ads/answer/2453972" }
+      ]
+    },
+    {
+      "id": "m05-t03",
+      "key": "MKT-503",
+      "type": "task",
+      "title": "Write responsive search ads and assets for the scooter and dealer campaigns",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Each Voltra Search ad group has one strong responsive search ad and the account has sitelink, callout, structured snippet, call and image assets that fit the funnel.",
+      "context": "Hi, our ads still say the same three things in every ad group, and half the headlines are pinned because legal once asked for a price line. Ad strength is Poor almost everywhere. Please rewrite the ads so they are relevant, compliant and give Google enough to test.",
+      "steps": [
+        "Read the `mk-auction` lab part on ad relevance and expected CTR (menu `Practice`). Better ads raise Quality Score components, and that lowers what you pay at the same position.",
+        "Create a Google Sheet `MKT-503 Voltra RSA`. One row per ad group from MKT-501. Columns: Headline 1 to 15 (max 30 characters each), Description 1 to 4 (max 90), Path 1 and Path 2 (max 15), final URL, pins, notes. Use `=LEN()` to check the length of every cell.",
+        "For each ad group write 10 to 15 headlines in groups: 3 that repeat the keyword theme (for example `Electric Scooter Price 2026`), 3 benefits (range, charge time, running cost per km), 2 offers or proof (subsidy help, warranty years), 2 calls to action (`Book a Free Test Ride`), 2 brand lines. Avoid near-duplicates; they reduce useful combinations.",
+        "Write 4 descriptions: one benefit, one offer, one trust line (300 dealers, service network), one strong call to action. Each must make sense with any headline.",
+        "Pinning: pin only what must always show. If legal needs the price disclaimer, pin 2 or 3 versions of it to position 2, not one. Write in notes why each pin is needed, because pinning lowers the number of combinations Google can test.",
+        "Use paths that match intent: `voltra.example/escooter/price`. Final URL must be the most specific page, for example the model page with the price, not the home page. This supports landing page experience.",
+        "Build the RSA in at least two ad groups of the test account: `Ads` → plus → `Responsive search ad`. Read the `Ad strength` and the suggestions in the panel. Fix until you reach `Good` or `Excellent` without breaking legal rules. Screenshot it.",
+        "Plan assets at account and campaign level in tab `Assets`: 6 sitelinks (Test Ride, Find a Dealer, Price, Subsidy, Accessories, Fleet Enquiry) with two description lines each, 6 callouts, structured snippets (`Models:` and `Types:`), call asset with the national number and call reporting, image assets (square and landscape), and a location asset plan for dealers through a linked Business Profile.",
+        "Add sitelinks and callouts in the test account: `Campaigns` → `Assets` → plus. Use account level for common assets and campaign level for local or brand-only ones.",
+        "Write an ad testing note: Google rotates RSA assets automatically, so you test messages by comparing two RSAs or by using an experiment, and you read the asset report (`Ads` → `Assets` view) for performance labels instead of judging one headline by CTR alone."
+      ],
+      "acceptance": [
+        "Every planned ad group has at least 10 headlines and 4 descriptions within the character limits.",
+        "Pins are used only where needed, with a reason, and never on a single asset per position.",
+        "At least two RSAs in the test account show ad strength `Good` or `Excellent`.",
+        "The asset plan has sitelinks, callouts, structured snippets, call, image and location assets.",
+        "The ad testing note explains asset rotation and how you compare messages."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `MKT-503 Voltra RSA` with the `Assets` tab",
+        "Screenshot on Google Drive of two RSAs with ad strength in the test account",
+        "Screenshot on Google Drive of the sitelinks and callouts in the test account"
+      ],
+      "hints": [
+        "Ad strength is a guide for variety and relevance. It is not part of Ad Rank, so do not break legal rules to reach Excellent.",
+        "If a headline is too long, use numbers and shorter words: `Up to 150 km Range` is 18 characters.",
+        "Location assets need a linked Business Profile. In the test account just write the plan."
+      ],
+      "explain": {
+        "en": "In this task I rewrote Voltra's responsive search ads for every ad group. I wrote up to 15 headlines and 4 descriptions per ad group, grouped by keyword theme, benefit, proof, call to action and brand, and I checked every length with a formula. I pinned only the legal price line, and I pinned more than one version so Google could still test. I used the most specific landing page as final URL and got two ads to Good or Excellent ad strength in the test account. I also planned sitelinks, callouts, structured snippets, call, image and location assets."
+      },
+      "vocabulary": [
+        { "term": "responsive search ad (RSA)", "en": "a Search ad where you give many headlines and descriptions and Google picks the best mix for each search" },
+        { "term": "pinning", "en": "fixing a headline or description to one position, so it always shows there" },
+        { "term": "ad strength", "en": "a score from Poor to Excellent about the variety and relevance of your RSA assets" },
+        { "term": "asset", "en": "extra content shown with an ad, such as sitelinks, callouts, a phone number or images" },
+        { "term": "landing page experience", "en": "how useful and relevant the page after the click is for the search" }
+      ],
+      "interview": [
+        {
+          "q": "How do you write a good RSA?",
+          "a": "I write up to 15 headlines in clear groups: keyword theme, benefits, proof, offers, calls to action and brand. Each headline must work next to any other, and I avoid near-duplicates so Google has real variety to test. I pin only what legal or the brand truly needs, and I pin two or three versions to keep combinations open. Then I check the asset report after enough impressions and replace weak assets."
+        },
+        {
+          "q": "Does ad strength affect Quality Score or Ad Rank?",
+          "a": "No, ad strength is a guide inside the ad editor about variety and relevance. It is not one of the Quality Score components and not an input to Ad Rank. Better RSAs usually improve expected CTR and ad relevance, and those do matter. So I use ad strength as a checklist, but I never break legal or brand rules just to reach Excellent."
+        },
+        {
+          "q": "Which assets matter most for a lead generation brand like Voltra?",
+          "a": "Sitelinks to test ride, dealer finder and price pages help people jump to the right step. Call assets matter because many scooter buyers want to talk to a dealer, and location assets connect searches to the nearest showroom. Expected impact of assets is part of Ad Rank, so good assets can also improve position and cost. I keep common assets at account level and local ones at campaign level."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About responsive search ads", "url": "https://support.google.com/google-ads/answer/7684791" },
+        { "title": "Google Ads Help: About Quality Score for Search campaigns", "url": "https://support.google.com/google-ads/answer/140351" }
+      ]
+    },
+    {
+      "id": "m05-t04",
+      "key": "MKT-504",
+      "type": "project",
+      "title": "Conversion actions, values, enhanced conversions for leads and offline import from the CRM",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "Google Ads bids on the real dealer funnel: form leads, qualified leads, test rides and bookings come back from the CRM with values, matched through click IDs and hashed customer data.",
+      "context": "Hi, Google Ads counts every form fill as a conversion, but dealers say half of these leads never pick up the phone. Smart Bidding is buying cheap junk leads. I want Google to learn from test rides and bookings in our CRM, with real values. Please design the full set-up and build what you can in the test account.",
+      "steps": [
+        "Write a Google Doc `MKT-504 Voltra conversion design`. Start with the dealer funnel from m01: `generate_lead` (web form) → qualified lead (dealer called and confirmed) → test ride done → booking (deposit paid) → delivery. Add typical rates from the m01 plan, for example 100 leads → 45 qualified → 20 test rides → 6 bookings.",
+        "Decide the conversion actions in a table: name, source, category, primary or secondary, count (one or every), click-through window, value. Example: `Lead - Web form` (Google tag or GA4, secondary), `Lead - Qualified` (import, primary), `Test ride done` (import, primary), `Booking` (import, primary), `Accessories purchase` (Google tag, every, transaction value). Primary actions go into the `Conversions` column and bidding; secondary only into `All conv.`.",
+        "Set values that reflect business value, not price. Use expected margin: if a booking is worth Rs 18,000 contribution margin and 30 percent of test rides book, a test ride is worth about Rs 5,400. Write the formula for each stage. With value-based bidding later (m06), these values steer the bids.",
+        "Explain the risk of counting the same person many times: if `Lead - Qualified`, `Test ride done` and `Booking` are all primary, one buyer counts three times. Choose one of two designs and write why: (a) only one stage primary for bidding, or (b) all stages primary with stage values that add up to the true value. Most teams use (b) with care, or (a) with the deepest stage that still has enough volume.",
+        "Create the actions in the test account: `Goals` → `Conversions` → `Summary` → plus `Create conversion action` → `Import` → `CRMs, files or other data sources` → `Track conversions from clicks`. Name them exactly as in your table and set the value, count and window.",
+        "Design enhanced conversions for leads: on the form, the Google tag or GTM collects email and phone, normalises and hashes them with SHA-256, and sends them with the lead. Later the CRM upload sends the same hashed email or phone with the stage. Google matches them to the signed-in user who clicked. In the test account open `Goals` → `Settings` → `Enhanced conversions` and write down the options you see (Google tag, Google Tag Manager, API). Take a screenshot.",
+        "Design the click ID capture: the landing page stores `gclid`, `gbraid` and `wbraid` from the URL in a first-party cookie, the form sends them into hidden fields, and the CRM saves them on the lead record. Auto-tagging must stay on (`Admin` → `Account settings` → `Auto-tagging`). Link this to the server-side GTM work from m03.",
+        "Build the upload file as a Google Sheet tab `Upload` with the columns Google uses for click imports: `Google Click ID`, `Conversion Name`, `Conversion Time`, `Conversion Value`, `Conversion Currency`, plus `Email` and `Phone Number` (hashed or normalised) for enhanced conversions for leads. Add a top row `Parameters:TimeZone=Asia/Kolkata`. Fill 10 fake rows. Time format example: `2026-10-20 14:32:00`.",
+        "Test accounts cannot accept conversion uploads, so this is a dry run. Write the live process: upload daily through Google Ads Data Manager (`Tools` → `Data manager`) with a HubSpot or Salesforce connection, or a scheduled file, or the Google Ads API. Rules: upload only after the conversion action exists, within the click-through window (up to 90 days), and keep the same order of stages.",
+        "Write the consent rule: only upload people who gave consent for ads measurement, matching your Consent Mode v2 set-up from m03. Write who owns the pipeline (CRM team), the daily check (upload diagnostics and match rate), and an alert if the import fails two days in a row.",
+        "Write the switch-over plan: keep `Lead - Web form` as secondary, collect at least 2-4 weeks of imported stages, then make the deeper stage primary and change the bid goal. Expect a learning period when you change goals."
+      ],
+      "acceptance": [
+        "The conversion table has at least five actions with source, category, primary or secondary, count, window and value.",
+        "Each stage value is calculated from margin and stage rates, with the formula shown.",
+        "The import conversion actions exist in the test account with the exact names from the table.",
+        "The upload sheet has the correct columns, time zone row and 10 example rows.",
+        "The doc covers click ID capture, hashed data, consent, ownership, daily checks and the switch-over plan."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-504 Voltra conversion design`",
+        "Link to the Google Sheet with the conversion table and the `Upload` tab",
+        "Screenshot on Google Drive of the conversion actions list and of the enhanced conversions settings in the test account"
+      ],
+      "hints": [
+        "Never upload raw email in a file that leaves your systems unhashed unless you use a Google tool that hashes it for you. Normalise first: trim spaces and use lower case.",
+        "If you change a primary action, past conversions in reports do not change, but bidding learns from the new set from now on.",
+        "Counting `One` fits leads (one lead per click is enough). Counting `Every` fits purchases."
+      ],
+      "explain": {
+        "en": "In this project I designed Voltra's conversion set-up so Google Ads learns from real business results, not from every form fill. I mapped the dealer funnel from lead to qualified lead, test ride, booking and delivery, and gave each stage a value based on margin and stage rates. I created import conversion actions in the test account and chose which ones are primary for bidding. I designed enhanced conversions for leads with hashed email and phone, and the capture of gclid, gbraid and wbraid into the CRM. I built the upload file as a dry run, and wrote the consent rule, the daily checks and the switch-over plan."
+      },
+      "vocabulary": [
+        { "term": "primary conversion action", "en": "an action counted in the Conversions column and used by bidding" },
+        { "term": "offline conversion import", "en": "sending results from your CRM back to Google Ads, matched to the ad click" },
+        { "term": "enhanced conversions for leads", "en": "matching CRM results to ad clicks with hashed email or phone captured on the lead form" },
+        { "term": "GCLID", "en": "the Google click ID added to the landing page URL by auto-tagging" },
+        { "term": "SHA-256 hashing", "en": "turning data like an email into a fixed code that cannot be turned back" },
+        { "term": "conversion value", "en": "the money a conversion is worth to the business, used by value-based bidding" }
+      ],
+      "interview": [
+        {
+          "q": "Why import offline conversions instead of bidding on form fills?",
+          "a": "A form fill is cheap to get and says little about quality, so bidding on it buys more junk leads. When I import qualified leads, test rides and bookings from the CRM, Smart Bidding learns which searches bring real buyers. With stage values based on margin, the algorithm can trade a cheaper lead for a more valuable one. In my experience this is the biggest single lever for a lead generation account."
+        },
+        {
+          "q": "How do enhanced conversions for leads work?",
+          "a": "On the lead form, the tag captures email or phone, normalises and hashes it with SHA-256, and sends it with the lead event. Later, when the CRM marks the lead as qualified or booked, we upload the same hashed identifier with the conversion action. Google matches it to the signed-in user who clicked the ad, so we do not depend only on storing the gclid. I still capture gclid, gbraid and wbraid, because more match keys mean a higher match rate."
+        },
+        {
+          "q": "How do you avoid double counting across funnel stages?",
+          "a": "I decide on purpose which stages are primary. Either one deep stage is primary for bidding, or several are primary with values that add up to the true value of a buyer. The secondary actions stay visible in All conversions for reporting. I write the rule down, because a wrong primary setting quietly inflates conversions and misleads both bidding and the CMO."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads API: Upload click conversions", "url": "https://developers.google.com/google-ads/api/docs/conversions/upload-clicks" },
+        { "title": "Google Ads API: Enhanced conversions for leads", "url": "https://developers.google.com/google-ads/api/docs/conversions/enhanced-conversions/leads" },
+        { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" }
+      ]
+    },
+    {
+      "id": "m05-t05",
+      "key": "MKT-505",
+      "type": "incident",
+      "lab": "mk-auction",
+      "title": "Case: CPC doubled, conversions flat",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You find why the average CPC in the generic scooter campaign doubled while conversions stayed flat, and you give the CMO a fix with numbers.",
+      "context": "Hi, urgent. In the last three weeks the average CPC in `SRCH_IN_Generic_EScooter` went from about Rs 22 to Rs 45. Conversions did not move. Finance asks if Google is overcharging us. I need a clear answer and a plan before Monday's budget call.",
+      "steps": [
+        "First finish the practice lab: open `Practice` → `Google Ads auction` (`mk-auction`) in this app and solve the case part. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-505` with a timeline: time, what you checked, what you saw.",
+        "Write the Ad Rank model in your own words: Ad Rank uses your bid, the quality of your ad (expected CTR, ad relevance, landing page experience), the Ad Rank thresholds, the competitiveness of the auction, the context of the search and the expected impact of assets. The actual CPC is normally less than the max bid: you pay what you need to beat the Ad Rank below you and to pass the thresholds.",
+        "Use the lab data to list the possible causes and how you would check each in a live account: (1) bid strategy change or higher target: `Change history` (`Tools` → `Change history`); (2) new competitor or a competitor bidding harder: `Auction insights` (impression share, overlap rate, position above rate, top of page rate, outranking share); (3) Quality Score drop: add columns `Quality Score`, `Exp. CTR`, `Ad relevance`, `Landing page exp.` and the `(hist.)` versions on the `Keywords` page; (4) a slower or changed landing page; (5) more broad match traffic to costly searches: search terms report; (6) a seasonal price war.",
+        "In the lab case, compare before and after for the main keywords: max CPC, Quality Score and its three components, Ad Rank and actual CPC. Show with numbers how a Quality Score drop from 7 to 4 raises the CPC needed to keep the same position.",
+        "Check the second signal: if impression share and top of page rate went up while CPC doubled, the team may have bought higher positions that do not convert better. If impression share went down, competitors are pushing harder. Write which one the data shows.",
+        "Check conversions: are they flat because tracking broke (compare with GA4 and the CRM) or because the extra clicks were low intent? Look at conversion rate by search term group.",
+        "Write the fix with expected impact: for example roll back the target change, fix the landing page that lost its price block (landing page experience below average), add negatives for low-intent terms, and set a review rule in the bid strategy. Give the expected CPC range after two weeks.",
+        "Answer Finance in plain words: Google does not overcharge in a single auction; it charges based on the Ad Rank of the next advertiser and the thresholds. Our own changes and auction pressure explain the increase.",
+        "Finish the report with: Summary, Impact (extra spend in rupees), Root cause, Fix, How we watch it (a weekly check of CPC, impression share and Quality Score history, plus an alert)."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your root cause is saved there.",
+        "The report explains all Ad Rank inputs and how actual CPC is set.",
+        "At least five possible causes are listed with the exact place to check each one.",
+        "The root cause is backed by numbers from the lab data (Quality Score components, auction insights, CPC).",
+        "The fix has expected impact and a weekly monitoring rule."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case MKT-505` with the timeline and report",
+        "Screenshot on Google Drive of your finished lab result",
+        "The before and after table (keyword, Quality Score, components, CPC) in the doc"
+      ],
+      "hints": [
+        "Quality Score is a 1 to 10 diagnostic at keyword level. Google uses real-time quality signals in the auction, so treat Quality Score as a sign, not the formula.",
+        "Look at `Search lost IS (rank)` and `Search lost IS (budget)` side by side. They tell different stories.",
+        "Always check Change history first. Many CPC problems start with our own change."
+      ],
+      "explain": {
+        "en": "In this case I found why the CPC of our generic scooter campaign doubled while conversions stayed flat. I first finished the auction lab and then wrote the Ad Rank model and how the actual CPC is set. I checked change history, auction insights, Quality Score and its three components, the landing page and the search terms. The data showed that our own target change and a weaker landing page raised the cost, while the extra clicks did not convert better. I wrote a fix with expected impact, answered Finance in plain words, and set a weekly check so we see it early next time."
+      },
+      "vocabulary": [
+        { "term": "Ad Rank", "en": "the value that decides if your ad can show and in which position" },
+        { "term": "Quality Score", "en": "a 1 to 10 score per keyword from expected CTR, ad relevance and landing page experience" },
+        { "term": "actual CPC", "en": "the price you really pay for a click, often below your max bid" },
+        { "term": "Ad Rank threshold", "en": "the minimum quality and rank an ad needs to show at all" },
+        { "term": "auction insights", "en": "a report that compares your impression share and position with other advertisers" }
+      ],
+      "interview": [
+        {
+          "q": "How is the actual CPC calculated in Google Ads?",
+          "a": "Each auction uses Ad Rank, built from the bid, the ad quality signals, the Ad Rank thresholds, the competition, the search context and the expected impact of assets. The actual CPC is roughly the minimum needed to keep my position above the next advertiser and to clear the thresholds. That is why better quality can lower my CPC at the same position. With Smart Bidding, the bid is set for each auction, but the same pricing logic applies."
+        },
+        {
+          "q": "CPC doubled and conversions are flat. Where do you start?",
+          "a": "I start with change history, because many problems are our own changes, like a new target or a match type change. Then I check auction insights to see if competition changed, and Quality Score history and its components to see if our quality dropped. I check the landing page speed and content, and the search terms for new low-intent traffic. I also make sure conversion tracking is not broken before I judge performance."
+        },
+        {
+          "q": "How do you use Quality Score in practice?",
+          "a": "I treat Quality Score as a diagnostic, not a KPI. I look at the three components on high-spend keywords and fix the weakest one: ad relevance by tighter ad groups and copy, expected CTR by better ads and assets, landing page experience by speed and relevance. I watch the historical columns to see when it changed. I never chase a 10 on low-volume keywords, because the money is in the big ones."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: Ad Rank", "url": "https://support.google.com/google-ads/answer/1752122" },
+        { "title": "Google Ads Help: About Quality Score for Search campaigns", "url": "https://support.google.com/google-ads/answer/140351" }
+      ]
+    }
+  ]
+}

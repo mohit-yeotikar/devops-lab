@@ -2,10 +2,11 @@
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
 import { userById, progressFor, hoursFor, drillResults } from '../../../lib/db';
-import { sprints, tickets } from '../../../lib/curriculum';
+import { track, trackOf } from '../../../lib/curriculum';
 const db = env.DB;
 const u = await userById(db, Astro.params.id!);
 if (!u) return new Response('Not found', { status: 404 });
+const T = track(trackOf(u)); const { sprints, tickets } = T;
 const prog = await progressFor(db, u.id); const hrs = await hoursFor(db, u.id); const drills = await drillResults(db, u.id);
 const done = tickets.filter((t) => prog.get(t.id)?.status === 'done');
 const sprintsDone = sprints.filter((s) => s.tickets.every((t) => prog.get(t.id)?.status === 'done'));
@@ -14,9 +15,9 @@ const first = hrs.first ?? u.started_at?.slice(0, 10) ?? null; const last = hrs.
 const months = first && last ? Math.max(1, Math.round((new Date(last).getTime() - new Date(first).getTime()) / (30.44 * 86400_000))) : 0;
 const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
 const ready = done.length >= tickets.length * 0.8 && hrs.h >= 600;
-const q = Astro.url.searchParams; const role = q.get('role') || 'Trainee DevOps Engineer'; const signer = q.get('signer') || ''; const title = q.get('title') || 'Director';
+const q = Astro.url.searchParams; const role = q.get('role') || T.letterRole; const signer = q.get('signer') || ''; const title = q.get('title') || 'Director';
 const skills = [...new Set(done.flatMap((t) => t.vocabulary.map((v) => v.term)))].slice(0, 20);
-const tools = ['Linux', 'Git/GitHub', 'Docker', 'GitHub Actions', 'Jenkins', 'AWS (EC2, VPC, IAM, RDS, S3)', 'Terraform', 'Ansible', 'Kubernetes', 'Helm', 'ArgoCD', 'Prometheus/Grafana/Loki'].slice(0, Math.max(3, Math.round(sprintsDone.length * 1.1)));
+const tools = T.tools.slice(0, Math.max(3, Math.round(sprintsDone.length * 1.1)));
 ---
 <Base title={`Experience letter · ${u.name}`}>
   <div class="noprint">
@@ -35,8 +36,8 @@ const tools = ['Linux', 'Git/GitHub', 'Docker', 'GitHub Actions', 'Jenkins', 'AW
   <div class="card" style="max-width:760px;margin:20px auto;font-size:15px;line-height:1.7">
     <p style="text-align:right">{env.COMPANY_NAME}<br/>{env.COMPANY_CITY}<br/>{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
     <h2 style="text-align:center;margin:30px 0">TO WHOM IT MAY CONCERN</h2>
-    <p>This is to certify that <strong>{u.name}</strong> worked with {env.COMPANY_NAME} as a <strong>{role}</strong> from <strong>{fmt(first)}</strong> to <strong>{fmt(last)}</strong>{months ? ` (about ${months} month${months > 1 ? 's' : ''})` : ''}, in a structured, supervised DevOps training and project programme.</p>
-    <p>During this period {u.name.split(' ')[0]} completed <strong>{hrs.h.toFixed(0)} logged hours</strong> of hands-on engineering work across <strong>{sprintsDone.length} two-week sprints</strong> ({done.length} reviewed and approved work tickets), building and operating a three-tier web application ("ShopNotes") from local development through containerisation, CI/CD, cloud deployment on AWS, infrastructure as code, Kubernetes, GitOps and monitoring. {solved > 0 && <>{u.name.split(' ')[0]} also resolved {solved} simulated production incidents under time pressure.</>}</p>
+    <p>This is to certify that <strong>{u.name}</strong> worked with {env.COMPANY_NAME} as a <strong>{role}</strong> from <strong>{fmt(first)}</strong> to <strong>{fmt(last)}</strong>{months ? ` (about ${months} month${months > 1 ? 's' : ''})` : ''}, in a structured, supervised {T.short} training and project programme.</p>
+    <p>During this period {u.name.split(' ')[0]} completed <strong>{hrs.h.toFixed(0)} logged hours</strong> of hands-on practical work across <strong>{sprintsDone.length} two-week sprints</strong> ({done.length} reviewed and approved work tickets), {T.letterWork}. {solved > 0 && <>{u.name.split(' ')[0]} also resolved {solved} simulated production incidents under time pressure.</>}</p>
     <p>Tools and technologies used: {tools.join(', ')}.</p>
     {skills.length > 0 && <p>Demonstrated skills include: {skills.join(', ')}.</p>}
     <p>All work was reviewed by a supervisor against written acceptance criteria. The detailed work log, ticket history and portfolio are available at <strong>{Astro.url.origin}/u/{u.handle}</strong> and can be shared with prospective employers on request.</p>

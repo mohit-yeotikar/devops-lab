@@ -2,7 +2,7 @@ import { env } from '../../lib/env';
 import type { APIRoute } from 'astro';
 import { body, json, requireUser } from '../../lib/auth';
 import { thread } from '../../lib/db';
-import { ticketById, drillByName } from '../../lib/curriculum';
+import { ticketById, drillByName, trackOf } from '../../lib/curriculum';
 import { coach, parseJson } from '../../lib/ai';
 import { md } from '../../lib/md';
 
@@ -15,6 +15,7 @@ export const POST: APIRoute = async (ctx) => {
   if (text.length > 4000) return json({ error: 'Too long. Keep it under 4000 characters.' }, 400);
   const t = b.ticket ? ticketById(String(b.ticket)) : undefined;
   const d = b.drill ? drillByName(String(b.drill)) : undefined;
+  const trk = trackOf(u);
   const key = t ? `ticket:${t.id}` : d ? `drill:${d.name}` : 'general';
 
   if (b.mode === 'explain' && t) {
@@ -24,7 +25,7 @@ GOAL: ${t.goal}
 STEPS THEY SHOULD HAVE DONE: ${t.steps.join(' | ')}
 MODEL EXPLANATION (simple English): ${t.explain.en}
 Return JSON: {"score": 0-10, "praise": "one or two sentences, what is good", "technical": ["up to 3 short points that are wrong or missing technically"], "english": [{"wrong": "their sentence", "right": "corrected sentence", "why": "very short reason"}] (max 4), "better": "their explanation rewritten in simple, correct, first-person English, 5-7 sentences, keeping their facts"}`;
-    const raw = await coach(env, { system, turns: [{ role: 'user', content: text }], json: true });
+    const raw = await coach(env, { system, turns: [{ role: 'user', content: text }], json: true, track: trk });
     const r = parseJson<{ score?: number; praise?: string; technical?: string[]; english?: { wrong: string; right: string; why: string }[]; better?: string; error?: string }>(raw, {});
     if (r.error || r.score === undefined) return json({ error: r.error || 'The coach did not answer well. Try again.' }, 502);
     const score = Math.max(0, Math.min(10, Math.round(Number(r.score))));
@@ -49,10 +50,10 @@ Return JSON: {"score": 0-10, "praise": "one or two sentences, what is good", "te
     ? `The trainee is working on ticket ${t.key} "${t.title}". Goal: ${t.goal}. Steps: ${t.steps.join(' | ')}. Hints: ${t.hints.join(' | ')}. Help them get unstuck with small hints first, the full answer only if they ask twice.`
     : d
       ? `The trainee is doing incident drill "${d.title}". Alert text: ${d.readme.slice(0, 1500)}. Do NOT tell the root cause directly. Ask what they checked, suggest the next command to run, and explain what the output means. Only confirm when they say the right cause.`
-      : 'General DevOps and English help.';
+      : trk === 'cro' ? 'General CRO, analytics and English help.' : 'General DevOps and English help.';
   const history = await thread(env.DB, u.id, key + ':chat', 10);
   const turns = [...history.map((m) => ({ role: m.role, content: m.content })), { role: 'user' as const, content: text }];
-  const reply = await coach(env, { system: context, turns });
+  const reply = await coach(env, { system: context, turns, track: trk });
   await env.DB.batch([
     env.DB.prepare('INSERT INTO coach_messages (user_id, thread, role, content) VALUES (?, ?, ?, ?)').bind(u.id, key + ':chat', 'user', text),
     env.DB.prepare('INSERT INTO coach_messages (user_id, thread, role, content) VALUES (?, ?, ?, ?)').bind(u.id, key + ':chat', 'assistant', reply),

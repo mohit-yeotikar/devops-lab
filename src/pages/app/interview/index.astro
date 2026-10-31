@@ -1,7 +1,8 @@
 ---
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
-import { sprints } from '../../../lib/curriculum';
+import { track, trackOf } from '../../../lib/curriculum';
+const sprints = track(trackOf(Astro.locals.user)).sprints;
 const u = Astro.locals.user!; const db = env.DB;
 const scope = Astro.url.searchParams.get('scope') || 'all';
 const { results: past } = await db.prepare('SELECT id, scope, score, created_at, finished_at FROM interviews WHERE user_id = ? ORDER BY created_at DESC LIMIT 20').bind(u.id).all<{ id: string; scope: string; score: number | null; created_at: string; finished_at: string | null }>();

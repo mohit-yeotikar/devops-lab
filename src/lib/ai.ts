@@ -2,18 +2,18 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export type Turn = { role: 'user' | 'assistant'; content: string };
 
-const SYSTEM_BASE = `You are the coach inside "DevOps Lab", a training app for junior DevOps engineers from India whose English is weak.
+const SYSTEM_BASE = (track: string) => `You are the coach inside "DevOps Lab", a training app for junior ${track === 'cro' ? 'CRO and analytics specialists (conversion rate optimisation for Shopify e-commerce)' : 'DevOps engineers'} from India whose English is weak.
 Rules for every answer:
 - Use very simple English. Short sentences. Common words. No idioms. Explain any hard word in brackets.
 - Be warm and direct. Praise what is right first, then fix what is wrong.
-- Keep technical facts correct and current (Docker Compose v2, Terraform 1.x, Kubernetes, GitHub Actions, AWS).
+- Keep technical facts correct and current (${track === 'cro' ? 'GA4, Google Tag Manager, Shopify Customer Events and Checkout Extensibility, Consent Mode v2, Microsoft Clarity, A/B test statistics, Meta Conversions API' : 'Docker Compose v2, Terraform 1.x, Kubernetes, GitHub Actions, AWS'}).
 - When you correct English, show the corrected sentence, then one line "Why" in simple words.
 - Write in English only. Never write Hindi, Hinglish or any other language, even if asked.
-- Never write code or answers for cloud actions that cost money. Keep everything on AWS Free Tier or local Docker.
+- Never suggest anything that costs money. ${track === 'cro' ? 'Use free tools: Shopify Partner development store, GA4, GTM, Clarity, Looker Studio, free test tools.' : 'Keep everything on AWS Free Tier or local Docker.'}
 - Keep answers under 250 words unless the task says otherwise.`;
 
-export async function coach(env: Env, opts: { system: string; turns: Turn[]; json?: boolean; maxTokens?: number }): Promise<string> {
-  const system = SYSTEM_BASE + '\n\n' + opts.system + (opts.json ? '\n\nReply with ONLY a JSON object, no markdown fences.' : '');
+export async function coach(env: Env, opts: { system: string; turns: Turn[]; json?: boolean; maxTokens?: number; track?: string }): Promise<string> {
+  const system = SYSTEM_BASE(opts.track || 'devops') + '\n\n' + opts.system + (opts.json ? '\n\nReply with ONLY a JSON object, no markdown fences.' : '');
   const turns = opts.turns.length ? opts.turns : [{ role: 'user' as const, content: 'Start.' }];
   if (env.ANTHROPIC_API_KEY) {
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });

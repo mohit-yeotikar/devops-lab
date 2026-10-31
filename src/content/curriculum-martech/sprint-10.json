@@ -1,0 +1,357 @@
+{
+  "id": "m10",
+  "number": 10,
+  "title": "Adobe Analytics and Adobe Experience Platform",
+  "weeks": "19-20",
+  "theme": "Design, implement and analyse with Adobe Analytics: report suites, props, eVars and events, allocation and expiration, processing rules, Analysis Workspace, Adobe Tags, Web SDK with XDM, and Customer Journey Analytics.",
+  "jobStory": "In this sprint Voltra starts exports with a European distribution partner whose group runs Adobe Analytics and Adobe Experience Platform. The export sites must report in Adobe, while India stays on GA4 360. You learn the Adobe variable model by reading real beacons, write the solution design reference, plan the Adobe Tags and Web SDK rollout, design Analysis Workspace projects, and fix a campaign eVar that gives credit to the wrong campaign.",
+  "outcomes": [
+    "I explained props, eVars and success events, and read real Adobe Analytics beacons with the Adobe Experience Platform Debugger.",
+    "I wrote a solution design reference (SDR) with eVar allocation and expiration, merchandising eVars, events, classifications and a GA4 to Adobe mapping.",
+    "I wrote an implementation runbook for Adobe Tags and the Web SDK with a datastream and an XDM schema, and explained where Customer Journey Analytics fits.",
+    "I designed Analysis Workspace projects with freeform, fallout, flow and cohort, plus segments and calculated metrics, and rebuilt them in the GA4 demo account.",
+    "I fixed a campaign attribution problem caused by eVar allocation and expiration settings."
+  ],
+  "tickets": [
+    {
+      "id": "m10-t01",
+      "key": "MKT-1001",
+      "type": "task",
+      "title": "Learn the Adobe variable model by reading real beacons",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You can explain props, eVars, success events and the products variable, and prove it by reading real Adobe Analytics requests in the browser.",
+      "context": "Hi, this is Neha, head of digital. Our European partner's analytics team will only talk to us in Adobe terms: eVar12, event5, report suite. I need you to speak their language next week. Please learn the variable model and show me real examples, not slides.",
+      "steps": [
+        "On Experience League, read the pages for `prop`, `eVar (variable)` and `events`. Also find the Adobe Analytics basics tutorials (free). Take notes in a Google Doc `MKT-1001 Adobe basics`.",
+        "In the notes, explain a report suite in 3 lines: the container that holds all data and settings for a site or app; a global report suite collects several sites; a virtual report suite is a filtered view based on a segment.",
+        "Write the difference in a table with columns `prop`, `eVar`, `success event`: what it stores, does it persist, typical use, Voltra example. For example: prop = hit-level traffic variable without persistence (page type, search term); eVar = conversion variable that persists and gets credit for later success events (campaign code, scooter model); success event = a counted action (test ride request, booking, revenue).",
+        "Add the special variables: `s.pageName`, `s.campaign` (Tracking Code, stored in v0), `s.products` and `s.events`. Write the products string format: `category;product;quantity;price;events;eVars`, with one example for an accessory purchase.",
+        "Write what event serialisation is (for example `event5:BK12345`) and why you use it for bookings: the same booking ID is counted only once.",
+        "Install the free `Adobe Experience Platform Debugger` extension in Chrome.",
+        "Open 2-3 large websites that use Adobe Analytics (for example `adobe.com`). Open the Debugger, go to the `Analytics` section and find the requests. Take screenshots of one page view and one link click (look for `pe=lnk_o` or `pe=lnk_d` in the call).",
+        "In each request, find and note: report suite ID, `pageName`, any `c` (prop) and `v` (eVar) values, `events`, and if it is an AppMeasurement call or a Web SDK (Edge Network) call. Write what each value probably means.",
+        "In the network tab of Chrome DevTools, filter by `b/ss` (AppMeasurement) or `interact` / `collect` (Web SDK) and compare one raw request with what the Debugger shows.",
+        "Finish the notes with 5 questions you would ask the partner's analytics team, for example: Which report suites exist and is there a global suite? Which eVars are already used? Who can change processing rules?"
+      ],
+      "acceptance": [
+        "The notes have a clear table that compares props, eVars and success events with a Voltra example for each.",
+        "The products string example is written in the correct order of fields.",
+        "At least 2 real beacons are documented with report suite ID, page name, variables and events.",
+        "The difference between AppMeasurement calls and Web SDK calls is explained with one example each, or a note on which one the site uses."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-1001 Adobe basics`",
+        "Screenshots of the Debugger showing one page view and one link call",
+        "Your 5 questions for the partner team"
+      ],
+      "hints": [
+        "In the raw request, `c1`…`c75` are props and `v1`…`v250` are eVars. `v0` is the campaign tracking code.",
+        "Not every site uses Adobe. If the Debugger shows nothing in Analytics, try another large brand site.",
+        "Persistence is the key idea: a prop belongs to one hit, an eVar remembers its value until it expires."
+      ],
+      "explain": {
+        "en": "In this task I learned the Adobe Analytics variable model. I explained the report suite and the difference between props, eVars and success events, with Voltra examples. I learned the products string and why we serialise booking events. Then I used the Adobe Experience Platform Debugger on real websites and read the values in page view and link calls. This helped me speak with the partner's Adobe team in their own terms."
+      },
+      "vocabulary": [
+        { "term": "report suite", "en": "the Adobe Analytics container for the data and settings of one site, app or group of sites" },
+        { "term": "prop", "en": "a traffic variable that describes one hit and does not persist" },
+        { "term": "eVar", "en": "a conversion variable that keeps its value and gives credit to later success events" },
+        { "term": "success event", "en": "a counted action in Adobe, like a booking or a form submit" },
+        { "term": "event serialisation", "en": "adding a unique ID to an event so the same event is only counted once" }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between a prop and an eVar?",
+          "a": "A prop is a traffic variable: it describes one hit and has no persistence, so it is good for page-level things like page type or search terms. An eVar is a conversion variable: it keeps its value until it expires, so it can take credit for success events later in the visit or later visits. I use eVars for things like campaign codes, product model or internal search terms that should get credit for bookings. Sometimes I set the same value in both, for pathing and for conversion."
+        },
+        {
+          "q": "How do you check that an Adobe implementation sends the right data?",
+          "a": "I use the Adobe Experience Platform Debugger to see each request with its report suite, page name, props, eVars and events. I also check the raw network requests and, for Web SDK, the Edge trace in Assurance. Then I compare with the solution design reference, variable by variable. Finally I check a real-time or Workspace report to see the values arrive as expected."
+        },
+        {
+          "q": "Why do you serialise purchase or booking events?",
+          "a": "Without serialisation, a page reload or a back button can send the same booking twice. With a unique ID, Adobe counts the event only once for that ID. It is the same idea as a transaction ID in GA4. It keeps revenue and booking counts close to the back-end system."
+        }
+      ],
+      "resources": [
+        { "title": "Experience League: eVar (variable)", "url": "https://experienceleague.adobe.com/en/docs/analytics/implementation/vars/page-vars/evar" },
+        { "title": "Experience League: prop", "url": "https://experienceleague.adobe.com/en/docs/analytics/implementation/vars/page-vars/prop" },
+        { "title": "Experience League: Adobe Experience Platform Debugger", "url": "https://experienceleague.adobe.com/en/docs/experience-platform/debugger/home" }
+      ]
+    },
+    {
+      "id": "m10-t02",
+      "key": "MKT-1002",
+      "type": "project",
+      "title": "Write the Adobe Analytics solution design reference for the export sites",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A complete solution design reference (SDR) that defines every report suite, variable, setting and classification for Voltra's export sites, mapped to the GA4 tracking plan.",
+      "context": "Hi, Arjun here, CMO. The export sites for Germany and the Netherlands go live next quarter on the partner's Adobe stack. I do not want two different truths for India and Europe. Please write the Adobe design so that every key number means the same thing as in our GA4 tracking plan from m01.",
+      "steps": [
+        "Create a Google Sheet `Voltra Adobe SDR v1`. Tab `Report suites`: production `voltra-eu-prod`, development `voltra-eu-dev`, and a global suite if the partner uses one. Add virtual report suites by country (`DE`, `NL`) based on a segment. Write why dev data must never go to prod.",
+        "Tab `Events`: list success events with number, name, type (counter, numeric, currency), serialisation and the GA4 key event it maps to. Include at least: `event1 test_ride_request`, `event2 dealer_locator_search`, `event3 configurator_complete`, `event4 brochure_download`, `event5 booking` (serialised with booking ID), `purchase` for accessories, `prodView`, `scAdd`, `scCheckout`.",
+        "Tab `eVars`: list at least 12 eVars with columns `eVar`, `name`, `example value`, `allocation` (Most Recent, Original Value or Linear), `expire after` (hit, visit, event, days, never), `merchandising?`, `why`. Include campaign tracking code, internal campaign, scooter model, configurator colour, dealer ID, country and language, login status, customer ID (hashed), internal search term and lead form name.",
+        "For each eVar, justify allocation and expiration. Example: internal campaign = Most Recent, expire on `booking` or after 7 days; login status = Most Recent, expire after visit; first-touch campaign = Original Value, expire after 90 days. Note the Experience League warning: do not switch to or from Linear later, and use Linear only with visit expiration or shorter.",
+        "Design merchandising eVars for the accessories store: `product finding method` (internal search, category browse, cross-sell) and `accessory colour`. Choose product syntax or conversion variable syntax with a binding event (for example `prodView` and `scAdd`), and write why.",
+        "Tab `Props`: at least 6 props: page type, site section, search term, error message, page template, form step. Mark which props need pathing enabled and which are list props.",
+        "Tab `Processing rules`: write 4 rules in plain words with condition and action. For example: copy context data `voltra.model` to eVar3 and prop3; if query string `cid` exists, set Tracking Code; lowercase the campaign value; set eVar10 = country from the URL. Write that processing rules run before VISTA and marketing channel processing, and that only certified admins can edit them.",
+        "Tab `Marketing channels`: list the channel processing rules in order (paid search, paid social, display, email, affiliate, natural search, referring domains, internal, direct). Write that order matters, and that the Last Touch and First Touch channel dimensions come from these rules.",
+        "Tab `Classifications`: design a classification set on the campaign tracking code with columns `channel`, `partner`, `campaign name`, `creative`, `market`. Show how a code like `de_ps_gads_v2launch_rsa01` is split by a rule builder.",
+        "Tab `GA4 mapping`: map each GA4 event, parameter and custom dimension from your m01 tracking plan to Adobe. Example: GA4 event-scoped custom dimension → prop or eVar with hit expiration; GA4 user-scoped dimension → eVar with long expiration; GA4 key event → success event; GA4 items → products variable; GA4 item-scoped dimension → merchandising eVar.",
+        "Tab `Differences`: list at least 5 reasons why GA4 and Adobe numbers will not match (session vs visit definitions, bot rules, attribution of the channel, consent differences, time zone, filtering, sampling or thresholds in GA4). This saves you from future arguments.",
+        "Add a short `Governance` tab: who can add a variable, the naming rule, the change log columns, and the review cycle (every quarter)."
+      ],
+      "acceptance": [
+        "The SDR has tabs for report suites, events, eVars, props, processing rules, marketing channels, classifications, GA4 mapping, differences and governance.",
+        "Every eVar has allocation, expiration and a reason; no eVar uses Linear with an expiration longer than a visit.",
+        "The booking event is serialised and mapped to the GA4 booking key event.",
+        "Merchandising eVars state the syntax and, if needed, the binding events.",
+        "The differences tab gives at least 5 concrete reasons for GA4 vs Adobe gaps."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra Adobe SDR v1`",
+        "A one-page summary (Google Doc) for the partner team: what is new, what needs their admin, what needs their developers"
+      ],
+      "hints": [
+        "Start from your GA4 tracking plan. The business questions are the same; only the variable model changes.",
+        "Merchandising eVars are only needed when a value must be tied to one product, not to the whole visit.",
+        "Use the same lowercase naming as in GA4 for values, so classification and comparisons are easy."
+      ],
+      "explain": {
+        "en": "In this project I wrote the Adobe Analytics solution design reference for our export sites. I designed the report suites, the success events and twelve eVars with a clear allocation and expiration for each. I added merchandising eVars for the accessories store, props for pathing, processing rules, marketing channel rules and a classification set for campaign codes. I mapped every item to our GA4 tracking plan so both regions use the same definitions. I also listed why GA4 and Adobe numbers can differ, so stakeholders know what to expect."
+      },
+      "vocabulary": [
+        { "term": "solution design reference (SDR)", "en": "the master document that lists every Adobe variable, its meaning and its settings" },
+        { "term": "allocation", "en": "the rule that decides which eVar value gets credit when there were several values" },
+        { "term": "expiration", "en": "when an eVar value stops getting credit, for example at visit end or after a booking" },
+        { "term": "merchandising eVar", "en": "an eVar that binds its value to a single product instead of the whole visit" },
+        { "term": "processing rules", "en": "admin rules that change or copy incoming data before it is stored in reports" },
+        { "term": "classification", "en": "extra columns of metadata linked to a value, like channel and partner for a campaign code" }
+      ],
+      "interview": [
+        {
+          "q": "How do you choose allocation and expiration for an eVar?",
+          "a": "I start from the business question. For a campaign code that should get credit for a booking, I use Most Recent with an expiration that matches our buying cycle, for example 30 days, or I expire it on the booking event. For a first-touch view, I use a separate eVar with Original Value. I keep Linear rare and only with visit expiration, and today I prefer the Attribution panel in Workspace for model comparisons, because it does not change the stored data."
+        },
+        {
+          "q": "When do you need a merchandising eVar?",
+          "a": "When a value belongs to one product, not to the whole visit. For example, a user finds a helmet by internal search and a phone holder by a cross-sell box, then buys both. A normal eVar would give both products to the last value. A merchandising eVar binds each finding method to its product, so I can report revenue by finding method correctly."
+        },
+        {
+          "q": "Why do GA4 and Adobe show different numbers for the same site?",
+          "a": "They define sessions and visits differently, apply different bot filtering, and attribute channels with different rules. Consent can also block one tool and not the other if the tags are set up differently. GA4 may apply thresholds or sampling in some reports, and time zones can differ. I document these differences up front and agree which tool is the source of truth for each KPI."
+        }
+      ],
+      "resources": [
+        { "title": "Experience League: Conversion variables (eVar) admin settings", "url": "https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/manage-report-suites/edit-report-suite/conversion-variables/conversion-var-admin" },
+        { "title": "Experience League: eVar (Merchandising variable)", "url": "https://experienceleague.adobe.com/en/docs/analytics/implementation/vars/page-vars/evar-merchandising" },
+        { "title": "Experience League: Processing rules overview", "url": "https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/manage-report-suites/edit-report-suite/report-suite-general/c-processing-rules/processing-rules" }
+      ]
+    },
+    {
+      "id": "m10-t03",
+      "key": "MKT-1003",
+      "type": "docs",
+      "title": "Write the Adobe Tags and Web SDK implementation runbook",
+      "priority": "medium",
+      "estimateHours": 7,
+      "goal": "Developers and the partner team have one runbook to implement Adobe Analytics on the export sites with Adobe Tags, the Web SDK, a datastream and an XDM schema.",
+      "context": "Hi, Neha here. The partner says new sites must use the Web SDK, not the old AppMeasurement library, and their data also feeds Customer Journey Analytics. Our developers know GTM, not Adobe Tags. Please write a runbook they can follow step by step, and explain where CJA fits.",
+      "steps": [
+        "Read the Experience League pages `Tags overview`, `Data collection overview` (Web SDK) and `Implement Adobe Analytics with Adobe Experience Platform Edge`. Note the main parts: Tags property, extensions, data elements, rules, libraries, environments; Web SDK (alloy.js); datastream; XDM schema; Edge Network.",
+        "Create a Google Doc `Runbook - Adobe Tags and Web SDK`. Section 1: a simple data flow diagram (draw in Google Slides or Drawings): website data layer → Adobe Tags (Web SDK extension) → Edge Network → datastream → Adobe Analytics report suite and Adobe Experience Platform → Customer Journey Analytics.",
+        "Section 2: GTM to Adobe Tags translation table. Rows: container ↔ property, tag ↔ rule action, trigger ↔ rule event and condition, variable ↔ data element, version and publish ↔ library and publishing flow, environments ↔ development, staging, production embed codes.",
+        "Section 3: the publishing flow step by step: create a library in the Development environment, add changed resources, build, test on the dev site, submit for approval, build for staging, approve for publishing, build and publish to production. Name who does each step (developer, analytics lead, approver).",
+        "Section 4: datastream setup. In `Data Collection` → `Datastreams` → `New datastream`, map the XDM schema, add the Adobe Analytics service with the report suite IDs `voltra-eu-dev` for dev and `voltra-eu-prod` for prod, and add the Adobe Experience Platform service if the partner uses AEP and CJA. Write that dev, staging and prod use different datastream environments.",
+        "Section 5: the XDM schema. Describe an Experience Event schema with the Web SDK field group, plus a custom Voltra field group with fields such as `_voltra.scooterModel`, `_voltra.dealerID`, `_voltra.leadFormName`. Show how XDM fields reach Adobe Analytics: some standard fields map automatically, the `_experience.analytics` fields map to eVars, props and events, and unmapped fields arrive as context data (`a.x.*`) that processing rules can copy.",
+        "Section 6: write 3 example rules in Adobe Tags: page view (Library loaded or a data layer event → send event with `web.webPageDetails.viewName`), test ride request (data layer push `test_ride_request` → send event with event1 and eVar3), and booking (data layer push `booking` → send event with event5 serialised by booking ID).",
+        "Section 7: consent. Explain how the Web SDK consent setting works (default consent `pending` or `in`, and the `setConsent` command), and how it must follow the partner CMP in the EU. Write that no Analytics data is sent before consent if the default is pending.",
+        "Section 8: testing. List the checks: Adobe Experience Platform Debugger, Adobe Experience Platform Assurance session for Edge traces, dev report suite data, and a sign-off checklist from MKT-1002.",
+        "Section 9: Customer Journey Analytics in 6-8 lines: data from AEP datasets (web, CRM, call centre) is joined in a connection; a data view sets components, persistence and attribution at report time (not at collection time); analysis happens in Workspace. Write one benefit for Voltra (join web data with dealer and CRM data) and one cost (licence and data engineering effort)."
+      ],
+      "acceptance": [
+        "The runbook has all 9 sections and a data flow diagram.",
+        "The GTM to Adobe Tags table has at least 6 rows.",
+        "The publishing flow lists each step and who is responsible.",
+        "The XDM section explains automatic mapping, `_experience.analytics` fields and context data.",
+        "The consent section describes default consent and `setConsent` correctly."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Runbook - Adobe Tags and Web SDK`",
+        "Link or image of the data flow diagram"
+      ],
+      "hints": [
+        "You do not need an Adobe licence to write this runbook. Use Experience League pages and tutorials, and quote the page names.",
+        "In CJA, persistence and attribution are settings in the data view. That is a big difference to Adobe Analytics, where eVar settings change how data is stored.",
+        "Keep the developer steps short and testable, like your GTM runbook in m03."
+      ],
+      "explain": {
+        "en": "In this task I wrote the runbook to implement Adobe Analytics with Adobe Tags and the Web SDK. I drew the data flow from the data layer through the Edge Network and the datastream to Adobe Analytics and Experience Platform. I translated GTM ideas into Adobe Tags terms so our developers could work fast. I described the XDM schema, how fields map to eVars, props and events, and how consent works. I also explained where Customer Journey Analytics fits and why it sets attribution at report time."
+      },
+      "vocabulary": [
+        { "term": "Adobe Tags", "en": "Adobe's tag manager, formerly called Launch" },
+        { "term": "Web SDK", "en": "one JavaScript library (alloy.js) that sends data to the Adobe Edge Network for many Adobe products" },
+        { "term": "datastream", "en": "a server-side setting that decides where Edge Network data goes, like which report suite" },
+        { "term": "XDM", "en": "Experience Data Model: Adobe's standard schema for experience data" },
+        { "term": "Customer Journey Analytics", "en": "Adobe's analysis tool on top of Experience Platform that can join web, app and offline data" }
+      ],
+      "interview": [
+        {
+          "q": "Why move from AppMeasurement to the Web SDK?",
+          "a": "The Web SDK uses one library and one call to the Edge Network for several Adobe products, instead of a separate library for each. A datastream on the server decides where data goes, so I can change routing without new page code. It also uses XDM, so the same data can feed Adobe Analytics, Experience Platform and CJA. The cost is a migration effort and new skills in XDM and Assurance."
+        },
+        {
+          "q": "How does an XDM field end up in an eVar?",
+          "a": "Fields under `_experience.analytics` map directly to eVars, props and events, and some standard XDM fields map automatically. Other XDM fields arrive in Adobe Analytics as context data with an `a.x.` prefix. I then use processing rules to copy that context data into the right eVar or prop. I document every mapping in the SDR."
+        },
+        {
+          "q": "What is the main difference between Adobe Analytics and Customer Journey Analytics?",
+          "a": "In Adobe Analytics, many settings like eVar allocation and expiration are applied when data is processed, so they are hard to change for the past. In CJA, persistence and attribution are set in the data view at report time, so I can change them and see the effect on history. CJA can also join web data with CRM, call centre and offline data in one connection. It needs Experience Platform data and more data engineering."
+        }
+      ],
+      "resources": [
+        { "title": "Experience League: Tags overview", "url": "https://experienceleague.adobe.com/en/docs/experience-platform/tags/home" },
+        { "title": "Experience League: Implement Adobe Analytics with Experience Platform Edge", "url": "https://experienceleague.adobe.com/en/docs/analytics/implementation/aep-edge/overview" },
+        { "title": "Experience League: Customer Journey Analytics overview", "url": "https://experienceleague.adobe.com/en/docs/analytics-platform/using/cja-overview/cja-overview" }
+      ]
+    },
+    {
+      "id": "m10-t04",
+      "key": "MKT-1004",
+      "type": "task",
+      "title": "Design the Analysis Workspace projects and rebuild them in GA4",
+      "priority": "medium",
+      "estimateHours": 7,
+      "goal": "Three ready-to-build Analysis Workspace project specs for the export team, tested by building the same analysis in the GA4 demo account.",
+      "context": "Hi, Arjun here. When the export sites go live I want the partner and our team to look at the same three reports every week: acquisition, the booking funnel and customer return. Please design them in Adobe Analysis Workspace terms, with the segments and calculated metrics, and prove the logic on GA4 data we have today.",
+      "steps": [
+        "Read the Experience League pages `Analysis Workspace overview`, `Fallout overview`, `About segments` and the pages on calculated metrics, flow and cohort tables. Note the menu path: `Workspace` → `Create project` → `Blank project`, and components in the left rail (dimensions, metrics, segments, date ranges).",
+        "Create a Google Doc `Voltra Workspace specs`. Project 1 `Acquisition weekly`: a freeform table with `Marketing Channel` (last touch) by `Visits`, `Unique Visitors`, `test_ride_request`, `booking`, `Revenue`, and the calculated metric `Booking conversion rate = booking / Visits`. Add a line chart and a week-over-week date comparison.",
+        "Add 3 calculated metrics with exact formulas: `Booking conversion rate`, `Revenue per visit = Revenue / Visits`, `Test ride to booking rate = booking / test_ride_request`. Write the format (percent, currency) and the decimal places.",
+        "Define 4 segments with the right container: `Visits from paid media` (visit container), `Visitors who requested a test ride` (visitor container), `Hits on the configurator` (hit container), and `Visits with test ride but no booking` (visit container with an exclude). Explain in one line why the container matters.",
+        "Project 2 `Booking funnel`: a fallout visualisation with touchpoints: model page view → configurator complete → test ride request → booking. Write if it is visit-based or visitor-based and why. Add a breakdown by device type and by `Marketing Channel`.",
+        "Add a flow visualisation starting from the model page, to see the next pages people go to. Write what you would look for (loops, exits, the dealer locator).",
+        "Project 3 `Customer return`: a cohort table with inclusion metric `booking` and return metric `Visits` (or accessory `Orders`), weekly granularity. Write how you would read it.",
+        "Add an Attribution panel spec: compare last touch, first touch and linear for `booking` by `Marketing Channel`, with a 30-day lookback. Write why this is better than changing eVar allocation.",
+        "Now prove the logic with free data. Open the GA4 demo account (Google Merchandise Store). Build in `Explore`: a free-form exploration (≈ freeform table), a funnel exploration (≈ fallout: `view_item` → `add_to_cart` → `begin_checkout` → `purchase`), a path exploration (≈ flow) and a cohort exploration. Take screenshots.",
+        "In the doc, add a table `Adobe vs GA4` with what was the same and what was different (for example: Adobe segment containers vs GA4 segment scopes user/session/event; Adobe fallout can mix dimensions and events at each step; GA4 funnel has open and closed funnels)."
+      ],
+      "acceptance": [
+        "The doc has three project specs with visualisations, dimensions, metrics, date ranges and breakdowns.",
+        "Each calculated metric has an exact formula and a format.",
+        "Each of the 4 segments names the container and the reason.",
+        "Four GA4 explorations are built in the demo account and match the Adobe specs.",
+        "The `Adobe vs GA4` table has at least 4 rows."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra Workspace specs`",
+        "Screenshots of the four GA4 explorations in the demo account"
+      ],
+      "hints": [
+        "Hit, visit and visitor containers in Adobe are like event, session and user scopes in GA4.",
+        "A fallout in Adobe is visitor-based by default; you can switch it to visit-based in the settings. Decide what your question needs.",
+        "The GA4 demo account has view-only access. You can still build explorations, they stay private to you."
+      ],
+      "explain": {
+        "en": "In this task I designed three Analysis Workspace projects for the export team: acquisition, the booking funnel and customer return. I wrote exact formulas for calculated metrics and defined segments with the right hit, visit or visitor container. I specified a fallout, a flow, a cohort table and an Attribution panel. Then I rebuilt the same analyses in the GA4 demo account to test the logic. I wrote down where Adobe and GA4 work the same and where they differ."
+      },
+      "vocabulary": [
+        { "term": "Analysis Workspace", "en": "Adobe's drag-and-drop analysis tool with tables and charts in one project" },
+        { "term": "freeform table", "en": "the main Workspace table where you drag dimensions and metrics" },
+        { "term": "fallout", "en": "a Workspace chart that shows how many people go from one step to the next and where they leave" },
+        { "term": "segment container", "en": "the scope of a segment: hit, visit or visitor" },
+        { "term": "calculated metric", "en": "a new metric built from other metrics with a formula" }
+      ],
+      "interview": [
+        {
+          "q": "How do segment containers change a result?",
+          "a": "The container decides what gets included when a condition is true. With a hit container, I only get the hits where the condition is true. With a visit container, I get the whole visit, and with a visitor container I get all the visitor's visits in the date range. For 'people who requested a test ride', a visitor container shows their full journey, while a hit container would only show the request page."
+        },
+        {
+          "q": "Why use the Attribution panel instead of changing eVar allocation?",
+          "a": "Changing allocation changes how future data is stored and makes trends hard to compare. The Attribution panel applies models at report time, so I can compare last touch, first touch, linear and others on the same data without breaking history. It is safer and better for discussions with stakeholders. I keep the stored eVar settings stable and documented."
+        },
+        {
+          "q": "What would you look for in a booking fallout?",
+          "a": "I look for the biggest drop between two steps and then break it down by device, channel and model to find where it is concentrated. A big drop on mobile at the configurator step points to a UX or speed problem. A drop between test ride request and booking points to dealer follow-up, which needs CRM data. I always size the opportunity in bookings and revenue before I propose a fix."
+        }
+      ],
+      "resources": [
+        { "title": "Experience League: Analysis Workspace overview", "url": "https://experienceleague.adobe.com/en/docs/analytics/analyze/analysis-workspace/home" },
+        { "title": "Experience League: Fallout overview", "url": "https://experienceleague.adobe.com/en/docs/analytics/analyze/analysis-workspace/visualizations/fallout/fallout-flow" },
+        { "title": "Experience League: About segments", "url": "https://experienceleague.adobe.com/en/docs/analytics/components/segmentation/seg-overview" }
+      ]
+    },
+    {
+      "id": "m10-t05",
+      "key": "MKT-1005",
+      "type": "incident",
+      "lab": "mk-adobe",
+      "title": "Case: the campaign eVar gives credit to the wrong campaign",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Find why bookings are credited to an old email campaign instead of the current paid search campaign, fix the settings, and explain the data impact.",
+      "context": "Hi, Neha here. The partner's report says the September newsletter drove 60% of October bookings in Germany. Our paid search team ran a big campaign in October and got almost no credit. Either email is magic or the tracking is wrong. Please find out before the budget meeting on Friday.",
+      "steps": [
+        "First finish the practice lab: open Practice → Adobe Analytics variables (`mk-adobe`) in this app and solve the campaign credit case. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-1005` with a timeline: time, what you checked, what you saw.",
+        "In the lab, write down the current settings of the campaign variable: which variable holds the campaign (Tracking Code `v0` or an eVar), its allocation, its expiration, and any processing rule that sets it.",
+        "Walk through 3 journeys from the lab hit by hit. For each hit, write the value that is stored in the variable and which campaign gets credit for the booking. Show where the result differs from what the business expects.",
+        "Test the common causes one by one: allocation set to `Original Value (First)` so the first campaign ever seen keeps credit; expiration set to `Never` or a very long period; internal promotion codes written into the same eVar as external campaigns; a processing rule or a Tags data element that sets the campaign on every page from a cookie; campaign codes in different case (`EMAIL` vs `email`).",
+        "Write the root cause in one or two sentences with the evidence. Example: 'The Tracking Code is set to Original Value with Never expiration, so the newsletter from September keeps credit for all later bookings.'",
+        "Write the fix: allocation `Most Recent (Last)`, expiration that matches the buying cycle (for example 30 days or expire on `booking`), a separate eVar for internal promotions, lowercase rule in processing rules, and a separate `first touch campaign` eVar with Original Value if the business also wants first-touch reporting.",
+        "Write the data impact clearly: changing allocation or expiration affects data from now on, not the past; the `Reset` option expires all stored values at once. Say if you recommend a reset and on which date, and add an annotation in Workspace.",
+        "Write how to report October fairly today: use the Attribution panel in Analysis Workspace with last touch and other models on the Marketing Channel or campaign dimension, which is not limited by the eVar allocation.",
+        "Write 4 prevention rules for the SDR from MKT-1002: every eVar has a documented owner, allocation and expiration; changes go through a change log; a monthly check of top campaign values; and an alert when one value suddenly takes most of the credit.",
+        "Write a 6-line message to the partner team and the CMO: what happened, the fix, the date from which data is correct, and how to read October."
+      ],
+      "acceptance": [
+        "The lab case is solved in the app.",
+        "Three journeys are traced hit by hit with the stored value and the credited campaign.",
+        "The root cause names the exact setting (allocation and/or expiration) with evidence.",
+        "The fix covers allocation, expiration, separation of internal and external campaigns, and value hygiene.",
+        "The data impact explains that the change is not retroactive and how to report the past period."
+      ],
+      "evidence": [
+        "Screenshot of the solved lab in the app",
+        "Link to the Google Doc `Case MKT-1005`",
+        "The 6-line message to the partner team and the CMO (pasted text)"
+      ],
+      "hints": [
+        "Read the eVar settings like a story: which value is stored, how long it lives, and who wins if a new value arrives.",
+        "If one old campaign gets credit for months, look at Original Value allocation and long or Never expiration first.",
+        "The Attribution panel uses the hit-level data, so it can answer 'what if last touch' for the past without changing the eVar."
+      ],
+      "explain": {
+        "en": "In this case an old newsletter campaign got credit for most bookings. I traced three journeys hit by hit to see which campaign value was stored and who got the credit. I found that the campaign variable used first-value allocation with no expiration, so the first campaign kept all the credit. I changed it to most recent with a 30-day expiration, split internal promotions into their own eVar and added a lowercase rule. I explained that the change is not retroactive and used the Attribution panel to report October fairly."
+      },
+      "vocabulary": [
+        { "term": "Most Recent (Last) allocation", "en": "the newest eVar value gets credit for the next success events" },
+        { "term": "Original Value (First) allocation", "en": "the first eVar value keeps credit until it expires" },
+        { "term": "Tracking Code", "en": "the Adobe campaign variable, also called v0 or s.campaign" },
+        { "term": "Attribution panel", "en": "a Workspace panel that compares attribution models at report time" },
+        { "term": "retroactive", "en": "a change that also changes data from the past" }
+      ],
+      "interview": [
+        {
+          "q": "An old campaign gets credit for new conversions. What do you check?",
+          "a": "I check the campaign variable's allocation and expiration first, because Original Value with a long or Never expiration lets the first campaign keep credit for months. Then I check if internal promotions overwrite the same eVar and if a rule sets the value on every hit. I trace a few journeys hit by hit to prove it. Then I fix the setting and document it in the SDR."
+        },
+        {
+          "q": "Is an eVar setting change retroactive?",
+          "a": "No. Allocation and expiration changes in Adobe Analytics apply to data processed after the change, so past reports keep the old logic. That is why I add an annotation and tell stakeholders the exact date. For the past, I use the Attribution panel, which applies models at report time. In Customer Journey Analytics, persistence is a data view setting, so it can be changed for history."
+        },
+        {
+          "q": "Why keep internal and external campaigns in separate eVars?",
+          "a": "Internal banners are clicked by people who are already on the site. If they write into the same eVar as paid media codes, they overwrite the external campaign and steal the credit. Separate eVars let me report the true external source and also measure internal promotions. It is a common cause of bad channel data in Adobe."
+        }
+      ],
+      "resources": [
+        { "title": "Experience League: Conversion variables (eVar) admin settings", "url": "https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/manage-report-suites/edit-report-suite/conversion-variables/conversion-var-admin" },
+        { "title": "Experience League: campaign variable", "url": "https://experienceleague.adobe.com/en/docs/analytics/implementation/vars/page-vars/campaign" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,322 @@
+{
+  "id": "c10",
+  "number": 10,
+  "title": "Running real experiments",
+  "weeks": "19-20",
+  "theme": "Set up GrowthBook on the practice store, prove the setup with an A/A test, launch a real A/B test with QA, and report the results.",
+  "jobStory": "In this sprint you run real experiments on the practice store. You connect GrowthBook Cloud (free plan) to Shopify, GA4 and BigQuery, and you prove the setup with an A/A test. You build the first A/B test from your plan, test it with a QA checklist and stop the page from flickering. You check a result that looks too good, write a test report and start the GlowShop learning log.",
+  "outcomes": [
+    "I set up GrowthBook Cloud on a Shopify store, sent experiment_viewed events to GA4 through GTM, and connected GA4 BigQuery data to GrowthBook.",
+    "I ran an A/A test and checked the traffic split for SRM.",
+    "I built an A/B test in the Dawn theme with an anti-flicker snippet and tested it with a QA checklist on mobile and desktop.",
+    "I found why a test result was too good (SRM and a double purchase event) and wrote a clear decision.",
+    "I wrote a test report and started a learning log for all GlowShop tests."
+  ],
+  "tickets": [
+    {
+      "id": "c10-t01",
+      "key": "CRO-1001",
+      "type": "project",
+      "title": "Set up GrowthBook on the practice store with GA4 and BigQuery",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "GrowthBook Cloud (free plan) assigns visitors of the practice store to variations, every assignment arrives in GA4 as an experiment_viewed event, and GrowthBook can read the GA4 data from BigQuery.",
+      "context": "Hi, we chose GrowthBook because it is open source and the cloud free plan is enough for us. Please connect it to the practice store first, not to the live shop. The most important part is tracking: if GrowthBook and GA4 do not see the same users, every result will be wrong.",
+      "steps": [
+        "Sign up for GrowthBook Cloud at https://app.growthbook.io with the free (Starter) plan. Do not enter a credit card. Create the organisation `GlowShop Practice`. (If you prefer VWO, you may start the VWO free trial now instead, but the steps below are for GrowthBook.)",
+        "Turn on the GA4 BigQuery export, because GrowthBook reads GA4 data from BigQuery. Open https://console.cloud.google.com, create a project `glowshop-practice`, and open BigQuery. Without billing, it runs as the free BigQuery sandbox (tables expire after 60 days, which is fine for practice). Do not add a billing account.",
+        "In GA4 (your practice property) go to Admin → Product links → BigQuery links → Link. Choose your project `glowshop-practice`, the data location (for example United States), and frequency `Daily`. Do not choose Streaming (it needs billing). The first data comes the next day in a dataset named `analytics_<property id>`.",
+        "In GrowthBook go to SDK Configuration → SDK Connections → Add SDK Connection. Name it `Shopify practice store`, choose the `HTML Script Tag` SDK and the `production` environment. Save and copy the client key (it starts with `sdk-`).",
+        "In Shopify admin go to Online Store → Themes. On your Dawn theme click … → Duplicate, so you can always go back. On the copy click … → Edit code and open `layout/theme.liquid`.",
+        "Inside `<head>`, right after your GTM snippet, add the tracking callback first: `<script>window.growthbook_config = { trackingCallback: function (experiment, result) { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: 'experiment_viewed', experiment_id: experiment.key, variation_id: String(result.key) }); } };</script>`.",
+        "Under it paste the script tag exactly as GrowthBook shows it for your SDK connection. It looks like `<script async data-client-key=\"sdk-XXXX\" src=\"https://cdn.jsdelivr.net/npm/@growthbook/growthbook/dist/bundles/auto.min.js\"></script>`. Save the file and publish the theme copy (… → Publish).",
+        "In GTM create the tracking for the event. Variables → New → Data Layer Variable `experiment_id` (name `DLV - experiment_id`) and `variation_id` (name `DLV - variation_id`). Triggers → New → Custom Event, event name `experiment_viewed`. Tags → New → Google Analytics: GA4 Event, event name `experiment_viewed`, parameters `experiment_id` = `{{DLV - experiment_id}}` and `variation_id` = `{{DLV - variation_id}}`, with the new trigger. Use your naming rules from sprint 3.",
+        "In GA4 go to Admin → Data display → Custom definitions → Create custom dimension. Create two event-scoped dimensions: `experiment_id` and `variation_id`. Now you can see them in reports and explorations.",
+        "Connect the data source in GrowthBook. In Google Cloud go to IAM & Admin → Service Accounts → Create service account `growthbook-reader` with the roles `BigQuery Data Viewer` and `BigQuery Job User`. Open it → Keys → Add key → JSON and download the file. Keep this file secret and never put it in Git.",
+        "In GrowthBook go to Metrics and Data → Data Sources → Add Data Source → `Google Analytics 4`, choose BigQuery, and upload the JSON key. Enter your project id and the dataset `analytics_<property id>`. GrowthBook creates the experiment assignment query for the `experiment_viewed` event and some default metrics. Open the data source and click `Test` on the queries.",
+        "Create the metrics you need from your test plans: Metrics and Data → Metrics (or Fact Tables) → add `Add to cart` (event `add_to_cart`, binomial), `Begin checkout` (event `begin_checkout`), `Purchase` (event `purchase`) and `Revenue` (sum of `ecommerce.purchase_revenue`). Use the GA4 templates GrowthBook offers when possible.",
+        "Check the user id. GrowthBook assigns users by its own cookie, and GA4 by `user_pseudo_id`. The GA4 data source joins them through the experiment_viewed event, so the event must reach GA4 for every assigned user. Write down one risk: Shopify checkout runs in a sandbox, and if your purchase event comes from a custom pixel with a different client id, purchases may not join. Check this in DebugView in the next ticket.",
+        "Write a one-page setup note in your Google Drive: what is connected to what, where the keys are stored, and a simple diagram `Shopify theme → GrowthBook script → dataLayer → GTM → GA4 → BigQuery → GrowthBook`."
+      ],
+      "acceptance": [
+        "GrowthBook Cloud runs on the free plan with an SDK connection for the practice store.",
+        "The theme copy has the tracking callback and the GrowthBook script in `<head>` and is published.",
+        "GTM has a GA4 event tag `experiment_viewed` with the parameters experiment_id and variation_id.",
+        "GA4 has two custom dimensions and a BigQuery link (daily export) to a sandbox project without billing.",
+        "The GrowthBook GA4 data source passes its test queries and at least 3 metrics exist."
+      ],
+      "evidence": [
+        "Screenshot of the GrowthBook SDK connection (hide the client key)",
+        "Screenshot of the GA4 BigQuery link page",
+        "Screenshot of the GrowthBook data source with successful test queries",
+        "Link to your one-page setup note with the diagram"
+      ],
+      "hints": [
+        "If BigQuery has no dataset yet, wait one day. The daily export runs once per day.",
+        "If the data source test fails with 'Access denied', check the two roles on the service account.",
+        "If you see experiment_viewed twice per page in DebugView, the script may also send it to GA4 by itself. Keep only one way of sending."
+      ],
+      "explain": {
+        "en": "In this task I set up GrowthBook Cloud on the free plan for our practice Shopify store. I added the GrowthBook script tag to the Dawn theme and a tracking callback that pushes an experiment_viewed event to the dataLayer. In GTM I sent this event to GA4 with the experiment id and the variation id. I linked GA4 to BigQuery in the free sandbox and connected GrowthBook to BigQuery with a service account. Then I created the metrics for add to cart, checkout, purchase and revenue. I wrote a setup note with a diagram of the full data flow."
+      },
+      "vocabulary": [
+        { "term": "SDK", "en": "a ready piece of code that connects a website to a tool" },
+        { "term": "client key", "en": "a public key that tells GrowthBook which project the website belongs to" },
+        { "term": "data source", "en": "the place where the tool reads the results data, here BigQuery" },
+        { "term": "service account", "en": "a Google account for a program, not for a person" },
+        { "term": "BigQuery sandbox", "en": "the free way to use BigQuery without a billing account, with some limits" },
+        { "term": "exposure event", "en": "the event that says a user saw a variation of a test" }
+      ],
+      "interview": [
+        { "q": "How did you connect GrowthBook to your analytics?", "a": "The GrowthBook script assigns each visitor to a variation. A tracking callback pushes an experiment_viewed event to the dataLayer, and GTM sends it to GA4 with the experiment id and variation id. GA4 exports the data to BigQuery every day. GrowthBook reads BigQuery and joins the exposure with the conversion events of the same user." },
+        { "q": "Why did you use BigQuery and not only GA4 reports?", "a": "GrowthBook needs raw event data per user to calculate the results. GA4 reports are summaries and can be sampled. BigQuery has every event with the user id. The sandbox is free for our practice data." },
+        { "q": "What can break the tracking in a test?", "a": "If the exposure event does not reach GA4, the user is missing from the test. If the purchase comes with a different user id, the join fails. Ad blockers and consent also remove users. So I always check the events in DebugView and run an A/A test before a real test." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: HTML script tag SDK", "url": "https://docs.growthbook.io/lib/script-tag" },
+        { "title": "GrowthBook docs: GA4 setup guide", "url": "https://docs.growthbook.io/guide/GA4-google-analytics" },
+        { "title": "Google Analytics Help: Set up BigQuery export", "url": "https://support.google.com/analytics/answer/9823238" }
+      ]
+    },
+    {
+      "id": "c10-t02",
+      "key": "CRO-1002",
+      "type": "task",
+      "title": "Run an A/A test and check the split",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "An A/A test proves that GrowthBook splits users about 50/50, sends exactly one exposure per user, and shows no difference between two identical groups.",
+      "context": "Hi, before we trust any winner, we must trust the tool. Please run an A/A test: two groups that see exactly the same page. If the A/A test shows a 'winner' or a broken split, we fix the setup first.",
+      "steps": [
+        "In GrowthBook go to Features → Add Feature. Key `aa-test-sitewide`, value type `Boolean`, default value `false`.",
+        "Add a rule: in the feature open the `production` environment → Add Rule → Experiment. Experiment key `GS-000-aa-test`, assign by `id`, 100% of users, two variations both with value `false`, split 50/50. Save and publish the feature.",
+        "Make sure the experiment starts. Open Experiments, find `GS-000-aa-test` and check its status is `Running`. Link it to your GA4 data source and pick the metrics `Purchase`, `Add to cart` and `Begin checkout`.",
+        "The script tag only evaluates features that the page uses. Add a tiny line to `layout/theme.liquid` after the GrowthBook script so every page asks for the feature: `<script>window.growthbook_queue = window.growthbook_queue || []; window.growthbook_queue.push(function (gb) { gb.isOn('aa-test-sitewide'); });</script>`. Check the GrowthBook script tag docs if your SDK version uses a different name.",
+        "QA with Preview: open GTM Preview on your store, visit a product page, and check that `experiment_viewed` fires once with `experiment_id = GS-000-aa-test` and a `variation_id` of 0 or 1. Then check GA4 Admin → DebugView shows the same event with both parameters.",
+        "Check stickiness: reload the page 5 times. The variation_id must stay the same. Open a private (incognito) window: you may now get the other variation. Do this 10 times in new private windows and write down which variation you got each time.",
+        "Generate some practice traffic: ask 10-20 friends or classmates to visit the store from their phones (share the storefront password), view a product and add it to the cart. The practice store will still have very little traffic. The goal here is to test the setup, not to get a significant result.",
+        "Run the A/A test for at least 7 days. Then in GrowthBook open the experiment → Results → Update. Look at the users per variation and the SRM check at the top of the results.",
+        "Check the split yourself with your sheet from CRO-903: `=CHISQ.TEST(observed, expected)`. Write the p-value. Below 0.001 means SRM.",
+        "Check the metrics: in an A/A test, no metric should be significant (with many metrics, one may be significant by luck about 5% of the time). Write what you see.",
+        "Read the GrowthBook result settings: Settings → General → Experiment settings shows the stats engine. GrowthBook uses Bayesian by default ('chance to win'). Switch one view to Frequentist and compare. Write 2 sentences about the difference.",
+        "Write a short A/A report (5-8 sentences): dates, users per group, SRM p-value, metric results, problems found, and your decision: 'setup is ready' or 'fix first'. Then stop the experiment: Experiments → GS-000-aa-test → Stop Experiment, and disable the feature rule."
+      ],
+      "acceptance": [
+        "The feature `aa-test-sitewide` has an experiment rule with two identical variations and a 50/50 split.",
+        "GTM Preview and GA4 DebugView each show one `experiment_viewed` per page view with both parameters.",
+        "The variation stays the same after 5 reloads in the same browser.",
+        "The experiment ran at least 7 days and the SRM p-value is written in the report.",
+        "The A/A report has a clear decision and the experiment is stopped."
+      ],
+      "evidence": [
+        "Screenshot of GA4 DebugView with `experiment_viewed` and its parameters",
+        "Screenshot of the GrowthBook results page of the A/A test",
+        "Your A/A report, pasted as text"
+      ],
+      "hints": [
+        "If GrowthBook results show 0 users, the BigQuery export may be one day behind. Wait and click Update again.",
+        "If every private window gives the same variation, check that the cookie is new in each window (close all private windows between tries).",
+        "With very few users the split can look uneven, for example 9 vs 13. The chi-square test tells you if this is still normal."
+      ],
+      "explain": {
+        "en": "In this task I ran an A/A test in GrowthBook on our practice store. I made a feature with an experiment rule where both variations were the same. I checked in GTM Preview and GA4 DebugView that each user got one exposure event with the experiment id and variation id. I checked that a user keeps the same variation after reloading the page. After seven days I checked the split with a chi-square test for SRM and looked at the metrics, which showed no real difference. Then I wrote a short report and stopped the experiment."
+      },
+      "vocabulary": [
+        { "term": "feature flag", "en": "a switch in code that turns a change on or off without a new release" },
+        { "term": "experiment rule", "en": "a rule in GrowthBook that splits users into variations of a feature" },
+        { "term": "sticky assignment", "en": "a user always gets the same variation on every visit" },
+        { "term": "Bayesian", "en": "a way of statistics that shows the chance that a variation is better" },
+        { "term": "frequentist", "en": "the classic way of statistics with p-values and confidence intervals" }
+      ],
+      "interview": [
+        { "q": "Why do you run an A/A test?", "a": "An A/A test checks the tool and the tracking. Both groups see the same page, so there should be no difference and a split close to 50/50. If the A/A test shows SRM or a big 'winner', the setup is broken. I fix it before I trust any real test." },
+        { "q": "How do you check that assignment is sticky?", "a": "I reload the page many times and check that the variation id in the dataLayer and in DebugView stays the same. Then I use new private windows to see that new users can get the other variation. GrowthBook uses a cookie id for this." },
+        { "q": "What is the difference between Bayesian and frequentist results?", "a": "Frequentist results give a p-value and a confidence interval. Bayesian results give a chance to win and a risk value. GrowthBook uses Bayesian by default. Both still need enough data and both give false winners if you stop early." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: A/A tests", "url": "https://docs.growthbook.io/kb/experiments/aa-tests" },
+        { "title": "GrowthBook docs: Feature flag experiments", "url": "https://docs.growthbook.io/feature-flag-experiments" }
+      ]
+    },
+    {
+      "id": "c10-t03",
+      "key": "CRO-1003",
+      "type": "task",
+      "title": "Build, QA and launch the first A/B test without flicker",
+      "priority": "high",
+      "estimateHours": 9,
+      "goal": "Test GS-001 from your plan runs in GrowthBook on the practice store, shows no flicker, passes a written QA checklist on mobile and desktop, and is launched.",
+      "context": "Hi, the A/A test looks good, so now we launch the first real test, GS-001 from your plan. A broken variant or a flashing page can ruin a test, and customers see it. Please build it carefully, write a QA checklist we can reuse, and only launch when every line is green.",
+      "steps": [
+        "Open your plan GS-001 from CRO-905. In this example the change is a free shipping message under the product price: 'Free shipping on orders over $50'. Use your own GS-001 change if it is different.",
+        "In GrowthBook create the experiment first: Experiments → Add Experiment → `GS-001-pdp-shipping-message`. Add the hypothesis, the primary metric, secondary and guardrail metrics from your plan. Two variations: `0` Control and `1` Variant. Split 50/50.",
+        "Create the feature: Features → Add Feature, key `pdp-shipping-message`, type `String`, default `control`. Add Rule → Experiment and link it to `GS-001-pdp-shipping-message` with values `control` and `variant`. Do not publish to production yet: keep the rule off until QA is done.",
+        "Add the anti-flicker snippet in `layout/theme.liquid`, high in `<head>`: `<style>.gb-wait .price__container{visibility:hidden}</style><script>document.documentElement.classList.add('gb-wait'); setTimeout(function(){document.documentElement.classList.remove('gb-wait');}, 800);</script>`. It hides only the price area, and never longer than 0.8 seconds, even if GrowthBook does not load.",
+        "Add the variant code after the GrowthBook script: `<script>window.growthbook_queue = window.growthbook_queue || []; window.growthbook_queue.push(function (gb) { if (gb.getFeatureValue('pdp-shipping-message', 'control') === 'variant') { document.querySelectorAll('.price__container').forEach(function (el) { el.insertAdjacentHTML('afterend', '<p class=\"gs-ship-msg\">Free shipping on orders over $50</p>'); }); } document.documentElement.classList.remove('gb-wait'); });</script>`. If the element is added before the page HTML exists, wrap the code in a `DOMContentLoaded` listener.",
+        "Use GrowthBook's own tools for QA: install the free GrowthBook DevTools extension for Chrome. With it you can force variation 0 or 1 on your own browser without changing the rule.",
+        "Write the QA checklist in a Google Sheet `GlowShop - test QA checklist` with columns Check, Control, Variant, Notes. Lines: page loads without console errors (DevTools → Console); the message shows only in Variant; the message shows on all product templates; the text has no typo; mobile 375 px width looks right (DevTools → Toggle device toolbar); desktop 1440 px looks right; no flicker (record with DevTools → Performance or slow 4G throttling); variant pickers and add to cart still work; cart and checkout work; `experiment_viewed` fires once with the right ids; add_to_cart, begin_checkout and purchase events still fire in GA4 DebugView; internal traffic is excluded.",
+        "Test the flicker on a slow network: DevTools → Network → throttling `Slow 4G`, reload a product page in Variant. The price area may be empty for a moment but you must never see the page jump after the message appears. If it jumps, reserve space for the message with CSS `min-height` or move the snippet earlier.",
+        "Run every line of the checklist for Control and for Variant on mobile and desktop. Make one test order with the Bogus Gateway in each variation (Settings → Payments → enable the test gateway; card number `1`).",
+        "Exclude yourself: use the GA4 internal traffic filter from earlier sprints, or add a GrowthBook targeting condition that excludes a `qa` attribute you set only in your browser.",
+        "When every line is green, turn on the rule in `production` and click Start in the experiment. Write the start date and the planned end date (same weekday, from your plan) in the experiment description.",
+        "After 24 hours check the health only: users in both variations, no SRM warning, exposure events in GA4. Do not look at the winner yet."
+      ],
+      "acceptance": [
+        "Experiment GS-001 and feature `pdp-shipping-message` exist in GrowthBook and are linked.",
+        "The anti-flicker snippet hides only one area and has a maximum wait of 800 ms.",
+        "The QA sheet has at least 12 checks, each checked for Control and Variant on mobile and desktop.",
+        "One test order was made in each variation and the purchase event reached GA4.",
+        "The experiment is running with a start date and a planned end date written in GrowthBook."
+      ],
+      "evidence": [
+        "Link to the QA checklist sheet",
+        "Two screenshots of the product page on mobile: Control and Variant",
+        "Screenshot of the running experiment in GrowthBook with the dates",
+        "Screenshot of GA4 DebugView with experiment_viewed and purchase from one test order"
+      ],
+      "hints": [
+        "If `.price__container` does not exist in your theme version, inspect the price with DevTools and use the class you find.",
+        "Never hide the whole page (body) for anti-flicker. If the tool is slow, customers see a white page.",
+        "Shopify checkout does not run theme scripts. Test only on theme pages; checkout is measured through your existing purchase tracking."
+      ],
+      "explain": {
+        "en": "In this task I built and launched our first real A/B test in GrowthBook. The variant shows a free shipping message under the product price. I added the variant with a feature flag and a short anti-flicker snippet that hides only the price area for a maximum of 0.8 seconds. I wrote a QA checklist with twelve checks and tested control and variant on mobile and desktop, with a slow network and with test orders. I checked the events in GA4 DebugView. When all checks passed, I started the test with a fixed end date."
+      },
+      "vocabulary": [
+        { "term": "flicker", "en": "the old page shows for a moment before the variant appears" },
+        { "term": "anti-flicker snippet", "en": "small code that hides an area until the test tool is ready" },
+        { "term": "QA (quality assurance)", "en": "checking that everything works before customers see it" },
+        { "term": "client-side test", "en": "a test where the change is made by JavaScript in the browser" },
+        { "term": "throttling", "en": "making the network slow on purpose to test a slow phone" }
+      ],
+      "interview": [
+        { "q": "What is flicker and how did you prevent it?", "a": "Flicker is when the user first sees the control and then the page changes to the variant. It looks broken and it can change the result. I added a snippet that hides only the price area until GrowthBook is ready, with a maximum of 800 milliseconds. I tested it with slow 4G in DevTools." },
+        { "q": "What is on your QA checklist before a test goes live?", "a": "I check both variations on mobile and desktop. I check for console errors, the correct text, flicker, and that add to cart and checkout still work. I also check that the exposure event fires once and the e-commerce events still reach GA4. I make a test order in each variation." },
+        { "q": "Why should you not watch the results right after launch?", "a": "In the first days the numbers jump a lot. If I look for a winner, I may make a wrong decision. After launch I only check health: users in both groups, no SRM and working events. I decide at the planned end date." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: HTML script tag SDK", "url": "https://docs.growthbook.io/lib/script-tag" },
+        { "title": "GrowthBook docs: DevTools extension", "url": "https://docs.growthbook.io/tools/chrome-extension" }
+      ]
+    },
+    {
+      "id": "c10-t04",
+      "key": "CRO-1004",
+      "type": "incident",
+      "lab": "cro-results",
+      "title": "Case: this test result looks too good",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You find out why a test shows +58% after 5 days, prove the causes with numbers, and give a clear decision with next steps.",
+      "context": "Hi, the CEO saw the GrowthBook dashboard for our cart test GS-002. After 5 days it says +58% purchases and 'chance to win 99%'. He is very happy and wants to tell the investors. Honestly, it looks too good to me. Please check it before anybody shares this number.",
+      "steps": [
+        "First finish the practice lab: open Practice → Read test results and make the call in this app and decide all six reports and the quiz. Write down your quiz score. Then do the real part below.",
+        "Write down the case data. Control: 1,380 users, 28 purchases in GA4. Variant: 1,620 users, 52 purchases in GA4. Planned split 50/50. Shopify admin shows 27 orders for users in Control and 27 orders for users in Variant in the same days (from order tags added by the test).",
+        "Check 1, the split: put 1,380 and 1,620 against an expected 1,500 and 1,500 in `=CHISQ.TEST()`. Write the p-value. (It is far below 0.001, so there is SRM.)",
+        "Check 2, the data: compare GA4 purchases with Shopify orders per variation. Control 28 vs 27 is normal. Variant 52 vs 27 means almost every variant purchase is counted twice. Write this in a table.",
+        "Find the cause of the double purchase on your practice store. Build the bug yourself: in the variant code of your test, add a second `dataLayer.push({event: 'purchase', ...})` copy by mistake, or create a second GA4 purchase tag in GTM that fires only when `variation_id` equals 1. Make a test order in the variant and see two purchase events in GA4 DebugView with the same transaction_id. Then remove the bug again.",
+        "Remember sprint 4: GA4 removes duplicate purchases with the same transaction_id only in some reports. GrowthBook counts the raw events from BigQuery. Write how you would count purchases in GrowthBook so duplicates do not count (for example a metric based on distinct `transaction_id`).",
+        "Find the cause of the SRM. Write 3 possible causes for this case: the variant page loads a redirect that loses tracking in control; bots hit only one variation; the exposure event fires twice or only after an action in one variation. In the case data the variant sends `experiment_viewed` also on the cart drawer open, so some users are counted only in variant. Explain why this breaks the split.",
+        "Check 3, time: 5 days is less than one full week and less than 10% of the planned sample. Write the planned end date from your plan.",
+        "Check 4, novelty: write how you would check if the effect drops in week 2 (results by week, new vs returning users).",
+        "Recalculate with the clean numbers: Control 27 orders / 1,380 users, Variant 27 orders / about 1,500 users (remove the duplicate exposures). Use your CRO-901 sheet. Write the new lift and p-value. (There is no real difference yet.)",
+        "Write the decision: the result is not valid. Stop the test, fix the double purchase and the double exposure, run an A/A check for a few days, then restart GS-002 with a new start date. Nobody shares the +58%.",
+        "Write a short message to the CEO and team lead (6-10 short sentences, no blame): what we saw, the two problems with numbers, the clean result, the decision and the new date. Add one learning to the QA checklist from CRO-1003: 'Compare GA4 purchases with Shopify orders per variation on day 2'."
+      ],
+      "acceptance": [
+        "The practice lab Practice → Read test results and make the call is completed (6 reports and the quiz) and the quiz score is written down.",
+        "The SRM check shows a p-value below 0.001 for 1,380 vs 1,620.",
+        "A table compares GA4 purchases and Shopify orders per variation and shows the double count in Variant.",
+        "You reproduced a double purchase event on the practice store and removed it again.",
+        "The message gives a clear decision (stop, fix, A/A check, restart) and the QA checklist has the new line."
+      ],
+      "evidence": [
+        "Your practice lab quiz score",
+        "Screenshot of the CHISQ.TEST SRM result",
+        "Screenshot of GA4 DebugView with two purchase events with the same transaction_id",
+        "Your message to the CEO and team lead, pasted as text"
+      ],
+      "hints": [
+        "When a result looks too good, check the data before you check the statistics. Most 'huge wins' are tracking bugs.",
+        "Twyman's law: any number that looks interesting or different is usually wrong.",
+        "With SRM, do not try to 'correct' the result. Fix the cause and restart."
+      ],
+      "explain": {
+        "en": "In this case a test showed +58% purchases after five days and the CEO wanted to share it. First I finished the results lab in the app. Then I checked the split with a chi-square test and found a clear sample ratio mismatch. I compared GA4 purchases with Shopify orders and saw that the variant counted most purchases twice. I reproduced the double purchase on our practice store and removed it. With clean numbers there was no real difference, so I stopped the test, fixed the tracking and planned a restart."
+      },
+      "vocabulary": [
+        { "term": "Twyman's law", "en": "a number that looks very surprising is usually an error" },
+        { "term": "duplicate event", "en": "the same event is sent two times for one action" },
+        { "term": "data validation", "en": "checking that the numbers are correct before using them" },
+        { "term": "transaction_id", "en": "the unique order number sent with the purchase event" },
+        { "term": "restart", "en": "stopping a broken test and starting it again with a new start date" }
+      ],
+      "interview": [
+        { "q": "A test shows a huge win after a few days. What do you check?", "a": "I check the data first. I run an SRM check on the split and compare GA4 purchases with Shopify orders per variation. I also check how much of the planned sample we have and if the test ran full weeks. In my case there was SRM and the variant counted purchases twice." },
+        { "q": "How do you find duplicate purchase events?", "a": "I compare GA4 purchases with the real orders in Shopify. If GA4 has many more, I look for repeated transaction ids in DebugView or BigQuery. Then I check GTM for two tags or code that pushes the event twice. In my practice store I built the bug and removed it to learn how it looks." },
+        { "q": "How do you tell the CEO that his favourite result is wrong?", "a": "I stay calm and use simple numbers. I show the two problems, the clean result and the plan to fix it, with a new date. I do not blame anybody. I also add a check to our QA list so it does not happen again." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: Experimentation problems", "url": "https://docs.growthbook.io/using/experimentation-problems" },
+        { "title": "Google Analytics Help: Minimize duplicate key events with transaction IDs", "url": "https://support.google.com/analytics/answer/12313109" }
+      ]
+    },
+    {
+      "id": "c10-t05",
+      "key": "CRO-1005",
+      "type": "docs",
+      "title": "Write the test report and start the learning log",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A reusable test report template, a finished report for the A/A test and GS-001 (or GS-002), and a learning log sheet that holds every GlowShop test.",
+      "context": "Hi, companies forget their tests. One year later somebody tests the same idea again. Please make a short test report template and a learning log, so every test, winner or loser, teaches us something we can find again.",
+      "steps": [
+        "Create a Google Doc template `GlowShop - test report template` with these parts: Summary (3 lines: what we tested, result, decision), Test ID and dates, Hypothesis, Screenshots of Control and Variant, Users per variation and SRM check, Primary metric result (lift, CI, p-value or chance to win), Secondary and guardrail metrics, Segments (device, new vs returning, country), Data quality notes, Decision, Learning, Next test ideas.",
+        "Start every report with the Summary in plain words. Example: 'The free shipping message on product pages did not change add to cart (-1%, CI -8% to +7%). We keep the control. Customers may already know our free shipping from the banner.'",
+        "Fill a report for the A/A test from CRO-1002 with the real numbers.",
+        "Fill a report for GS-001. The practice store has very little traffic, so the result will not be significant. Report the real numbers anyway and write 'inconclusive, not enough sample'. Then add a second section 'Practice analysis' with these GlowShop numbers: Control 9,820 users, 786 add-to-cart users; Variant 9,870 users, 849 add-to-cart users. Calculate the rates, the lift, the p-value and the CI in your CRO-901 sheet and write the decision with your decision rules from the plan.",
+        "Add a money view to the GS-001 practice analysis: if purchases follow add to cart, what is the change in revenue per visitor (RPV)? Use AOV $48 and the cart-to-purchase rate 25%. Write the estimate and say it is an estimate, not a measured result.",
+        "Create a Google Sheet `GlowShop - learning log` with columns: Test ID, Name, Page, Hypothesis (short), Start, End, Users, Primary metric, Result (Win / Loss / Inconclusive / Invalid), Lift, CI, Decision, Learning (one sentence), Report link, Tags (page type, idea type like trust, shipping, price).",
+        "Add rows for GS-000 (A/A), GS-001, GS-002 (invalid, from the case in CRO-1004) and the old agency test from CRO-901.",
+        "Add a filter view so people can filter by tag or result (Data → Create a filter view).",
+        "Add a tab `Rules` with 3 lines: every finished or stopped test gets a row within 3 days; 'Inconclusive' is a real result and is logged; we read the log before we plan a new test.",
+        "Share the template, the reports and the log with comment access."
+      ],
+      "acceptance": [
+        "The template has all parts from step 1 and starts with a 3-line summary.",
+        "There is a filled report for the A/A test and for GS-001, including the practice analysis with lift, CI and p-value.",
+        "The GS-001 report has an RPV estimate in money that is marked as an estimate.",
+        "The learning log has at least 4 rows and a filter view.",
+        "Every row has a one-sentence learning and a link to its report."
+      ],
+      "evidence": [
+        "Link to the report template",
+        "Link to the GS-001 report",
+        "Link to the learning log sheet"
+      ],
+      "hints": [
+        "For the practice numbers you should get about 8.0% vs 8.6%, a lift of about +7%, and p of about 0.13. Check your own result.",
+        "A losing test is still useful. Write what it teaches about our customers.",
+        "Write the summary last, but put it at the top."
+      ],
+      "explain": {
+        "en": "In this task I made a test report template and a learning log for GlowShop. The report starts with a three-line summary, then shows the hypothesis, the split check, the main result with the confidence interval and the decision. I wrote reports for our A/A test and our first A/B test. Because the practice store has little traffic, I also analysed practice numbers and estimated the change in revenue per visitor. In the learning log every test has a row with its result, a one-sentence learning and a link to the report."
+      },
+      "vocabulary": [
+        { "term": "test report", "en": "a short document with the result and decision of one test" },
+        { "term": "learning log", "en": "a list of all tests and what each one taught us" },
+        { "term": "inconclusive", "en": "the test did not show a clear result" },
+        { "term": "RPV (revenue per visitor)", "en": "total revenue divided by the number of visitors" }
+      ],
+      "interview": [
+        { "q": "What do you put in a test report?", "a": "I start with a three-line summary: what we tested, the result and the decision. Then I show the hypothesis, screenshots, the split check, the primary metric with the confidence interval, and the guardrails. I add data quality notes and the learning. I keep it short so managers really read it." },
+        { "q": "Why do you log tests that did not win?", "a": "Most tests do not win, and they still teach us about customers. If we do not log them, someone tests the same idea again next year. The log also shows patterns, for example that trust changes work better than design changes for us." },
+        { "q": "How do you show the value of a test in money?", "a": "I use revenue per visitor, because it includes both conversion rate and order value. I multiply the change in RPV by the number of visitors per month. I use the low end of the confidence interval for a safe estimate and I always say it is an estimate." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: Experiment results", "url": "https://docs.growthbook.io/app/experiment-results" },
+        { "title": "CXL: A/B testing guide", "url": "https://cxl.com/blog/ab-testing-guide/" }
+      ]
+    }
+  ]
+}

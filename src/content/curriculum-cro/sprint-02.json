@@ -1,0 +1,458 @@
+{
+  "id": "c02",
+  "number": 2,
+  "title": "Google Analytics 4 basics",
+  "weeks": "3-4",
+  "theme": "Learn to read GA4 with real data: reports and explorations, events and parameters, key events, funnels, segments and comparisons.",
+  "jobStory": "In this sprint you learn Google Analytics 4 with the free demo account of the Google Merchandise Store, which has real e-commerce data. You learn the difference between standard reports and explorations, and how GA4 records everything as events with parameters. You build a purchase funnel by device and country, compare groups with segments, and solve your first case: mobile conversion fell. At the end you write a GA4 cheat sheet for the team.",
+  "outcomes": [
+    "I used the GA4 demo account and read the main reports for traffic, pages and e-commerce.",
+    "I explained events, parameters and key events and listed the events of a real store.",
+    "I built a funnel exploration from view_item to purchase with a breakdown by device and country.",
+    "I used segments and comparisons to compare mobile and desktop and the US and Canada.",
+    "I solved a case where mobile conversion fell and wrote a clear incident note."
+  ],
+  "tickets": [
+    {
+      "id": "c02-t01",
+      "key": "CRO-201",
+      "type": "task",
+      "title": "Get into the GA4 demo account and read the main reports",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "You can open the GA4 demo account and answer basic questions about traffic, pages and sales from the standard reports.",
+      "context": "Hi, before we set up GA4 for GlowShop, you need to feel at home in GA4. Google gives a free demo account with the real data of the Google Merchandise Store. Please use it to answer a few simple business questions from the standard reports.",
+      "steps": [
+        "Open the Google help page `Google Analytics demo account` (link in Resources) while you are logged in to your Google account. Click the link to access the GA4 demo account `GA4 - Google Merch Shop`. You get Viewer access for free.",
+        "Open https://analytics.google.com. At the top left, click the property name and check that `GA4 - Google Merch Shop` is selected.",
+        "Learn the left menu: Home, Reports, Explore and Advertising. Admin is the gear icon at the bottom left. Write one line on what each one is for.",
+        "Set the date range (top right) to Last 28 days. Then click Add comparison +, or use the Compare switch in the date picker, and choose Preceding period.",
+        "Open Reports → Realtime overview (in some properties it is called Realtime). Write down how many active users there are in the last 30 minutes and from which countries.",
+        "Open Reports → Acquisition → Traffic acquisition. Read the table with `Session primary channel group`. Write the top 3 channels by sessions and the engagement rate of each.",
+        "Open Reports → Engagement → Pages and screens. Write the top 5 pages by views.",
+        "Open Reports → Monetization → Ecommerce purchases (in some properties it is under Business objectives → Drive online sales). Write the top 5 items by `Items purchased` and their `Item revenue`.",
+        "Open Reports → Tech → Tech details and change the dimension to `Device category`. Write the sessions and key events for desktop, mobile and tablet.",
+        "Make a Google Doc `GA4 reports - CRO-201` with 6 questions and answers, for example: 'Which channel brought the most sessions in the last 28 days?'. Add one screenshot for each answer.",
+        "At the end, write 3 sentences: what reports are good for, and what you could not answer with a report (you will use explorations for that in CRO-203)."
+      ],
+      "acceptance": [
+        "You can open the property `GA4 - Google Merch Shop` and the Doc says which date range you used.",
+        "The Doc answers 6 questions, each with a number and a screenshot.",
+        "The answers include the top channels, top pages, top items and the device split.",
+        "The Doc says at least one question that a standard report could not answer."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GA4 reports - CRO-201` (Anyone with the link can view).",
+        "Screenshot of the Ecommerce purchases report with the date range visible."
+      ],
+      "hints": [
+        "Numbers in the demo account change every day. Always write the date range next to a number.",
+        "If you do not see a report in the menu, use the search box at the top of GA4 and type the report name.",
+        "Change the dimension of a table with the small down arrow next to the first column name."
+      ],
+      "explain": {
+        "en": "In this task I used the GA4 demo account of the Google Merchandise Store. I learned the main menu and the date range with a comparison to the period before. I read the Traffic acquisition, Pages and screens, Ecommerce purchases and Tech details reports. I wrote six business questions and answered each with a number and a screenshot. I also saw that standard reports are quick, but they cannot answer every question, so I need explorations for deeper work."
+      },
+      "vocabulary": [
+        {
+          "term": "property",
+          "en": "one GA4 space that holds the data of one business, like a website"
+        },
+        {
+          "term": "standard report",
+          "en": "a ready report in GA4 that everyone with access can see"
+        },
+        {
+          "term": "dimension",
+          "en": "a description of data, like country or device"
+        },
+        {
+          "term": "metric",
+          "en": "a number, like sessions or revenue"
+        },
+        {
+          "term": "engagement rate",
+          "en": "the percent of sessions that were engaged, for example longer than 10 seconds or with 2 page views"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between a dimension and a metric in GA4?",
+          "a": "A dimension describes the data, like country, device or page. A metric is a number, like sessions or purchase revenue. A report usually has dimensions in rows and metrics in columns. For example I showed sessions by Device category."
+        },
+        {
+          "q": "Where do you look to see which channel brings the most sales?",
+          "a": "I open Reports, Acquisition, Traffic acquisition. I look at sessions, key events and total revenue by session primary channel group. I always set a date range and compare it with the period before. Then I go deeper in an exploration if I need it."
+        },
+        {
+          "q": "Why did you practise on the demo account?",
+          "a": "The demo account has real data from a real online store, so the numbers look like real life. I only have Viewer access, so I cannot break anything. It was safe to learn the reports there before I built our own property."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Google Analytics demo account",
+          "url": "https://support.google.com/analytics/answer/6367342"
+        },
+        {
+          "title": "Google Analytics Help: Dimensions and metrics",
+          "url": "https://support.google.com/analytics/answer/9143382"
+        }
+      ]
+    },
+    {
+      "id": "c02-t02",
+      "key": "CRO-202",
+      "type": "task",
+      "title": "Learn events, parameters and key events",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "A sheet that lists the events of the demo store, their type, their important parameters and which ones are key events.",
+      "context": "Hi, in GA4 everything is an event: a page view, a click, a purchase. If you understand events and parameters, you understand GA4. Please study the events of the demo store and write down how a good purchase event looks, because we will build the same for GlowShop.",
+      "steps": [
+        "In the demo property, set the date range to Last 28 days and open Reports → Engagement → Events.",
+        "Copy the top 20 event names and their `Event count` into a Google Sheet `GA4 events - CRO-202`. Columns: `Event name`, `Event count`, `Type`, `Key event?`, `Main parameters`.",
+        "For `Type`, use the Google help pages in Resources: `automatically collected` (for example `first_visit`, `session_start`, `user_engagement`, `page_view`), `enhanced measurement` (for example `scroll`, `view_search_results`, `click`, `form_start`), `recommended` (for example `view_item`, `add_to_cart`, `begin_checkout`, `purchase`) or `custom`.",
+        "Click the event name `purchase` in the Events report. Look at the cards that open. Write down which information you see (like count over time and top values of some parameters).",
+        "Find the key events: Admin (gear icon) → Data display → Key events. Write which events the demo store marked as key events. As a Viewer you can look but not change.",
+        "Open Admin → Data display → Custom definitions. Write down 3 custom dimensions or metrics, if there are any, and what they measure.",
+        "Open the GA4 events reference for developers (link in Resources) and find `purchase`. In the sheet, write its parameters: `transaction_id`, `value`, `currency`, `tax`, `shipping`, `coupon` and `items`. Write which are required (`transaction_id`; `currency` when you send `value`).",
+        "Under it, write what one item in `items` holds: `item_id`, `item_name`, `item_variant`, `item_brand`, `item_category`, `price`, `quantity`. Write a GlowShop example for `Vitamin C Glow Serum 50 ml` with `item_id` `GS-VCS-50`.",
+        "Write the full GlowShop `purchase` example as text, for example: `{ transaction_id: '1001', value: 47.00, currency: 'USD', shipping: 5.00, tax: 0, items: [ { item_id: 'GS-VCS-50', item_name: 'Vitamin C Glow Serum', item_variant: '50 ml', price: 42.00, quantity: 1 } ] }`.",
+        "Write 4 short sentences on key events: what a key event is, why `purchase` is a key event, that key events used to be called conversions, and that in Google Ads they are called conversions again when you import them."
+      ],
+      "acceptance": [
+        "The sheet lists 20 events, each with a type and a key event column.",
+        "The key events of the demo store are listed exactly as GA4 shows them.",
+        "The `purchase` parameters and the item fields are written with the exact GA4 names.",
+        "The GlowShop `purchase` example has a `transaction_id`, `value`, `currency` and one item."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GA4 events - CRO-202`.",
+        "Screenshot of Admin → Data display → Key events in the demo property."
+      ],
+      "hints": [
+        "Event names in GA4 are case sensitive. `Purchase` and `purchase` are two different events.",
+        "If a parameter does not show in reports, it may not be registered as a custom dimension. That does not mean it was not sent.",
+        "If the Admin menu looks different, use the search box at the top of GA4 and type `key events`."
+      ],
+      "explain": {
+        "en": "In this task I studied how GA4 records data as events with parameters. I listed the top 20 events of the demo store and sorted them into automatic, enhanced measurement, recommended and custom events. I checked which events are key events in the Admin menu. Then I read the developer reference for the purchase event and wrote all its parameters and the fields of one item. I wrote a full GlowShop purchase example with a transaction ID, value, currency and items."
+      },
+      "vocabulary": [
+        {
+          "term": "parameter",
+          "en": "extra information sent with an event, like value or currency"
+        },
+        {
+          "term": "items array",
+          "en": "the list of products inside an e-commerce event"
+        },
+        {
+          "term": "transaction_id",
+          "en": "the unique order number sent with a purchase"
+        },
+        {
+          "term": "custom dimension",
+          "en": "a parameter you register in GA4 so you can use it in reports"
+        },
+        {
+          "term": "enhanced measurement",
+          "en": "GA4 settings that track things like scroll and site search with no extra code"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How does GA4 store data?",
+          "a": "GA4 stores everything as events. A page view, a scroll and a purchase are all events. Each event can have parameters that give more detail, like value, currency or the list of items. Sessions and users are calculated from these events."
+        },
+        {
+          "q": "What does a good purchase event contain?",
+          "a": "It has a unique transaction_id, the value, the currency and the items array. Each item has item_id, item_name, price and quantity, and I also send item_variant for the size. Shipping and tax are good to add too. The transaction_id helps GA4 remove duplicate purchases."
+        },
+        {
+          "q": "What is a key event?",
+          "a": "A key event is an event that I mark as very important for the business, like purchase. GA4 then shows it in key event reports and rates. Before 2024 GA4 called them conversions. When I import a key event into Google Ads, it is called a conversion there."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: About events",
+          "url": "https://support.google.com/analytics/answer/9322688"
+        },
+        {
+          "title": "Google for Developers: GA4 recommended events reference",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events"
+        },
+        {
+          "title": "Google Analytics Help: About key events",
+          "url": "https://support.google.com/analytics/answer/9267568"
+        }
+      ]
+    },
+    {
+      "id": "c02-t03",
+      "key": "CRO-203",
+      "type": "project",
+      "title": "Build a purchase funnel exploration by device and country",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "A saved GA4 funnel exploration from view_item to purchase, with breakdowns by device and country, segments and a short written analysis.",
+      "context": "Hi, the standard reports do not show where people drop out. For that we use explorations. Please build our standard purchase funnel in the demo account and split it by device and by country. We will build the same funnel for GlowShop later, so make it clean and save your notes.",
+      "steps": [
+        "Practise first: open Practice → Funnel detective in this app and finish the first rounds, so you know how to read step rates and drop-offs.",
+        "In the demo property click Explore → Funnel exploration (template). Rename it at the top left to `CRO-203 Purchase funnel`. Set the date range to Last 28 days.",
+        "In the Settings column, click the pencil next to Steps. Make 6 steps, each with the condition Event name = (exactly) the event: 1 `view_item`, 2 `add_to_cart`, 3 `begin_checkout`, 4 `add_shipping_info`, 5 `add_payment_info`, 6 `purchase`. Name the steps the same way. Click Apply.",
+        "Keep it a closed funnel first (users must start at step 1). Write down the completion rate and the abandonment rate of each step.",
+        "Switch Make open funnel on. Write what changes and why (in an open funnel users can enter at any step).",
+        "Turn the open funnel off again. Add a Breakdown: drag the dimension `Device category` from the Variables column into Breakdown (import it first with the + next to Dimensions if it is not there). Write the step rates for desktop and mobile.",
+        "Change the breakdown to `Country`. Write the step rates for United States and Canada.",
+        "Create two segments: in the Variables column click + next to Segments → User segment. Segment 1 `US mobile`: Country exactly matches `United States` AND Device category exactly matches `mobile`. Segment 2 `CA mobile` the same with `Canada`. Drag both into the Segment comparisons area. Take a screenshot.",
+        "Change Visualization to Trended funnel. Look at the line for `begin_checkout` to `purchase` over the 28 days. Write if the rate is stable or changes a lot.",
+        "Add a second tab in the same exploration: Free form. Rows: `Device category`; Columns: `Country` (filter to United States and Canada with a Filter on Country); Values: `Sessions`, `Add to carts`, `Ecommerce purchases`, `Purchase revenue`. This is your table view of the same data.",
+        "Use Share → Share exploration so your lead can read it (Viewers can share a read-only copy in the property). Also export each tab with the download icon (top right) to Google Sheets.",
+        "Write a one-page analysis in a Google Doc `CRO-203 Funnel analysis`: the weakest step overall, the weakest step on mobile, the biggest difference between the US and Canada, and 3 questions for further research."
+      ],
+      "acceptance": [
+        "The exploration has 6 steps with the exact GA4 event names in the right order.",
+        "It shows a breakdown by device category, and the Doc also has the step rates by country.",
+        "Two user segments `US mobile` and `CA mobile` are compared in one view.",
+        "The free form tab shows sessions, add to carts, purchases and revenue by device and country.",
+        "The Doc names the weakest step on mobile and gives 3 research questions."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the exported funnel and free form data.",
+        "Screenshot of the funnel with the device breakdown and screenshot of the segment comparison.",
+        "Link to the Google Doc `CRO-203 Funnel analysis`."
+      ],
+      "hints": [
+        "If you see a warning about data thresholds or sampling, use a shorter date range or fewer breakdowns.",
+        "A user segment includes all events of users who matched once; a session segment only includes the matching sessions. Use user segments here.",
+        "If a dimension is missing from the list, click + next to Dimensions and search for it."
+      ],
+      "explain": {
+        "en": "In this task I built a purchase funnel exploration in GA4 with six steps from view_item to purchase. I compared a closed and an open funnel and I understood the difference. I added a breakdown by device category and by country to see where people leave. I created two user segments, US mobile and Canada mobile, and compared them side by side. I also made a free form table and exported the data to Google Sheets. Then I wrote a short analysis with the weakest step and three questions for research."
+      },
+      "vocabulary": [
+        {
+          "term": "exploration",
+          "en": "a GA4 tool for deep analysis that you build yourself"
+        },
+        {
+          "term": "closed funnel",
+          "en": "a funnel where users must start at the first step"
+        },
+        {
+          "term": "open funnel",
+          "en": "a funnel where users can enter at any step"
+        },
+        {
+          "term": "breakdown",
+          "en": "a dimension that splits the funnel into groups, like device"
+        },
+        {
+          "term": "segment",
+          "en": "a group of users, sessions or events that match a rule"
+        },
+        {
+          "term": "abandonment rate",
+          "en": "the percent of people who leave at a step and do not go to the next"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How did you build a funnel in GA4?",
+          "a": "I used Explore and the Funnel exploration template. I added six steps with the exact event names, from view_item to purchase. Then I added a breakdown by device category and by country. I saved it and exported the data to Google Sheets for the team."
+        },
+        {
+          "q": "What is the difference between an open and a closed funnel?",
+          "a": "In a closed funnel a user must start at step one to be counted. In an open funnel a user can enter at any step, for example go straight to checkout from a saved cart. For our main purchase funnel I used closed. I used open to check how many users join later in the path."
+        },
+        {
+          "q": "Why did you use segments?",
+          "a": "A segment lets me compare two groups in the same view. I made US mobile and Canada mobile and saw which step was weaker for Canada. Segments help me find the group with the problem. Then I can plan research on that group only."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Funnel exploration",
+          "url": "https://support.google.com/analytics/answer/9327974"
+        },
+        {
+          "title": "Google Analytics Help: Get started with Explorations",
+          "url": "https://support.google.com/analytics/answer/7579450"
+        }
+      ]
+    },
+    {
+      "id": "c02-t04",
+      "key": "CRO-204",
+      "type": "incident",
+      "lab": "cro-funnel",
+      "title": "Case: mobile conversion fell",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You find which step, device and country caused a fall in mobile conversion and write a clear incident note with next actions.",
+      "context": "Hi, urgent one. Our Monday report says mobile conversion rate fell by about 20% last week, and the CEO wants to know why today. Please find out which step and which group of users is the problem. Do not guess: show the data.",
+      "steps": [
+        "First finish the practice lab: open Practice → Funnel detective in this app and solve the case. Write down the leaking step and the segment that the lab shows. Do this before you open GA4.",
+        "Create a Google Doc `Case CRO-204 - mobile conversion` with the sections: Summary, Timeline, What I checked, Findings, Possible causes, Next actions. Fill the Timeline while you work (time, what you checked, what you saw).",
+        "Now use real data in the GA4 demo account. Explore → Free form, name it `CRO-204 mobile check`. Rows: `Device category`. Values: `Sessions`, `Ecommerce purchases`, `Purchase revenue`. Set the date range to Last 7 days and switch Compare on with Preceding period.",
+        "Export the table to Google Sheets. Add CR = Ecommerce purchases / Sessions for each device and each period, and the relative change. Write if mobile CR really fell in the demo data. If it did not, write the real change; a good analyst reports what the data says.",
+        "Check that it is not a traffic mix change: add the dimension `Session primary channel group` as a second row. If one channel with low CR (for example Paid Search or Display) brought many more mobile sessions, CR can fall even when nothing is broken. Write what you find.",
+        "Find the step: open your `CRO-203 Purchase funnel`, set Last 7 days, and compare with the 7 days before (change the date range twice and write the numbers). Use Breakdown `Device category`. Write which step rate changed most for mobile.",
+        "Find the group: add a filter for Device category = `mobile` and change the breakdown to `Country`, then to `Browser`. Write if one country or one browser explains most of the fall.",
+        "Check the tracking too: Reports → Engagement → Events, compare `purchase` and `begin_checkout` counts with the preceding period. If one event dropped to almost zero on one day, the cause may be broken tracking, not customers.",
+        "Write the Findings: the step, the device, the country or browser, and the size of the change in percent and in purchases. Compare them with the root cause you found in the lab.",
+        "Write 3 Possible causes ranked by how likely they are (for example a new site release, a payment method problem on one browser, a tracking break, a traffic mix change) and 3 Next actions (for example watch session recordings of that step, test checkout on that browser, check the release notes).",
+        "Write the Summary last: 3 sentences that the CEO can read in 20 seconds."
+      ],
+      "acceptance": [
+        "The Funnel detective lab in this app is finished and its root cause is written in the Doc.",
+        "The Doc shows mobile CR for this week and the week before, calculated from GA4 numbers.",
+        "The Doc names the step with the biggest change for mobile, with numbers.",
+        "Traffic mix and tracking breaks were checked and the result is written down.",
+        "The Summary has 3 sentences and the Next actions are concrete."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case CRO-204 - mobile conversion`.",
+        "Link to the Google Sheet with the exported numbers and your CR calculations.",
+        "Screenshot of the funnel exploration with the device breakdown for the last 7 days."
+      ],
+      "hints": [
+        "Always check three things before you blame the site: traffic mix, tracking, and real user problems.",
+        "A fall in CR with stable purchases means sessions went up; look at where the new sessions came from.",
+        "Write numbers with their date range, for example `mobile CR 0.9% (Oct 20-26) vs 1.1% (Oct 13-19)`."
+      ],
+      "explain": {
+        "en": "In this case mobile conversion rate fell and I had to find the reason with data. First I solved the Funnel detective lab in the app. Then I used the GA4 demo account and compared mobile and desktop for this week and the week before. I checked if a change in traffic mix or a tracking break could explain it. I used the funnel with a device breakdown to find the step that changed most, and I split mobile by country and browser. I wrote an incident note with the findings, possible causes and next actions."
+      },
+      "vocabulary": [
+        {
+          "term": "incident",
+          "en": "a sudden problem that the team must understand and fix fast"
+        },
+        {
+          "term": "root cause",
+          "en": "the real reason behind a problem"
+        },
+        {
+          "term": "traffic mix",
+          "en": "how many visitors come from each channel, device or country"
+        },
+        {
+          "term": "tracking break",
+          "en": "a fault where an event stops being sent, so the data looks wrong"
+        },
+        {
+          "term": "timeline",
+          "en": "a list of what you did and saw, with the time"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Conversion rate fell. What do you check first?",
+          "a": "First I check if the tracking still works, for example if the purchase event count suddenly fell to zero. Then I check the traffic mix, because a new low quality channel can lower the rate. Only then I look at the funnel by device and country to find the step. This order saves time and avoids wrong blame."
+        },
+        {
+          "q": "How did you find the step with the problem?",
+          "a": "I used the funnel exploration with a breakdown by device category. I compared the step rates of this week and the week before. The step with the biggest change for mobile was my starting point. Then I split mobile by country and browser to find the group."
+        },
+        {
+          "q": "How did you report the result?",
+          "a": "I wrote a short incident note with a summary of three sentences at the top. It had the timeline, the findings with numbers, possible causes ranked by likelihood, and next actions. I wrote what the data really said, even when it was different from what people expected."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Funnel exploration",
+          "url": "https://support.google.com/analytics/answer/9327974"
+        },
+        {
+          "title": "Google Analytics Help: Segment builder",
+          "url": "https://support.google.com/analytics/answer/9304353"
+        }
+      ]
+    },
+    {
+      "id": "c02-t05",
+      "key": "CRO-205",
+      "type": "docs",
+      "title": "Write the GA4 cheat sheet for the team",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "A two-page Google Doc that explains the GA4 words, menus and traps our team meets every week.",
+      "context": "Hi, people in marketing open GA4 and get lost, or they read a number the wrong way. Please write a short cheat sheet with the words, the menu paths and the common traps. Use what you learned in this sprint.",
+      "steps": [
+        "Create a Google Doc `GA4 cheat sheet - GlowShop` and share it as Anyone with the link → Commenter.",
+        "Section `Words`: a table with 10 terms and one-line meanings: event, parameter, key event, user, session, engaged session, engagement rate, session key event rate, purchase revenue, average purchase revenue.",
+        "Section `Where to find it`: exact menu paths for 6 common questions, for example `Traffic by channel: Reports → Acquisition → Traffic acquisition`, `Key events: Admin → Data display → Key events`, `Funnel: Explore → Funnel exploration`, `Live test data: Admin → Data display → DebugView`.",
+        "Section `Reports vs explorations`: 4 bullets. Reports are ready and shared; explorations are built by you, are private until you share them, and can use segments and funnels.",
+        "Section `Traps`: at least 6 short bullets, for example: data in standard reports can take 24-48 hours; set data retention to 14 months or explorations only see 2 months back; data thresholds can hide small rows; `(not set)` means a value was missing; users and sessions are not the same; GA4 numbers will never match Shopify exactly.",
+        "Section `Our standard numbers`: how we calculate CR (Ecommerce purchases / Sessions), AOV (Purchase revenue / Ecommerce purchases) and RPV (Purchase revenue / Sessions) from GA4 fields.",
+        "Check each trap and path in the demo account or in the help pages. Add a help link for at least 4 of them.",
+        "Keep it to 2 pages. Ask one non-analyst to use it to find one number in the demo account, and note in a comment where they got stuck."
+      ],
+      "acceptance": [
+        "The Doc has the 5 sections and fits on 2 pages.",
+        "All menu paths are exact and work in the demo account.",
+        "There are at least 6 traps, and at least 4 have a link to a Google help page.",
+        "The CR, AOV and RPV formulas use exact GA4 metric names."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GA4 cheat sheet - GlowShop`.",
+        "Screenshot of the comment with the test reader's feedback."
+      ],
+      "hints": [
+        "Write the menu path with arrows, exactly as the menu shows it.",
+        "If a trap needs more than two lines, it is too long for a cheat sheet. Link to the help page instead.",
+        "Test every path yourself before you write it."
+      ],
+      "explain": {
+        "en": "In this task I wrote a two-page GA4 cheat sheet for the GlowShop team. It explains ten key words, the exact menu paths for common questions, and the difference between reports and explorations. I added a list of common traps, like data delay, data retention and data thresholds. I also wrote how our team calculates conversion rate, average order value and revenue per visitor from GA4 metrics. A colleague tested it and I fixed the unclear parts."
+      },
+      "vocabulary": [
+        {
+          "term": "data retention",
+          "en": "how long GA4 keeps user-level data for explorations, 2 or 14 months"
+        },
+        {
+          "term": "data threshold",
+          "en": "GA4 hides small rows so no single person can be found"
+        },
+        {
+          "term": "(not set)",
+          "en": "GA4 shows this when a value was missing"
+        },
+        {
+          "term": "engaged session",
+          "en": "a session that lasted more than 10 seconds, had a key event or had 2 or more page views"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do GA4 numbers sometimes change after one or two days?",
+          "a": "GA4 needs time to process data, often 24 to 48 hours for standard reports. So yesterday's numbers can still grow. For live checks I use Realtime or DebugView. I write this in the cheat sheet so nobody panics on Monday morning."
+        },
+        {
+          "q": "What is the difference between reports and explorations?",
+          "a": "Reports are ready made and everyone with access sees them. Explorations are built by me for deeper questions, with funnels, segments and breakdowns. They are private until I share them. I use reports for quick checks and explorations for analysis."
+        },
+        {
+          "q": "Why does GA4 not match Shopify orders?",
+          "a": "Some visitors block tracking or do not give consent, and some purchase events fail to send. Shopify counts every order in its database. So GA4 usually shows a bit fewer purchases. I check the gap every month and I fix it if it grows."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Analytics Help: Dimensions and metrics",
+          "url": "https://support.google.com/analytics/answer/9143382"
+        },
+        {
+          "title": "Google Analytics Help: Data retention",
+          "url": "https://support.google.com/analytics/answer/7667196"
+        }
+      ]
+    }
+  ]
+}

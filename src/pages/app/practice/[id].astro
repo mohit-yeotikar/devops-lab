@@ -1,24 +1,27 @@
 ---
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
-import { labById, labs } from '../../../sandbox/labs.js';
+import { labById, labsFor } from '../../../sandbox/registry.js';
+import { trackOf } from '../../../lib/curriculum';
 import { practiceRuns } from '../../../lib/db';
 const lab = labById(Astro.params.id!);
 if (!lab) return new Response('Not found', { status: 404 });
 const u = Astro.locals.user!;
 const finished = (await practiceRuns(env.DB, u.id)).some((r) => r.lab === lab.id);
+const labs = labsFor(lab.track === 'devops' ? 'devops' : trackOf(u));
 const idx = labs.indexOf(lab);
+const widget = lab.kind === 'widget';
 const next = labs[idx + 1];
 ---
 <Base title={`Practice: ${lab.title}`}>
-  <div class="lab" data-lab={lab.id} data-user={u.id}>
+  <div class={`lab${widget ? ' is-widget' : ''}`} data-lab={lab.id} data-user={u.id}>
     <p class="crumbs"><a href="/app/practice">Practice</a> <span>/</span> {lab.topic}</p>
     <header class="lab-head">
       <div>
         <h1>{lab.title}</h1>
         <p class="sub">{lab.summary}</p>
       </div>
-      <div class="lab-status">{finished && <span class="pill done">Finished before</span>}</div>
+      <div class="row"><span class="lab-status">{finished && <span class="pill done">Finished before</span>}</span>{widget && <button type="button" class="btn sec sm lab-reset">Reset lab</button>}</div>
     </header>
 
     <details class="card intro" open>
@@ -29,6 +32,7 @@ const next = labs[idx + 1];
     <div class="lab-grid">
       <div class="lab-main">
         <p class="now-task" aria-live="polite"><b>Task <span class="now-n">1</span> of {lab.tasks.length}</b> <span class="now-text">{lab.tasks[0].text}</span></p>
+        {widget ? <div class="widget"></div> : <>
         <div class="term" aria-label="Practice terminal">
           <div class="term-bar">
             <span class="term-title">{`trainee@${lab.host || 'shopnotes-dev'}`}</span>
@@ -46,7 +50,7 @@ const next = labs[idx + 1];
         <section class="card explain-card">
           <h3>What you just did</h3>
           <div class="explain"></div>
-        </section>
+        </section></>}
       </div>
 
       <aside class="lab-side">
@@ -62,10 +66,10 @@ const next = labs[idx + 1];
                   <p class="t-why">{t.why}</p>
                   <div class="t-help">
                     <button type="button" class="link t-hint">Hint</button>
-                    <button type="button" class="link t-show">Show the command</button>
+                    {!widget && <button type="button" class="link t-show">Show the command</button>}
                   </div>
                   <p class="t-hint-text">{t.hint}</p>
-                  <div class="t-cmd-text"><code>{t.cmd}</code> <button type="button" class="link t-use">Put in terminal</button></div>
+                  {!widget && <div class="t-cmd-text"><code>{t.cmd}</code> <button type="button" class="link t-use">Put in terminal</button></div>}
                 </div>
               </li>
             ))}
@@ -92,6 +96,7 @@ const next = labs[idx + 1];
       </form>
     </section>
 
+    <div class="toast" hidden role="status"></div>
     <div class="editor" hidden role="dialog" aria-modal="true" aria-label="Text editor">
       <div class="editor-box">
         <div class="editor-bar"><span class="editor-name"></span><span class="editor-state help"></span></div>
@@ -105,7 +110,8 @@ const next = labs[idx + 1];
   </div>
   <script>
     import { boot } from '../../../sandbox/ui.js';
+    import { bootWidget } from '../../../sandbox/cro/ui.js';
     const root = document.querySelector<HTMLElement>('.lab');
-    if (root) boot(root);
+    if (root) (root.querySelector('.widget') ? bootWidget(root) : boot(root));
   </script>
 </Base>

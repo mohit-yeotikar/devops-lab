@@ -1,0 +1,326 @@
+{
+  "id": "c09",
+  "number": 9,
+  "title": "A/B testing statistics",
+  "weeks": "17-18",
+  "theme": "Learn the numbers behind A/B tests: significance, power, sample size, test length, peeking, SRM and the novelty effect.",
+  "jobStory": "In this sprint you learn the statistics that every CRO specialist must know before running a test. You calculate p-values and confidence intervals with real GlowShop numbers in Google Sheets. You calculate sample size and test length for the tests on your roadmap and see which tests are possible with our traffic. You write the GlowShop testing rules, handle a stakeholder who wants to stop a test early, and prepare full test plans for the next sprint.",
+  "outcomes": [
+    "I calculated conversion rates, p-values and 95% confidence intervals for an A/B test in Google Sheets and checked them with a free calculator.",
+    "I calculated sample size and test length for six roadmap tests and decided which ones are possible with our traffic.",
+    "I showed with a simulation why peeking at results every day gives false winners, and I explained it to a stakeholder.",
+    "I wrote the GlowShop testing rules: one primary metric, full weeks, no early stop, SRM check and novelty effect.",
+    "I wrote pre-registered test plans for the top three tests on the roadmap."
+  ],
+  "tickets": [
+    {
+      "id": "c09-t01",
+      "key": "CRO-901",
+      "type": "task",
+      "title": "Calculate significance and confidence intervals for a GlowShop test",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "A Google Sheet that takes visitors and orders for A and B and shows both conversion rates, the relative lift, the p-value and the 95% confidence interval, checked against a free calculator.",
+      "context": "Hi, last year an agency ran a test on our product page. Their report says 'B won with +18%', but nobody knows if this was real or just luck. Before you run any test yourself, I want you to understand what 'significant' really means. Please build a small calculator in Google Sheets and check the old result with it.",
+      "steps": [
+        "Practise first: open Practice → A/B test statistics: peeking, sample size and SRM in this app. Read the intro and do the first task (run 200 A/A tests). Then come back to this ticket.",
+        "Read the old agency result. Control (A): 10,000 visitors, 200 orders. Variant (B): 10,000 visitors, 236 orders. Write these four numbers on paper first.",
+        "Calculate by hand: conversion rate A = 200 / 10,000 = 2.00%. Conversion rate B = 236 / 10,000 = 2.36%. Absolute difference = 0.36 percentage points. Relative lift = 0.36 / 2.00 = +18%. This is the '+18%' in the report.",
+        "Create a new Google Sheet named `GlowShop - AB calculator`. In row 1 write headers: A1 `Group`, B1 `Visitors`, C1 `Orders`, D1 `Conversion rate`. Row 2 is `A` with 10000 and 200. Row 3 is `B` with 10000 and 236.",
+        "In D2 write `=C2/B2` and in D3 write `=C3/B3`. Format both as percent with 2 decimals (Format → Number → Percent).",
+        "Add the lift. F1 `Relative lift`, F2 `=(D3-D2)/D2`. G1 `Absolute difference`, G2 `=D3-D2`.",
+        "Add the z-test. H1 `Pooled rate`, H2 `=(C2+C3)/(B2+B3)`. I1 `Standard error`, I2 `=SQRT(H2*(1-H2)*(1/B2+1/B3))`. J1 `z`, J2 `=G2/I2`. K1 `p-value (two-sided)`, K2 `=2*(1-NORM.S.DIST(ABS(J2),TRUE))`.",
+        "Add the 95% confidence interval for the difference. L1 `CI low`, L2 `=G2-1.96*SQRT(D2*(1-D2)/B2+D3*(1-D3)/B3)`. M1 `CI high`, M2 `=G2+1.96*SQRT(D2*(1-D2)/B2+D3*(1-D3)/B3)`. Format both as percent with 2 decimals.",
+        "Add a decision cell. N1 `Decision`, N2 `=IF(K2<0.05,\"Significant at 95%\",\"Not significant\")`.",
+        "Check your numbers. You should get z ≈ 1.74, p ≈ 0.08, and a CI from about -0.04 to +0.76 percentage points. The interval includes 0, so the agency result is NOT significant at 95%. B may be better, but we cannot be sure.",
+        "Check the same data in a free calculator: open https://www.evanmiller.org/ab-testing/chi-squared.html, enter 200 successes of 10000 for sample 1 and 236 of 10000 for sample 2. It should also say there is no significant difference at 95% confidence.",
+        "Now change B to 250 orders. Your sheet should show p ≈ 0.017 and a CI that is fully above 0. Write down: what changed and why the decision changed.",
+        "Make a copy of the tab and test three more cases: (1) 1,000 visitors each, 20 vs 25 orders; (2) 100,000 visitors each, 2,000 vs 2,100 orders; (3) 10,000 each, 200 vs 180 orders. For each write one sentence: significant or not, and what the CI tells you.",
+        "Write a short note at the bottom of the sheet (3-5 sentences): what a p-value is, what a confidence interval is, and why '+18%' alone means nothing without the sample size."
+      ],
+      "acceptance": [
+        "The sheet shows conversion rates, relative lift, absolute difference, z, p-value, CI low, CI high and a decision for the agency data.",
+        "For 200 vs 236 orders the sheet shows p ≈ 0.08 and a CI that includes 0.",
+        "For 200 vs 250 orders the sheet shows p ≈ 0.017 and 'Significant at 95%'.",
+        "The three extra cases each have a one-sentence result.",
+        "The Evan Miller calculator gives the same decision as the sheet for the agency data."
+      ],
+      "evidence": [
+        "Link to your Google Sheet (viewer access for the team lead)",
+        "Screenshot of the Evan Miller chi-squared result for 200/10000 vs 236/10000",
+        "Your 3-5 sentence note about p-value and confidence interval, pasted as text"
+      ],
+      "hints": [
+        "If NORM.S.DIST gives an error, check the comma: some Sheets locales use a semicolon `;` between arguments (File → Settings → Locale).",
+        "Format the CI cells as percent. If you see 0.0036, it means 0.36%.",
+        "A p-value is not 'the chance that B is better'. It is the chance to see a difference this big (or bigger) if A and B are really the same."
+      ],
+      "explain": {
+        "en": "In this task I built an A/B test calculator in Google Sheets. I calculated the conversion rate of each group, the relative lift and the absolute difference. Then I calculated the z value, the p-value and the 95% confidence interval for the difference. I checked an old agency result that claimed +18%. My sheet showed p of about 0.08 and the interval included zero, so the result was not significant. I checked the same numbers with the Evan Miller calculator and got the same decision."
+      },
+      "vocabulary": [
+        { "term": "p-value", "en": "the chance to see a difference this big if A and B are really the same" },
+        { "term": "statistical significance", "en": "the result is very unlikely to be only luck, usually p below 0.05" },
+        { "term": "confidence interval", "en": "a range of values where the true difference probably is" },
+        { "term": "relative lift", "en": "the change compared to the control, in percent, like +18%" },
+        { "term": "absolute difference", "en": "the simple difference between two rates, like 2.36% minus 2.00% = 0.36 points" },
+        { "term": "null hypothesis", "en": "the starting idea that the change has no effect" }
+      ],
+      "interview": [
+        { "q": "What does a p-value of 0.08 mean?", "a": "It means that if A and B were really the same, we would see a difference this big about 8% of the time just by luck. Our rule is p below 0.05, so 0.08 is not significant. It does not prove that B is bad. It means we do not have enough evidence yet." },
+        { "q": "Why do you look at the confidence interval and not only the p-value?", "a": "The confidence interval shows how big the effect can be. In my example the interval was from about -0.04 to +0.76 points. It included zero, so B could be a little worse or much better. The interval also helps me talk about money, because I can use the low end as a safe estimate." },
+        { "q": "A report says 'B won with +18%'. What do you ask first?", "a": "I ask for the visitors and the conversions in each group. A big lift on a small sample is often just noise. I also ask how long the test ran and if they stopped it early. Then I calculate the p-value and the interval myself." }
+      ],
+      "resources": [
+        { "title": "Evan Miller: Chi-squared test calculator", "url": "https://www.evanmiller.org/ab-testing/chi-squared.html" },
+        { "title": "GrowthBook docs: Statistics overview", "url": "https://docs.growthbook.io/statistics/overview" },
+        { "title": "CXL: Statistical significance does not equal validity", "url": "https://cxl.com/blog/statistical-significance-does-not-equal-validity/" }
+      ]
+    },
+    {
+      "id": "c09-t02",
+      "key": "CRO-902",
+      "type": "task",
+      "title": "Calculate sample size and test length for the roadmap tests",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Every test on the 6-test roadmap has a baseline, an MDE, a sample size per variant and a test length in full weeks, and we know which tests are possible with our traffic.",
+      "context": "Hi, your roadmap from last sprint has six good test ideas. But we only have so much traffic. Some tests may need four months to give an answer, and that is too long. Please calculate the sample size and test length for each one, so we start with tests that can finish in 2 to 6 weeks.",
+      "steps": [
+        "Practise first: open Practice → A/B test statistics: peeking, sample size and SRM in this app and do the task 'Size a test: baseline 2%, smallest lift 10%'.",
+        "Learn the rule of thumb. For 80% power and 5% significance, the sample size per variant is about n = 16 × p × (1 − p) / δ². Here p is the baseline rate and δ is the absolute change you want to detect. Example: baseline 2%, you want to detect +10% relative, so δ = 0.2 percentage points = 0.002. n = 16 × 0.02 × 0.98 / 0.002² = 78,400 visitors per variant.",
+        "Open your roadmap sheet from sprint 8. Add a new tab `Sample size` with columns: Test, Page, Primary metric, Baseline rate, MDE (relative), Absolute change, n per variant (rule of thumb), n per variant (Evan Miller), Variants, Daily visitors to the page, Days needed, Weeks (rounded up), Possible?",
+        "Find the baseline for each test in GA4 (your own property, or the GA4 demo account if your store has no traffic). Use the last 28 days. Example: for a product page test with metric 'add to cart rate', go to Explore → Funnel exploration, step 1 `view_item`, step 2 `add_to_cart`. For purchase conversion use Reports → Monetization → E-commerce purchases or your Looker Studio dashboard.",
+        "Find the daily visitors for each page: in GA4 Reports → Engagement → Pages and screens, filter the page path, and divide the 28-day users by 28. Write it in `Daily visitors to the page`.",
+        "If the practice store has almost no traffic, use these GlowShop numbers from the team lead: 3,000 visitors per day to product pages, 1,200 per day to the cart, 9,000 per day to the whole store. Baselines: purchase conversion 2.0%, product page add-to-cart rate 8%, cart-to-checkout rate 45%.",
+        "In the sheet column `Absolute change` write `=D2*E2` (baseline × relative MDE). In `n per variant (rule of thumb)` write `=ROUNDUP(16*D2*(1-D2)/F2^2,0)`.",
+        "Check each test in the Evan Miller calculator: open https://www.evanmiller.org/ab-testing/sample-size.html, enter the baseline conversion rate, choose `Relative` for the minimum detectable effect, enter the MDE, keep power 80% and significance 5%. Write the number in `n per variant (Evan Miller)`. It will be close to your rule of thumb, small differences are normal.",
+        "Calculate the length. `Days needed` = `=ROUNDUP(G2*I2/J2,0)` (n per variant × number of variants / daily visitors). `Weeks (rounded up)` = `=MAX(2,ROUNDUP(K2/7,0))`. We always run full weeks, and at least 2 weeks, because people buy differently on Monday and on Sunday.",
+        "Mark each test in `Possible?`: `Yes` if 6 weeks or less, `Change it` if 7-12 weeks, `No` if more than 12 weeks.",
+        "Compare two versions of the same test: product page test with primary metric purchase (2%, MDE 10%) needs about 78,400 per variant, 2 × 78,400 / 3,000 ≈ 53 days. The same test with primary metric add to cart (8%, MDE 10%) needs about 18,400 per variant, 2 × 18,400 / 3,000 ≈ 13 days, so 2 weeks. Write in the sheet why a metric closer to the change can make a test possible, and what risk this brings (more add to cart does not always mean more orders).",
+        "For every test marked `Change it` or `No`, write one way to fix it: a bigger MDE (bolder change), a page with more traffic, a metric with a higher baseline, or 'do not test, just fix it' if the change is clearly good (like a broken button).",
+        "Sort the tab by `Weeks` and add a short summary at the top: which tests start first and why."
+      ],
+      "acceptance": [
+        "All 6 roadmap tests have baseline, MDE, n per variant (both methods), daily visitors, days and weeks.",
+        "The rule of thumb gives 78,400 per variant for a 2% baseline and +10% relative MDE.",
+        "No test length is shorter than 2 weeks, and lengths are in full weeks.",
+        "Every test is marked Yes, Change it or No, and each Change it / No has a fix.",
+        "The sheet explains the trade-off between purchase and add to cart as the primary metric."
+      ],
+      "evidence": [
+        "Link to the `Sample size` tab in your roadmap sheet",
+        "Screenshot of the Evan Miller sample size result for one of your tests",
+        "Your 3-sentence summary of which tests start first, pasted as text"
+      ],
+      "hints": [
+        "MDE relative 10% on a 2% baseline means you want to detect 2.0% → 2.2%. The absolute change is 0.002, not 0.1.",
+        "If you have 3 variants (A/B/C), multiply n by 3, not by 2. More variants means a longer test.",
+        "Daily visitors means visitors who really see the change. A cart test only counts people who open the cart."
+      ],
+      "explain": {
+        "en": "In this task I calculated the sample size and the length of every test on our roadmap. I took the baseline rates and the daily visitors from GA4. I used the rule of thumb 16 times p times one minus p, divided by the change squared, and I checked it with the Evan Miller calculator. For a 2% baseline and a 10% relative lift we need about 78,400 visitors per variant. I rounded every test to full weeks with a minimum of two weeks. Some tests were too long, so I suggested a bolder change or a metric with a higher baseline."
+      },
+      "vocabulary": [
+        { "term": "sample size", "en": "how many visitors each variant needs before we can decide" },
+        { "term": "MDE (minimum detectable effect)", "en": "the smallest change the test can find reliably" },
+        { "term": "statistical power", "en": "the chance that the test finds a real effect; we use 80%" },
+        { "term": "baseline", "en": "the current rate before the change, for example 2% conversion" },
+        { "term": "business cycle", "en": "a full week, because buyers act differently on different days" }
+      ],
+      "interview": [
+        { "q": "How do you decide how long an A/B test runs?", "a": "I calculate the sample size before the test from the baseline, the MDE, 80% power and 5% significance. Then I divide the total sample by the daily visitors who see the change. I round up to full weeks and never run less than two weeks. I write this length in the plan before the test starts." },
+        { "q": "What do you do when a test needs four months of traffic?", "a": "I do not start it like that. I can make the change bolder so the MDE is bigger, move the test to a page with more traffic, or use a metric with a higher baseline like add to cart. If the change is clearly good, like fixing a bug, I just fix it without a test." },
+        { "q": "Why is the sample size so big for small lifts?", "a": "The sample size grows with one divided by the change squared. If I want to find a change half as big, I need four times more visitors. With a 2% baseline and a 10% relative lift we need about 78,400 visitors per variant." }
+      ],
+      "resources": [
+        { "title": "Evan Miller: Sample size calculator", "url": "https://www.evanmiller.org/ab-testing/sample-size.html" },
+        { "title": "GrowthBook docs: Power analysis", "url": "https://docs.growthbook.io/statistics/power" }
+      ]
+    },
+    {
+      "id": "c09-t03",
+      "key": "CRO-903",
+      "type": "docs",
+      "title": "Write the GlowShop A/B testing rules",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A 2-3 page Google Doc with the testing rules that everyone at GlowShop follows before, during and after a test.",
+      "context": "Hi, people in marketing want to 'just test things' and they often stop a test when they like the numbers. Before we run real tests next sprint, we need written rules. Please write our testing rules in simple words, so the whole team can follow them and I can point to them in discussions.",
+      "steps": [
+        "Create a Google Doc named `GlowShop - A/B testing rules`. Use these headings: 1 Before the test, 2 During the test, 3 After the test, 4 Checks for a broken test, 5 A/B, A/B/n or multivariate, 6 Words we use.",
+        "Under 'Before the test' write the rules: every test has a written hypothesis (from the sprint 8 format), ONE primary metric, 1-3 secondary metrics and at least one guardrail metric (for example revenue per visitor or refund rate). The sample size and the length are calculated before the start (see CRO-902) and written in the plan.",
+        "Add the significance rule: we use 95% confidence (p below 0.05) and 80% power. Write one sentence that explains what this means for a non-technical person.",
+        "Under 'During the test' write the peeking rule: we do not stop a test early because it 'looks good' or 'looks bad'. We look at the dashboard only to check that the test is healthy (traffic split, no errors). We decide only at the planned end. Explain why in 2-3 sentences: every time you look and can stop, you get a new chance for a false winner.",
+        "Add the full-weeks rule: the test runs at least 2 full weeks and always ends on the same weekday it started. Add: we do not change the variant, the traffic split or the targeting during the test. If we must change something, we restart the test.",
+        "Add the stop rule for problems: we stop early only if the variant is broken (errors, checkout fails) or a guardrail metric drops strongly. Write who decides (the CRO specialist and the team lead).",
+        "Under 'Checks for a broken test' explain SRM (sample ratio mismatch). Example: a 50/50 test with 10,000 and 10,600 users. In Google Sheets put the observed users in A2:A3, the expected users (half of the total each) in B2:B3, and use `=CHISQ.TEST(A2:A3,B2:B3)`. If the result is below 0.001, the split is broken and we cannot trust the result. GrowthBook shows the same warning. List common causes: redirects that lose users, bots, a variant that loads slower or crashes, tracking that fires only in one variant.",
+        "Add the novelty effect: returning visitors may click a new design only because it is new. Rule: if the lift is big in week 1 and much smaller in week 2, report it carefully, and compare new vs returning visitors.",
+        "Add other checks: test only one change per test unless it is a multivariate test, exclude internal traffic (our office and our own devices), check results by device but do not hunt for a 'winning segment' after the test (if you check 20 segments, about one will look significant by luck).",
+        "Under 'A/B, A/B/n or multivariate' write when to use each: A/B for one change, A/B/n for 2-3 versions of the same idea (needs more traffic), multivariate (MVT) only with very high traffic because each combination needs its own sample. Add an example: 2 headlines × 2 images = 4 combinations = about 4 times the sample of an A/B test.",
+        "Under 'Words we use' add a glossary of 10-12 words: conversion rate, variant, control, p-value, confidence interval, power, MDE, sample size, peeking, SRM, novelty effect, guardrail metric.",
+        "Read the whole document aloud once. Change every long sentence into two short ones. Share it with comment access with your team lead."
+      ],
+      "acceptance": [
+        "The Doc has all 6 headings and is 2-3 pages long.",
+        "It has a peeking rule, a full-weeks rule (minimum 2 weeks) and a stop rule for broken tests.",
+        "It explains SRM with a CHISQ.TEST example and the 0.001 threshold.",
+        "It explains the novelty effect and when to use A/B, A/B/n or MVT.",
+        "The glossary has at least 10 words in simple English."
+      ],
+      "evidence": [
+        "Link to the Google Doc (comment access)",
+        "Screenshot of your CHISQ.TEST SRM example in Google Sheets with the result"
+      ],
+      "hints": [
+        "Write for the marketing manager, not for a statistician. One idea per sentence.",
+        "For 10,000 vs 10,600 users the CHISQ.TEST result is far below 0.001, so it is a clear SRM.",
+        "Short examples with GlowShop numbers explain better than definitions."
+      ],
+      "explain": {
+        "en": "In this task I wrote the A/B testing rules for GlowShop. The rules say that every test has one primary metric, a guardrail metric and a sample size calculated before the start. We run full weeks, at least two weeks, and we do not stop early because the numbers look good. I explained sample ratio mismatch and showed how to check it with CHISQ.TEST in Google Sheets. I also explained the novelty effect and when to use A/B, A/B/n or multivariate tests. I wrote everything in short sentences so the whole team can follow it."
+      },
+      "vocabulary": [
+        { "term": "peeking", "en": "looking at results many times and stopping when they look good" },
+        { "term": "SRM (sample ratio mismatch)", "en": "the real traffic split is different from the planned split, for example not 50/50" },
+        { "term": "novelty effect", "en": "people react to a change only because it is new, and the effect fades" },
+        { "term": "guardrail metric", "en": "a metric that must not get worse, like revenue per visitor" },
+        { "term": "multivariate test (MVT)", "en": "a test of many combinations of changes at the same time" }
+      ],
+      "interview": [
+        { "q": "What is sample ratio mismatch and what do you do when you see it?", "a": "SRM means the real split of users is not the planned split, for example 50/50 planned but 48/52 in the data. I check it with a chi-square test, and below 0.001 I call it SRM. Then I do not trust the result. I look for the cause, like a redirect, bots or tracking that fires only in one variant, fix it and restart the test." },
+        { "q": "Why do you run tests for full weeks?", "a": "People buy differently on different days. For example weekend visitors may come more from social media. If a test runs from Monday to Thursday, the result only shows those days. Full weeks give a fair mix, so I run at least two full weeks." },
+        { "q": "When would you choose a multivariate test?", "a": "Only when we have a lot of traffic. Each combination needs its own sample, so 2 headlines and 2 images give 4 groups. For GlowShop traffic I usually choose a simple A/B test with one bold change." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: Experimentation problems (peeking, SRM, novelty)", "url": "https://docs.growthbook.io/using/experimentation-problems" },
+        { "title": "Google Docs Editors Help: CHISQ.TEST", "url": "https://support.google.com/docs/answer/3094194" }
+      ]
+    },
+    {
+      "id": "c09-t04",
+      "key": "CRO-904",
+      "type": "incident",
+      "lab": "cro-ab",
+      "title": "Case: the stakeholder wants to stop the test on day 4",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You show with a simulation why stopping on day 4 is risky, and you send the marketing manager a clear, polite answer with a decision.",
+      "context": "Hi, urgent one. Our marketing manager looked at the cart test on day 4. The variant shows +21% and 'chance to beat control 96%'. She wants to stop the test now and give the variant 100% of the traffic before the weekend sale. The plan says 3 weeks. Please prepare the facts and a reply I can forward to her today.",
+      "steps": [
+        "First finish the practice lab: open Practice → A/B test statistics: peeking, sample size and SRM in this app and complete all five tasks and the quiz. Write down your quiz score. Then do the real part below.",
+        "Write down the day-4 data: control 1,520 users and 31 orders, variant 1,540 users and 38 orders. Put them into your sheet from CRO-901. Write the p-value and the 95% CI. (You should see that the interval is very wide and includes 0.)",
+        "Check the plan: in your CRO-902 sheet, find the sample size for this test. Write how many percent of the planned sample we have after 4 days.",
+        "Build a peeking simulation. Create a new Google Sheet `GlowShop - peeking simulation`. In A1:H1 write: Day, A orders, B orders, A total, B total, Users per group, z, p. In A2:A15 write the days 1 to 14.",
+        "Simulate an A/A test where both groups really convert at 2.0%, with 1,000 users per group per day. In B2 write `=BINOM.INV(1000,0.02,RAND())` and copy it to C2. Copy B2:C2 down to row 15.",
+        "Add the running totals. D2 `=SUM(B$2:B2)`, E2 `=SUM(C$2:C2)`, F2 `=1000*A2`. Copy down to row 15.",
+        "Add the daily test. G2 `=(E2/F2-D2/F2)/SQRT(((D2+E2)/(2*F2))*(1-(D2+E2)/(2*F2))*(2/F2))`. H2 `=2*(1-NORM.S.DIST(ABS(G2),TRUE))`. Copy down to row 15. Each row is the result you would see if you looked at the test on that day.",
+        "Add two result cells. J1 `Significant on ANY day?` J2 `=IF(COUNTIF(H2:H15,\"<0.05\")>0,1,0)`. K1 `Significant on the LAST day?` K2 `=IF(H15<0.05,1,0)`.",
+        "Run the simulation 30 times. Each time you type anything in an empty cell (for example type 1 in M1 and press Enter), RAND makes new numbers. Each time, write the values of J2 and K2 in a second tab `Runs` (30 rows, two columns).",
+        "Count the results. In the `Runs` tab calculate the share of runs with 'significant on any day' and with 'significant on the last day'. Remember: A and B are the SAME here, so every significant result is a false winner. You should see far more false winners with daily looks (often 15-30%) than with one look at the end (about 5%).",
+        "Make one chart from the simulation tab: line chart of column H (p-value by day) with a horizontal line at 0.05 (add a column with 0.05 in each row). Take a screenshot of a run where the p-value goes under 0.05 for a few days and then comes back up.",
+        "Write the reply email (8-12 short sentences): say what the day-4 data shows (p-value and wide interval), that we have only a small part of the planned sample, what the simulation shows about peeking, the risk in money (if the lift is not real, we lose time and believe a wrong learning), and your decision: keep the test running to the planned end. Offer an option: if the sale is important, we can pause the test during the sale days and extend it after, or run the sale on both groups equally.",
+        "Add the case to your testing rules doc (CRO-903) as a short example under the peeking rule."
+      ],
+      "acceptance": [
+        "The practice lab Practice → A/B test statistics: peeking, sample size and SRM is completed (5 tasks and the quiz) and the quiz score is written down.",
+        "The day-4 data shows a p-value and a 95% CI that includes 0.",
+        "The simulation sheet has 14 days of A/A data, daily p-values and the two result cells.",
+        "The `Runs` tab has 30 runs and the share of false winners for 'any day' is clearly higher than for 'last day'.",
+        "The reply email gives a clear decision and one option for the weekend sale."
+      ],
+      "evidence": [
+        "Your practice lab quiz score",
+        "Link to the simulation sheet with the `Runs` tab",
+        "Screenshot of the p-value chart where p goes below 0.05 and back up",
+        "The reply email to the marketing manager, pasted as text"
+      ],
+      "hints": [
+        "For day 4 you should get a p-value around 0.4, far from 0.05. A +21% lift on 31 vs 38 orders is mostly noise.",
+        "If the sheet does not make new numbers, check File → Settings → Calculation → Recalculation: 'On change'.",
+        "Tools that show 'chance to beat control' (Bayesian) also give false winners if you stop at the first nice number."
+      ],
+      "explain": {
+        "en": "In this task a manager wanted to stop a test on day 4 because the variant showed +21%. First I calculated the p-value and the confidence interval for the day-4 data, and the interval included zero. Then I built a simulation in Google Sheets where A and B were the same. When I checked the result every day, many runs showed a false winner on some day, but only about 5% on the last day. I wrote a polite email with the numbers and my decision to keep the test running. I also suggested a way to handle the weekend sale without breaking the test."
+      },
+      "vocabulary": [
+        { "term": "A/A test", "en": "a test where both groups get the same page, used to check the setup" },
+        { "term": "false positive", "en": "the test says there is a winner, but there is no real difference" },
+        { "term": "simulation", "en": "fake data made by the computer to see what can happen" },
+        { "term": "fixed horizon", "en": "we decide the end of the test before it starts and only decide there" },
+        { "term": "stakeholder", "en": "a person in the company who cares about the result, like a manager" }
+      ],
+      "interview": [
+        { "q": "A manager wants to stop a test early because the variant is winning. What do you do?", "a": "I show the numbers first: the p-value, the confidence interval and how much of the planned sample we have. Then I explain that checking every day gives many chances for a false winner. In my simulation with two identical groups, daily checks often showed a false winner. I recommend running to the planned end and I offer a practical option for their business need." },
+        { "q": "Why does peeking increase false positives?", "a": "The p-value moves up and down a lot in the first days. Every look is a new chance to catch it below 0.05 by luck. With one look at the end the false positive rate is about 5%. With a look every day it can be three or more times higher." },
+        { "q": "Is it ever OK to stop a test early?", "a": "Yes, when the variant is broken, for example checkout errors, or when a guardrail metric drops strongly. That is a safety stop, not a winner decision. Some tools use sequential testing that allows early looks, but then the rules must be set before the test starts." }
+      ],
+      "resources": [
+        { "title": "Evan Miller: How not to run an A/B test", "url": "https://www.evanmiller.org/how-not-to-run-an-ab-test.html" },
+        { "title": "GrowthBook docs: Sequential testing", "url": "https://docs.growthbook.io/statistics/sequential" }
+      ]
+    },
+    {
+      "id": "c09-t05",
+      "key": "CRO-905",
+      "type": "project",
+      "title": "Write full test plans for the top three roadmap tests",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "Three complete, pre-registered test plans that are ready to build and launch in GrowthBook next sprint.",
+      "context": "Hi, next sprint we start running real tests in GrowthBook. I do not want to decide metrics or stop rules after we see the data. Please write a full test plan for the top three tests from your roadmap. Each plan must be so clear that another person could build, run and judge the test without asking you.",
+      "steps": [
+        "Pick the three tests from your roadmap with the highest score that were marked `Yes` (6 weeks or less) in CRO-902.",
+        "Create a Google Doc template `GlowShop - test plan template` with these sections: Test name and ID, Owner, Problem (evidence from research), Hypothesis, Pages and audience, Control description, Variant description, Screenshot or mock-up, Primary metric, Secondary metrics, Guardrail metrics, Baseline, MDE, Sample size per variant, Traffic split, Planned start and end date, Stop rules, Segments we will check, QA checklist link, Decision rules, Risks.",
+        "Use test IDs like `GS-001`, `GS-002`, `GS-003`. Use the same ID later in GrowthBook and in the learning log.",
+        "Write the Problem with real evidence from sprints 6-7: Clarity recordings or heatmaps, survey answers, review quotes, GA4 funnel numbers. Add links or screenshots.",
+        "Write the Hypothesis in your sprint 8 format: 'Because we saw [evidence], we believe that [change] for [audience] will cause [effect on metric]. We will know when [primary metric] changes by [MDE] after [length].'",
+        "Describe Control and Variant exactly: what text, which element, where on the page, mobile and desktop. Make a simple mock-up (a screenshot of the practice store with the change drawn on it in Google Slides is enough).",
+        "Set the metrics. Primary: one metric only (for example `add_to_cart` rate per user on product pages). Secondary: 1-3 (for example begin_checkout rate, purchase rate). Guardrail: at least one (for example revenue per visitor, or bounce rate of the product page). Write how each is measured in GA4 (event name and parameter).",
+        "Copy baseline, MDE, sample size and length from CRO-902. Write the start day and the end day, both on the same weekday.",
+        "Write the decision rules before the test: 'If the primary metric is significant at 95% and no guardrail drops: ship the variant. If not significant: keep control, write the learning. If a guardrail drops significantly: do not ship, even if the primary metric wins.'",
+        "Write the segments you will check (max 3, for example device, new vs returning, country US vs Canada) and add: segment results are for learning, not for picking a winner.",
+        "Write the stop rules from your testing rules doc (CRO-903) and the SRM check.",
+        "Decide A/B or A/B/n for each test and write one sentence why. If one test has two variants, recalculate the sample size and length for three groups.",
+        "Add the risks: for example 'the delivery line may show wrong dates on public holidays', 'the anti-flicker snippet may slow the page'.",
+        "Ask a classmate or your team lead to read one plan and write any question they have. Every question means something is not clear: fix it in the plan."
+      ],
+      "acceptance": [
+        "A test plan template exists with all sections listed in the steps.",
+        "Three plans (GS-001 to GS-003) are filled in completely, with evidence, a hypothesis and a mock-up.",
+        "Each plan has exactly one primary metric, at least one guardrail metric and decision rules written before the test.",
+        "Each plan has a sample size, a start and end date in full weeks, and stop rules.",
+        "At least one plan was reviewed by another person and the questions were answered in the doc."
+      ],
+      "evidence": [
+        "Link to the template and to the three test plans",
+        "Screenshot of one mock-up",
+        "The review questions you got and how you changed the plan, pasted as text"
+      ],
+      "hints": [
+        "If you cannot write the primary metric as one GA4 event, the metric is not clear enough yet.",
+        "Write decision rules as 'If ... then ...'. This stops long discussions after the test.",
+        "Keep a plan to 2 pages. A plan nobody reads does not help."
+      ],
+      "explain": {
+        "en": "In this task I wrote full test plans for the top three tests on our roadmap. First I made a template with all parts of a good plan. Each plan has the evidence, the hypothesis, a mock-up of the variant and one primary metric with guardrail metrics. I added the sample size, the start and end date in full weeks, and the stop rules. I wrote the decision rules before the test, so nobody can change the goal after seeing the data. Another person reviewed one plan and I fixed the parts that were not clear."
+      },
+      "vocabulary": [
+        { "term": "test plan", "en": "a document that describes the test fully before it starts" },
+        { "term": "pre-registration", "en": "writing metrics and decision rules before you see any results" },
+        { "term": "primary metric", "en": "the one main number that decides if the test wins" },
+        { "term": "secondary metric", "en": "extra numbers that help to understand the result" },
+        { "term": "mock-up", "en": "a simple picture of how the new design will look" }
+      ],
+      "interview": [
+        { "q": "What is in your A/B test plan?", "a": "My plan has the problem with evidence, the hypothesis, a description and mock-up of control and variant, and the metrics. It has one primary metric, some secondary metrics and at least one guardrail. It also has the sample size, the dates in full weeks, stop rules and decision rules. I write it before the test starts." },
+        { "q": "Why do you write decision rules before the test?", "a": "After the test, people want to find a winner. If you can choose the metric or the segment later, you will always find something that looks good. When the rules are written first, the decision is fair and fast." },
+        { "q": "Why only one primary metric?", "a": "If I have five main metrics, one of them can be significant just by luck. One primary metric gives a clear decision. The other metrics help me understand the result, and the guardrails protect us from hidden damage." }
+      ],
+      "resources": [
+        { "title": "GrowthBook docs: Running experiments", "url": "https://docs.growthbook.io/using/experimenting" },
+        { "title": "CXL: A/B testing guide", "url": "https://cxl.com/blog/ab-testing-guide/" }
+      ]
+    }
+  ]
+}

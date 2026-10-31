@@ -6,6 +6,20 @@ mock interviews, a logged work record, a public portfolio and an honest experien
 
 Live: https://devops-lab.mohityeotikar.workers.dev (Cloudflare Workers + D1 + Workers AI).
 
+## Three tracks
+
+| Track | Company story | Content |
+|---|---|---|
+| DevOps Engineer | ShopNotes (a notes app) | `src/content/curriculum/`, 9 terminal labs (`src/sandbox/labs.js`), 8 Docker drills |
+| CRO and Analytics | GlowShop (Shopify skincare, US + Canada) | `src/content/curriculum-cro/` (plan: `src/content/CRO-PLAN.md`), 9 browser labs (`src/sandbox/cro/`) |
+| MarTech and Performance Marketing | Voltra Mobility (EV brand, dealers + D2C) | `src/content/curriculum-martech/` (plan: `src/content/MARTECH-PLAN.md`), 9 simulators (`src/sandbox/martech/`) plus 4 CRO labs |
+
+Each track has 12 two-week sprints with 5 tickets each, from basic to advanced. Trainees choose a track at sign-up and
+can switch in their profile; admins can move a trainee on `/admin/users/<id>`. Progress is kept per track.
+Paid enterprise tools (Analytics 360, Tag Manager 360, Search Ads 360, Campaign Manager 360, DV360, Adobe Analytics)
+are practised in the simulators and with free official material (GA4 demo account, BigQuery sandbox, Google Ads test
+accounts, Skillshop, Adobe Experience League, HubSpot free CRM). Nothing in any track costs money.
+
 ## What is inside
 
 | Part | Where |

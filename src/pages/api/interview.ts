@@ -1,7 +1,7 @@
 import { env } from '../../lib/env';
 import type { APIRoute } from 'astro';
 import { body, json, requireUser } from '../../lib/auth';
-import { sprints, tickets, ticketById } from '../../lib/curriculum';
+import { track, trackOf, ticketById } from '../../lib/curriculum';
 import { progressFor, uid } from '../../lib/db';
 import { coach, parseJson } from '../../lib/ai';
 
@@ -10,6 +10,8 @@ type A = { a: string; score: number; feedback: string; better: string };
 
 export const POST: APIRoute = async (ctx) => {
   const u = requireUser(ctx);
+  const T = track(trackOf(u));
+  const { sprints, tickets } = T;
   const b = await body<{ action: string; scope?: string; id?: string; answer?: string }>(ctx.request);
 
   if (b.action === 'start') {
@@ -35,13 +37,13 @@ export const POST: APIRoute = async (ctx) => {
     const answer = String(b.answer || '').trim();
     if (answer.length < 10) return json({ error: 'Please answer in at least one full sentence. Saying "I do not know" with a guess is also fine.' }, 400);
     const t = q.ticketId ? ticketById(q.ticketId) : undefined;
-    const model = t ? t.interview.find((x) => x.q === q.q)?.a : `A good answer: name, education, the ShopNotes project (what it is, which tools: Docker, GitHub Actions, AWS, Terraform, Kubernetes, monitoring), one problem they solved, what job they want.`;
-    const system = `You are a friendly technical interviewer for a junior DevOps role in India. Grade this one answer.
+    const model = t ? t.interview.find((x) => x.q === q.q)?.a : `A good answer: name, education, the ${T.system} project (what it is, which tools: ${T.tools.slice(0, 7).join(', ')}), one problem they solved with numbers, what job they want (${T.role}).`;
+    const system = `You are a friendly technical interviewer for a junior ${T.role} role in India. Grade this one answer.
 QUESTION: ${q.q}
 MODEL ANSWER: ${model}
 ${t ? `CONTEXT TICKET: ${t.key} ${t.title}. ${t.explain.en}` : ''}
 Return JSON: {"score": 0-10, "feedback": "2-3 simple sentences: what was good, what was missing", "better": "a strong simple-English answer in first person, 3-5 sentences, that this trainee could say"}`;
-    const raw = await coach(env, { system, turns: [{ role: 'user', content: answer }], json: true });
+    const raw = await coach(env, { system, turns: [{ role: 'user', content: answer }], json: true, track: T.id });
     const r = parseJson<Partial<A>>(raw, {});
     const a: A = { a: answer, score: Math.max(0, Math.min(10, Math.round(Number(r.score ?? 5)))), feedback: r.feedback || '', better: r.better || '' };
     as.push(a);

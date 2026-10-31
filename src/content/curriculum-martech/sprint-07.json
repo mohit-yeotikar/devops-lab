@@ -1,0 +1,349 @@
+{
+  "id": "m07",
+  "number": 7,
+  "title": "Search Ads 360 and enterprise search",
+  "weeks": "13-14",
+  "theme": "Run search at enterprise scale: Search Ads 360 across Google Ads and Microsoft Advertising, Floodlight conversions, cross-engine bid strategies, inventory campaigns, governance and a migration plan.",
+  "jobStory": "In this sprint you prepare Voltra to run all search through Search Ads 360 (SA360). There is no free SA360 account, so you learn the new SA360 experience through Skillshop, the Help Center and the simulator labs, and you produce the documents a senior lead writes before a migration. You design the account hierarchy, the Floodlight conversion set-up, cross-engine bid strategies, inventory campaigns from the feed, labels and bulk edits, and the governance model. You finish with the full migration plan from Google Ads and Microsoft Advertising into SA360.",
+  "outcomes": [
+    "I explained what SA360 adds over Google Ads and designed the Voltra SA360 account hierarchy.",
+    "I designed Floodlight-based conversions for cross-engine search and avoided double counting with Google Ads conversions.",
+    "I planned SA360 bid strategies across Google and Microsoft, inventory campaigns from the feed, labels and bulk edits.",
+    "I wrote a search governance model with access levels, naming, change control and agency vs in-house roles.",
+    "I wrote a migration plan to SA360 with phases, risks, checks and a rollback."
+  ],
+  "tickets": [
+    {
+      "id": "m07-t01",
+      "key": "MKT-701",
+      "type": "task",
+      "title": "Learn the new SA360 and design the Voltra hierarchy",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You can explain what Search Ads 360 adds over Google Ads, and Voltra has a written SA360 account hierarchy for India and export markets.",
+      "context": "Hi, our 360 contract includes Search Ads 360, but the board deck says we bought Google Ads 360. Before we migrate, I need you to know the product well, correct the wording, and show me how our Google and Microsoft accounts will sit inside SA360.",
+      "steps": [
+        "Open Skillshop (link in resources) and search `Search Ads 360`. Finish the Search Ads 360 learning path and take the Search Ads 360 certification exam if it is offered in your region. It is free.",
+        "Create a Google Doc `MKT-701 SA360 for Voltra`. Section 1, product names: Search Ads 360 is the enterprise search management platform in the Google Marketing Platform. There is no product called Google Ads 360. Google Ads stays the engine where Google ads run; SA360 manages Google Ads and other engines on top of it. Write one line the CMO can use in the board deck.",
+        "Section 2, what the new SA360 experience adds. Read the SA360 Help Center (link in resources) and write in your own words: multi-engine management (Google Ads, Microsoft Advertising and other supported engines), near real-time sync with Google Ads and support for Google Ads campaign types such as Performance Max, Floodlight conversions shared with Campaign Manager 360, cross-engine and budget bid strategies, inventory management from a Merchant Center feed, custom columns, labels, scheduled edits, bulk actions, reports and the SA360 Reporting API.",
+        "Section 3, honest limits: SA360 is a paid 360 product with a contract; some new Google Ads features reach SA360 later; the team still needs Google Ads skills; costs and set-up time are real. Add when a company should not buy SA360 (one engine, small spend, no Floodlight).",
+        "Section 4, hierarchy. Draw the new SA360 structure: manager account → sub-manager accounts → client accounts → engine accounts. Propose: manager `Voltra Mobility`, sub-managers `Voltra India` and `Voltra Export`, client accounts by business line (`Voltra IN Scooters`, `Voltra IN Accessories`, `Voltra EXP Distributors`), and the engine accounts under each (Google Ads, Microsoft Advertising).",
+        "Write the rules behind the hierarchy: one client account per currency and Floodlight configuration, reporting needs (business line P&L), and access (agency gets access only to the client accounts it runs). Add which level owns the Floodlight configuration link.",
+        "Draw the hierarchy as a diagram in Google Slides or Google Drawings and add it to the doc.",
+        "Section 5, the team view: what changes for the search team every day (one interface, cross-engine reports, bulk edits), and what stays in Google Ads (some features first, account-level settings, policy issues).",
+        "Use the `mk-auction` and `mk-bidding` labs (menu `Practice`) as a refresher and add one paragraph: the Google auction and Smart Bidding do not change in SA360; SA360 changes how we manage, measure and bid across engines."
+      ],
+      "acceptance": [
+        "The doc states clearly that there is no Google Ads 360 and gives a correct board line.",
+        "At least eight SA360 capabilities are described correctly in plain words.",
+        "Limits and a when-not-to-buy note are included.",
+        "The hierarchy diagram shows manager, sub-manager, client and engine accounts with Voltra names and rules.",
+        "The Skillshop progress or certificate is shown."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-701 SA360 for Voltra` with the diagram",
+        "Screenshot or PDF on Google Drive of your Skillshop SA360 progress or certificate"
+      ],
+      "hints": [
+        "If you see screenshots with `agency` and `advertiser` levels, they are from the old SA360. Use the new experience terms: manager, sub-manager and client accounts.",
+        "Keep currency in mind: the export business may bill in USD, which is one reason to keep it in its own client account.",
+        "When the Help Center and an old blog disagree, trust the Help Center."
+      ],
+      "explain": {
+        "en": "In this task I learned the new Search Ads 360 experience through Skillshop and the Help Center. I corrected a common mistake: there is no Google Ads 360; the enterprise search tool is Search Ads 360, and Google Ads stays the engine. I described what SA360 adds, such as multi-engine management, Floodlight conversions, cross-engine bid strategies, inventory management and bulk actions, and I also wrote its honest limits. I designed the Voltra hierarchy with a manager account, sub-managers for India and export, client accounts by business line and engine accounts under them. I wrote the rules for currency, Floodlight and access."
+      },
+      "vocabulary": [
+        { "term": "Search Ads 360 (SA360)", "en": "Google's enterprise tool to manage, measure and bid on search ads across several engines" },
+        { "term": "engine account", "en": "an account in a search engine, such as Google Ads or Microsoft Advertising, linked into SA360" },
+        { "term": "client account", "en": "the SA360 level that holds engine accounts for one business and one Floodlight set-up" },
+        { "term": "sub-manager account", "en": "a level in SA360 to group client accounts, for example by region" },
+        { "term": "Google Marketing Platform", "en": "Google's set of enterprise marketing tools, including SA360, CM360, DV360 and Analytics 360" }
+      ],
+      "interview": [
+        {
+          "q": "What is the difference between Google Ads and Search Ads 360?",
+          "a": "Google Ads is the engine where Google search ads actually run. Search Ads 360 is the enterprise layer on top: it manages Google Ads and other engines like Microsoft Advertising in one place, uses Floodlight for shared conversion measurement, and offers cross-engine bid strategies, inventory management and bulk tools. There is no product called Google Ads 360. I use SA360 when spend is large and spread across engines, and the team needs one view and one source of truth."
+        },
+        {
+          "q": "How did you design the SA360 hierarchy?",
+          "a": "I followed currency, Floodlight configuration, reporting and access. Each client account has one currency and one Floodlight set-up and matches a business line we report as a P&L. Sub-managers group regions, here India and export. The agency only gets access to the client accounts it runs, which keeps control with us."
+        },
+        {
+          "q": "When would you not recommend SA360?",
+          "a": "If a company runs only Google Ads at a modest spend and has no Floodlight or Campaign Manager 360, SA360 adds cost and work without much gain. Google Ads with good conversion imports and scripts can do most of the job. SA360 pays off with many engines, many accounts, large teams and a need for shared measurement. I always compare the license cost with the expected gain from bidding and time saved."
+        }
+      ],
+      "resources": [
+        { "title": "Search Ads 360 Help Center", "url": "https://support.google.com/sa360" },
+        { "title": "Skillshop: Search Ads 360 training", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    },
+    {
+      "id": "m07-t02",
+      "key": "MKT-702",
+      "type": "task",
+      "title": "Design Floodlight-based conversions for cross-engine search",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Voltra has one conversion design for SA360 that uses Floodlight across Google and Microsoft, brings in CRM stages, and does not double count with Google Ads conversion actions.",
+      "context": "Hi, Microsoft Advertising reports its own conversions with UET, Google Ads uses the Google tag, and both claim the same bookings. Finance adds them up. In SA360 I want one source of truth across engines. Please design it, and make sure Google bidding does not count things twice.",
+      "steps": [
+        "Read the Floodlight articles in the Campaign Manager 360 Help Center (links in resources). Floodlight is the conversion tracking system shared by Campaign Manager 360, SA360 and Display & Video 360. One Floodlight configuration belongs to one advertiser in CM360 and is linked to the SA360 client account.",
+        "Create a Google Sheet `MKT-702 Floodlight plan`. Tab `Activities` with columns: activity group, activity name, type (counter or sales), counting method, trigger page or event, custom variables, value, used for bidding (yes or no). You will build the CM360 side in m08 (MKT-803).",
+        "Plan the activities: group `Voltra Leads` with `Test Ride Request` (counter, unique), `Dealer Call Click` (counter, standard); group `Voltra Sales` with `Booking Deposit` (sales, transactions, value = deposit or expected margin, order ID = booking ID) and `Accessories Order` (sales, transactions, revenue, order ID).",
+        "Plan custom Floodlight variables (u-variables): `u1` model (Zip, Glide, Cargo), `u2` city, `u3` lead source form, `u4` funnel stage. Write that no personal data may go into these variables.",
+        "Write how CRM stages reach Floodlight: offline conversions uploaded through the Campaign Manager 360 Conversions API, matched by a click ID (the gclid on Google clicks, the click ID that SA360 click tracking adds to Microsoft Advertising clicks) or by a match ID that you set yourself, with the activity, time, value and order ID. Name the owner and a daily schedule.",
+        "Explain de-duplication: Floodlight counts one conversion across engines and channels using its own attribution and lookback windows, so a booking is not claimed by both Google and Microsoft in SA360 reports. The engines may still show their own numbers in their own tools; write which one Finance uses.",
+        "Design the Google Ads side to avoid double counting: if SA360 bid strategies on Floodlight drive bidding, the Google tag conversion actions in Google Ads should be secondary, or the campaigns use the SA360 bid strategy goal only. Write one rule: one conversion source is primary for bidding per campaign. Add the same rule for Microsoft UET goals.",
+        "Write the attribution choice for SA360 reporting and bidding (for example data-driven attribution where available, else last click) and the lookback windows (for example 30 days click). Explain how changing it changes reported numbers, not real sales.",
+        "Add a test plan: Tag Assistant and the browser Network tab to see `ad.doubleclick.net/activity` or `fls.doubleclick.net` calls with the right `type`, `cat`, `ord` and `u` values, a test booking with a test order ID, and a check that it appears once in SA360 conversion reports.",
+        "Write a one-page summary for Finance: one source of truth, why platform numbers differ, and which numbers go in the monthly report."
+      ],
+      "acceptance": [
+        "The `Activities` tab has at least four activities with type, counting method, variables, value and bidding use.",
+        "Custom variables are planned and the no-personal-data rule is written.",
+        "The offline path through the Campaign Manager 360 Conversions API has match keys, owner and schedule.",
+        "The doc has a clear rule for one primary conversion source per campaign in Google Ads and Microsoft.",
+        "The test plan names the request URLs and the parameters to check."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `MKT-702 Floodlight plan`",
+        "Link to the summary for Finance (Google Doc)"
+      ],
+      "hints": [
+        "Counter activities count actions like leads; sales activities count transactions with revenue and an order ID.",
+        "If both a Google Ads conversion action and an imported Floodlight action are primary, bidding counts the booking twice.",
+        "Order ID (`ord` on sales tags) is what stops the same booking being counted twice on page reload."
+      ],
+      "explain": {
+        "en": "In this task I designed one conversion source of truth for search across Google and Microsoft. I planned Floodlight activities for test ride requests, dealer calls, bookings and accessories orders, with counting methods, order IDs and custom variables without personal data. I designed how CRM stages come back as offline conversions through the Campaign Manager 360 Conversions API. I wrote a rule that only one conversion source is primary for bidding per campaign, so Google Ads and Microsoft do not count twice. I added a test plan and a short summary for Finance."
+      },
+      "vocabulary": [
+        { "term": "Floodlight", "en": "the conversion tracking system shared by Campaign Manager 360, SA360 and DV360" },
+        { "term": "Floodlight activity", "en": "one conversion you track, like a test ride request or a booking" },
+        { "term": "custom Floodlight variable", "en": "a u-variable that carries extra details, such as the scooter model" },
+        { "term": "de-duplication", "en": "counting one real conversion only once even if many ads touched it" },
+        { "term": "UET", "en": "Microsoft Advertising's Universal Event Tracking tag" }
+      ],
+      "interview": [
+        {
+          "q": "Why use Floodlight in SA360 instead of each engine's own tracking?",
+          "a": "Each engine claims conversions with its own rules, so the sum of platform numbers is bigger than real sales. Floodlight measures across engines and channels with one attribution model and one lookback window, so one booking is counted once. It also lets SA360 bid strategies optimise across Google and Microsoft on the same data. The engine numbers stay useful for diagnosis, but Finance uses Floodlight."
+        },
+        {
+          "q": "How do you avoid double counting in bidding?",
+          "a": "I make one conversion source primary per campaign. If an SA360 bid strategy on Floodlight drives bidding, the Google tag actions in Google Ads become secondary. The same applies to Microsoft UET goals. I write this rule down and check the conversion settings in every audit, because a wrong primary setting silently doubles conversions."
+        },
+        {
+          "q": "How do CRM results get into SA360?",
+          "a": "We upload offline conversions to Floodlight through the Campaign Manager 360 Conversions API. Each row has the Floodlight activity, the click ID or a match ID, the time, the value and an order ID to avoid duplicates. A daily job from the CRM team sends the stages, and we monitor match rate and errors. Then SA360 bid strategies can bid on test rides and bookings, not only on form fills."
+        }
+      ],
+      "resources": [
+        { "title": "Campaign Manager 360 Help: About Floodlight and Floodlight conversions", "url": "https://support.google.com/campaignmanager/answer/3027419" },
+        { "title": "Campaign Manager 360 Help: How Floodlight counts conversions", "url": "https://support.google.com/campaignmanager/answer/2823400" },
+        { "title": "Campaign Manager 360 API", "url": "https://developers.google.com/doubleclick-advertisers" }
+      ]
+    },
+    {
+      "id": "m07-t03",
+      "key": "MKT-703",
+      "type": "task",
+      "title": "Plan SA360 bid strategies, inventory campaigns, labels and bulk edits",
+      "priority": "medium",
+      "estimateHours": 8,
+      "goal": "Voltra has a written plan for cross-engine bid strategies, inventory campaigns built from the product feed, a label taxonomy and a bulk edit process for SA360.",
+      "context": "Hi, the team spends two days every month copying changes from Google Ads to Microsoft by hand, and accessories keywords are always out of date when stock changes. Please plan how SA360 will do bidding, feed-based campaigns and bulk changes for us.",
+      "steps": [
+        "Before you start, replay the `mk-bidding` lab (menu `Practice`) and note how budget and target interact. SA360 bid strategies follow the same logic across engines.",
+        "Create a Google Doc `MKT-703 SA360 operations plan`. Section 1, bid strategies. For Google Ads campaigns, SA360 uses Google auction-time bidding with Floodlight goals. For Microsoft Advertising, write the options: SA360 bidding, or Microsoft automated bidding powered by Floodlight data inside an SA360 bid strategy (opened in 2025 as a beta, check if it is available to you).",
+        "Design three SA360 bid strategies: `SA_tCPA_Leads_IN` (Google and Microsoft generic campaigns, goal `Test Ride Request` with a weight for `Booking Deposit`), `SA_tROAS_Accessories_IN` (Google Shopping or PMax and Microsoft Shopping, goal `Accessories Order` revenue), and a budget bid strategy `SA_Budget_Brand_IN` that spreads a fixed monthly brand budget across engines with an ROI limit. Write why a cross-engine portfolio can beat two separate strategies.",
+        "Section 2, inventory management. Write how SA360 builds and updates campaigns from a Merchant Center feed with templates: a keyword template like `[brand] [product_type]` and `[title]`, an ad template that uses the price and product name, and rules that pause items when `availability` is `out of stock`. Use the feed from MKT-602 and write five example keywords and one RSA that the template would create.",
+        "Section 3, labels. Build a label taxonomy in a Google Sheet `MKT-703 SA360 labels`: `Funnel_` (Lead, Sale, Brand), `Product_` (Zip, Glide, Cargo, Accessories), `Owner_` (InHouse, Agency), `Test_` (name of the test), `Launch_` (quarter). Write rules: who may create labels, max depth, and that reports filter by labels.",
+        "Section 4, bulk edits. In the same sheet add tab `Bulk change` with a sample change list for 20 rows: row type (keyword, ad, campaign), engine, account, campaign, ad group, keyword, match type, action (add, edit, pause), new value, label. Write the process: download the current data, change only needed rows, upload in the bulk area of SA360, read the preview and errors, apply, and log it in the change log.",
+        "Add scheduled edits: write two examples (switch festive sitelinks on and off at set dates, raise the budget bid strategy for a launch week) and who approves them.",
+        "Section 5, reporting. Plan three SA360 reports with custom columns: cost per test ride by engine, booking value ROAS by product label, and brand vs non-brand by engine. Write that the SA360 Reporting API can feed BigQuery (link to m04) for the CMO dashboard.",
+        "Add a risk list: a template error that creates thousands of bad keywords, a bulk upload to the wrong account, a budget bid strategy that hits its cap early. Give one control for each."
+      ],
+      "acceptance": [
+        "Three SA360 bid strategies are designed with engines, goals and targets or limits.",
+        "Inventory templates for keywords and ads are written with five example keywords and an out of stock rule.",
+        "The label taxonomy has prefixes and rules.",
+        "The bulk change sheet has 20 valid rows and a written process with preview and log.",
+        "Reports and a risk list with controls are included."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-703 SA360 operations plan`",
+        "Link to the Google Sheet `MKT-703 SA360 labels` with the `Bulk change` tab"
+      ],
+      "hints": [
+        "Keep the brand budget bid strategy separate from performance strategies, so brand defense does not eat the generic budget.",
+        "A template is only as good as the feed. Fix titles and product types first.",
+        "Always run a bulk change on a small part first, then on all rows."
+      ],
+      "explain": {
+        "en": "In this task I planned how Voltra will run search day to day in SA360. I designed three bid strategies across Google and Microsoft, including a budget bid strategy with an ROI limit for brand. I planned inventory campaigns that build keywords and ads from the product feed and pause items that are out of stock. I made a label taxonomy and a bulk change process with preview, apply and a change log. I also planned reports with custom columns and listed risks with a control for each."
+      },
+      "vocabulary": [
+        { "term": "cross-engine bid strategy", "en": "one SA360 bid strategy that manages campaigns on Google and Microsoft together" },
+        { "term": "budget bid strategy", "en": "an SA360 strategy that spreads a fixed budget across campaigns with optional limits" },
+        { "term": "inventory management", "en": "building and updating campaigns, keywords and ads from a product feed with templates" },
+        { "term": "bulk edit", "en": "changing many rows at once with a sheet instead of by hand" },
+        { "term": "custom column", "en": "your own metric in SA360, built from other metrics or Floodlight activities" }
+      ],
+      "interview": [
+        {
+          "q": "Why use a cross-engine bid strategy?",
+          "a": "A cross-engine portfolio sees all campaigns on Google and Microsoft against one Floodlight goal. It can move spend to where the next conversion is cheapest, instead of two strategies each fighting for its own target. With budget bid strategies I can also hold a fixed monthly budget with ROI limits. It works best when Floodlight data is clean and volumes are large enough."
+        },
+        {
+          "q": "How do inventory campaigns help a retailer?",
+          "a": "They build keywords and ads from the product feed with templates, so new products get ads quickly and out of stock items stop serving. Prices and names in ads stay correct without manual work. The quality depends on the feed, so I fix titles and product types first. I start with one category and check the generated keywords before I scale."
+        },
+        {
+          "q": "How do you make bulk changes safely?",
+          "a": "I download the current data, change only the rows I need and keep a copy. I upload, read the preview and the errors, and run it on a small part first. Every bulk change goes into a change log with the owner and the reason. Labels help me find and undo the change later."
+        }
+      ],
+      "resources": [
+        { "title": "SA360 Help: Microsoft automated bidding in Search Ads 360", "url": "https://support.google.com/sa360/answer/15942690" },
+        { "title": "Search Ads 360 Reporting API overview", "url": "https://developers.google.com/search-ads/reporting/overview" }
+      ]
+    },
+    {
+      "id": "m07-t04",
+      "key": "MKT-704",
+      "type": "docs",
+      "title": "Write the enterprise search governance model",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Voltra has one governance document for search: who has which access, naming, change control, and what the agency and the in-house team each own.",
+      "context": "Hi, last quarter an agency trainee changed the brand budget on a Friday night and nobody knew until Monday. We have 9 people in-house, an agency and two dealer groups asking for access. Please write the rules before we move to SA360.",
+      "steps": [
+        "Create a Google Doc `MKT-704 Search governance`. Section 1, accounts and access: list all accounts (Google Ads manager account, client accounts, Microsoft Advertising, SA360 manager and client accounts, Floodlight configuration in CM360, GA4) and the owner of each. Company-owned accounts only: the agency is a user, never the owner.",
+        "Section 2, access levels. Make a table: role (CMO, performance lead, search specialist, analyst, agency manager, agency executive, dealer group), and the access in Google Ads (Admin, Standard, Read only, Email only), in Microsoft Advertising (Super Admin, Standard, Advertiser Campaign Manager, Viewer) and in SA360 (check the role names in the Help Center and copy them exactly). Rule: least access needed; dealers get reports, not edit access.",
+        "Add the joiners and leavers routine: access request form, approval by the performance lead, quarterly access review, remove leavers on the last day, two-step verification for all users.",
+        "Section 3, naming. Link the naming rules from MKT-501 and MKT-703 (labels) and add naming for bid strategies, Floodlight activities and reports. One page, with examples.",
+        "Section 4, change control. Define change types: small (keywords, negatives, ad copy), medium (bid targets within 20 percent, budget within 20 percent), large (new campaign type, bid strategy change, conversion goal change, budget change above 20 percent). Small: do and log. Medium: log plus peer check. Large: written plan, approval and an experiment where possible. No large changes on Friday or before a holiday.",
+        "Add a change log template as a Google Sheet `MKT-704 change log`: date, time, user, account, change, type, reason, expected impact, review date, result.",
+        "Section 5, agency vs in-house. Write a RACI table (Responsible, Accountable, Consulted, Informed) for: strategy and budget, conversion set-up, bidding targets, daily optimisation, creative copy, reporting, audits, tool contracts. Explain why Voltra keeps measurement and conversion design in-house.",
+        "Section 6, audits and quality: a monthly checklist (conversion settings, primary actions, auto-tagging, negatives, disapprovals, search terms, scripts and rules, access list) and the KPIs the agency is measured on (for example cost per qualified lead and booking ROAS, not clicks).",
+        "Share the doc for comments with one peer or mentor, and resolve at least two comments."
+      ],
+      "acceptance": [
+        "Every account has a named company owner and the agency is never the owner.",
+        "The access table covers Google Ads, Microsoft Advertising and SA360 with least access rules.",
+        "Change types and approval steps are clear and include a no-Friday rule for large changes.",
+        "The RACI table covers at least eight areas.",
+        "The change log template and the monthly audit checklist exist."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-704 Search governance`",
+        "Link to the Google Sheet `MKT-704 change log`",
+        "Screenshot on Google Drive of two resolved comments"
+      ],
+      "hints": [
+        "Change history in Google Ads shows who changed what, but only after the fact. Governance prevents the problem.",
+        "Keep the document short enough that people read it. Put details in linked sheets.",
+        "Dealers want leads data. Give them a report or a dashboard, not account access."
+      ],
+      "explain": {
+        "en": "In this task I wrote the governance model for Voltra search before the move to SA360. I listed all accounts with a company owner, so the agency is a user and never the owner. I made an access table for Google Ads, Microsoft Advertising and SA360 with least access, and a joiners and leavers routine with quarterly reviews. I defined small, medium and large changes with approval steps and a change log. I also wrote a RACI table for the agency and the in-house team and a monthly audit checklist."
+      },
+      "vocabulary": [
+        { "term": "governance", "en": "the rules for who owns, changes and checks the marketing accounts" },
+        { "term": "least access", "en": "giving each person only the access they need for their job" },
+        { "term": "change control", "en": "a process to plan, approve and log changes before they go live" },
+        { "term": "RACI", "en": "a table that shows who is Responsible, Accountable, Consulted and Informed for each task" },
+        { "term": "change log", "en": "a list of every change with date, person, reason and result" }
+      ],
+      "interview": [
+        {
+          "q": "How do you set up governance with an agency?",
+          "a": "The company owns every account, tag and conversion set-up, and the agency gets user access only to what it runs. I agree a RACI, so strategy, measurement and budget stay accountable in-house while the agency does daily optimisation. Changes are classed by size, with approvals and a change log for larger ones. The agency is measured on business KPIs such as cost per qualified lead, not on clicks."
+        },
+        {
+          "q": "Why do you keep measurement in-house?",
+          "a": "Measurement decides how we judge every agency and every channel, so it must be neutral and stable. If the agency owns conversion settings, it can, even by mistake, make its own numbers look better. Owning it also means we keep the history when we change agency. I let the agency suggest changes, but we approve and implement them."
+        },
+        {
+          "q": "What is in your monthly account audit?",
+          "a": "I check conversion settings and which actions are primary, auto-tagging, negatives and search terms, disapproved ads and feed issues, scripts and rules, and the access list. I compare platform numbers with GA4 and the CRM. I write the findings as actions with owners and dates. The goal is to catch slow problems before they become expensive."
+        }
+      ],
+      "resources": [
+        { "title": "Search Ads 360 Help Center", "url": "https://support.google.com/sa360" },
+        { "title": "Google Ads Help: Determine a bid strategy based on your goals", "url": "https://support.google.com/google-ads/answer/2472725" }
+      ]
+    },
+    {
+      "id": "m07-t05",
+      "key": "MKT-705",
+      "type": "project",
+      "title": "Write the SA360 migration plan for Voltra",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "Voltra has a phased, low-risk plan to bring Google Ads and Microsoft Advertising into Search Ads 360, with Floodlight, bidding, reporting, checks and a rollback.",
+      "context": "Hi, the board approved SA360 and wants us live before the next financial year. I cannot afford a month of broken bidding during peak season. Please give me a migration plan I can present: phases, owners, risks, checks, and what we do if it goes wrong.",
+      "steps": [
+        "Create a Google Doc `MKT-705 SA360 migration plan` and a Google Sheet `MKT-705 migration tracker`. Use your work from MKT-701 to MKT-704.",
+        "Section 1, current state: list accounts, campaigns, monthly spend by engine, bid strategies, conversion sources (Google tag, UET, CRM imports), reports and owners. Add pain points (manual Microsoft copies, double counting, no single report).",
+        "Section 2, target state: the SA360 hierarchy (MKT-701), Floodlight design (MKT-702), bid strategies, inventory, labels and bulk process (MKT-703), governance (MKT-704) and the BigQuery and Looker Studio reporting from m04.",
+        "Section 3, phases with dates over about 10 weeks: (1) prepare: contracts, user access, CM360 advertiser and Floodlight configuration, naming cleanup; (2) measurement first: put Floodlight tags live through GTM next to the current tags and compare counts for 2 to 4 weeks; (3) link engine accounts into SA360 client accounts and check sync; (4) reporting: rebuild key reports and compare with engine numbers; (5) bidding: move one pilot campaign group per engine to SA360 bid strategies; (6) scale and switch off old processes.",
+        "Section 4, the bidding switch rule: keep engine bidding until Floodlight counts match the CRM within an agreed band (for example within 10 percent for bookings), then move the pilot. Use a before and after or a split test (campaign split or geo split) to compare. Move the rest only if the pilot holds the CPA or ROAS target after the learning period.",
+        "Section 5, risks and controls in the tracker: Floodlight not firing, double counting during the parallel run, sync errors, bid strategy learning during peak, wrong currency or time zone, access gaps, feed errors. For each: likelihood, impact, owner, control, early signal.",
+        "Section 6, checks: a go-live checklist per phase (for example: all engine accounts synced, Floodlight activities verified with Tag Assistant, conversion rules set, primary actions set, reports match within the band, rollback steps tested).",
+        "Section 7, rollback: what we do if the pilot fails: move campaigns back to engine bid strategies, keep Floodlight running for measurement, and the decision rule (for example CPA 25 percent above target for 7 days after learning). Name who decides.",
+        "Section 8, people: a RACI for the migration, a training plan (Skillshop SA360 path for all search users), and a communication plan for the CMO, Finance and dealers.",
+        "Section 9, cost and value: list the cost items (SA360 license as a range from the contract, agency time, internal time) and the expected value (hours saved per month, bidding gains, fewer reporting errors). Keep the claimed gain modest and say how you will measure it.",
+        "Make a 6-slide summary in Google Slides for the board: why, target state, phases, risks, go or no-go rules, ask."
+      ],
+      "acceptance": [
+        "The plan has the nine sections and uses the outputs of MKT-701 to MKT-704.",
+        "Measurement goes live before bidding, with a clear match band and a pilot.",
+        "The tracker lists at least seven risks with owner, control and early signal.",
+        "The rollback has a clear decision rule and a named decider.",
+        "A 6-slide board summary exists."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-705 SA360 migration plan`",
+        "Link to the Google Sheet `MKT-705 migration tracker`",
+        "Link to the 6-slide Google Slides summary"
+      ],
+      "hints": [
+        "Never move bidding and measurement in the same week. If results change, you will not know why.",
+        "Avoid starting the bidding pilot within four weeks of a peak sale.",
+        "Ask the SA360 Help Center or the Google team for current sync limits and supported features before you promise dates."
+      ],
+      "explain": {
+        "en": "In this project I wrote the plan to move Voltra search into Search Ads 360. I described the current state and the target state, and planned six phases over about ten weeks. I put measurement first: Floodlight ran next to the old tags until the counts matched the CRM within an agreed band. Then one pilot per engine moved to SA360 bidding, with a clear rule to scale or roll back. I added a risk tracker, go-live checklists, a RACI, a training plan, cost and value, and a six-slide summary for the board."
+      },
+      "vocabulary": [
+        { "term": "migration", "en": "moving accounts, tracking and work from one system to another" },
+        { "term": "parallel run", "en": "running the old and the new tracking at the same time to compare them" },
+        { "term": "pilot", "en": "a small first group that moves before the rest" },
+        { "term": "rollback", "en": "going back to the old set-up when the new one fails" },
+        { "term": "go or no-go rule", "en": "a clear condition that decides if the next step can start" }
+      ],
+      "interview": [
+        {
+          "q": "How do you migrate to SA360 without hurting performance?",
+          "a": "I move measurement first and bidding last. Floodlight runs next to the current tags until the counts match the CRM within an agreed band. Then I move a pilot campaign group per engine and compare it against a control after the learning period. I scale only when the pilot holds its target, and I keep a tested rollback ready."
+        },
+        {
+          "q": "What are the biggest risks in a search platform migration?",
+          "a": "The biggest risks are broken or doubled conversions, bidding learning during peak season, and sync or set-up errors like wrong currency. People risks matter too: unclear owners and untrained users. I list each risk with an early signal and a control, and I avoid big moves near peak dates. The parallel run catches most measurement issues before they touch bidding."
+        },
+        {
+          "q": "How do you show the value of SA360 to the board?",
+          "a": "I compare the license and set-up cost with clear gains: hours saved on cross-engine work, fewer reporting errors, and the bidding result of the pilot against a control. I keep the claimed gain modest and say how we measure it. After six months I report the actual numbers against the plan. Credibility with Finance matters more than a big promise."
+        }
+      ],
+      "resources": [
+        { "title": "Search Ads 360 Help Center", "url": "https://support.google.com/sa360" },
+        { "title": "Campaign Manager 360 Help: About Floodlight and Floodlight conversions", "url": "https://support.google.com/campaignmanager/answer/3027419" },
+        { "title": "Skillshop: Search Ads 360 training", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    }
+  ]
+}

@@ -1,10 +1,13 @@
 ---
 import { env } from '../../lib/env';
 import Base from '../../layouts/Base.astro';
-import { sprints, tickets } from '../../lib/curriculum';
+import { track, trackOf } from '../../lib/curriculum';
 import { progressFor, hoursFor, practiceRuns } from '../../lib/db';
-import { labs } from '../../sandbox/labs.js';
+import { labsFor } from '../../sandbox/registry.js';
 const u = Astro.locals.user!;
+const T = track(trackOf(u));
+const { sprints, tickets } = T;
+const labs = labsFor(T.id);
 const db = env.DB;
 const [prog, hrs, runs] = await Promise.all([progressFor(db, u.id), hoursFor(db, u.id), practiceRuns(db, u.id)]);
 const st = (id: string) => prog.get(id)?.status ?? 'todo';
@@ -29,7 +32,7 @@ const welcome = Astro.url.searchParams.has('welcome');
   <div class="hello">
     <div>
       <h1>{greet}, {first}</h1>
-      <p class="sub">Sprint {cur.number} of {sprints.length}: {cur.title}</p>
+      <p class="sub">{T.name} track · Sprint {cur.number} of {sprints.length}: {cur.title}</p>
     </div>
     {days > 0 && <span class="pill">Day {days}</span>}
   </div>
@@ -62,7 +65,7 @@ const welcome = Astro.url.searchParams.has('welcome');
         <li><span class="n">1</span><p>Open your ticket. Work 2 to 4 hours on your laptop.</p></li>
         <li><span class="n">2</span><p>When you stop, log your hours in <strong>Proof &amp; hours</strong>. Be exact.</p></li>
         <li><span class="n">3</span><p>Write 5 sentences in <strong>Explain it</strong>. Read the corrected text aloud.</p></li>
-        <li><span class="n">4</span><p>Once a week: one <a href="/app/drills">incident drill</a> and one <a href="/app/interview">mock interview</a>.</p></li>
+        <li><span class="n">4</span><p>Once a week: {T.hasDrills ? <>one <a href="/app/drills">incident drill</a> and </> : <>one case lab in <a href="/app/practice">Practice</a> and </>}one <a href="/app/interview">mock interview</a>.</p></li>
       </ol>
     </section>
     <section class="card">

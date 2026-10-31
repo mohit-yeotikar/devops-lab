@@ -1,0 +1,361 @@
+{
+  "id": "c07",
+  "number": 7,
+  "title": "UX of product, collection, cart and checkout",
+  "weeks": "13-14",
+  "theme": "Audit the GlowShop buying journey on mobile with proven UX rules, then fix the clear problems in the Dawn theme editor.",
+  "jobStory": "In this sprint you look at the store like a UX expert. You check the product page, the collection pages, the cart and the checkout against rules from Baymard and NN/g, always on a phone first. You set up filters, make shipping and returns clear, and rewrite product copy with the customer's own words. Then you fix the clear problems in a copy of the Dawn theme and show before and after screenshots.",
+  "outcomes": [
+    "I did a mobile-first heuristic audit of the product page with a severity score for every issue.",
+    "I set up collection filters and sorting with the free Search & Discovery app and the Dawn theme settings.",
+    "I made shipping, returns and checkout settings clear and simple.",
+    "I fixed the top problems in a duplicate Dawn theme and rewrote product copy with voice of customer phrases.",
+    "I solved a case where mobile visitors saw the product but did not add it to the cart."
+  ],
+  "tickets": [
+    {
+      "id": "c07-t01",
+      "key": "CRO-701",
+      "type": "task",
+      "title": "Audit the product page on mobile",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A product page audit sheet lists at least 20 checks on mobile, with pass/fail, a screenshot and a severity for each problem.",
+      "context": "Hi, most of our visitors are on phones, and the product page is where they decide. Please audit our product page on mobile with a clear checklist, not with your personal taste. Use Baymard and NN/g rules and give each problem a severity.",
+      "steps": [
+        "Practise first: open Practice → UX audit in this app and do the product page part.",
+        "Read the NN/g article '10 usability heuristics' and the Baymard product page research overview (links in Resources). Write the 10 heuristics in one line each in your notes.",
+        "Create a Google Sheet `GlowShop – PDP audit` with columns: `Area`, `Check`, `Source (Baymard / NN/g heuristic)`, `Pass / Fail`, `What I see`, `Screenshot link`, `Severity 1-4`, `Fix idea`.",
+        "Write at least 20 checks in these areas. Images: enough photos, zoom, a photo of the texture, a photo that shows the size in a hand. Price: clear, near the title, with the size. Variants: clear sold-out state, size shown in ml. Buy box: Add to cart visible without scrolling on a 390 px wide screen, dynamic checkout buttons. Info: ingredients, how to use, skin type, results timeline. Shipping and returns: cost and time near the button. Trust: reviews, rating near the title, secure payment, contact. Copy: benefits first, short paragraphs.",
+        "Open your product page in Chrome. Press F12, then Ctrl+Shift+M for device mode. Choose 'iPhone 12 Pro' (390 × 844) and also test a small phone width of 360 px. Also test on your real phone.",
+        "Go through every check. Take a screenshot for each failed check (in device mode: the three-dots menu → 'Capture screenshot'). Upload all screenshots to one Google Drive folder `PDP audit` and paste the link in the row.",
+        "Give each failed check a severity: 1 cosmetic, 2 minor, 3 major, 4 stops the purchase.",
+        "Add one check from your research: open the behaviour log (CRO-602) and the research summary (CRO-604). If a problem from there is on the product page, add it with a link to that evidence.",
+        "Compare with one top competitor product page on mobile (any big skincare brand). Write 3 things they do better and 3 things GlowShop does better.",
+        "Make a tab `Top issues` with the 8 failed checks with the highest severity. Sort by severity, then by how easy they are to fix."
+      ],
+      "acceptance": [
+        "The sheet has at least 20 checks, each with a source (Baymard or an NN/g heuristic).",
+        "Every failed check has a screenshot link and a severity from 1 to 4.",
+        "The audit was done at 390 px and 360 px width and on a real phone.",
+        "The `Top issues` tab lists 8 issues sorted by severity.",
+        "A competitor comparison with 3 + 3 points is in the sheet."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop – PDP audit` (view access)",
+        "Link to the Google Drive folder `PDP audit` with the screenshots",
+        "Screenshot on Google Drive of the product page at 390 px width with the fold line drawn on it"
+      ],
+      "hints": [
+        "A heuristic audit is not 'I don't like the colour'. Each problem needs a rule it breaks.",
+        "Check the page while you are not logged in to Shopify admin, so you see what a customer sees.",
+        "If you are not sure about a severity, ask: would a normal user still buy? If no, it is a 4."
+      ],
+      "explain": {
+        "en": "In this task I audited our product page on mobile. I made a checklist of more than 20 checks from Baymard research and the NN/g heuristics. I tested the page in Chrome device mode at two phone widths and on my real phone. For each problem I took a screenshot and gave a severity from 1 to 4. I also compared our page with a competitor page. At the end I listed the top 8 issues for the team."
+      },
+      "vocabulary": [
+        { "term": "heuristic", "en": "a simple, proven rule for good design" },
+        { "term": "PDP", "en": "product detail page, the page of one product" },
+        { "term": "above the fold", "en": "the part of the page you see without scrolling" },
+        { "term": "device mode", "en": "a Chrome DevTools view that shows the page like on a phone" },
+        { "term": "dynamic checkout button", "en": "a fast pay button like Shop Pay on the product page" }
+      ],
+      "interview": [
+        {
+          "q": "How do you audit a product page?",
+          "a": "I use a checklist from Baymard research and the NN/g heuristics, so I do not judge by my taste. I test on a phone first, in Chrome device mode and on a real phone. For each problem I take a screenshot, write the rule it breaks and give a severity. Then I sort the problems by severity and effort."
+        },
+        {
+          "q": "Why do you test mobile first?",
+          "a": "Most of our visitors use phones, and the small screen shows problems faster. For example, the Add to cart button can fall below the fold, or the size text is too small. If the page works well on a phone, it usually works on desktop too."
+        },
+        {
+          "q": "What information must be on a skincare product page?",
+          "a": "Clear photos, also of the texture, the price with the size, and the skin type it is for. People also need ingredients, how to use it and when they will see results. Shipping, returns and reviews must be easy to find near the buy button."
+        }
+      ],
+      "resources": [
+        { "title": "NN/g: 10 usability heuristics for user interface design", "url": "https://www.nngroup.com/articles/ten-usability-heuristics/" },
+        { "title": "Baymard: Product page UX research", "url": "https://baymard.com/research/product-page" },
+        { "title": "NN/g: Severity ratings for usability problems", "url": "https://www.nngroup.com/articles/how-to-rate-the-severity-of-usability-problems/" }
+      ]
+    },
+    {
+      "id": "c07-t02",
+      "key": "CRO-702",
+      "type": "task",
+      "title": "Set up collection filters, sorting and product cards",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Collection pages have useful filters (skin type, size, price, availability), sorting and clear product cards on mobile.",
+      "context": "Hi, when we add more products, people will need to find the right one fast. Right now our collection page has no filters and the product cards show only a name and price. Please set up filters for skin type, size, price and stock, and make the product cards more useful.",
+      "steps": [
+        "Read the Baymard article on product list filtering (link in Resources). Write the 3 most important rules in your notes.",
+        "Create a product metafield for skin type: in Shopify admin go to Settings → Metafields and metaobjects → Products → Add definition. Name: `Skin type`. Type: Single line text, and choose 'List of values'. Add preset choices: `Dry`, `Oily`, `Combination`, `Sensitive`, `All skin types`. Save.",
+        "Open each product and fill the `Skin type` field at the bottom of the product page in admin. Save.",
+        "Install the free 'Shopify Search & Discovery' app from the Shopify App Store (it is made by Shopify). Open it → Filters → Add filter. Add: Availability, Price, Product type, Size (from variant option), Skin type (from your metafield). Save.",
+        "Open Online Store → Themes → Customize. In the top dropdown choose Collections → Default collection. Click the 'Product grid' section. Turn on 'Enable filtering' and 'Enable sorting'. Set 'Filter layout' to 'Drawer' for a clean mobile view. Save.",
+        "In the same section check the product card settings: show a second image on hover, show the product rating if you have a reviews app, and set 'Quick add' to 'Standard'. Save.",
+        "Open a collection on your phone (or device mode at 390 px). Use every filter. Check: does the filter drawer open easily, do the counts update, can you clear all filters with one tap?",
+        "Check the empty case: choose filters that give 0 products. Write what the page shows. If it is not helpful, write a fix idea in your audit sheet.",
+        "Go to the Search & Discovery app → Search → Synonyms. Add 2 synonym groups that customers use, for example `moisturiser, moisturizer, cream` and `vitamin c, vit c`. Test the store search with those words.",
+        "Add a new tab `Collection` in your audit sheet from CRO-701 with what you changed, before and after screenshots, and open issues."
+      ],
+      "acceptance": [
+        "The `Skin type` metafield exists and every product has a value.",
+        "The collection page shows filters for availability, price, product type, size and skin type.",
+        "Sorting is turned on and the filter layout is 'Drawer'.",
+        "Two synonym groups work in the store search.",
+        "The audit sheet has a `Collection` tab with before and after screenshots."
+      ],
+      "evidence": [
+        "Screenshot on Google Drive of the filter list in the Search & Discovery app",
+        "Screenshot on Google Drive of the open filter drawer on a mobile view",
+        "Link to the updated Google Sheet `GlowShop – PDP audit` with the `Collection` tab"
+      ],
+      "hints": [
+        "If the skin type filter does not show, check that the metafield type is supported for filters (single line text with a list of values works).",
+        "Filters only show values that exist on products in the collection. Fill the metafield on all products.",
+        "Do not add too many filters. With 6-8 products, 4-5 good filters are enough."
+      ],
+      "explain": {
+        "en": "In this task I made our collection pages easier to use. I created a skin type metafield and filled it for every product. With the free Search & Discovery app I added filters for availability, price, product type, size and skin type. In the Dawn theme editor I turned on filtering and sorting and used a filter drawer for mobile. I also added search synonyms like moisturiser and moisturizer. I tested everything on a phone width and wrote before and after screenshots."
+      },
+      "vocabulary": [
+        { "term": "collection page", "en": "a page that lists a group of products" },
+        { "term": "filter", "en": "an option that hides products that do not match, like size or price" },
+        { "term": "metafield", "en": "an extra field in Shopify to store more information about a product" },
+        { "term": "synonym", "en": "another word with the same meaning, used to improve search" },
+        { "term": "quick add", "en": "a button on the product card to add to cart without opening the page" }
+      ],
+      "interview": [
+        {
+          "q": "Which filters did you add and why?",
+          "a": "I added skin type, size, price, product type and availability. Skin type is the first question skincare customers ask, so it was the most important one. I made it with a product metafield and the free Search & Discovery app. I kept the list short so the mobile drawer stays simple."
+        },
+        {
+          "q": "What is a metafield in Shopify?",
+          "a": "A metafield is an extra field that stores more information about a product. Shopify does not have a skin type field, so I created one with a list of fixed values. Then I could use it in filters and later also show it on the product page."
+        },
+        {
+          "q": "How did you test the filters?",
+          "a": "I tested them on a phone width. I checked that the drawer opens easily, the product count updates and I can clear all filters with one tap. I also tested a filter combination with zero results to see what the page shows."
+        }
+      ],
+      "resources": [
+        { "title": "Shopify help: Search & Discovery filters", "url": "https://help.shopify.com/en/manual/online-store/storefront-search/search-and-discovery-filters" },
+        { "title": "Shopify help: Metafields", "url": "https://help.shopify.com/en/manual/custom-data/metafields" },
+        { "title": "Baymard: Product list UX research", "url": "https://baymard.com/research/ecommerce-product-lists" }
+      ]
+    },
+    {
+      "id": "c07-t03",
+      "key": "CRO-703",
+      "type": "task",
+      "title": "Make cart, shipping, returns and checkout clear",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Shipping cost, delivery time and returns are clear before checkout, the cart drawer works well on mobile, and the checkout asks only for what is needed.",
+      "context": "Hi, in the survey and in the reviews, shipping cost and returns came up again and again. People do not want surprises at checkout. Please make shipping and returns clear on the product page and in the cart, and remove extra fields from our checkout.",
+      "steps": [
+        "Read the Baymard checkout usability overview (link in Resources). Write down 5 rules about cart and checkout, for example: show the total cost early, do not force account creation, keep form fields few.",
+        "Set the shipping rules: Settings → Shipping and delivery → General shipping rates → your profile. In the United States zone, add a rate 'Free shipping' with the price 0 and the condition 'Based on order price', minimum 50 USD. Keep a 'Standard' rate for smaller orders. Do the same for Canada with a minimum of 70 CAD (in the Canada zone).",
+        "Create a returns policy: Settings → Policies → Return and refund policy → 'Create from template'. Change it to a simple 30-day rule. Save.",
+        "Show shipping on the product page: Online Store → Themes → Customize → Products → Default product. In the 'Product information' section click 'Add block' → 'Collapsible row'. Heading: `Shipping & returns`. Write: free shipping over $50 in the US and CA$70 in Canada, delivery time, and 30-day returns. Add a second collapsible row `How to use`. Drag the shipping row just below the buy buttons.",
+        "Show the free shipping rule in the announcement bar: Header → Announcement bar → text `Free shipping over $50 / CA$70`.",
+        "Set the cart: Theme settings (gear icon) → Cart → Cart type 'Drawer'. Turn on 'Show vendor' only if it helps. Set the empty cart collection to your best sellers. Save.",
+        "Test the cart drawer on a phone width: add 2 products, change the quantity, remove one. Check that the subtotal is clear and the checkout button is always visible. Note anything that is hard.",
+        "Check the product page buy buttons: in the 'Buy buttons' block keep 'Show dynamic checkout buttons' on, so Shop Pay, PayPal or Google Pay can appear.",
+        "Simplify the checkout: Settings → Checkout. Under 'Customer contact method' choose 'Phone number or email'. Under 'Customer information': Full name → 'Require last name only'; Company name → 'Don't include'; Address line 2 → 'Optional'; Shipping address phone number → 'Optional' (or hidden). Make sure 'Customer accounts' do not force a login before checkout. Save.",
+        "Make one test order on mobile with the Bogus Gateway. Count the form fields and the taps from cart to order confirmation. Write the numbers before and after your changes.",
+        "Add a tab `Cart and checkout` to your audit sheet with every change, screenshots before and after, and the field count."
+      ],
+      "acceptance": [
+        "Free shipping rates exist for the US (50 USD) and Canada (70 CAD).",
+        "The product page shows a 'Shipping & returns' collapsible row below the buy buttons.",
+        "The cart type is Drawer and the empty cart shows a collection.",
+        "Company name is not in the checkout and Address line 2 is optional.",
+        "The audit sheet has the field count and tap count before and after."
+      ],
+      "evidence": [
+        "Screenshot on Google Drive of the product page on mobile with the open 'Shipping & returns' row",
+        "Screenshot on Google Drive of the checkout settings for customer information",
+        "Link to the Google Sheet with the `Cart and checkout` tab"
+      ],
+      "hints": [
+        "If the free shipping rate does not show at checkout, check that the condition is 'Based on order price' and the order is above the minimum.",
+        "Shopify checkout design is limited on purpose. Change settings, not code.",
+        "Write shipping text in simple words. Customers scan, they do not read long policy text."
+      ],
+      "explain": {
+        "en": "In this task I made shipping, returns and checkout clear for our customers. I created free shipping rules for the US and Canada and a simple 30-day return policy. I added a 'Shipping & returns' row under the buy buttons and a message in the announcement bar. I set the cart as a drawer and tested it on a phone. In the checkout settings I removed the company field and made extra fields optional. I counted the fields and taps before and after the changes."
+      },
+      "vocabulary": [
+        { "term": "cart drawer", "en": "a cart that slides in from the side, so the shopper stays on the page" },
+        { "term": "free shipping threshold", "en": "the order amount above which shipping is free" },
+        { "term": "collapsible row", "en": "a block that opens when you tap it, to show more text" },
+        { "term": "checkout friction", "en": "anything in the checkout that makes buying slower or harder" },
+        { "term": "unexpected costs", "en": "costs like shipping that people see only at the end" }
+      ],
+      "interview": [
+        {
+          "q": "Why is shipping information so important for conversion?",
+          "a": "Unexpected costs at checkout are one of the top reasons people leave, Baymard research shows this. So I show the shipping rule early, on the product page and in the announcement bar. Then there is no surprise at checkout."
+        },
+        {
+          "q": "What did you change in the Shopify checkout?",
+          "a": "Shopify does not let you change the checkout code on normal plans, but you can change settings. I removed the company name field, made address line 2 and the phone number optional, and asked only for the last name. I made sure there is no forced login. I counted fewer fields after the change."
+        },
+        {
+          "q": "Why did you choose a cart drawer?",
+          "a": "With a drawer, the shopper stays on the page and sees the cart at once. They can keep shopping or go to checkout with one tap. I tested it on a phone to make sure the checkout button was always visible."
+        }
+      ],
+      "resources": [
+        { "title": "Baymard: Cart and checkout usability research", "url": "https://baymard.com/research/checkout-usability" },
+        { "title": "Shopify help: Shipping rates", "url": "https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates" },
+        { "title": "Shopify help: Checkout settings", "url": "https://help.shopify.com/en/manual/checkout-settings" }
+      ]
+    },
+    {
+      "id": "c07-t04",
+      "key": "CRO-704",
+      "type": "project",
+      "title": "Fix the top issues in a copy of Dawn and rewrite product copy",
+      "priority": "high",
+      "estimateHours": 11,
+      "goal": "A duplicate Dawn theme has the top UX fixes and new product copy, is checked on mobile, and is published with a change log and before/after screenshots.",
+      "context": "Hi, great audit! Now let us fix the clear problems. Never edit the live theme directly: make a copy, change it, test it, then publish. Please also rewrite the copy of our top 3 products with the customer words you found in the reviews.",
+      "steps": [
+        "Take the `Top issues` tab from CRO-701 and the problems from CRO-703. Mark each one: 'just fix' (clear problem, low risk) or 'test later' (we are not sure it helps). Choose 6-8 'just fix' items.",
+        "Back up the live theme: Online Store → Themes → on the current theme click '...' → Duplicate. Rename the copy (click '...' → Rename) to `Dawn – UX fixes – <date>`. Work only on this copy.",
+        "Before any change, take mobile screenshots of the product page, a collection page and the cart drawer on the live theme. Save them in a Drive folder `UX fixes – before`.",
+        "Click Customize on the copy. Fix the product page items, for example: move the 'Variant picker' and 'Buy buttons' blocks higher in Product information, add a 'Text' block under the title with the size and skin type, set the Media 'Mobile layout' to show a thumbnail strip, and turn on 'Enable image zoom' if needed.",
+        "Make the sold-out size clear (from case CRO-605): keep the variant picker as 'Pills' so sold-out sizes are crossed out, and add a 'Text' block under the picker: `Sold out sizes are crossed out. Back soon.` (or use a free back-in-stock app later).",
+        "Add trust near the buy buttons: a 'Text' or 'Icon with text' block with 3 short points, for example `Free shipping over $50`, `30-day returns`, `Dermatologist tested` (only write claims that are true for the practice products).",
+        "Rewrite the copy of 3 products in Products → product → Description. Use this structure: 1 line who it is for, 3 short benefit bullets with voice of customer words from CRO-604, texture and smell, how to use, key ingredients, results timeline. Keep paragraphs short.",
+        "Check every change in the editor preview at mobile size (the phone icon at the top) and then with 'Preview' on a real phone. Check that nothing broke: variant change updates the price, add to cart works, the drawer opens.",
+        "Run PageSpeed Insights (`https://pagespeed.web.dev`) on the product page for Mobile before and after. Note the performance score and LCP. Your changes must not make it much worse. (A password-protected dev store may block the test; if so, test in Chrome DevTools → Lighthouse with the store open.)",
+        "Write a change log in your audit sheet, tab `Change log`: date, page, change, reason (link to the audit row or research), screenshot before, screenshot after.",
+        "Publish: on the copy click '...' → Publish. Keep the old theme in the theme library, so you can go back in one click. Write the publish date and time in the change log; we will compare GA4 data before and after.",
+        "Take after screenshots of the same pages at the same width and put them in a folder `UX fixes – after`."
+      ],
+      "acceptance": [
+        "A duplicate theme with a date in its name was used and is now published; the old theme is still in the library.",
+        "At least 6 fixes are done and each has a row in the change log with a reason.",
+        "3 product descriptions follow the new structure and use at least 5 voice of customer phrases in total.",
+        "Add to cart, variant change and the cart drawer still work on mobile after the changes.",
+        "Before and after mobile screenshots exist for the product page, a collection page and the cart drawer."
+      ],
+      "evidence": [
+        "Link to the Google Sheet with the `Change log` tab",
+        "Link to the Google Drive folders `UX fixes – before` and `UX fixes – after`",
+        "PageSpeed Insights or Lighthouse mobile scores before and after (screenshots on Google Drive)"
+      ],
+      "hints": [
+        "If something breaks, publish the old theme again from the theme library. That is why you made a copy.",
+        "Only write true claims. Never write 'Dermatologist tested' or 'Vegan' if it is not true for the product.",
+        "Move blocks by dragging them in the left panel of the theme editor."
+      ],
+      "explain": {
+        "en": "In this project I fixed the top UX problems from my audit. I never changed the live theme: I made a copy of Dawn, worked on it and tested it on mobile. I moved the buy box higher, made the sold-out size clear and added short trust points near the button. I rewrote three product descriptions with the exact words customers use in reviews. I wrote a change log with before and after screenshots and published the copy. I kept the old theme so we can go back in one click."
+      },
+      "vocabulary": [
+        { "term": "duplicate theme", "en": "a copy of the theme where you can make changes safely" },
+        { "term": "theme editor", "en": "the Shopify tool to change sections and blocks without code" },
+        { "term": "block", "en": "a small part inside a section, like a title, a price or a button" },
+        { "term": "change log", "en": "a list of what changed, when and why" },
+        { "term": "rollback", "en": "going back to the old version when the new one has a problem" }
+      ],
+      "interview": [
+        {
+          "q": "How do you make changes to a live Shopify store safely?",
+          "a": "I never edit the live theme. I duplicate it, give the copy a name with the date, and make all changes there. I test the copy in preview on a real phone. Then I publish it and keep the old theme, so I can go back in one click."
+        },
+        {
+          "q": "How did you rewrite the product copy?",
+          "a": "I used a fixed structure: who it is for, three benefits, texture, how to use, ingredients and when you see results. I used the exact words from customer reviews, like 'not sticky'. Customers trust their own words more than marketing words."
+        },
+        {
+          "q": "How will you know if your fixes worked?",
+          "a": "I wrote the publish date in the change log. Later I compare GA4 data before and after, for example the add to cart rate on mobile, for the same number of days. This is not as strong as an A/B test, so for unsure ideas we run tests."
+        }
+      ],
+      "resources": [
+        { "title": "Shopify help: Duplicate a theme", "url": "https://help.shopify.com/en/manual/online-store/themes/managing-themes/duplicating-themes" },
+        { "title": "Shopify help: Customizing themes", "url": "https://help.shopify.com/en/manual/online-store/themes/customizing-themes" },
+        { "title": "NN/g: How users read on the web", "url": "https://www.nngroup.com/articles/how-users-read-on-the-web/" }
+      ]
+    },
+    {
+      "id": "c07-t05",
+      "key": "CRO-705",
+      "type": "incident",
+      "lab": "cro-ux",
+      "title": "Case: mobile visitors view the serum but do not add to cart",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You find the UX reasons why the mobile add to cart rate on the serum page is much lower than on desktop, with proof from GA4, Clarity and a mobile check.",
+      "context": "Hi, on the Glow Vitamin C Serum page only 2% of mobile visitors add to cart, but 6% on desktop. The product and the price are the same. Something on the mobile page stops people. Please find it and tell us what to change first.",
+      "steps": [
+        "First finish the practice lab: open Practice → UX audit in this app and solve the case part. Write your top 3 findings in the app before you go on.",
+        "Start a Google Doc `Case CRO-705` with a timeline: time, what you checked, what you saw.",
+        "Measure the gap in GA4 on your property: Explore → Funnel exploration. Steps: 1 `view_item`, 2 `add_to_cart`. Breakdown: Device category. Add a filter on Page path contains your serum handle (or Item name contains 'Vitamin C'). Write the step rate for mobile and desktop.",
+        "If your practice data is too small, use the GA4 demo account: run the same funnel for one product there and use those numbers for the method. Say clearly in the doc which data you used.",
+        "Check the page on a phone width (Chrome device mode, 390 × 844, and 360 px). Find where the Add to cart button is: in the first screen or below? How many swipes to reach it? Take screenshots.",
+        "In Clarity open Heatmaps for this page, Mobile, Scroll map. Write the % of visitors who reach the Add to cart button. Then open Click map and write where people click instead.",
+        "In Clarity Recordings, filter: Device Mobile, Visited URL contains the serum handle, and 'Clicked' or 'Did not' add to cart if your version has it (or just watch sessions that did not reach the cart page). Watch 10 sessions and write what people do before they leave.",
+        "Compare desktop and mobile layouts side by side. List what is different: image size, order of blocks, text that is hidden in collapsible rows, sticky elements, pop-ups that cover the button.",
+        "Write the top 3 root causes with evidence from at least 2 sources each (GA4, Clarity, your screenshots, the lab).",
+        "For each cause write a fix and decide: just fix, or A/B test later. Add a hypothesis for the 'test later' ones in this format: Because we saw…, we believe that… for… will… We will measure… and watch… as a guardrail.",
+        "Write a 5-line summary at the top of the doc for the team lead: the gap, the main cause, the first fix, the expected effect, and how we will measure it."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your findings are saved there.",
+        "The doc shows the view_item → add_to_cart rate for mobile and desktop, with the data source named.",
+        "The scroll depth to the Add to cart button on mobile is written down from Clarity.",
+        "There are 3 root causes, each with evidence from at least 2 sources.",
+        "Each cause has a fix and a 'just fix' or 'test later' decision; the 'test later' ones have a hypothesis."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case CRO-705` (view access)",
+        "Screenshot on Google Drive of the GA4 funnel exploration with the device breakdown",
+        "Clarity screenshot of the mobile scroll heatmap for the serum page"
+      ],
+      "hints": [
+        "On mobile, a big image gallery often pushes the button below the first screen.",
+        "Pop-ups (email sign-up, cookie bar) can cover the button on small phones. Check with a fresh Incognito window.",
+        "Compare the same date range and the same product for mobile and desktop."
+      ],
+      "explain": {
+        "en": "In this case mobile visitors added the serum to cart much less often than desktop visitors. I measured the gap with a GA4 funnel exploration by device. In Clarity I saw on the scroll map that many mobile visitors never reached the Add to cart button. I checked the page at two phone widths and compared it with desktop. I found three causes and proved each one with at least two sources. I wrote a fix for each cause and a hypothesis for the ideas that need a test."
+      },
+      "vocabulary": [
+        { "term": "step rate", "en": "the % of users who go from one funnel step to the next" },
+        { "term": "funnel exploration", "en": "a GA4 report that shows how many users reach each step" },
+        { "term": "sticky button", "en": "a button that stays on the screen while you scroll" },
+        { "term": "breakdown", "en": "splitting a report by a dimension, like device" }
+      ],
+      "interview": [
+        {
+          "q": "How did you find why mobile users did not add to cart?",
+          "a": "First I measured the gap with a GA4 funnel by device. Then I used the Clarity scroll map and saw that many mobile visitors never reached the button. I checked the page on two phone widths and compared it with desktop. The big image gallery pushed the button down, and a pop-up covered it on small phones."
+        },
+        {
+          "q": "Why did you look for two sources for each cause?",
+          "a": "One source can be wrong or too small. When GA4 numbers, Clarity heatmaps and my own mobile check show the same problem, I am much more sure. Then the team can trust the fix."
+        },
+        {
+          "q": "What would you fix first and why?",
+          "a": "I would first fix the problem that hides the button, because if people cannot see it, nothing else matters. It is low risk and quick in the theme editor. I would test bigger ideas, like a sticky add to cart bar, with an A/B test later."
+        }
+      ],
+      "resources": [
+        { "title": "GA4 help: Funnel exploration", "url": "https://support.google.com/analytics/answer/9327974" },
+        { "title": "Microsoft Clarity docs: Heatmaps", "url": "https://learn.microsoft.com/en-us/clarity/heatmaps/heatmaps-overview" },
+        { "title": "Baymard: Mobile e-commerce UX research", "url": "https://baymard.com/research/mcommerce-usability" }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,12 @@
 ---
 import { env } from '../../../lib/env';
 import Base from '../../../layouts/Base.astro';
-import { labs, TOPICS } from '../../../sandbox/labs.js';
+import { labsFor, topicsFor } from '../../../sandbox/registry.js';
+import { trackOf, TRACKS } from '../../../lib/curriculum';
 import { practiceRuns } from '../../../lib/db';
+const tid = trackOf(Astro.locals.user);
+const labs = labsFor(tid);
+const TOPICS = topicsFor(tid);
 const runs = await practiceRuns(env.DB, Astro.locals.user!.id);
 const done = new Set(runs.map((r) => r.lab));
 const next = labs.find((l) => !done.has(l.id));
@@ -11,15 +15,15 @@ const next = labs.find((l) => !done.has(l.id));
   <header class="page-head">
     <p class="eyebrow">Practice</p>
     <h1>Practise in the browser first</h1>
-    <p class="sub">Each lab is a fake server in your browser. Nothing can break and nothing costs money. Type real commands, follow the tasks, and see a green tick when a task is done. Then do the real ticket on your laptop.</p>
+    <p class="sub">{tid === 'devops' ? 'Each lab is a fake server in your browser. Nothing can break and nothing costs money. Type real commands, follow the tasks, and see a green tick when a task is done. Then do the real ticket on your laptop.' : `Each lab is a working simulator in your browser for the ${TRACKS[tid].short} track, ordered from basic to advanced. Nothing can break and nothing costs money. Follow the tasks; each one gets a green tick when you do it. Then do the real ticket with the real tools.`}</p>
   </header>
 
-  <div class="keys card">
+  {tid === 'devops' && <div class="keys card">
     <div><kbd>Enter</kbd> runs the command</div>
     <div><kbd>↑</kbd> repeats the last command</div>
     <div><kbd>Tab</kbd> completes a name</div>
     <div><kbd>help</kbd> lists the commands</div>
-  </div>
+  </div>}
 
   {TOPICS.map((topic) => { const list = labs.filter((l) => l.topic === topic); return list.length > 0 && (
     <section class="lab-group">

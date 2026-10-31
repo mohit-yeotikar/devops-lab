@@ -1,0 +1,321 @@
+{
+  "id": "c12",
+  "number": 12,
+  "title": "Advanced CRO and capstone",
+  "weeks": "23-24",
+  "theme": "Sell well in Canada with Shopify Markets, think in customer value and money, solve the Canada vs US case end to end, and hand over a full CRO programme.",
+  "jobStory": "In this last sprint you work like a senior CRO specialist. You set up Shopify Markets for Canada with CAD prices, French, shipping, taxes and duties on the practice store. You look at customer value over time with cohorts, and you build a simple personalisation for Canadian visitors. In the capstone you solve the case 'Canada converts at 1.1%, the US at 2.0%' from the data check to a money plan. You finish with a CRO programme report and a handover that the next person can use.",
+  "outcomes": [
+    "I set up a Canada market in Shopify with CAD, French, shipping rates, taxes and customs data, and tested a Canadian checkout.",
+    "I built cohort and lifetime value analyses in GA4 and compared US and Canadian customers in money.",
+    "I built a country-based personalisation in Liquid and planned a holdout to measure it.",
+    "I solved the Canada vs US conversion case: data check, traffic mix, funnel step, causes, priorities and the value in revenue per visitor.",
+    "I wrote a CRO programme report with ROI in money and handed over all tools, access and routines."
+  ],
+  "tickets": [
+    {
+      "id": "c12-t01",
+      "key": "CRO-1201",
+      "type": "project",
+      "title": "Set up Shopify Markets for Canada: CAD, French, shipping, taxes and duties",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "A Canadian visitor on the practice store sees CAD prices, can switch to French, and gets correct shipping, taxes and duty information in checkout.",
+      "context": "Hi, about a quarter of our traffic comes from Canada, but our store was built for the US. Before we fix Canadian conversion, our practice store must look like the real one for Canadians. Please set up the Canada market fully and test a Canadian checkout from start to end, in English and in French.",
+      "steps": [
+        "Write down the current state first: open the store with a Canadian address in mind and note the currency, language and shipping you see. Take 3 screenshots (product page, cart, checkout shipping step).",
+        "Go to Settings → Markets. Your primary market is the United States. Click Add market (or Create market), name it `Canada` and choose the region Canada. Save and make sure the market is Active.",
+        "Open the Canada market → Currency and pricing (or Products and pricing). Set the local currency to CAD. Choose a price rounding rule (for example round to .00 or .99). Write how Shopify converts the price (automatic exchange rate or manual rate) and what this means for the price of a US$34 serum.",
+        "Add French. Go to Settings → Languages → Add language → French. Install the free Shopify app `Translate & Adapt` when asked. In the app choose French, use Auto-translate for the theme and products (free for a limited number of languages), then review the product titles, descriptions and the delivery-estimate block text by hand. Publish French.",
+        "Connect French to Canada: in Settings → Markets → Canada → Languages (or Domains and languages) add French next to English. Check the URLs: Shopify uses subfolders like `/en-ca` and `/fr-ca`. View the page source and search for `hreflang`. Write the hreflang lines you find.",
+        "Set shipping: Settings → Shipping and delivery → General shipping rates → Manage. Add a shipping zone `Canada` if it is missing. Add a rate `Standard (6-10 business days)` CA$15 and a free rate for orders over CA$100 (add a condition based on order price). Write the US rates next to it for comparison.",
+        "Set taxes: Settings → Taxes and duties → Canada. Turn on tax collection for Canada (on a development store you can enter a test GST/HST number). Write which tax rates Shopify uses for Ontario (HST 13%) and Quebec (GST 5% + QST 9.975%). Check if prices are shown with or without tax (in the US and Canada prices are usually shown without tax and the tax is added in checkout).",
+        "Set duties and customs data. For every product open Products → product → Shipping and fill in Country/Region of origin and the HS code (search 'skin care preparations' in the HS code helper). In Settings → Taxes and duties look for 'Duties and import taxes'. If your store shows it, read the options (collect at checkout or not) and write what you would choose. If it is not available on your store, write why it matters: without it, a Canadian customer can get a surprise bill from the carrier.",
+        "Check payments: Settings → Payments. Write which payment methods a Canadian would see. Write which ones Canadians often expect (for example credit cards, PayPal, Apple Pay, Shop Pay).",
+        "Test a Canadian checkout in English: choose Canada in the country selector, add a 50 ml serum to the cart, go to checkout with a Toronto address (for example `100 King St W, Toronto ON M5H 1A1`) and the Bogus Gateway (card number `1`). Take screenshots of each step. Write when the customer first sees the shipping cost and the tax.",
+        "Repeat the checkout in French with a Montreal address (for example `1000 Rue De La Gauchetière O, Montréal QC H3B 4W5`). Check that the checkout is in French and the taxes are GST + QST.",
+        "Check the data: in GA4 DebugView the purchase must have `currency: CAD` and the CAD value. In Reports, GA4 converts revenue to the reporting currency of the property. In Shopify Analytics check that the order shows country Canada.",
+        "Write a market setup note (1 page): the settings, the screenshots, and a list 'What a Canadian sees that a US customer does not' (higher shipping, tax added at checkout, possible duties, longer delivery, French quality)."
+      ],
+      "acceptance": [
+        "A Canada market is active with CAD as local currency and a rounding rule.",
+        "French is published, connected to the Canada market and the page source shows hreflang tags for en-ca and fr-ca.",
+        "Canada has a CA$15 standard rate and free shipping over CA$100, and every product has country of origin and an HS code.",
+        "Two Canadian test orders exist (Toronto in English, Montreal in French) with the correct taxes.",
+        "GA4 DebugView shows the Canadian purchase with currency CAD."
+      ],
+      "evidence": [
+        "Screenshots of the Canadian checkout in English and in French, including the tax lines",
+        "Screenshot of GA4 DebugView with the CAD purchase",
+        "Your 1-page market setup note with the 'What a Canadian sees' list"
+      ],
+      "hints": [
+        "If the country selector does not show on the storefront, turn it on in Customize → Footer (and Header) → Country/region selector.",
+        "Shopify menus for Markets change often. If a name is different, search the setting with the search bar at the top of Shopify admin.",
+        "Auto-translation is a first draft. Always read product names and claims (for example 'fragrance free' = 'sans parfum')."
+      ],
+      "explain": {
+        "en": "In this project I set up Shopify Markets for Canada on our practice store. I created a Canada market with CAD prices and a rounding rule, and I added French with the Translate and Adapt app. I set Canadian shipping rates, turned on Canadian taxes and added country of origin and HS codes to every product for duties. Then I made two test orders, one in English from Toronto and one in French from Montreal, and checked the taxes. I also checked that GA4 received the purchase in CAD. I wrote a note about everything a Canadian customer sees that a US customer does not."
+      },
+      "vocabulary": [
+        { "term": "Shopify Markets", "en": "Shopify settings to sell to different countries with their own currency, language and prices" },
+        { "term": "duties", "en": "taxes a country charges on products that come from another country" },
+        { "term": "HS code", "en": "an international number that describes the type of product for customs" },
+        { "term": "hreflang", "en": "a tag that tells Google which language and country a page is for" },
+        { "term": "landed cost", "en": "the full price for the customer: product, shipping, taxes and duties" }
+      ],
+      "interview": [
+        { "q": "What did you set up for Canada in Shopify Markets?", "a": "I created a Canada market with CAD prices and a rounding rule. I added French with Translate and Adapt and connected it to the market, so we have en-ca and fr-ca pages. I set Canadian shipping rates and taxes and added HS codes and country of origin for duties. Then I tested checkouts in Toronto and Montreal." },
+        { "q": "Why do duties matter for conversion?", "a": "If duties are not shown or paid at checkout, the carrier can ask the customer to pay extra at the door. Customers who know this may not buy, and customers who get a surprise bill may not come back. Showing the full landed cost early builds trust." },
+        { "q": "How does GA4 handle orders in CAD?", "a": "The purchase event sends the value with currency CAD. GA4 converts it to the reporting currency of the property in the reports. So it is important that the currency parameter is always correct, or the revenue is wrong." }
+      ],
+      "resources": [
+        { "title": "Shopify Help Center: Markets", "url": "https://help.shopify.com/en/manual/international/markets" },
+        { "title": "Shopify Help Center: Translate & Adapt", "url": "https://help.shopify.com/en/manual/international/languages/translate-adapt-app" },
+        { "title": "Shopify Help Center: Duties and import taxes", "url": "https://help.shopify.com/en/manual/international/duties-and-import-taxes" }
+      ]
+    },
+    {
+      "id": "c12-t02",
+      "key": "CRO-1202",
+      "type": "task",
+      "title": "Compare US and Canadian customers with cohorts and lifetime value",
+      "priority": "medium",
+      "estimateHours": 7,
+      "goal": "A cohort analysis and a simple 12-month LTV for US and Canadian customers, so the team knows how much a new customer from each country is worth.",
+      "context": "Hi, conversion rate is only the first purchase. Some customers come back many times, and that changes how much we can spend to win them. Please learn cohort analysis in GA4 and calculate a simple lifetime value for US and Canadian customers. I want to know if a Canadian customer is worth less, the same or more.",
+      "steps": [
+        "Open the GA4 demo account (Google Merchandise Store). Go to Explore → Cohort exploration.",
+        "Set Cohort inclusion to `First touch (acquisition date)`, Return criteria to `purchase`, Cohort granularity `Weekly`, and Calculation `Standard`. Read the table: each row is a group of users who came in the same week, and each column shows how many came back to buy.",
+        "Change the metric to `Purchase revenue` and Calculation to `Cumulative`. Now each cell shows the total revenue per cohort so far. Change the Metric type to per cohort user if your version offers it. Write what you see after week 4.",
+        "Add a breakdown: drag `Country` into Breakdown. Compare the United States and Canada (or the two biggest countries if Canada is small). Take a screenshot.",
+        "Open Explore → Template gallery → User lifetime. Use `First user default channel group` as row and the metrics `LTV: Average` and `Active users`. Add a filter or comparison by country. Write the average LTV for 2-3 channels.",
+        "In your own practice store, open Shopify Analytics → Reports and search for 'customer cohort'. Your store has very few orders, so only look at how the report works and write one sentence about it.",
+        "Calculate a simple 12-month LTV in Google Sheets with GlowShop numbers. US: AOV $48, 1.5 orders per customer in 12 months, gross margin 65%. Canada: AOV US$52, 1.3 orders per customer in 12 months, gross margin 55% (more shipping cost). Formula: LTV (gross profit) = AOV × orders per customer × gross margin.",
+        "Your sheet should show about $46.80 for the US and about $37.18 for Canada. Write what this means: a Canadian customer brings less profit over 12 months, so the maximum cost to win one is lower, unless we fix the extra costs or make them buy again.",
+        "Add a column 'Max cost to acquire a customer' with a simple rule: one third of LTV. Write the number for each country.",
+        "Write 3 ideas that could raise Canadian LTV (for example a CAD subscription for the serum, a reminder email after 45 days when the product runs out, a free shipping threshold that fits a two-product order).",
+        "Write a short note (6-8 sentences) with the results and one limit: GA4 cohorts only count users that GA4 can recognise again (same device and browser, consent given), so real repeat rates are often higher."
+      ],
+      "acceptance": [
+        "A GA4 cohort exploration exists with return criteria purchase, cumulative revenue and a country breakdown.",
+        "A User lifetime exploration shows average LTV by channel.",
+        "The LTV sheet shows about $46.80 for the US and about $37.18 for Canada with the formula visible.",
+        "The sheet has a max acquisition cost per country and 3 ideas to raise Canadian LTV.",
+        "The note names the limit of GA4 cohorts."
+      ],
+      "evidence": [
+        "Screenshot of the cohort exploration with the country breakdown",
+        "Link to the LTV Google Sheet",
+        "Your 6-8 sentence note, pasted as text"
+      ],
+      "hints": [
+        "If the cohort table is empty, make the date range longer (for example the last 90 days).",
+        "LTV based on revenue looks bigger than LTV based on profit. For decisions about spending, use profit.",
+        "Small cohorts jump a lot. Do not compare a cohort of 20 users with one of 2,000."
+      ],
+      "explain": {
+        "en": "In this task I looked at customer value over time, not only at the first purchase. I built a cohort exploration in GA4 with purchase as the return criteria and cumulative revenue by country. I also used the User lifetime template to see average lifetime value by channel. Then I calculated a simple 12-month LTV for US and Canadian customers from order value, number of orders and gross margin. A US customer was worth about 47 dollars of profit and a Canadian customer about 37. I suggested three ideas to raise Canadian lifetime value."
+      },
+      "vocabulary": [
+        { "term": "cohort", "en": "a group of users who started in the same period, like the same week" },
+        { "term": "LTV (lifetime value)", "en": "how much money or profit a customer brings over time" },
+        { "term": "gross margin", "en": "the part of revenue left after the cost of the product and delivery" },
+        { "term": "repeat purchase rate", "en": "the share of customers who buy more than once" },
+        { "term": "CAC (customer acquisition cost)", "en": "how much we spend to win one new customer" }
+      ],
+      "interview": [
+        { "q": "What is a cohort analysis and why is it useful?", "a": "A cohort analysis groups users by when they started, for example the week of their first visit. Then it shows how each group comes back and buys over time. It shows if newer customers behave better or worse than older ones. It is useful to see the effect of changes on loyalty, not only on the first order." },
+        { "q": "How did you calculate LTV?", "a": "I used a simple formula: average order value times orders per customer in 12 months times gross margin. For the US it was about 47 dollars and for Canada about 37 dollars. I used profit, not revenue, because decisions about ad spend must be based on profit." },
+        { "q": "Why should a CRO specialist care about LTV?", "a": "A test can raise the first conversion but bring customers who never come back, for example with a big discount. LTV shows the long-term value. It also tells marketing how much they can pay to win a customer in each country." }
+      ],
+      "resources": [
+        { "title": "Google Analytics Help: Cohort exploration", "url": "https://support.google.com/analytics/answer/9670133" },
+        { "title": "Google Analytics Help: User lifetime exploration", "url": "https://support.google.com/analytics/answer/9947257" }
+      ]
+    },
+    {
+      "id": "c12-t03",
+      "key": "CRO-1203",
+      "type": "task",
+      "title": "Build a Canada-only message and plan a holdout to measure it",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Canadian visitors see a clear message about CAD prices, shipping and duties on the product page and in the cart, and there is a plan with a 10% holdout to measure its value.",
+      "context": "Hi, Canadian customers ask us the same questions again and again: 'Do I pay duties?', 'Is the price in CAD?', 'How much is shipping?'. A small message only for Canadians could answer this before checkout. Please build it in the theme, and plan how we will measure it, because personalisation without measurement is only a guess.",
+      "steps": [
+        "Learn the basic types of personalisation for a store: by country (currency, shipping, language), by traffic source (landing page that matches the ad), by visitor type (new or returning), and by behaviour (recently viewed products). Write one GlowShop example for each.",
+        "Write the Canada message with facts from CRO-1201. Example in English: 'Prices in CAD. Free shipping to Canada over CA$100. No surprise fees at delivery.' Use the last sentence ONLY if duties are really collected at checkout; if not, write an honest message like 'Ships from the US in 6-10 business days. Duties may apply.' Write the French version too and have it checked with Translate & Adapt or a French speaker.",
+        "Create `snippets/market-message.liquid` in your `Dawn - dev` theme. Inside: `{%- if localization.country.iso_code == 'CA' -%}<p class=\"market-message\">{{ 'general.market_message_ca' | t }}</p>{%- endif -%}`.",
+        "Add the texts to the locale files: in `locales/en.default.json` under `general` add `\"market_message_ca\": \"Prices in CAD. Free shipping to Canada over CA$100.\"`, and in `locales/fr.json` add the French text with the same key. Now the message follows the shopper's language.",
+        "Show the snippet on the product page (render it from your delivery-estimate snippet or as a new block in `main-product.liquid`) and in the cart drawer (`snippets/cart-drawer.liquid`, near the subtotal). Use `{% render 'market-message' %}`.",
+        "Test with the country selector: US must not see the message, Canada must see it in English on `/en-ca` and in French on `/fr-ca`. Check mobile at 375 px. Check that nothing moves on load (CLS).",
+        "Check the honesty rules: the same product must have the same price logic for everyone in a country, no fake urgency, no hidden fees. Write 2 lines about why personalisation must never trick customers.",
+        "Plan the measurement with a holdout. In GrowthBook create a feature `ca-market-message` (Boolean) with an experiment rule: 90% `true`, 10% `false` (the holdout), and targeting only for Canadian visitors. To target by country, pass the country from Liquid as a GrowthBook attribute in `theme.liquid` (for example add `country: '{{ localization.country.iso_code }}'` to the attributes the SDK gets, then define the attribute `country` in SDK Configuration → Attributes). Check the GrowthBook script tag docs for how your SDK version sets attributes.",
+        "Calculate if the holdout can give an answer: Canadian product page traffic is about 400 visitors per day. With a 90/10 split the holdout gets only 40 per day. Use your CRO-902 sheet to calculate the length for a +10% relative lift on an 8% add-to-cart rate. Write if this is possible, and if not, what you will do (for example a 50/50 test first, then a small long-term holdout).",
+        "Do not launch the experiment. Write the plan with GS test ID, metrics (primary: Canadian add-to-cart rate; guardrail: Canadian RPV) and the decision rule into your test plan template."
+      ],
+      "acceptance": [
+        "The message shows only for Canada, in English and in French, on the product page and in the cart drawer.",
+        "The texts are in the locale files, not hard-coded in the snippet.",
+        "The duty sentence is true for your store settings.",
+        "A GrowthBook feature with a 90/10 split and Canada targeting is set up (not launched) and the plan has metrics and a decision rule.",
+        "The sample size calculation for the holdout is written with a clear 'possible / not possible' answer."
+      ],
+      "evidence": [
+        "Screenshots of the product page for US, Canada English and Canada French",
+        "The content of `snippets/market-message.liquid`, pasted as text",
+        "Link to the test plan with the holdout calculation"
+      ],
+      "hints": [
+        "If the `t` filter shows 'translation missing', the key path in the locale file is wrong.",
+        "Remember the CRO-902 numbers: about 18,400 users per group for 8% → 8.8%. A 10% holdout of 400 visitors a day needs a very long time.",
+        "Liquid runs on Shopify's server, so the message is in the HTML from the start and does not flicker."
+      ],
+      "explain": {
+        "en": "In this task I built a personalised message only for Canadian visitors. The message tells them that prices are in CAD and explains shipping and duties honestly. I used localization.country.iso_code in a Liquid snippet and put the texts in the English and French locale files. I showed it on the product page and in the cart drawer and tested it with the country selector. Then I planned a 10% holdout in GrowthBook to measure the value. My sample size calculation showed that the holdout alone would take too long, so I suggested a 50/50 test first."
+      },
+      "vocabulary": [
+        { "term": "personalisation", "en": "showing different content to different visitors based on data" },
+        { "term": "holdout", "en": "a small group that does not get the change, so we can measure its effect" },
+        { "term": "locale file", "en": "a theme file with all texts in one language" },
+        { "term": "targeting", "en": "rules that decide which visitors are part of a test or feature" }
+      ],
+      "interview": [
+        { "q": "How did you build the Canada-only message?", "a": "I made a Liquid snippet that checks localization.country.iso_code. If it is CA, it shows the message from the locale file, so it appears in English or French. Because Liquid runs on the server, the message is in the HTML from the start and there is no flicker. I tested it with the country selector." },
+        { "q": "Why do you measure personalisation with a holdout?", "a": "A personalised message feels helpful, but it may have no effect or even a bad effect. A holdout is a group that does not see it, so we can compare. Without it, we only guess. I also checked if our traffic is big enough for the holdout." },
+        { "q": "What are the rules for fair personalisation?", "a": "Personalisation must help the customer, not trick them. The message must be true, like the real duty situation. We do not use fake urgency or hidden fees, and we do not show different prices to different people in the same market without a clear reason." }
+      ],
+      "resources": [
+        { "title": "Shopify dev docs: Locale files", "url": "https://shopify.dev/docs/storefronts/themes/architecture/locales" },
+        { "title": "GrowthBook docs: Targeting attributes", "url": "https://docs.growthbook.io/features/targeting" }
+      ]
+    },
+    {
+      "id": "c12-t04",
+      "key": "CRO-1204",
+      "type": "incident",
+      "lab": "cro-funnel",
+      "title": "Capstone case: Canada converts at 1.1%, the US at 2.0%",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A full investigation of the Canada vs US gap: data checked, traffic mix measured, leaking step found, Canada-specific causes proven, fixes prioritised and the value shown in revenue per visitor and profit.",
+      "context": "Hi, this is the big one. The CEO says: 'Canada converts at 1.1% and the US at 2.0%. Fix Canada.' Last month Canada had 20,000 sessions and the US 60,000. I want a full answer in one week: is the gap real, where is it, why does it happen, what do we do first, and how much money is it worth. Please present it to me on Friday.",
+      "steps": [
+        "First finish the practice lab: open Practice → Funnel detective: why does Canada convert less? in this app and complete all tasks. Write down your quiz score. Then do the real investigation below in one Google Sheet `GlowShop - Canada case` and one Google Doc for the findings.",
+        "Step 1, trust the data. Compare GA4 and Shopify for last month. GA4: US 1,200 purchases, Canada 220. Shopify: US 1,262 orders, Canada 236. Calculate the gap for each country (US about 5%, Canada about 7%). Both are normal for consent and ad blockers and similar, so the CR gap is not a tracking bug. Write one extra check: Quebec's privacy law (Law 25) and the consent banner may lower tracked Canadian purchases a little more; check the Canadian consent rate in your consent tool if you have it.",
+        "Also check the currency: Canadian purchases must arrive with `currency: CAD`, and revenue must be compared in one currency (USD). Use your CRO-1201 DebugView check.",
+        "Step 2, traffic mix. Put this table in the sheet. Share of sessions by channel, US: organic search 35%, paid social 25%, email 15%, direct 25%. Canada: organic 30%, paid social 45%, email 5%, direct 20%. Conversion rate by channel, US: 2.0%, 1.2%, 3.5%, 1.9%. Canada: 1.3%, 0.7%, 2.6%, 1.3%. Check that the weighted rates give 2.0% for the US and about 1.1% for Canada (`=SUMPRODUCT(shares, rates)`).",
+        "Calculate the mix-adjusted Canada rate: Canada's channel rates with the US channel mix: `=SUMPRODUCT(US shares, Canada rates)`. You should get about 1.35%. So about 0.25 of the 0.9 point gap comes from the traffic mix (more paid social, less email), and about 0.65 points come from lower conversion inside every channel. Write: the site and offer are the bigger problem, but marketing should also know about the mix.",
+        "Step 3, find the step. Build the funnel in GA4 (Explore → Funnel exploration, steps session_start → view_item → add_to_cart → begin_checkout → add_shipping_info → add_payment_info → purchase, breakdown Country) on your own data, then use these case numbers. US: 60,000 → 36,000 → 4,320 → 2,592 → 1,944 → 1,555 → 1,200. Canada: 20,000 → 12,000 → 1,380 → 800 → 584 → 315 → 220. Calculate each step rate for both countries and the difference.",
+        "Find the leak: most steps are close, but shipping info → payment info is 80% in the US and 54% in Canada. This is the moment after the customer enters the address, when shipping cost, taxes and duty information appear. Also payment → purchase is a bit lower (77% vs 70%). Write the extra Canadian orders if the shipping-to-payment step was like the US (584 × 0.80 × 0.70 ≈ 327 instead of 220).",
+        "Step 4, find the Canada-specific causes. Check your practice store as a Canadian (CRO-1201 screenshots) and list the evidence for each possible cause: shipping cost (CA$15 vs free in the US over $50, free only over CA$100), taxes added late in checkout, duties unclear or paid at the door, prices in USD on some pages or emails, missing or poor French, missing payment methods, slow delivery (6-10 days).",
+        "Use behaviour data: in Microsoft Clarity filter recordings by Country = Canada and pages `/cart` and product pages. Shopify checkout pages are not recorded by Clarity, so use the GA4 steps for the checkout. Watch 15 Canadian sessions that reached the cart. Write a table: session, device, what happened, what the user looked at, where they left.",
+        "Use voice of customer: write 5 example support questions from Canadians (for this case use: 'Do I pay duties?', 'Why is shipping so expensive?', 'Is this price in CAD?', 'Can I pay with PayPal?', 'Is there a French label?'). Match each one to a cause.",
+        "Step 5, prioritise. List at least 6 fixes. Mark each as 'just fix' (for example wrong currency, poor French, missing duty info) or 'test' (for example a lower free shipping threshold for Canada, showing landed cost on the product page). Score the test ideas with ICE from sprint 8 and choose the top 3.",
+        "Step 6, measure in money. Canada now: 20,000 sessions × 1.1% = 220 orders × AOV US$52 = $11,440 revenue, RPV = $0.572. Target 1.5%: 300 orders, $15,600, RPV $0.78, which is +$4,160 revenue per month. Profit check for a lower free shipping threshold: 80 extra orders × $52 × 55% margin = $2,288 extra gross profit; if we pay US$8 shipping on 60% of the 300 orders, the cost is 300 × 0.6 × 8 = $1,440; the net gain is about +$848 per month. Write: this is why we test it and measure RPV and profit, not only CR.",
+        "Write the success metric for every test: primary RPV or CR for Canadian visitors, guardrail gross profit per visitor. Use your CRO-902 sheet to check the test length for Canadian traffic and write it.",
+        "Write the findings doc (2-3 pages): one-line answer first ('The gap is real; 30% is traffic mix; 70% is the shipping and cost step; fixing it is worth about $X per month'), then data check, mix, funnel, causes with evidence, priorities, money, next 4 weeks plan.",
+        "Make 6-8 slides in Google Slides for the Friday meeting and practise presenting them in 10 minutes."
+      ],
+      "acceptance": [
+        "The practice lab Practice → Funnel detective: why does Canada convert less? is completed and the quiz score is written down.",
+        "The sheet shows the GA4 vs Shopify check, the channel mix table, the weighted rates (2.0% and about 1.1%) and the mix-adjusted Canada rate (about 1.35%).",
+        "The funnel table shows step rates for both countries and names shipping info → payment info as the main leak.",
+        "Each Canada cause has evidence, and at least 15 Clarity sessions are logged in a table.",
+        "The findings doc starts with a one-line answer and includes RPV now, RPV at target, revenue gain and the profit check with the shipping cost."
+      ],
+      "evidence": [
+        "Your practice lab quiz score",
+        "Link to the `GlowShop - Canada case` sheet",
+        "Link to the findings doc",
+        "Link to the slides"
+      ],
+      "hints": [
+        "Always answer 'is the gap real?' before 'why?'. A tracking bug can look exactly like a conversion problem.",
+        "Compare step rates, not only totals. A gap in the total can come from one single step.",
+        "RPV = CR × AOV. A change that raises CR but lowers AOV or profit is not always a win."
+      ],
+      "explain": {
+        "en": "In my capstone I investigated why Canada converted at 1.1% and the US at 2.0%. First I compared GA4 with Shopify orders and saw that the data was trustworthy. Then I calculated a mix-adjusted rate and found that the traffic mix explained about a third of the gap. In the funnel, the biggest leak was after Canadians entered their address, when shipping, taxes and duties appear. I used Clarity recordings and customer questions to find the causes, and I prioritised fixes and tests. Finally I showed the value in revenue per visitor and checked the profit, including the cost of cheaper shipping."
+      },
+      "vocabulary": [
+        { "term": "traffic mix", "en": "the share of visitors from each channel or device" },
+        { "term": "mix-adjusted rate", "en": "the conversion rate a segment would have with the same traffic mix as another segment" },
+        { "term": "leaking step", "en": "the funnel step where many more people leave than expected" },
+        { "term": "voice of customer", "en": "what customers say in their own words, in support emails, reviews or surveys" },
+        { "term": "profit per visitor", "en": "gross profit divided by the number of visitors" }
+      ],
+      "interview": [
+        { "q": "Canada converts at 1.1% and the US at 2.0%. How do you start?", "a": "I first check if the gap is real by comparing GA4 purchases with Shopify orders for each country. Then I check the traffic mix, because Canada may have more paid social traffic, which converts less everywhere. After that I compare the funnel step by step to find where Canadians leave. Only then I look for causes." },
+        { "q": "How did you separate the traffic mix from a site problem?", "a": "I calculated the Canadian rate with the US channel mix, using SUMPRODUCT of the US shares and the Canadian channel rates. It gave about 1.35%, so the mix explained about 0.25 of the 0.9 point gap. The rest was lower conversion inside every channel, so the site and the offer were the bigger problem." },
+        { "q": "How did you show the value of fixing Canada in money?", "a": "I used revenue per visitor. Canada had 20,000 sessions and an RPV of about 0.57 dollars. At 1.5% conversion the RPV would be 0.78 dollars, which is about 4,160 dollars more per month. I also checked profit, because cheaper shipping costs money, and the net gain was smaller, so we must test it." }
+      ],
+      "resources": [
+        { "title": "Google Analytics Help: Funnel exploration", "url": "https://support.google.com/analytics/answer/9327974" },
+        { "title": "Baymard: Cart abandonment reasons", "url": "https://baymard.com/lists/cart-abandonment-rate" },
+        { "title": "Microsoft Clarity docs: Filters", "url": "https://learn.microsoft.com/en-us/clarity/filters/clarity-filters" }
+      ]
+    },
+    {
+      "id": "c12-t05",
+      "key": "CRO-1205",
+      "type": "docs",
+      "title": "Write the CRO programme report and hand over",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A CRO programme report with results and ROI in money, a 3-month roadmap, and a handover pack so another person can run the programme from tomorrow.",
+      "context": "Hi, you have built a full CRO programme in six months. Now management wants one report: what we built, what we learned, what it is worth, and what comes next. And if you go on holiday, someone else must be able to run it. Please write the report and the handover pack.",
+      "steps": [
+        "Create a Google Doc `GlowShop - CRO programme report` with these parts: Summary (5 lines), What we built, What we learned, Results and ROI, Next 3 months, Risks, Handover.",
+        "Under 'What we built' list the systems with links: GA4 property and key events, GTM container, Shopify custom pixel, Looker Studio dashboard, UTM rules, Clarity, research summary, UX audit, roadmap, testing rules, GrowthBook setup, test plans, learning log, theme repo, Meta Pixel and CAPI, Canada market.",
+        "Under 'What we learned' copy the top 5 learnings from the learning log and the Canada case, one sentence each.",
+        "Under 'Results and ROI' make a table of all tests: ID, result, lift with CI, decision. For the money, use this example for a winning test: RPV +4% (95% CI +1% to +7%) on 80,000 sessions per month with RPV $0.90. Use the low end of the CI for a safe estimate: 80,000 × $0.90 × 1% = $720 more revenue per month, × 65% margin = $468 gross profit per month, about $5,600 per year. Write why you use the low end (results often get smaller after a test ends).",
+        "Add the cost side: tools cost $0 (free plans and trials), and the time (your hours from the sprints × a salary per hour that your team lead gives you). Write ROI = (gross profit gain − cost) / cost. Also list the value that is hard to put in money: correct data, faster decisions, mistakes avoided (like the double Meta purchases and the fake +58% test).",
+        "Under 'Next 3 months' write a roadmap of 6 items from the Canada case and the open tests, with owner, start month and the metric for each.",
+        "Under 'Risks' write at least 4: for example GA4 BigQuery sandbox tables expire after 60 days, the GrowthBook data source depends on one service account key, the theme has custom code that must be checked after Dawn updates, consent changes can lower tracked conversions.",
+        "Create the handover pack (a second Doc `GlowShop - CRO handover`): an access list (tool, what it is for, who is owner, where the login is managed; no passwords in the doc), a weekly routine (Monday: check dashboard and GA4 vs Shopify orders; Wednesday: check running tests for health and SRM; Friday: update the learning log), a monthly routine (check Meta Events Manager Diagnostics, Core Web Vitals, UTM sheet), and links to all runbooks and rules.",
+        "Add 'How to launch a test in 10 steps' to the handover, based on your test plan template, the QA checklist and GrowthBook.",
+        "Ask a classmate to read the handover and do one weekly check alone with it. Write their questions and fix the doc.",
+        "Make a 10-slide summary in Google Slides and record a 5-minute walkthrough of the report with a free screen recorder (for example the built-in recorder of your laptop). This is also your portfolio piece: remove any private data."
+      ],
+      "acceptance": [
+        "The report has all 7 parts and starts with a 5-line summary.",
+        "The ROI section uses the low end of the confidence interval and shows the calculation from revenue to gross profit to ROI.",
+        "The roadmap has 6 items with owner, month and metric, and the risks list has at least 4 items.",
+        "The handover has an access list without passwords, a weekly and a monthly routine, and 'How to launch a test in 10 steps'.",
+        "Another person tested the handover and their questions are answered in the doc."
+      ],
+      "evidence": [
+        "Link to the programme report",
+        "Link to the handover doc",
+        "Link to the slides and the 5-minute recording",
+        "The questions from the handover test and your changes, pasted as text"
+      ],
+      "hints": [
+        "Managers read the first 5 lines. Put the result and the money there.",
+        "Never claim the full test lift for a whole year. Use the safe number and say so.",
+        "A handover is good when someone can do the weekly check without calling you."
+      ],
+      "explain": {
+        "en": "In this task I wrote the final report of our CRO programme and a handover pack. The report lists everything we built, the main learnings, all test results and the value in money. I calculated the ROI with the low end of the confidence interval, from revenue to gross profit, and I compared it with the cost. I added a three-month roadmap and the main risks. The handover has an access list without passwords, weekly and monthly routines and a ten-step guide to launch a test. A classmate tested the handover and I fixed the unclear parts."
+      },
+      "vocabulary": [
+        { "term": "ROI (return on investment)", "en": "the money gained compared to the money spent" },
+        { "term": "handover", "en": "giving your work and knowledge to another person so they can continue" },
+        { "term": "routine", "en": "a check that you do at fixed times, like every Monday" },
+        { "term": "access list", "en": "a list of tools, their owners and who can log in" },
+        { "term": "portfolio", "en": "examples of your work that you show to employers" }
+      ],
+      "interview": [
+        { "q": "How do you show the value of a CRO programme in money?", "a": "I take the change in revenue per visitor from the winning tests and multiply it by the visitors per month. I use the low end of the confidence interval to be safe. Then I multiply by the gross margin to get profit, and I compare it with the cost of time and tools. I also mention value that is hard to count, like correct data and mistakes we avoided." },
+        { "q": "What is in your handover?", "a": "There is an access list with owners but no passwords, and weekly and monthly routines. For example every Monday the person checks the dashboard and compares GA4 purchases with Shopify orders. There is also a ten-step guide to launch a test with links to the rules, the QA checklist and the learning log." },
+        { "q": "What would you do in the next three months at GlowShop?", "a": "I would start with the Canada findings: just fix the clear problems, like currency and duty information, and test a lower free shipping threshold. I would keep the weekly data checks and run one or two tests at a time with enough traffic. I would measure every result in revenue and profit per visitor." }
+      ],
+      "resources": [
+        { "title": "CXL: A/B testing guide", "url": "https://cxl.com/blog/ab-testing-guide/" },
+        { "title": "GrowthBook docs: Experiment results", "url": "https://docs.growthbook.io/app/experiment-results" }
+      ]
+    }
+  ]
+}

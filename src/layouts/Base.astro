@@ -32,7 +32,7 @@ const appName = env.APP_NAME ?? 'DevOps Lab';
         <a href="/app" class={on('/app')}>Home</a>
         <a href="/app/sprints" class={on('/app/sprints')}>Sprints</a>
         <a href="/app/practice" class={on('/app/practice')}>Practice</a>
-        <a href="/app/drills" class={on('/app/drills')}>Incidents</a>
+        {(!user.track || user.track === 'devops') && <a href="/app/drills" class={on('/app/drills')}>Incidents</a>}
         <a href="/app/interview" class={on('/app/interview')}>Interview</a>
         <a href="/app/log" class={on('/app/log')}>Work log</a>
         <a href={`/u/${user.handle}`}>Portfolio</a>

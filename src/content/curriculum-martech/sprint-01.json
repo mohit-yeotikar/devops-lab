@@ -1,0 +1,315 @@
+{
+  "id": "m01",
+  "number": 1,
+  "title": "Measurement strategy and unit economics",
+  "weeks": "1-2",
+  "theme": "Turn Voltra's business goals into a KPI tree, a unit economics model, a dealer lead funnel, a measurement plan and naming rules that every team and agency uses.",
+  "jobStory": "In this sprint you join Voltra Mobility as the new marketing technology and performance lead. Before you touch a tag or a bid, you agree with the leadership team what success means in money: contribution margin, CAC, LTV and MER, not only ROAS. You map the dealer lead funnel from form to delivery and put a value on each stage. Then you write the measurement plan, the tracking plan sheet and the naming rules that GA4, Tag Manager, Google Ads and the agencies will follow for the rest of the year.",
+  "outcomes": [
+    "I built a KPI tree that links Voltra's revenue and margin goals to channel KPIs and owners.",
+    "I built a unit economics model with contribution margin, break-even ROAS, CAC, LTV, payback and MER.",
+    "I mapped the dealer lead funnel (lead, qualified, test ride, booking, delivery) with stage rates, time lags and a value per lead.",
+    "I wrote a measurement plan and an event-level tracking plan with GA4 event names, parameters, key events and owners.",
+    "I wrote a naming and UTM standard for campaigns, events and tags and checked live campaigns against it."
+  ],
+  "tickets": [
+    {
+      "id": "m01-t01",
+      "key": "MKT-101",
+      "type": "task",
+      "title": "Build the Voltra KPI tree from business goals",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Leadership has one KPI tree that links the FY revenue and margin goals to the few KPIs each channel owner is measured on.",
+      "context": "Hi, welcome to Voltra. Every team reports its own numbers: the agency shows ROAS, the dealer team shows leads, the D2C team shows bookings. Nobody can tell me how these add up to our revenue goal. Before we change any tool, please build one KPI tree that the whole leadership team can agree on. - Ananya, CMO",
+      "steps": [
+        "Create a Google Sheet named `Voltra - KPI tree - FY27` with three tabs: `Goals`, `Tree`, `Owners`.",
+        "In `Goals` write the business goals as numbers (use these practice targets): 60,000 scooters and 9,000 three-wheelers delivered; scooter average price INR 120,000; accessories store revenue INR 180 million; marketing spend cap 6% of vehicle revenue; contribution margin after marketing at least 9%.",
+        "Put the North Star at the top of `Tree`: `contribution margin after marketing (INR)`. Write in one sentence why you did not choose revenue or ROAS (revenue can grow while margin falls; ROAS ignores spend that the platform does not track).",
+        "Split it into level 2 drivers: vehicle deliveries x contribution per delivery, plus accessories orders x contribution per order, minus total marketing spend. Each driver gets one row with a formula that refers to the cells below it.",
+        "Split deliveries into the two routes: dealer route (leads x lead-to-delivery rate) and online route (D2C bookings x booking-to-delivery rate). Split leads into channels: paid search, paid social, YouTube, programmatic, organic, dealer walk-in.",
+        "For each leaf add a leading KPI (moves this week) and a lagging KPI (moves this quarter). Example: paid search leaf = leading `cost per qualified lead`, lagging `cost per delivery`.",
+        "Mark guardrail metrics in a different colour: lead-to-test-ride rate (stops cheap junk leads), refund and cancellation rate, brand search share, frequency on YouTube.",
+        "In `Owners` write one owner per KPI (CMO, head of digital, dealer sales head, D2C lead, agency), the data source (GA4, CRM, dealer DMS, Google Ads, finance) and how often it is reported (daily, weekly, monthly).",
+        "Add a column `Can we measure it today? (yes / partly / no)`. For every `partly` or `no` write the gap in one line, for example `test ride status is only in the dealer DMS, not in CRM`.",
+        "Draw the tree as a diagram (Google Slides, Miro free plan or draw.io) with max 4 levels. Put the diagram link in the sheet.",
+        "Check the math: change the scooter price cell by 5% and see that the North Star changes. If a cell does not move, a formula link is broken."
+      ],
+      "acceptance": [
+        "The sheet has a North Star in money, level 2 drivers and channel leaves, all linked by formulas (no typed totals).",
+        "Every leaf has one leading KPI, one lagging KPI, one owner, one data source and a reporting rhythm.",
+        "At least 3 guardrail metrics are marked.",
+        "Every measurement gap is written in one line with the system where the data lives today."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra - KPI tree - FY27` (view access)",
+        "Link to the tree diagram",
+        "A list of the measurement gaps you found (copy from the sheet)"
+      ],
+      "hints": [
+        "If a KPI has no owner, nobody will act on it. Remove it or give it an owner.",
+        "Keep the tree small. Leadership reads 10-15 KPIs, not 60.",
+        "Leading KPIs are the ones a channel owner can change this week with their own actions."
+      ],
+      "explain": {
+        "en": "In this task I built one KPI tree for Voltra. I put contribution margin after marketing at the top, because revenue and ROAS can look good while the business loses money. I split it into deliveries, contribution per delivery, accessories and total spend, and then into the dealer route and the online route by channel. Each leaf has a leading KPI, a lagging KPI, one owner and one data source. I added guardrails like lead-to-test-ride rate so teams cannot win by buying cheap leads. I also listed the gaps, for example test ride data that only sits in the dealer system."
+      },
+      "vocabulary": [
+        { "term": "KPI tree", "en": "a diagram that breaks one top goal into the smaller numbers that drive it" },
+        { "term": "North Star metric", "en": "the one number that best shows if the business is creating value" },
+        { "term": "leading KPI", "en": "a number that changes fast and predicts a result later" },
+        { "term": "lagging KPI", "en": "a number that shows the final result, but only after some time" },
+        { "term": "guardrail metric", "en": "a number that must not get worse while you push the main goal" }
+      ],
+      "interview": [
+        { "q": "Why did you not use ROAS as the top KPI?", "a": "ROAS only counts revenue that one platform can attribute, and it ignores product margin. A campaign can show ROAS of 8 and still lose money if the margin is 10%. I put contribution margin after marketing at the top and use ROAS only as a channel-level, leading signal. That keeps every team pointed at profit, not at platform credit." },
+        { "q": "How do you stop teams from gaming a KPI?", "a": "I pair every volume KPI with a quality guardrail. For dealer leads, cost per lead is paired with lead-to-test-ride rate, so cheap junk leads show up at once. I also make sure the lagging KPI, cost per delivery, is reviewed monthly with sales. When the same tree is used by finance, sales and marketing, it is hard to win in one box and lose in another." },
+        { "q": "What do you do when a KPI in the tree cannot be measured yet?", "a": "I keep it in the tree and mark it as a gap with an owner and a date. Hiding it would make the tree look complete and push people to optimise what is easy to count. For Voltra, test ride status lived only in the dealer system, so I listed a CRM integration as a project. Until then, we report it monthly from a dealer export and say clearly that it is partial." }
+      ],
+      "resources": [
+        { "title": "Google Analytics Help: Measurement planning (Skillshop GA4 courses)", "url": "https://skillshop.withgoogle.com/" },
+        { "title": "Google Analytics Help: Key events", "url": "https://support.google.com/analytics/answer/13128484" }
+      ]
+    },
+    {
+      "id": "m01-t02",
+      "key": "MKT-102",
+      "type": "task",
+      "title": "Build the unit economics model: CAC, LTV, break-even ROAS and MER",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Finance and marketing use one model that gives the break-even ROAS, the target CAC per vehicle and the MER limit for next quarter.",
+      "context": "Hi, our agency says Google Ads ROAS is 9 and wants more budget. Finance says marketing is too expensive. I need a model that tells us what ROAS and CAC we can afford for a scooter, a three-wheeler and an accessories order, and how blended MER looks. Please use our real margin structure, not a rule of thumb. - Rahul, Head of Digital",
+      "steps": [
+        "Create a Google Sheet `Voltra - Unit economics` with tabs `Inputs`, `Per unit`, `CAC and LTV`, `MER`, `Scenarios`. All numbers live only in `Inputs`; every other tab uses formulas.",
+        "In `Inputs` enter the practice numbers for a scooter: price INR 120,000 incl. GST 5%; net revenue = price / 1.05; cost of goods 68% of net revenue; dealer margin 7% of net revenue; logistics and warranty reserve 4%; payment and finance subsidy 2% for online bookings.",
+        "In `Per unit` calculate contribution per scooter before marketing: net revenue minus all variable costs. Write it as a value and as a % of net revenue. Do the same for a three-wheeler (price INR 310,000, cost of goods 72%) and an accessories order (average order value INR 2,500, gross margin 45%, shipping INR 150).",
+        "Calculate break-even ROAS for each product: `= 1 / contribution margin %`. Example: if contribution is 19% of net revenue, break-even ROAS is about 5.3. Below this number every attributed sale loses money.",
+        "Add a target ROAS that leaves profit: `= 1 / (contribution margin % - target profit %)`. Use a target profit of 9% for vehicles.",
+        "In `CAC and LTV` calculate the maximum CAC per scooter: contribution per scooter minus the profit you want to keep. Add LTV over 3 years: first contribution plus paid service visits (INR 2,400 contribution per year) plus accessories (1.4 orders x contribution per order) plus referral value (0.15 extra sales x contribution). Use contribution, not revenue, in LTV.",
+        "Add LTV:CAC and payback in months. Write one line on why payback matters more than LTV:CAC for a cash-limited company.",
+        "In `MER` enter last quarter: total revenue INR 8.2 billion, total marketing spend INR 460 million (all channels plus agency fees plus tools). Calculate `MER = total revenue / total marketing spend` and the marketing cost ratio (spend / revenue).",
+        "Next to MER put the sum of platform-reported revenue (Google Ads, Meta, DV360 practice values: INR 6.1 billion, 3.8 billion and 950 million). Calculate the over-claim factor: platform total / real total. Write why it is above 1 (each platform claims the same sale, view-through, modelled conversions).",
+        "In `Scenarios` build 3 cases (plan, low price, high cost) with a data table: what happens to break-even ROAS and max CAC if the price drops 8% or the cost of goods rises 3 points.",
+        "Write a 5-line summary at the top of `CAC and LTV`: break-even ROAS per product, max CAC per scooter, current MER and the one decision you recommend about the agency's budget request."
+      ],
+      "acceptance": [
+        "All results come from formulas that point to the `Inputs` tab; changing one input updates every result.",
+        "Break-even ROAS and target ROAS are shown for scooter, three-wheeler and accessories, using net revenue after GST.",
+        "LTV uses contribution, not revenue, and payback is shown in months.",
+        "MER and the platform over-claim factor are calculated and explained in plain words.",
+        "The summary gives a clear recommendation on the budget request."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra - Unit economics` (view access)",
+        "Screenshot of the `Scenarios` tab with the three cases",
+        "The 5-line summary (copy it as text)"
+      ],
+      "hints": [
+        "ROAS in ad platforms is usually gross revenue incl. tax. Compare it to a break-even ROAS on the same basis, or convert one of them.",
+        "If LTV:CAC looks above 10, check that you did not use revenue instead of contribution.",
+        "MER does not need attribution. That is why finance trusts it."
+      ],
+      "explain": {
+        "en": "In this task I built Voltra's unit economics model in Google Sheets. I calculated contribution per scooter, per three-wheeler and per accessories order after GST, cost of goods, dealer margin and logistics. From that I got the break-even ROAS and a target ROAS that leaves 9% profit. I calculated the maximum CAC, a three-year LTV based on contribution, and the payback period. I also calculated MER from finance numbers and showed that the platforms together claim more revenue than we really made. My summary told leadership which ROAS level is safe before we give the agency more budget."
+      },
+      "vocabulary": [
+        { "term": "contribution margin", "en": "money left from a sale after all variable costs, before fixed costs" },
+        { "term": "break-even ROAS", "en": "the ROAS where ad spend uses up all the contribution, so profit is zero" },
+        { "term": "CAC", "en": "customer acquisition cost: marketing spend divided by new customers" },
+        { "term": "LTV", "en": "lifetime value: the total contribution a customer brings over time" },
+        { "term": "MER", "en": "marketing efficiency ratio: total revenue divided by total marketing spend" },
+        { "term": "payback period", "en": "how many months until a customer's contribution pays back their CAC" }
+      ],
+      "interview": [
+        { "q": "What is the difference between ROAS and MER, and when do you use each?", "a": "ROAS is attributed revenue divided by the spend of one platform or campaign, so it depends on that platform's attribution and tracking. MER is total business revenue divided by total marketing spend, so it needs no attribution. I use ROAS to steer bids and budgets inside a channel, and MER to check that the whole marketing system pays off. When the platforms together claim far more revenue than finance books, I trust MER and question the platform numbers." },
+        { "q": "How do you calculate break-even ROAS?", "a": "Break-even ROAS is one divided by the contribution margin percentage. If a scooter leaves 19% contribution after cost of goods, dealer margin and logistics, break-even ROAS is about 5.3. I make sure both numbers use the same revenue basis, because ad platforms often report revenue including tax. For a profit target I divide one by the margin minus the target profit." },
+        { "q": "Why should LTV use contribution and not revenue?", "a": "The business can only spend profit, not revenue, to acquire customers. If LTV uses revenue, LTV:CAC looks great and we overspend. For Voltra I built LTV from the first contribution, service contribution, accessories and a small referral value over three years. I also show payback in months, because a cash-limited company cannot wait three years to get its money back." }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About conversion values", "url": "https://support.google.com/google-ads/answer/3419241" },
+        { "title": "Google Ads Help: About Target ROAS bidding", "url": "https://support.google.com/google-ads/answer/6268637" }
+      ]
+    },
+    {
+      "id": "m01-t03",
+      "key": "MKT-103",
+      "type": "task",
+      "title": "Map the dealer lead funnel and put a value on each stage",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "The dealer funnel (lead to delivery) is defined with clear stage rules, rates, time lags and a value per stage that bidding can use later.",
+      "context": "Hi, our dealers sell most scooters, but Google Ads only sees the lead form. Every lead looks the same to the algorithm, so we buy many leads that never book a test ride. Please define the funnel stages with the dealer sales head and give each stage a value, so we can later send better signals to Google Ads. - Rahul, Head of Digital",
+      "steps": [
+        "Create a Google Sheet `Voltra - Dealer lead funnel` with tabs `Stages`, `Rates`, `Lags`, `Values`, `IDs`.",
+        "In `Stages` define 6 stages with an exact entry rule and the system that records it: `lead` (form submitted, CRM), `qualified` (phone verified and pincode served by a dealer, CRM), `test_ride_booked` (slot booked, CRM), `test_ride_done` (dealer marks done, dealer DMS), `booking` (token amount paid, payment system), `delivery` (vehicle handed over, DMS). One stage = one event that happens once per lead.",
+        "In `Rates` enter last quarter's practice counts: 48,000 leads; 31,200 qualified; 11,500 test rides booked; 8,100 test rides done; 3,050 bookings; 2,620 deliveries. Calculate each step rate and the lead-to-delivery rate.",
+        "Split the rates by channel with these practice numbers (lead-to-delivery): paid search brand 9.1%, paid search generic 4.8%, Meta lead forms 1.9%, YouTube 3.2%, organic 6.5%. Write which channel looks cheap per lead but expensive per delivery.",
+        "In `Lags` write the median days from lead to each stage (practice: qualified 0.5, test ride booked 2, test ride done 6, booking 14, delivery 35). Write what this means for a 30-day attribution window and for how long Google Ads needs to wait for offline imports (conversion actions accept uploads for clicks up to 90 days old).",
+        "In `Values` calculate a value per stage: `value = contribution per delivery x probability that this stage ends in a delivery`. Use the contribution per scooter from MKT-102. Example: if 32% of completed test rides end in delivery and contribution is INR 22,000, a completed test ride is worth INR 7,040.",
+        "Decide which stages become Google Ads conversion actions later: one primary action used for bidding (for example `qualified` with its value) and the rest as secondary for reporting. Write why you did not pick `delivery` as primary (too few, too late for the algorithm).",
+        "In `IDs` list the keys that must pass from the website to CRM so stages can be joined back to clicks: `lead_id` (our own, created at form submit), `gclid`, `gbraid`, `wbraid`, `fbclid`/`fbc`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_id`, GA4 `client_id`, and the hashed email and phone for enhanced conversions for leads. Mark which ones are stored today.",
+        "Add a row for consent: the form must store the user's consent choice with the lead, because we may only upload data for users who gave consent where the law needs it.",
+        "Meet (or role-play) the dealer sales head for 30 minutes. Agree on the entry rule for `qualified` and `test_ride_done`. Write the decisions and the date in the sheet.",
+        "Draw the funnel as a simple chart (bar chart of counts per stage) in the sheet."
+      ],
+      "acceptance": [
+        "Six stages are defined, each with one exact entry rule and the system of record.",
+        "Step rates, lead-to-delivery rate per channel and median lags are calculated.",
+        "Each stage has a value based on contribution and the probability to deliver.",
+        "One primary bidding stage is chosen with a written reason.",
+        "The ID list shows which join keys are stored today and which are missing."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra - Dealer lead funnel`",
+        "Screenshot of the funnel chart",
+        "Your written decision on the primary bidding stage (3-5 lines)"
+      ],
+      "hints": [
+        "A stage value is an expected value. It is not the price of the vehicle.",
+        "If a stage can happen many times per lead (many test ride bookings), count only the first one.",
+        "Look up gbraid and wbraid: they replace gclid on some iOS traffic."
+      ],
+      "explain": {
+        "en": "In this task I mapped the dealer lead funnel from form to delivery. I defined six stages, each with one clear entry rule and the system that records it. I calculated the step rates, the lead-to-delivery rate by channel and the median days between stages. Then I gave each stage a value from the contribution per scooter and the chance that the stage ends in a delivery. I chose the qualified lead as the primary bidding signal, because deliveries are too slow and too few for the algorithm. I also listed the IDs like lead_id and gclid that we must store to join CRM stages back to ad clicks."
+      },
+      "vocabulary": [
+        { "term": "lead funnel", "en": "the stages a lead passes from first contact to a sale" },
+        { "term": "time lag", "en": "the number of days between two stages" },
+        { "term": "expected value", "en": "a value multiplied by the chance that it really happens" },
+        { "term": "GCLID", "en": "Google click ID, added to the landing page URL so a click can be matched later" },
+        { "term": "offline conversion import", "en": "sending CRM results back to an ad platform so it can learn from them" }
+      ],
+      "interview": [
+        { "q": "How do you put a value on a lead that has not bought anything yet?", "a": "I use expected value: the contribution of a delivery multiplied by the probability that a lead at that stage ends in a delivery. I take the probability from the last one or two quarters of CRM data, split by channel if the sample is big enough. The values are refreshed every quarter. This lets value-based bidding prefer leads that look like buyers, not just any form fill." },
+        { "q": "Why not optimise Google Ads directly for deliveries?", "a": "Deliveries come about 35 days after the lead and we have only a few thousand per quarter across many campaigns. Smart bidding needs enough conversions and fast feedback to learn. So I bid on a qualified lead with a value, and I import later stages as secondary actions for reporting. When volume grows, I can move the primary signal further down the funnel." },
+        { "q": "Which IDs must the lead form capture, and why?", "a": "I need our own lead_id to join all systems, plus gclid, gbraid and wbraid to match Google clicks, and the click IDs of other platforms. I also store UTM values, the GA4 client ID, the consent choice and, with consent, the email and phone for enhanced conversions for leads. Without these keys, CRM results cannot be sent back to the ad platforms. Missing IDs are the most common reason offline imports fail." }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About offline conversion imports", "url": "https://support.google.com/google-ads/answer/2998031" },
+        { "title": "Google Ads Help: About enhanced conversions for leads", "url": "https://support.google.com/google-ads/answer/11347292" }
+      ]
+    },
+    {
+      "id": "m01-t04",
+      "key": "MKT-104",
+      "type": "project",
+      "title": "Write the Voltra measurement plan and the tracking plan sheet",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "Developers, the agency and analysts work from one measurement plan and one event-level tracking plan for voltra.in and the accessories store.",
+      "context": "Hi, our GA4 has 140 event names. Some are duplicates like `Lead_Submit` and `lead_submit`, and nobody knows which ones are key events. Before we fix the tags next month, I need a written measurement plan and a tracking plan sheet that developers can build from. Start from the KPI tree and the funnel you already made. - Ananya, CMO",
+      "steps": [
+        "Create a Google Doc `Voltra - Measurement plan v1` with headings: Business objectives, KPIs and targets, Audiences and segments, Funnels, Data sources, Tracking scope, Key events, Consent and privacy, Ownership, Open questions.",
+        "Under Business objectives and KPIs copy the top of your KPI tree (MKT-101) and the targets from MKT-102. For each objective write the one question it must answer, for example `Which channels bring test rides that end in a booking?`.",
+        "Under Funnels write two funnels: dealer route (from MKT-103) and online route (`view_item` → `begin_checkout` for a booking → `add_payment_info` → `purchase` with the token amount) plus the accessories store.",
+        "Create a Google Sheet `Voltra - Tracking plan` with tabs `Events`, `Parameters`, `Key events`, `Custom definitions`, `dataLayer`, `QA`, `Change log`.",
+        "In `Events` list each event with columns: event_name, trigger (exact user action), page or screen, GA4 type (automatic, enhanced measurement, recommended, custom), parameters, key event (yes/no), owner, status. Use GA4 recommended names first: `generate_lead`, `view_item`, `add_to_cart`, `begin_checkout`, `add_payment_info`, `purchase`, `search`, `sign_up`, `login`.",
+        "Add the custom events Voltra needs, in snake_case: `test_ride_book`, `dealer_locator_search`, `dealer_select`, `emi_calculator_use`, `brochure_download`, `range_calculator_use`, `callback_request`. Event names: max 40 characters, start with a letter, no reserved prefixes `ga_`, `google_`, `firebase_`.",
+        "In `Parameters` define each parameter once: name, type (text, number), example value, scope (event, user, item), allowed values or format. Include `lead_id`, `form_id`, `vehicle_model`, `vehicle_variant`, `dealer_id`, `city`, `pincode_served` (true/false), `emi_tenure_months`, `value`, `currency` (`INR`), `transaction_id`. Parameter names max 40 characters, values max 100 characters in standard GA4.",
+        "In `Key events` pick max 8 key events and write why each one is a key event (a business outcome, not a click). Note the property limit: 30 key events in standard GA4 and 50 in Analytics 360. Write which ones will also be imported into Google Ads.",
+        "In `Custom definitions` list the parameters that must be registered in GA4 (Admin → Data display → Custom definitions) with scope and why. Check the limits: standard GA4 allows 50 event-scoped and 25 user-scoped custom dimensions, 50 custom metrics and 10 item-scoped dimensions; Analytics 360 allows 125, 100, 125 and 25.",
+        "In `dataLayer` write the exact `dataLayer.push()` for 3 events, with real field names. Example for a lead: `dataLayer.push({event: 'generate_lead', lead_id: 'L-24-000123', form_id: 'test_ride_form', vehicle_model: 'volt_s1', city: 'pune', value: 1040, currency: 'INR'})`. For `purchase` use the GA4 ecommerce shape with `ecommerce: {transaction_id, value, currency, items: [...]}` and first push `{ecommerce: null}`.",
+        "Write the PII rule in the doc and in the sheet: no email, phone, name or full address in any event parameter or URL. Hashed user data goes only into the user-provided data fields for enhanced conversions, with consent.",
+        "In `QA` write a test case per event: action, expected event in GTM Preview, expected parameters in GA4 DebugView, pass/fail. In `Change log` add version 1.0 with date and author.",
+        "Ask one developer (or a friend) to read the `dataLayer` tab and tell you what is unclear. Fix it and log the change as 1.1."
+      ],
+      "acceptance": [
+        "The measurement plan doc has all 10 headings filled and links to the tracking plan.",
+        "Every event uses snake_case, max 40 characters, no reserved prefixes, and GA4 recommended names where one exists.",
+        "Max 8 key events, each with a business reason; the 30/50 key event limit is noted.",
+        "Every custom parameter that needs a report is listed for registration with its scope, inside the standard limits.",
+        "At least 3 complete dataLayer examples, including a purchase with an items array.",
+        "A written PII rule and a QA test case for every event."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra - Measurement plan v1`",
+        "Link to the Google Sheet `Voltra - Tracking plan`",
+        "The developer feedback you got and the changes in version 1.1"
+      ],
+      "hints": [
+        "If two events mean the same business action, keep one event and use a parameter (for example `form_id`) to tell them apart.",
+        "Key events are outcomes. A click on 'Book test ride' is not a key event; a booked slot is.",
+        "The GA4 recommended events reference shows the exact parameter names for ecommerce events."
+      ],
+      "explain": {
+        "en": "In this project I wrote Voltra's measurement plan and the tracking plan sheet. The plan links our business objectives and KPIs to the funnels, data sources, key events, consent rules and owners. In the sheet I defined every event and parameter once, with GA4 recommended names first and snake_case custom names for things like test ride bookings. I picked eight key events and checked the GA4 and Analytics 360 limits for key events and custom dimensions. I wrote exact dataLayer examples, a clear rule against personal data in events, and a QA test case for each event. A developer reviewed it and I fixed the unclear parts."
+      },
+      "vocabulary": [
+        { "term": "measurement plan", "en": "a document that links business goals to the data you must collect" },
+        { "term": "tracking plan", "en": "a detailed list of every event and parameter the site must send" },
+        { "term": "key event", "en": "a GA4 event marked as important for the business (earlier called a conversion)" },
+        { "term": "dataLayer", "en": "a JavaScript list where the website puts data for Tag Manager to read" },
+        { "term": "PII", "en": "personally identifiable information, like email, phone or name" }
+      ],
+      "interview": [
+        { "q": "What is the difference between a measurement plan and a tracking plan?", "a": "The measurement plan is the business document: objectives, KPIs, funnels, audiences, data sources and owners. The tracking plan is the technical contract: every event, parameter, type, trigger and dataLayer example a developer must build. I always write the plan first, so every event in the tracking plan answers a business question. Events that answer no question do not get built." },
+        { "q": "How do you choose key events in GA4?", "a": "A key event must be a business outcome that someone acts on, like a qualified lead, a test ride booking or a purchase. Micro actions like clicks or scrolls stay as normal events. I keep the list short, well below the 30 limit in standard GA4, so reports and Google Ads imports stay clean. Every key event has an owner and a written reason in the tracking plan." },
+        { "q": "How do you prevent personal data from reaching GA4?", "a": "I write a clear PII rule in the tracking plan and check it in QA: no email, phone or name in parameters, page paths or query strings. Form tools often put the email in the thank-you URL, so I check that in GTM Preview. Hashed data for enhanced conversions goes only into the user-provided data fields and only with consent. If PII still reaches GA4, I use data deletion requests and fix the source at once." }
+      ],
+      "resources": [
+        { "title": "Google Analytics Help: Recommended events", "url": "https://support.google.com/analytics/answer/9267735" },
+        { "title": "Google Developers: GA4 recommended events reference", "url": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events" },
+        { "title": "Google Developers: The data layer", "url": "https://developers.google.com/tag-platform/tag-manager/datalayer" }
+      ]
+    },
+    {
+      "id": "m01-t05",
+      "key": "MKT-105",
+      "type": "docs",
+      "title": "Write the naming and UTM standard for campaigns, events and tags",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Every team and agency names campaigns, UTMs, GA4 events and GTM items the same way, so reports group cleanly across Google, Meta and programmatic.",
+      "context": "Hi, our channel report shows `facebook`, `Facebook`, `fb` and `meta` as four different sources, and Google Ads campaign names change format every month. Please write one naming standard that our three agencies must follow, and check our current campaigns against it. - Rahul, Head of Digital",
+      "steps": [
+        "If you want practice first, open Practice → UTM lab (`cro-utm`) in this app and solve it. It shows how small spelling differences break channel grouping.",
+        "Create a Google Doc `Voltra - Naming and UTM standard v1` with headings: Why, Campaign names, UTM rules, Channel grouping, GA4 events and parameters, GTM names, Approval and checks.",
+        "Under Campaign names define one pattern with fixed order and `_` as separator: `country_channel_objective_product_audience_yyyymm`, for example `in_search_lead_volts1_generic_202611`. List the allowed values for each part in a table (country: `in`, `ae`, `np`; channel: `search`, `pmax`, `demandgen`, `youtube`, `meta`, `dv360`; objective: `lead`, `booking`, `sales`, `awareness`).",
+        "Under UTM rules write: all lowercase; no spaces; `utm_source` = the platform (`google`, `meta`, `youtube`, `dv360`, `newsletter`); `utm_medium` = the type (`cpc`, `paid_social`, `display`, `video`, `email`, `affiliate`); `utm_campaign` = the campaign name above; `utm_id` = the campaign ID; `utm_content` = creative ID; `utm_term` = keyword or audience.",
+        "Write that Google Ads uses auto-tagging (gclid) and does not need manual UTMs, but other platforms do. Write the Meta URL parameters template with its dynamic macros, for example `utm_source=meta&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_content={{ad.id}}`.",
+        "Under Channel grouping explain how GA4's default channel group reads `utm_medium` (for example `cpc` + a known search source = Paid Search; `paid_social` matches Paid Social). Write that you will create a custom channel group in Admin → Data display → Channel groups for `dealer_qr` and `whatsapp` traffic.",
+        "Under GA4 events copy the rules from MKT-104 (snake_case, max 40 characters, recommended names first).",
+        "Under GTM names define: tags `Platform - Type - Detail` (for example `GA4 - Event - generate_lead`, `GAds - Conversion - qualified_lead`), triggers `Type - Detail` (`CE - generate_lead`, `Click - Book test ride`), variables `Type - Name` (`DLV - lead_id`, `CJS - page_type`, `Const - GA4 Measurement ID`). Add folder names per platform.",
+        "Build a `UTM builder` tab in a Google Sheet with dropdowns (Data → Data validation) for source, medium and each campaign name part, and a formula that builds the final URL with `LOWER()` and `SUBSTITUTE()` for spaces.",
+        "Audit: open the GA4 demo account (Google Merchandise Store) → Reports → Acquisition → Traffic acquisition. Change the dimension to `Session source / medium` and `Session campaign`. Write 5 examples of values that break your standard (mixed case, duplicates, `(not set)`).",
+        "Under Approval and checks write who approves new campaign names (performance lead), the weekly check (Traffic acquisition sorted by sessions, look for new values) and what happens to a wrong name (fix within 24 hours; old data cannot be renamed in GA4)."
+      ],
+      "acceptance": [
+        "The doc has one campaign name pattern with allowed values for every part.",
+        "UTM rules are lowercase, list allowed sources and mediums, and say when auto-tagging replaces UTMs.",
+        "GTM naming covers tags, triggers, variables and folders with examples.",
+        "The UTM builder sheet uses dropdowns and builds a clean URL.",
+        "The audit lists at least 5 broken values from the demo account and the rule each one breaks."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra - Naming and UTM standard v1`",
+        "Link to the UTM builder sheet",
+        "Screenshot of the Traffic acquisition report you audited"
+      ],
+      "hints": [
+        "Use only lowercase in UTMs: GA4 treats `Meta` and `meta` as two different sources.",
+        "Never put UTMs on internal links of your own site; they start a new session source.",
+        "Keep the campaign name readable by people. Long IDs belong in `utm_id`."
+      ],
+      "explain": {
+        "en": "In this task I wrote Voltra's naming and UTM standard. I defined one campaign name pattern with fixed parts like country, channel, objective, product and month, and a table of allowed values. I wrote lowercase UTM rules, the allowed sources and mediums, and when Google Ads auto-tagging replaces UTMs. I also set names for GA4 events and for GTM tags, triggers and variables. I built a UTM builder sheet with dropdowns so agencies cannot type wrong values. Then I audited the GA4 demo account and found mixed case and duplicate sources that break channel reports."
+      },
+      "vocabulary": [
+        { "term": "UTM parameters", "en": "tags in a link that tell analytics the source, medium and campaign of a visit" },
+        { "term": "auto-tagging", "en": "Google Ads adds a click ID (gclid) to the link by itself" },
+        { "term": "channel group", "en": "GA4 rules that put traffic into channels like Paid Search or Email" },
+        { "term": "naming convention", "en": "a fixed rule for how names are written" }
+      ],
+      "interview": [
+        { "q": "Why does a naming standard matter at a senior level?", "a": "At scale, reports group by names. If three agencies spell the same source three ways, channel reports, budget splits and attribution are wrong. A standard with allowed values and a builder tool removes most errors before they happen. I also set a weekly check, because GA4 cannot rename data after it is collected." },
+        { "q": "Do you use UTMs on Google Ads?", "a": "No, I use auto-tagging with gclid, because it gives GA4 richer data like campaign, ad group and keyword, and it is needed for many Google Ads features. Manual UTMs can even override or conflict with auto-tagging if they are set up wrong. I use UTMs for every other platform, like Meta, email and DV360. I do keep a clean campaign naming pattern in Google Ads, because the campaign name still appears in reports." },
+        { "q": "How do you make agencies follow the standard?", "a": "I make it easy and visible. They get a builder sheet with dropdowns, the standard is part of the agency brief, and the performance lead approves new campaign names. Every week I check new source, medium and campaign values in GA4 and send fixes within 24 hours. Repeated errors are discussed in the monthly agency review." }
+      ],
+      "resources": [
+        { "title": "Google Analytics Help: Collect campaign data with custom URLs", "url": "https://support.google.com/analytics/answer/10917952" },
+        { "title": "Google Analytics Help: Default channel group", "url": "https://support.google.com/analytics/answer/9756891" }
+      ]
+    }
+  ]
+}

@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 
-const dir = new URL('../src/content/curriculum/', import.meta.url);
-const files = readdirSync(dir).filter((f) => /^sprint-\d\d\.json$/.test(f)).sort();
-const sprints = files.map((f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8')));
+const load = (d) => { const dir = new URL(`../src/content/${d}/`, import.meta.url); return existsSync(dir) ? readdirSync(dir).filter((f) => /^sprint-\d\d\.json$/.test(f)).sort().map((f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8'))) : []; };
+const files = load('curriculum').map((s) => s.id);
+const sprints = [...load('curriculum'), ...load('curriculum-cro'), ...load('curriculum-martech')];
 
-test('12 sprint files exist', () => assert.equal(files.length, 12, `found ${files.join(', ')}`));
+test('12 DevOps sprint files exist', () => assert.equal(files.length, 12, `found ${files.join(', ')}`));
 
 test('every sprint has the required shape', () => {
   const keys = new Set(), ids = new Set();
@@ -28,7 +28,7 @@ test('every sprint has the required shape', () => {
 
 test('incident tickets point to an existing drill', () => {
   for (const s of sprints) for (const t of s.tickets) {
-    if (t.type !== 'incident') continue;
+    if (t.type !== 'incident' || t.lab || !/^s\d/.test(s.id)) continue;
     const text = [t.drill, t.context, t.goal, ...t.steps].join(' ');
     const m = text.match(/drills\/([a-z0-9-]+)\/?/);
     assert.ok(m, `${t.id} incident ticket does not name a drill`);
@@ -41,4 +41,16 @@ test('every drill has README, SOLUTION, compose and check.sh', () => {
   const names = readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name);
   assert.ok(names.length >= 8);
   for (const n of names) for (const f of ['README.md', 'SOLUTION.md', 'docker-compose.yml', 'check.sh']) assert.ok(existsSync(new URL(`../drills/${n}/${f}`, import.meta.url)), `${n}/${f} missing`);
+});
+
+test('no Hindi or Hinglish anywhere in the content', () => {
+  const text = JSON.stringify(sprints);
+  assert.ok(!/"hi"\s*:/.test(text), 'a "hi" field is left');
+  assert.ok(!/\b(karo|kijiye|tumhe|aapko|nahi hai|kya hai)\b/i.test(text), 'Hinglish words found');
+});
+
+test('case tickets point to an existing practice lab', async () => {
+  const { allLabs } = await import('../src/sandbox/registry.js');
+  const ids = new Set(allLabs.map((l) => l.id));
+  for (const s of sprints) for (const t of s.tickets) if (t.lab) assert.ok(ids.has(t.lab), `${t.id} points to unknown lab ${t.lab}`);
 });

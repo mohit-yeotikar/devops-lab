@@ -1,0 +1,362 @@
+{
+  "id": "c06",
+  "number": 6,
+  "title": "Customer research and behaviour analytics",
+  "weeks": "11-12",
+  "theme": "Learn why GlowShop visitors do not buy: watch real sessions in Microsoft Clarity, read heatmaps, ask customers, and mine reviews.",
+  "jobStory": "In this sprint you move from 'what happens' to 'why it happens'. You install Microsoft Clarity on the practice store, watch session recordings and read heatmaps and signals like rage clicks and quick backs. You write a short survey for buyers and visitors and you mine real skincare reviews for the words customers use. At the end you write one research summary that the team uses to plan tests.",
+  "outcomes": [
+    "I installed Microsoft Clarity through Google Tag Manager, connected it to GA4 and checked masking.",
+    "I watched session recordings, read click and scroll heatmaps, and logged problems with clear evidence.",
+    "I wrote unbiased survey questions and put a survey live with free tools.",
+    "I mined 60 customer reviews into themes and wrote a research summary with the top problems.",
+    "I solved a case about rage clicks on the size picker and turned it into a hypothesis."
+  ],
+  "tickets": [
+    {
+      "id": "c06-t01",
+      "key": "CRO-601",
+      "type": "task",
+      "title": "Install Microsoft Clarity on the practice store",
+      "priority": "high",
+      "estimateHours": 6,
+      "goal": "Clarity records sessions and heatmaps on the practice store, it is linked to GA4, and sensitive text is masked.",
+      "context": "Hi, GA4 tells us what happens, but not why. We want to watch how people really use the store. Please install Microsoft Clarity. It is free. Use our GTM container, connect it to GA4 and check that no personal data is shown in the recordings.",
+      "steps": [
+        "Go to `https://clarity.microsoft.com` and sign in with your Google or Microsoft account. Click 'Add new project'. Name: `GlowShop practice store`. Website URL: your `https://<your-store>.myshopify.com`. Choose the category 'E-commerce'.",
+        "Clarity shows install options. Choose 'Install manually' (in the project you find it later under Settings → Setup). Copy the tracking code. It has your project ID, a 10-character text.",
+        "Open your GTM container. Go to Tags → New. Name it `Clarity – base`. Tag type: Custom HTML. Paste the Clarity code. Trigger: 'Initialization – All Pages'. Save.",
+        "Click Preview in GTM, enter your store URL and open the store. In Tag Assistant check that `Clarity – base` fired on the first page. Then go back to GTM and click Submit → version name `Add Clarity` → Publish.",
+        "Check the install: open your store in Chrome, open DevTools (F12) → Network tab, type `clarity` in the filter box and reload. You must see requests to `clarity.ms`. In Clarity, Settings → Setup shows 'Tracking installed' after a short time.",
+        "Connect GA4: in Clarity go to Settings → Setup → Google Analytics integration → 'Get started', sign in with the Google account that has your GA4 property and choose the property. This adds a Clarity filter to GA4 and lets you open Clarity recordings from GA4 segments.",
+        "Check masking: go to Settings → Masking. Keep 'Balanced' mode. Open one recording later and check that email, address and password fields show as `***`. Write down what you checked.",
+        "Read about consent: Clarity asks sites to send a consent signal for visitors in the EU, UK and Switzerland. GlowShop sells in the US and Canada, but write one line in your notes about how Consent Mode from sprint 4 should also control Clarity if we sell in Europe later.",
+        "Make test traffic for 2 days: browse the store on your phone and your laptop, use the search, open products, change variants, add to cart and go to checkout. Ask 3 friends to do the same (give them the store password). Aim for 15-20 sessions.",
+        "After about 2 hours, open the Clarity Dashboard. Take a screenshot of the cards Sessions, Dead clicks, Rage clicks, Excessive scrolling, Quick backs and JavaScript errors.",
+        "Write a short setup note in a Google Doc `GlowShop – Clarity setup`: project name, how it is installed (GTM tag name and trigger), GA4 link, masking mode, and how to check it works."
+      ],
+      "acceptance": [
+        "The GTM tag `Clarity – base` is published with the trigger 'Initialization – All Pages'.",
+        "Clarity Settings → Setup shows that tracking is installed.",
+        "The Clarity Dashboard shows at least 15 sessions.",
+        "The GA4 integration is connected to your GA4 property.",
+        "In one checked recording, personal fields are masked."
+      ],
+      "evidence": [
+        "Screenshot on Google Drive of the GTM tag `Clarity – base` with its trigger",
+        "Clarity screenshot of the Dashboard with the session count and the signal cards",
+        "Link to the Google Doc `GlowShop – Clarity setup` (view access)"
+      ],
+      "hints": [
+        "If Clarity shows no data, check that the GTM version with the tag is published, not only saved.",
+        "Ad blockers can block Clarity. Test in a window without extensions.",
+        "Clarity needs some time. Recordings often show up within 1-2 hours, not at once."
+      ],
+      "explain": {
+        "en": "In this task I installed Microsoft Clarity on our practice store. I added the Clarity code as a Custom HTML tag in Google Tag Manager and tested it in Preview mode. I checked the requests in Chrome DevTools and saw that Clarity received data. I connected Clarity to GA4 and checked that personal data is masked in the recordings. I wrote a short setup note so the team knows how it works."
+      },
+      "vocabulary": [
+        { "term": "Microsoft Clarity", "en": "a free tool that records visits and makes heatmaps" },
+        { "term": "session recording", "en": "a video-like replay of what one visitor did on the site" },
+        { "term": "masking", "en": "hiding private text like emails so it does not show in recordings" },
+        { "term": "Custom HTML tag", "en": "a GTM tag where you paste your own script" },
+        { "term": "consent signal", "en": "a message to a tool that says if the visitor allowed tracking" }
+      ],
+      "interview": [
+        {
+          "q": "How did you install Clarity and why that way?",
+          "a": "I installed it with a Custom HTML tag in Google Tag Manager on the Initialization trigger. So I did not touch the theme code, and I can turn it off in one place. I tested it in Preview mode and in the Network tab. Then I published the container."
+        },
+        {
+          "q": "How do you protect customer privacy with recordings?",
+          "a": "I kept the Balanced masking mode, so text in forms like email and address is hidden. I checked a recording to be sure. I also wrote down that Clarity must follow our consent setup if we sell in Europe."
+        },
+        {
+          "q": "What is the difference between GA4 and Clarity?",
+          "a": "GA4 gives numbers, like how many people added to cart. Clarity shows how people behave, with recordings and heatmaps. GA4 tells me where the problem is. Clarity helps me understand why it happens."
+        }
+      ],
+      "resources": [
+        { "title": "Microsoft Clarity docs: Set up Clarity", "url": "https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-setup" },
+        { "title": "Microsoft Clarity docs", "url": "https://learn.microsoft.com/en-us/clarity/" }
+      ]
+    },
+    {
+      "id": "c06-t02",
+      "key": "CRO-602",
+      "type": "task",
+      "title": "Watch recordings and read heatmaps with a clear log",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A behaviour log in Google Sheets lists at least 15 real problems from recordings and heatmaps, each with a link, a page, a device and a severity.",
+      "context": "Hi, now that Clarity runs, please watch the sessions. Do not only watch videos for fun: write down every problem in a log, with the link and the page, so we can count them later. Look at the product page and the cart on mobile first, that is where we lose people.",
+      "steps": [
+        "Practise first: open Practice → Behaviour lab in this app. Do the part about reading recordings and heatmaps.",
+        "Create a Google Sheet `GlowShop – behaviour log` with columns: `Date`, `Source` (recording / heatmap / dashboard), `Clarity link`, `Device`, `Page`, `What happened`, `Signal` (rage click / dead click / quick back / excessive scroll / JS error / other), `Severity 1-4`, `Idea`.",
+        "In Clarity open Recordings. Click Filters → Device → Mobile. Click Filters → Clarity insights (in some versions 'Behaviors') → Rage clicks. Watch every session in the list at speed 2x. Turn on 'Skip inactivity'.",
+        "For each problem, pause the video and copy the share link: click the share icon (or 'Copy link') in the player. Paste it in your log with the time in the video, for example `0:42`.",
+        "Do the same with the filters Dead clicks, Quick backs and Excessive scrolling. Then filter Visited URL contains `/products/` and watch 10 more sessions.",
+        "Open Heatmaps. Choose your best-selling product page. Look at the Click map on Mobile: which parts get clicks but are not links (for example images, the price, or the size text)? Write each one in the log.",
+        "Switch to Scroll map on Mobile. Write down the % of visitors who reach the 'Add to cart' button and the % who reach the reviews or the description.",
+        "Open the Area map (or 'Click areas') and compare clicks on the image gallery, the variant picker and the buy buttons.",
+        "Do the same three heatmaps for the cart page (or the cart drawer, if your theme uses a drawer) and the collection page.",
+        "Use the severity scale from NN/g: 1 = cosmetic, 2 = minor, 3 = major, 4 = blocks the purchase. Give every row a severity.",
+        "If your practice store has too few sessions, add 5 rows from the Clarity public demo project (open it from the Clarity home page) and mark them `demo` in the Source column.",
+        "Make a second tab `Summary`. Use `=COUNTIF('Log'!G:G,\"rage click\")` and similar formulas to count each signal. List the top 5 problems by severity and how many times you saw them.",
+        "Share the sheet with view access."
+      ],
+      "acceptance": [
+        "The log has at least 15 rows, each with a working Clarity link or a heatmap screenshot.",
+        "Every row has a page, a device, a signal and a severity from 1 to 4.",
+        "Scroll depth to the Add to cart button on mobile is written down for one product page.",
+        "The Summary tab counts signals with formulas and lists the top 5 problems."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop – behaviour log` (view access)",
+        "Clarity screenshot of the mobile click heatmap of one product page",
+        "Clarity screenshot of the mobile scroll heatmap of the same page"
+      ],
+      "hints": [
+        "Write what you see, not what you think. 'Tapped the price 4 times' is a fact. 'User was angry' is a guess.",
+        "One strange session is not a pattern. Count how often a problem comes back before you call it big.",
+        "Heatmaps need enough sessions. With fewer than about 30 sessions on a page, use them as a hint only."
+      ],
+      "explain": {
+        "en": "In this task I watched session recordings and read heatmaps in Microsoft Clarity. I used filters for mobile, rage clicks, dead clicks and quick backs, so I only watched useful sessions. I wrote every problem in a log with the link, the page, the device and a severity from 1 to 4. I read click, scroll and area heatmaps for the product page, the cart and a collection page. Then I counted the signals with formulas and listed the top 5 problems."
+      },
+      "vocabulary": [
+        { "term": "rage click", "en": "many fast clicks on the same place, often because something does not work" },
+        { "term": "dead click", "en": "a click on something that does nothing" },
+        { "term": "quick back", "en": "the visitor opens a page and goes back very fast" },
+        { "term": "scroll map", "en": "a heatmap that shows how far down the page people scroll" },
+        { "term": "severity", "en": "how bad a problem is for the user" }
+      ],
+      "interview": [
+        {
+          "q": "How do you watch recordings without wasting hours?",
+          "a": "I never watch random sessions. I use filters, like mobile, rage clicks or a product page URL, and I play at 2x speed with skip inactivity. I write each problem in a log with the link and the time. Then I count how often each problem appears."
+        },
+        {
+          "q": "What did the scroll map tell you?",
+          "a": "The scroll map showed the share of mobile visitors who reached each part of the product page. I wrote down how many reached the Add to cart button and the reviews. If many people never see the reviews, it is a sign to move them up or add a short summary near the top."
+        },
+        {
+          "q": "How do you decide if a problem is important?",
+          "a": "I look at two things: how bad it is and how often it happens. I used the NN/g severity scale from 1 to 4. A problem that blocks the purchase and happens in many sessions goes to the top of the list."
+        }
+      ],
+      "resources": [
+        { "title": "Microsoft Clarity docs: Heatmaps", "url": "https://learn.microsoft.com/en-us/clarity/heatmaps/heatmaps-overview" },
+        { "title": "NN/g: Severity ratings for usability problems", "url": "https://www.nngroup.com/articles/how-to-rate-the-severity-of-usability-problems/" }
+      ]
+    },
+    {
+      "id": "c06-t03",
+      "key": "CRO-603",
+      "type": "task",
+      "title": "Write survey questions and put a survey live",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Two short, unbiased surveys (for visitors and for buyers) are live with Google Forms and linked from the store and the order email.",
+      "context": "Hi, recordings show us what people do, but not what they think. Please write two short surveys: one for visitors who did not buy, one for new buyers. Keep them short, use open questions and do not lead people to the answer we want.",
+      "steps": [
+        "Read the NN/g article on survey questions (link in Resources). Write down 3 rules you will follow, for example: one question at a time, no leading words, open questions first.",
+        "Write 10 draft questions in a Google Doc `GlowShop – survey questions`. Then remove the weak ones. Keep 4-5 per survey.",
+        "Visitor survey ideas: 'What did you come to GlowShop for today?', 'Is anything stopping you from buying today? What is it?', 'What other options are you looking at?', 'What information is missing on this page?'.",
+        "Buyer survey ideas: 'What almost stopped you from buying?', 'Why did you choose GlowShop and not another brand?', 'How would you describe this product to a friend?', 'Where did you first hear about us?'.",
+        "Check every question for bias. Bad: 'How much did you love our fast shipping?' Good: 'How was the delivery for you?'. Write one bad and one fixed version in your doc.",
+        "Create two forms in Google Forms (`https://forms.google.com` → Blank form): `GlowShop – visitor survey` and `GlowShop – buyer survey`. Use 'Paragraph' for open questions and 'Multiple choice' only for the source question. Turn off 'Collect email addresses' in Settings → Responses.",
+        "Add a short intro text: who you are, that it takes 1 minute, and that answers are anonymous.",
+        "Put the visitor survey on the store: Online Store → Themes → Customize → Header → Announcement bar → add an announcement with the text 'Help us improve – 1 minute survey' and the form link.",
+        "Put the buyer survey in the order email: Settings → Notifications → Customer notifications → Order confirmation → Edit code. Add one line with the link above the order summary, for example `<p>Help us improve: <a href=\"FORM_LINK\">1-minute survey</a></p>`. Click Preview, then Save. Do not delete other code.",
+        "Test both: answer each survey 2 times yourself, and make one test order to see the email (Bogus Gateway). Ask 3 friends to answer the visitor survey.",
+        "In each form open Responses → 'Link to Sheets' to collect answers in a Google Sheet."
+      ],
+      "acceptance": [
+        "Each survey has 4-5 questions, with at least 3 open questions.",
+        "The doc shows 3 rules and at least one biased question with a fixed version.",
+        "The visitor survey link is in the announcement bar of the practice store.",
+        "The order confirmation email shows the buyer survey link in a test order.",
+        "Both forms are linked to a Google Sheet and have at least 2 answers."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GlowShop – survey questions` (view access)",
+        "Links to both Google Forms",
+        "Screenshot on Google Drive of the test order email with the survey link"
+      ],
+      "hints": [
+        "If the order email does not change, check that you edited 'Order confirmation' and clicked Save.",
+        "Short surveys get more answers. If a question will not change a decision, remove it.",
+        "Ask about the past ('What almost stopped you?'), not the future ('Would you buy again?'). People are bad at guessing the future."
+      ],
+      "explain": {
+        "en": "In this task I wrote two short surveys, one for visitors and one for buyers. I followed simple rules: open questions, one idea per question, and no leading words. I built the surveys in Google Forms and connected them to Google Sheets. I put the visitor survey in the announcement bar and the buyer survey in the order confirmation email in Shopify. I tested both with a test order."
+      },
+      "vocabulary": [
+        { "term": "open question", "en": "a question that people answer with their own words" },
+        { "term": "leading question", "en": "a question that pushes people to one answer" },
+        { "term": "on-site survey", "en": "a short survey that people see while they are on the website" },
+        { "term": "announcement bar", "en": "the thin bar at the top of the store with a short message" }
+      ],
+      "interview": [
+        {
+          "q": "What is your favourite survey question for CRO?",
+          "a": "I like 'What almost stopped you from buying today?' for new buyers. It finds the fears and problems that other visitors had too, but who left. The answers often give ideas for tests, like clearer shipping or returns information."
+        },
+        {
+          "q": "How do you avoid bias in survey questions?",
+          "a": "I use neutral words and open questions. I do not write 'How much did you love our shipping?'. I write 'How was the delivery for you?'. I also ask about things that already happened, not about the future."
+        },
+        {
+          "q": "Why did you keep the surveys so short?",
+          "a": "Every extra question means fewer people finish. I kept only questions that can change a decision. Four or five questions take about one minute, so more people answer."
+        }
+      ],
+      "resources": [
+        { "title": "NN/g: Qualitative surveys", "url": "https://www.nngroup.com/articles/qualitative-surveys/" },
+        { "title": "Shopify help: Customer notifications", "url": "https://help.shopify.com/en/manual/orders/notifications" },
+        { "title": "Google Forms help: Create a form", "url": "https://support.google.com/docs/answer/6281888" }
+      ]
+    },
+    {
+      "id": "c06-t04",
+      "key": "CRO-604",
+      "type": "project",
+      "title": "Mine reviews and write the GlowShop research summary",
+      "priority": "high",
+      "estimateHours": 10,
+      "goal": "60 coded reviews and one research summary that joins GA4, Clarity, survey and review findings into the top 5 problems.",
+      "context": "Hi, our customers write the best copy for us in their reviews. Please collect real skincare reviews, find the themes and the exact words people use. Then join everything you found in this sprint into one research summary. The team will use it next sprint to plan fixes and tests.",
+      "steps": [
+        "Choose 3 popular serums or creams that are like GlowShop products (for example a vitamin C serum, a niacinamide serum and a moisturiser). Use public review pages on big retailer sites and the subreddit r/SkincareAddiction.",
+        "Create a Google Sheet `GlowShop – review mining` with columns: `Product`, `Stars`, `Review text`, `Theme`, `Positive / Negative`, `Exact phrase`, `Source link`.",
+        "Copy 60 reviews: 20 per product. Take a mix: 20 five-star, 20 three-star, 20 one- or two-star. Only copy text, never names or photos of people.",
+        "Read every review and give it one main theme. Start with these themes and add new ones if needed: Results, Texture and feel, Skin type, Smell, Irritation, Price and value, Packaging, Shipping and delivery, How to use, Trust.",
+        "In the column `Exact phrase`, copy the best words from the review, for example 'not sticky at all' or 'broke me out in two days'. These are voice of customer phrases.",
+        "Make a tab `Themes`. Use a pivot table: Insert → Pivot table → Rows: Theme, Columns: Positive / Negative, Values: COUNTA of Review text. Sort by the total.",
+        "Write the top 5 fears (from negative reviews) and the top 5 reasons to buy (from positive reviews). Next to each, write one idea for the product page, for example 'Add skin type and texture to the top of the page'.",
+        "Open your survey answers from CRO-603 and your behaviour log from CRO-602. Add any new themes to your list.",
+        "Create a Google Doc `GlowShop – research summary` with these parts: 1) Goal of the research, 2) Methods and data (GA4 funnel, Clarity, survey, reviews, with numbers and dates), 3) Top 5 problems, 4) Voice of customer phrases, 5) Ideas for fixes and tests, 6) Limits of this research.",
+        "For each of the top 5 problems write: what we saw, where (page, device), how many times or what %, evidence from at least 2 sources (for example a Clarity link and a review theme), and how bad it is (1-4).",
+        "In 'Limits', be honest: the practice store has little traffic, reviews are from other brands, and the survey has few answers.",
+        "Add a one-line summary at the top that a busy CEO can read in 10 seconds. Share the doc and the sheet with view access."
+      ],
+      "acceptance": [
+        "The review sheet has 60 reviews with a theme, a positive/negative label and a source link.",
+        "The pivot table counts reviews by theme and by positive/negative.",
+        "The summary lists 5 problems, each with evidence from at least 2 sources.",
+        "The summary has a voice of customer section with at least 8 real phrases.",
+        "The summary has a 'Limits' part and a one-line summary at the top."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `GlowShop – review mining` (view access)",
+        "Link to the Google Doc `GlowShop – research summary` (view access)",
+        "Screenshot on Google Drive of the pivot table"
+      ],
+      "hints": [
+        "If you are not sure about a theme, read the review again and ask: what is the main reason for the stars?",
+        "Two sources agreeing is much stronger than one. Look for the same problem in Clarity and in reviews.",
+        "Do not use real names of reviewers anywhere. Only the text is needed."
+      ],
+      "explain": {
+        "en": "In this project I collected 60 public reviews of skincare products like ours. I gave each review a theme and copied the exact words that customers used. I counted the themes with a pivot table and found the top fears and the top reasons to buy. Then I joined my GA4, Clarity, survey and review findings into one research summary. Each of the top 5 problems had evidence from at least two sources. I also wrote the limits of the research honestly."
+      },
+      "vocabulary": [
+        { "term": "review mining", "en": "reading many reviews to find common themes and words" },
+        { "term": "voice of customer", "en": "the exact words customers use to talk about a product" },
+        { "term": "theme", "en": "one topic that many answers talk about, like price or texture" },
+        { "term": "pivot table", "en": "a sheet tool that counts and groups rows for you" },
+        { "term": "triangulation", "en": "checking one finding with two or more different sources" }
+      ],
+      "interview": [
+        {
+          "q": "Why do you mine reviews of other brands?",
+          "a": "Customers of other brands have the same fears and wishes as our customers. Their reviews show what matters, like texture, irritation or results. I also get their exact words, which I can use in our product copy. It is free and fast research."
+        },
+        {
+          "q": "How did you choose the top problems?",
+          "a": "I looked at how often a problem appeared and how bad it was. I only put a problem in the top 5 if at least two sources showed it, for example a Clarity recording and a review theme. This makes the finding stronger."
+        },
+        {
+          "q": "What are the limits of your research?",
+          "a": "Our practice store has little traffic, so the recordings are few. The reviews are from other brands, and the survey has few answers. I wrote this in the summary, so the team knows these are strong hints, not proof. Proof comes from A/B tests later."
+        }
+      ],
+      "resources": [
+        { "title": "Google Sheets help: Create and use pivot tables", "url": "https://support.google.com/docs/answer/1272900" },
+        { "title": "NN/g: Triangulation in UX research", "url": "https://www.nngroup.com/articles/triangulation-better-research-results-using-multiple-ux-methods/" }
+      ]
+    },
+    {
+      "id": "c06-t05",
+      "key": "CRO-605",
+      "type": "incident",
+      "lab": "cro-behaviour",
+      "title": "Case: rage clicks on the size picker",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You find why mobile visitors rage click on the 30 ml / 50 ml size picker, prove it with Clarity and GA4, and write a clear hypothesis.",
+      "context": "Hi, Clarity shows many rage clicks on the product page of the Glow Vitamin C Serum, all on the size picker, mostly on mobile. Add to cart on this page is low. Please find out what happens and give us a hypothesis we can test or fix.",
+      "steps": [
+        "First finish the practice lab: open Practice → Behaviour lab in this app and solve the case part. Write your hypothesis in the app before you go on.",
+        "Set up the case on your practice store. In Shopify admin open Products → your vitamin C serum → variant `30 ml`. Set the available stock to 0 and turn off 'Continue selling when out of stock'. Save.",
+        "Open Online Store → Themes → Customize. Choose Products → Default product in the top dropdown. Click the 'Variant picker' block in Product information and check the Style (Pills or Dropdown). Write it down.",
+        "Open the product page on your phone (or in Chrome DevTools device mode, Ctrl+Shift+M, a phone like iPhone 12 Pro). Tap the `30 ml` option several times. Write exactly what you see: does the price change, is the button grey, does it say 'Sold out', is the text clear enough on a small screen?",
+        "Make data for Clarity: ask 3 friends to buy the 30 ml size on their phones. Do not tell them it is sold out. Ask them to think aloud and write down what they say.",
+        "Next day, open Clarity → Recordings. Filters: Device → Mobile, Visited URL contains your product handle, Clarity insights → Rage clicks. Watch the sessions and copy links with the time.",
+        "Open Clarity → Heatmaps for the product page. Choose Click map on Mobile. Take a screenshot of the click cluster on the size picker.",
+        "Check GA4: Explore → Funnel exploration. Steps: `view_item` → `add_to_cart`. Breakdown: Device category. Filter: Item name contains 'Vitamin C' (or the page path). Write the step rate for mobile and desktop.",
+        "Write the root cause in your doc `Case CRO-605`: what exactly confuses users, on which device, and why (for example: the sold-out option looks almost the same as the active one, and there is no message about when it is back).",
+        "Write the hypothesis in this format: 'Because we saw [Clarity rage clicks + GA4 step rate], we believe that [showing a clear sold-out label and a back-in-stock note] for [mobile visitors on product pages] will [raise the view_item to add_to_cart rate]. We will measure [add_to_cart rate on mobile] and watch [purchase rate] as a guardrail.'",
+        "Decide: is this a clear bug or confusion that we should just fix, or does it need an A/B test? Write your reason in 2-3 sentences.",
+        "Put the stock of the 30 ml variant back after the case, or keep it at 0 for the UX sprint, and write which one you chose."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your hypothesis is saved there.",
+        "The doc describes exactly what happens when a mobile user taps the sold-out size.",
+        "At least 2 Clarity recording links with rage clicks and one click heatmap screenshot are in the doc.",
+        "The GA4 funnel step rate view_item → add_to_cart is shown for mobile and desktop.",
+        "The hypothesis follows the format with a primary metric and a guardrail metric."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case CRO-605` (view access)",
+        "Clarity screenshot of the mobile click heatmap with the size picker cluster",
+        "Screenshot on Google Drive of the GA4 funnel exploration by device"
+      ],
+      "hints": [
+        "Rage clicks often happen when something looks clickable but gives no clear answer.",
+        "If your friends do not create rage clicks, use the recordings from the practice lab and your own think-aloud notes as evidence, and say so.",
+        "A good hypothesis has a reason from data, a change, an audience and a metric."
+      ],
+      "explain": {
+        "en": "In this case Clarity showed many rage clicks on the size picker on mobile. I made the same situation on our practice store with a sold-out 30 ml size. I watched recordings with filters for mobile and rage clicks, and I took a click heatmap. In GA4 I checked the funnel from view item to add to cart by device. The root cause was that the sold-out size did not look different enough and gave no message. I wrote a hypothesis with a primary metric and a guardrail metric."
+      },
+      "vocabulary": [
+        { "term": "variant picker", "en": "the part of the product page where you choose size or colour" },
+        { "term": "sold out", "en": "no stock left for this product or size" },
+        { "term": "think aloud", "en": "a test where the user says what they think while they use the site" },
+        { "term": "hypothesis", "en": "a clear guess, based on data, that you can test" },
+        { "term": "guardrail metric", "en": "a metric that must not get worse when you make a change" }
+      ],
+      "interview": [
+        {
+          "q": "Tell me about a behaviour problem you found with Clarity.",
+          "a": "Clarity showed rage clicks on the size picker of a serum page on mobile. I filtered recordings by mobile and rage clicks and saw people tap the 30 ml size again and again. That size was sold out, but it did not look different enough. I checked the add to cart rate in GA4 and it was lower on mobile."
+        },
+        {
+          "q": "Why did you use both Clarity and GA4?",
+          "a": "Clarity shows why people struggle, but only for a few sessions. GA4 shows how big the problem is for all visitors. Together they make the case strong. I always try to have a number and a recording."
+        },
+        {
+          "q": "Would you A/B test this or just fix it?",
+          "a": "If users cannot see that a size is sold out, it is a clear usability problem. I would fix it, and measure before and after. If we want to test a bigger idea, like a back-in-stock form, I would run an A/B test."
+        }
+      ],
+      "resources": [
+        { "title": "Microsoft Clarity docs: Session recordings", "url": "https://learn.microsoft.com/en-us/clarity/session-recordings/recordings-overview" },
+        { "title": "Shopify help: Customizing themes", "url": "https://help.shopify.com/en/manual/online-store/themes/customizing-themes" },
+        { "title": "Baymard: Product page UX research", "url": "https://baymard.com/research/product-page" }
+      ]
+    }
+  ]
+}

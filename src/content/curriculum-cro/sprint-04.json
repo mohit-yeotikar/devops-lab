@@ -1,0 +1,479 @@
+{
+  "id": "c04",
+  "number": 4,
+  "title": "E-commerce tracking end to end",
+  "weeks": "7-8",
+  "theme": "Track the full GlowShop funnel in GA4, from the product list to the purchase in Shopify checkout, with consent and numbers that match Shopify.",
+  "jobStory": "In this sprint you finish the GlowShop tracking. You add the missing storefront events, and you track the Shopify checkout with a Customer Events custom pixel, because theme code does not run in checkout. You send a correct purchase with a transaction ID, set up Consent Mode v2 with the Shopify cookie banner, and compare GA4 purchases with Shopify orders one by one. You solve the classic case 'GA4 shows 30% fewer purchases than Shopify' and write the runbook for the monthly check.",
+  "outcomes": [
+    "I tracked view_item_list and view_cart from the Dawn theme with the same item format as the other events.",
+    "I built a Shopify custom pixel that sends begin_checkout, add_shipping_info, add_payment_info and purchase to GA4.",
+    "I sent a unique transaction_id with every purchase and tested what happens with duplicates.",
+    "I set up Consent Mode v2 with the Shopify cookie banner in GTM and in the custom pixel.",
+    "I matched GA4 purchases with Shopify orders, explained the gap and wrote the reconciliation runbook."
+  ],
+  "tickets": [
+    {
+      "id": "c04-t01",
+      "key": "CRO-401",
+      "type": "task",
+      "title": "Track product lists and the cart page",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Collection pages send `view_item_list` and the cart page sends `view_cart` to GA4, with the same item format as `view_item` and `add_to_cart`.",
+      "context": "Hi, we track product views and add to cart now, but we cannot see which collections lead to sales or how many people open the cart. Please add the list and cart events from the theme. Use exactly the same item fields as before, or the GA4 item reports will not join.",
+      "steps": [
+        "Practise first: open Practice → GTM workbench in this app and repeat the dataLayer part, so you remember how a Custom Event trigger reads an event.",
+        "Read the GA4 e-commerce guide (link in Resources), parts `view_item_list` and `view_cart`. Write the parameters of each in your tracking plan (CRO-305), and mark both events as `in progress`.",
+        "Open Online Store → Themes → `…` → Edit code → `snippets/glowshop-datalayer.liquid` and add the list event at the end: `{% if template.name == 'collection' %}<script> window.dataLayer = window.dataLayer || []; window.dataLayer.push({ ecommerce: null }); window.dataLayer.push({ event: 'view_item_list', ecommerce: { item_list_id: {{ collection.handle | json }}, item_list_name: {{ collection.title | json }}, items: [{% for p in collection.products limit: 20 %}{% assign v = p.selected_or_first_available_variant %}{ item_id: {{ v.sku | json }}, item_name: {{ p.title | json }}, item_variant: {{ v.title | json }}, item_brand: {{ p.vendor | json }}, item_category: {{ p.type | json }}, price: {{ v.price | divided_by: 100.0 }}, index: {{ forloop.index0 }}, quantity: 1 }{% unless forloop.last %},{% endunless %}{% endfor %}] } }); </script>{% endif %}`",
+        "Add the cart event under it: `{% if template.name == 'cart' and cart.item_count > 0 %}<script> window.dataLayer = window.dataLayer || []; window.dataLayer.push({ ecommerce: null }); window.dataLayer.push({ event: 'view_cart', ecommerce: { currency: {{ cart.currency.iso_code | json }}, value: {{ cart.total_price | divided_by: 100.0 }}, items: [{% for li in cart.items %}{ item_id: {{ li.sku | json }}, item_name: {{ li.product.title | json }}, item_variant: {{ li.variant.title | json }}, item_brand: {{ li.vendor | json }}, price: {{ li.final_price | divided_by: 100.0 }}, quantity: {{ li.quantity }} }{% unless forloop.last %},{% endunless %}{% endfor %}] } }); </script>{% endif %}`",
+        "Check the cart type: in the theme editor (Online Store → Themes → Customize) open Theme settings → Cart. If Cart type is `Drawer`, `view_cart` only fires when a visitor opens the full cart page at `/cart`. Write this limit in the tracking plan. Do not change the cart type.",
+        "Save and test in the browser console: open a collection page and type `dataLayer` (you must see `view_item_list` with up to 20 items and `index` 0, 1, 2…). Open `/cart` with 2 products in it (you must see `view_cart` with the right `value`).",
+        "In GTM create two Custom Event triggers `CE - view_item_list` and `CE - view_cart`, and two GA4 Event tags `GA4 - Event - view_item_list` and `GA4 - Event - view_cart`. Use Send Ecommerce data with Data source `Data Layer` (More settings → Ecommerce). For `view_cart` also add the parameters `currency` and `value` from your Data Layer Variables.",
+        "Test in Preview and GA4 DebugView. Check that `item_id` is the same SKU in `view_item_list`, `view_item`, `add_to_cart` and `view_cart` for the same product.",
+        "Test edge cases and add them to your QA sheet: an empty cart (no `view_cart` must fire), a product with no image, a collection with more than 20 products (only 20 items), and a price with cents (for example 29.50).",
+        "Publish GTM version `v4 - view_item_list and view_cart` and update the tracking plan status to `live` with today's test date.",
+        "Next day, open GA4 → Reports → Monetization → Ecommerce purchases and add the dimension `Item list name` in an exploration (Explore → Free form, rows `Item list name`, values `Items viewed in list`, `Items viewed`, `Items added to cart`). Take a screenshot."
+      ],
+      "acceptance": [
+        "A collection page pushes `view_item_list` with `item_list_name` and items with `item_id` = SKU and an `index`.",
+        "The cart page pushes `view_cart` with `currency`, `value` and all cart lines; an empty cart pushes nothing.",
+        "The same product has the same `item_id` in all four e-commerce events.",
+        "GTM version 4 is published and the tracking plan shows both events as live with a test date.",
+        "The QA sheet has the 4 edge cases with pass or fail."
+      ],
+      "evidence": [
+        "Paste the full code of `snippets/glowshop-datalayer.liquid`.",
+        "Screenshot of GA4 DebugView showing `view_item_list` and `view_cart` with items.",
+        "Link to the updated tracking plan and QA sheet.",
+        "Screenshot of the Free form exploration with `Item list name`."
+      ],
+      "hints": [
+        "If the page shows a JavaScript error in the console, look for a missing comma between items. The `{% unless forloop.last %},{% endunless %}` part adds the commas.",
+        "Always use the `json` filter for text from Liquid. It adds the quotes and escapes characters like `'` in product names.",
+        "`cart.total_price` is in cents, so divide by `100.0` (with `.0`, or Liquid rounds to a whole number)."
+      ],
+      "explain": {
+        "en": "In this task I added two more e-commerce events from the Shopify theme. On collection pages I pushed view_item_list with up to 20 products, their position and the list name. On the cart page I pushed view_cart with the cart value and all lines. I used the same item fields as in view_item and add_to_cart, so GA4 can join the item data. I made the triggers and GA4 tags in GTM, tested edge cases like an empty cart and published a new version."
+      },
+      "vocabulary": [
+        {
+          "term": "item list",
+          "en": "a group of products shown together, like a collection page"
+        },
+        {
+          "term": "index",
+          "en": "the position of a product in a list, starting at 0"
+        },
+        {
+          "term": "edge case",
+          "en": "an unusual situation you must also test, like an empty cart"
+        },
+        {
+          "term": "json filter",
+          "en": "a Liquid filter that turns a value into safe JavaScript text"
+        },
+        {
+          "term": "cart drawer",
+          "en": "a cart that opens as a side panel instead of a full page"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why is the same item_id in every event so important?",
+          "a": "GA4 joins item data from different events by the item ID. If view_item sends the SKU and add_to_cart sends the product ID, the item reports split one product into two rows. Then I cannot calculate rates like view to cart for one product. So all events use the variant SKU."
+        },
+        {
+          "q": "How did you send the products of a collection page?",
+          "a": "I wrote a Liquid loop over the collection products in the theme snippet. It pushes view_item_list with the list name and up to 20 items with their position. I used the json filter for all text, so names with quotes do not break the code."
+        },
+        {
+          "q": "What did you test besides the normal case?",
+          "a": "I tested an empty cart, a big collection, a product without an image and a price with cents. An empty cart must not send view_cart. These edge cases often break tracking in real life, so I write them in the QA sheet."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google for Developers: Measure ecommerce (GA4)",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/ecommerce"
+        },
+        {
+          "title": "Shopify dev docs: Liquid reference",
+          "url": "https://shopify.dev/docs/api/liquid"
+        }
+      ]
+    },
+    {
+      "id": "c04-t02",
+      "key": "CRO-402",
+      "type": "project",
+      "title": "Track the Shopify checkout with a custom pixel",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A Shopify Customer Events custom pixel sends `begin_checkout`, `add_shipping_info`, `add_payment_info` and `purchase` with a unique `transaction_id` to GA4.",
+      "context": "Hi, our theme code and GTM do not run in Shopify checkout, so today GA4 sees no checkout steps and no purchases. Shopify's way is Customer Events: a custom pixel that listens to checkout events. Please build it and send clean GA4 events, with the Shopify order ID as `transaction_id`.",
+      "steps": [
+        "Read the Shopify help on custom pixels and the list of standard events (links in Resources). Write in your tracking plan which Shopify event becomes which GA4 event: `checkout_started` → `begin_checkout`, `checkout_shipping_info_submitted` → `add_shipping_info`, `payment_info_submitted` → `add_payment_info`, `checkout_completed` → `purchase`.",
+        "Learn the limits in 3 lines in your notes: the pixel runs in a sandbox (a separate iframe), it cannot read the page HTML, GTM Preview cannot see tags inside it, and the page URL GA4 sees is the sandbox URL unless you send `page_location` yourself.",
+        "Check that nothing else sends a purchase to this GA4 property: no GA4 code in the theme for checkout, and the Google & YouTube app is not connected to this property (see CRO-301). Two senders mean double purchases.",
+        "In the Shopify admin open Settings → Customer events → Add custom pixel. Name it `GA4 checkout - GlowShop`. Click Add pixel.",
+        "In Customer privacy set Permission to `Not required` for now (we change it to Required in CRO-403). Leave Data sale as it is.",
+        "In the Code box, paste this code and replace `G-XXXXXXXXXX` with your Measurement ID: `const GA4_ID = 'G-XXXXXXXXXX'; const s = document.createElement('script'); s.setAttribute('src', 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID); s.setAttribute('async', ''); document.head.appendChild(s); window.dataLayer = window.dataLayer || []; function gtag(){ dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', GA4_ID, { send_page_view: false, debug_mode: true }); function items(c) { return (c.lineItems || []).map(function (li) { return { item_id: li.variant?.sku || String(li.variant?.id), item_name: li.variant?.product?.title || li.title, item_variant: li.variant?.title, item_brand: li.variant?.product?.vendor, price: li.variant?.price?.amount, quantity: li.quantity }; }); } function base(e) { const c = e.data.checkout; return { currency: c.currencyCode, value: c.totalPrice?.amount, items: items(c), page_location: e.context.document.location.href }; } analytics.subscribe('checkout_started', function (e) { gtag('event', 'begin_checkout', base(e)); }); analytics.subscribe('checkout_shipping_info_submitted', function (e) { gtag('event', 'add_shipping_info', base(e)); }); analytics.subscribe('payment_info_submitted', function (e) { gtag('event', 'add_payment_info', base(e)); }); analytics.subscribe('checkout_completed', function (e) { const c = e.data.checkout; const p = base(e); p.transaction_id = c.order?.id ? String(c.order.id).split('/').pop() : c.token; p.tax = c.totalTax?.amount || 0; p.shipping = c.shippingLine?.price?.amount || 0; p.coupon = (c.discountApplications || []).map(function (d) { return d.title; }).join(',') || undefined; gtag('event', 'purchase', p); });`",
+        "Read the code line by line and write in your notes what each part does: load gtag.js, config without a page view, a function that builds the items, a function that builds the shared parameters, and four subscriptions. `debug_mode: true` sends the events to DebugView.",
+        "Click Save, then Connect, and confirm. The pixel status must be `Connected`.",
+        "Test with the Shopify Pixel Helper: in Settings → Customer events, open the pixel and click Test. Your store opens with the Pixel Helper panel. Add a product to the cart, go to checkout, fill in the address, choose shipping, and pay with the Test payment gateway card `1`. In Events received, `checkout_started`, `checkout_shipping_info_submitted`, `payment_info_submitted` and `checkout_completed` must each have a green dot.",
+        "At the same time open GA4 → Admin → Data display → DebugView. You must see `begin_checkout`, `add_shipping_info`, `add_payment_info` and `purchase`. Click `purchase` and check `transaction_id`, `value`, `currency`, `shipping`, `tax` and `items`.",
+        "Match the ID: in the Shopify admin open Orders and click the new order. The number at the end of the browser URL (`/orders/123456789`) must be the same as `transaction_id` in DebugView. Write both in your QA sheet.",
+        "Test duplicates: on the thank you page press reload 2 times. Write in the QA sheet if `checkout_completed` fired again in the Pixel Helper. Then read the Google help page `Minimize duplicate key events with transaction IDs` and write in one sentence how GA4 handles a second `purchase` with the same `transaction_id`.",
+        "Place 4 more test orders: one with 2 products, one with a discount code (create one in Discounts → Create discount → Amount off order, code `GLOW10`), one with free shipping (over 60 USD), and one where you leave at the shipping step without paying. Write what GA4 receives for each.",
+        "When all tests pass, remove `debug_mode: true` from the config line, Save the pixel and test one more order. Write the final code in your tracking plan and set all four events to `live`."
+      ],
+      "acceptance": [
+        "The custom pixel `GA4 checkout - GlowShop` is Connected in Settings → Customer events.",
+        "Pixel Helper shows green dots for the four checkout events in one test order.",
+        "GA4 DebugView shows `begin_checkout`, `add_shipping_info`, `add_payment_info` and `purchase` with items, value and currency.",
+        "The `transaction_id` in GA4 equals the Shopify order ID for at least 5 test orders, and the discount order sends `coupon` = `GLOW10`.",
+        "The QA sheet says what happened on thank you page reload and how GA4 treats a repeated `transaction_id`."
+      ],
+      "evidence": [
+        "Paste the final pixel code (without `debug_mode`).",
+        "Screenshot of the Pixel Helper with the four green checkout events.",
+        "Screenshot of DebugView with the `purchase` parameters open.",
+        "Link to the QA sheet with the order IDs and transaction IDs side by side."
+      ],
+      "hints": [
+        "If the Pixel Helper shows a red dot, click the event to see the JavaScript error. A typo in a field name gives `undefined`, but a missing `?.` before a null field throws an error.",
+        "If DebugView shows nothing, check the Measurement ID in the code and that `debug_mode: true` is there while you test.",
+        "You cannot edit the pixel while the Pixel Helper is open. Close the test tab, edit and Save, then click Test again."
+      ],
+      "explain": {
+        "en": "In this task I tracked the Shopify checkout in GA4 with a Customer Events custom pixel, because theme code and GTM do not run in checkout. The pixel loads gtag.js and listens to the Shopify events checkout_started, shipping info, payment info and checkout_completed. It sends the GA4 events begin_checkout, add_shipping_info, add_payment_info and purchase with items, value and currency. For purchase I sent the Shopify order ID as transaction_id, plus tax, shipping and the coupon. I tested five test orders with the Pixel Helper and DebugView and matched every transaction ID with the order in Shopify."
+      },
+      "vocabulary": [
+        {
+          "term": "Customer Events",
+          "en": "the Shopify admin area where you add pixels that listen to store events"
+        },
+        {
+          "term": "custom pixel",
+          "en": "your own JavaScript code that Shopify runs in a safe sandbox to send events"
+        },
+        {
+          "term": "sandbox",
+          "en": "a closed area where code runs but cannot touch the rest of the page"
+        },
+        {
+          "term": "Checkout Extensibility",
+          "en": "Shopify's current way to customise checkout with apps, pixels and extensions instead of checkout.liquid"
+        },
+        {
+          "term": "Pixel Helper",
+          "en": "a Shopify test tool that shows which events your pixel received"
+        },
+        {
+          "term": "deduplication",
+          "en": "removing copies so one order is counted only once"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How do you track purchases on Shopify today?",
+          "a": "Shopify checkout does not run theme code, and the old checkout.liquid and Additional scripts are gone. So I use Customer Events with a custom pixel. The pixel subscribes to checkout_completed and sends a GA4 purchase with the order ID, value, currency and items. I test it with the Shopify Pixel Helper and GA4 DebugView."
+        },
+        {
+          "q": "Why is transaction_id so important?",
+          "a": "It is the unique order number, and GA4 uses it to drop a second purchase with the same ID. It also lets me match every GA4 purchase with a Shopify order. Without it I cannot find which orders are missing. I use the Shopify order ID, so the match is exact."
+        },
+        {
+          "q": "What problems does the pixel sandbox cause?",
+          "a": "The pixel runs in a separate iframe, so GA4 sees a sandbox URL unless I send page_location myself. GTM Preview cannot see tags inside the sandbox, so I test with the Pixel Helper and DebugView. The pixel can also not read the page, so all data must come from the Shopify event."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Shopify Help: Create custom pixel code",
+          "url": "https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels/code"
+        },
+        {
+          "title": "Shopify dev docs: Web Pixels API standard events",
+          "url": "https://shopify.dev/docs/api/web-pixels-api/standard-events"
+        },
+        {
+          "title": "Google Analytics Help: Minimize duplicate key events with transaction IDs",
+          "url": "https://support.google.com/analytics/answer/12313109"
+        }
+      ]
+    },
+    {
+      "id": "c04-t03",
+      "key": "CRO-403",
+      "type": "task",
+      "title": "Set up Consent Mode v2 with the Shopify cookie banner",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "The store shows the Shopify cookie banner, GTM sets Consent Mode v2 defaults and updates from the visitor's choice, and the checkout pixel respects consent.",
+      "context": "Hi, we sell to Canada and soon to more countries, and Google needs Consent Mode v2 signals for ads. Please turn on the Shopify cookie banner and connect it to Google consent mode in GTM and in our checkout pixel. Test both 'accept' and 'decline', because we must see what we lose when people decline.",
+      "steps": [
+        "Read Google's consent mode guide (link in Resources). Write the four consent types in your notes: `ad_storage`, `analytics_storage`, `ad_user_data`, `ad_personalization`. Write the difference between basic consent mode (tags wait for consent) and advanced consent mode (tags send cookieless pings when consent is denied).",
+        "Turn on the banner: Shopify admin → Settings → Customer privacy → Cookie banner. In Regions and content, turn off Use automated settings and choose the regions where the banner shows. Include your own country (or region) so you can see it while you test. Save.",
+        "Open your store in a new Incognito window. You must see the cookie banner with Accept and Decline. Do not click yet.",
+        "In GTM turn on the consent overview: Admin → Container Settings → Additional Settings → tick Enable consent overview. Save.",
+        "In GTM create a tag: Tags → New → Custom HTML. Name: `Consent - Default and Shopify update`. Paste: `<script> window.dataLayer = window.dataLayer || []; function gtag(){ dataLayer.push(arguments); } gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', wait_for_update: 500 }); function glowConsent(a, m) { gtag('consent', 'update', { analytics_storage: a ? 'granted' : 'denied', ad_storage: m ? 'granted' : 'denied', ad_user_data: m ? 'granted' : 'denied', ad_personalization: m ? 'granted' : 'denied' }); } document.addEventListener('visitorConsentCollected', function (e) { glowConsent(e.detail.analyticsAllowed, e.detail.marketingAllowed); }); if (window.Shopify && window.Shopify.loadFeatures) { window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.2' }], function (err) { if (err || !window.Shopify.customerPrivacy) return; var cp = window.Shopify.customerPrivacy; glowConsent(cp.analyticsProcessingAllowed(), cp.marketingAllowed()); }); } </script>`. Trigger: `Consent Initialization - All Pages`. Save.",
+        "Check the consent settings of your tags: Tags → click the shield icon (Consent Overview). The Google tag and GA4 event tags have built-in consent checks for `analytics_storage`. Leave Additional consent checks as `Not set`. Write this in your notes.",
+        "Test decline: start GTM Preview in a fresh window, enter the password and click Decline on the banner. In Tag Assistant open the Consent tab of the first event: On-page Default must show all four types as `Denied`, and after the banner click the Update must stay `Denied`. In DevTools → Network filter `collect?v=2`: hits now carry `gcs=G100` (no consent).",
+        "Test accept: clear the site cookies (DevTools → Application → Storage → Clear site data), reload, and click Accept. The Consent tab must show the Update as `Granted` and hits carry `gcs=G111`.",
+        "Make the checkout pixel respect consent: Settings → Customer events → `GA4 checkout - GlowShop` → Customer privacy → Permission → `Required` and tick Analytics. Save. Now Shopify only runs the pixel after the visitor allows analytics (in regions where the banner asks).",
+        "Add consent signals inside the pixel too. At the top of the pixel code, after the `gtag` function line, add: `gtag('consent', 'default', { analytics_storage: init.customerPrivacy?.analyticsProcessingAllowed ? 'granted' : 'denied', ad_storage: init.customerPrivacy?.marketingAllowed ? 'granted' : 'denied', ad_user_data: init.customerPrivacy?.marketingAllowed ? 'granted' : 'denied', ad_personalization: init.customerPrivacy?.marketingAllowed ? 'granted' : 'denied' });`. Save.",
+        "Test the checkout both ways with the Pixel Helper: one test order after Accept (the four checkout events arrive), one test order after Decline (the Pixel Helper shows `Pixel is awaiting consent` and GA4 gets no purchase). Write both order IDs in your QA sheet.",
+        "Publish GTM version `v5 - Consent Mode v2 with Shopify banner`. Write a short section `Consent` in the tracking plan: what happens on accept, on decline, and which data we lose on decline."
+      ],
+      "acceptance": [
+        "The Shopify cookie banner shows in your region with Accept and Decline.",
+        "Tag Assistant shows the default as Denied for all four consent types before the choice.",
+        "After Decline the update stays Denied (`gcs=G100`); after Accept it is Granted (`gcs=G111`).",
+        "The checkout pixel has Permission `Required` for Analytics; an order after Decline sends no purchase to GA4, and an order after Accept does.",
+        "GTM version 5 is published and the tracking plan has a Consent section."
+      ],
+      "evidence": [
+        "Screenshots of the Tag Assistant Consent tab after Decline and after Accept.",
+        "Screenshot of the Network request with the `gcs` parameter for both cases.",
+        "Screenshot of the custom pixel Customer privacy settings.",
+        "Link to the QA sheet with the two order IDs and what GA4 received."
+      ],
+      "hints": [
+        "If the banner does not show, check that your region is chosen in the banner settings, and use a fresh Incognito window (your choice is saved in a cookie).",
+        "If you cannot get the banner in your country, open the Console and run `window.Shopify.customerPrivacy.setTrackingConsent({ analytics: false, marketing: false }, () => console.log('saved'))` to set a choice by hand, then reload.",
+        "The consent default must run before any Google tag. That is why it uses the `Consent Initialization - All Pages` trigger."
+      ],
+      "explain": {
+        "en": "In this task I set up Google Consent Mode v2 on the Shopify practice store. I turned on the Shopify cookie banner for my region. In GTM I made a tag on Consent Initialization that sets all four consent types to denied and then updates them from the Shopify banner choice. I tested decline and accept in Tag Assistant and checked the gcs value in the network requests. I also set the checkout pixel to require analytics permission and sent consent signals inside it. I showed that a declined visitor sends no purchase to GA4."
+      },
+      "vocabulary": [
+        {
+          "term": "Consent Mode v2",
+          "en": "Google's way to tell tags what the visitor allowed, with four consent types"
+        },
+        {
+          "term": "cookie banner",
+          "en": "the message that asks visitors to accept or decline tracking"
+        },
+        {
+          "term": "default consent",
+          "en": "the consent state before the visitor chooses"
+        },
+        {
+          "term": "consent update",
+          "en": "the new consent state after the visitor clicks accept or decline"
+        },
+        {
+          "term": "cookieless ping",
+          "en": "a hit without cookies that Google can use for modelling when consent is denied"
+        }
+      ],
+      "interview": [
+        {
+          "q": "What are the four consent types in Consent Mode v2?",
+          "a": "They are ad_storage, analytics_storage, ad_user_data and ad_personalization. The last two were added in version 2 for Google Ads in Europe. I set all four to denied by default and update them when the visitor chooses. Analytics consent maps to analytics_storage, and marketing consent maps to the three ad types."
+        },
+        {
+          "q": "How did you connect the Shopify banner to Google consent mode?",
+          "a": "I used a Custom HTML tag in GTM on the Consent Initialization trigger. It sets the defaults and listens to the Shopify visitorConsentCollected event. It also reads the saved choice through the Shopify Customer Privacy API for returning visitors. I checked the result in the Tag Assistant Consent tab."
+        },
+        {
+          "q": "What happens to tracking when a visitor declines?",
+          "a": "GA4 gets no cookies for that visitor, only cookieless pings from the storefront. Our checkout pixel does not run at all, so no purchase is sent. That is one reason GA4 shows fewer purchases than Shopify. I wrote this in the tracking plan so the team expects the gap."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google for Developers: Set up consent mode on websites",
+          "url": "https://developers.google.com/tag-platform/security/guides/consent"
+        },
+        {
+          "title": "Shopify dev docs: Customer Privacy API",
+          "url": "https://shopify.dev/docs/api/customer-privacy"
+        },
+        {
+          "title": "Tag Manager Help: Tag Manager consent mode support",
+          "url": "https://support.google.com/tagmanager/answer/10718549"
+        }
+      ]
+    },
+    {
+      "id": "c04-t04",
+      "key": "CRO-404",
+      "type": "incident",
+      "title": "Case: GA4 shows 30% fewer purchases than Shopify",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You match GA4 purchases with Shopify orders one by one, explain the gap with numbers per cause, and fix what can be fixed.",
+      "context": "Hi, the finance team is angry. Shopify shows 30% more orders than GA4 last month, and they say 'GA4 is wrong, we cannot trust any CRO report'. Please find out which orders are missing in GA4 and why. Some gap is normal, but we must know how much and fix the part that is our fault.",
+      "steps": [
+        "Create a Google Doc `Case CRO-404 - GA4 vs Shopify purchases` with the sections Summary, Timeline, Data, Causes, Fixes, What is normal.",
+        "Make a test set on the practice store: place 10 test orders in fresh Incognito windows. Click Accept on the banner for 6 orders and Decline for 3. For 1 order, turn on a free ad blocker extension (for example uBlock Origin) and Accept. Write each order number and what you did in a sheet `CRO-404 data`, tab `Plan`.",
+        "Wait until the next day so GA4 has processed the data.",
+        "Export the Shopify orders: Orders → select the date → Export → Current page (or Orders by date) → CSV for Excel, Numbers or other spreadsheet programs → Export orders. The file arrives by email or downloads. Import it into the sheet as tab `Shopify` (File → Import → Upload → Insert new sheet). Keep the columns `Name`, `Id`, `Created at`, `Total`.",
+        "Export GA4 purchases: Explore → Free form, name `CRO-404 transactions`. Rows: `Transaction ID`. Values: `Ecommerce purchases`, `Purchase revenue`. Set the date range to your test days. Click the download icon → Google Sheets, then copy the table into tab `GA4`.",
+        "Match them: in tab `Shopify` add a column `In GA4?` with `=IF(COUNTIF(GA4!A:A, B2) > 0, \"yes\", \"no\")` (B = the Shopify `Id` column). Add a column `GA4 revenue` with `=IFERROR(VLOOKUP(B2, GA4!A:C, 3, FALSE), 0)`.",
+        "Calculate the gap: orders in Shopify, orders in GA4, missing orders, and the gap in percent (missing / Shopify orders). Do the same for revenue.",
+        "Find the cause of each missing order with your `Plan` tab: declined consent (pixel does not run), ad blocker, or something else. Also look for the opposite problem: a `Transaction ID` in GA4 that is empty, `(not set)` or not in Shopify (a duplicate or a test hit).",
+        "Check the value too: for matched orders, compare Shopify `Total` with GA4 `Purchase revenue`. If they differ, write why (for example tax or shipping included or not, or currency).",
+        "Write the Causes table: cause, number of orders, percent of all orders, can we fix it (yes / no / partly), action.",
+        "Fix what is our fault. Examples: a missing `transaction_id`, a purchase sent twice by two tools, value without shipping. Make the fix in the pixel or GTM, place one more test order and show it matches.",
+        "Write `What is normal`: declined consent and ad blockers always cause some gap. Write the target we agree on (for example under 10% gap without consent loss, checked every month) and that Shopify stays the source of truth for orders and money, while GA4 is for behaviour and funnels.",
+        "Write the Summary for finance in 3 sentences, with the real numbers from your test."
+      ],
+      "acceptance": [
+        "The sheet has the tabs Plan, Shopify, GA4, and every Shopify test order is marked `yes` or `no` for GA4.",
+        "The gap is calculated in orders and revenue, in numbers and percent.",
+        "Every missing order has a cause, and the Causes table adds up to the total gap.",
+        "At least one problem that is our fault was fixed and proven with a new matching order (or the Doc proves there was none).",
+        "The Doc explains what gap is normal and names Shopify as the source of truth for orders."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `CRO-404 data`.",
+        "Link to the Google Doc `Case CRO-404 - GA4 vs Shopify purchases`.",
+        "Screenshot of the GA4 Free form exploration with the transaction IDs."
+      ],
+      "hints": [
+        "Compare IDs, not counts. Two numbers can look the same while different orders are missing.",
+        "Shopify reports do not count test orders, so use the Orders list export, not Analytics → Reports.",
+        "If `COUNTIF` finds nothing at all, check that both columns are plain text or both are numbers (use `=TO_TEXT(B2)` if needed)."
+      ],
+      "explain": {
+        "en": "In this case GA4 showed fewer purchases than Shopify and the finance team did not trust the data. I made a test set of ten orders with accept, decline and an ad blocker. I exported the Shopify orders and the GA4 transaction IDs and matched them one by one in Google Sheets with COUNTIF. I found which orders were missing and gave each one a cause, mostly declined consent and the ad blocker. I also checked the order values and fixed the part that was our fault. I wrote what gap is normal and that Shopify stays the source of truth for orders."
+      },
+      "vocabulary": [
+        {
+          "term": "reconciliation",
+          "en": "comparing two data sources line by line to find differences"
+        },
+        {
+          "term": "source of truth",
+          "en": "the system we trust most for one kind of number"
+        },
+        {
+          "term": "ad blocker",
+          "en": "a browser add-on that stops tracking scripts from loading"
+        },
+        {
+          "term": "gap",
+          "en": "the difference between two numbers that should be close"
+        },
+        {
+          "term": "export",
+          "en": "downloading data from a tool as a file, like CSV"
+        }
+      ],
+      "interview": [
+        {
+          "q": "GA4 shows fewer purchases than Shopify. What do you do?",
+          "a": "I export the Shopify orders and the GA4 transaction IDs for the same days and match them by ID. Then I know exactly which orders are missing. I look for causes like declined consent, ad blockers, a missing transaction_id or a pixel error. I fix what is our fault and explain the normal part."
+        },
+        {
+          "q": "Should GA4 and Shopify match 100%?",
+          "a": "No. Some visitors decline consent or block tracking, so GA4 never sees all orders. Shopify records every order in its database, so it is the source of truth for orders and money. GA4 is for behaviour and funnels. We agree on a normal gap and check it every month."
+        },
+        {
+          "q": "Why do you match by transaction ID and not only compare totals?",
+          "a": "Totals can hide problems. For example two orders can be missing and two duplicates can be added, and the count still looks right. With IDs I see each missing or extra order. Then I can find the real cause for each one."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Shopify Help: Exporting orders",
+          "url": "https://help.shopify.com/en/manual/fulfillment/managing-orders/exporting-orders"
+        },
+        {
+          "title": "Google Analytics Help: Minimize duplicate key events with transaction IDs",
+          "url": "https://support.google.com/analytics/answer/12313109"
+        },
+        {
+          "title": "Google Docs Editors Help: COUNTIF function",
+          "url": "https://support.google.com/docs/answer/3093480"
+        }
+      ]
+    },
+    {
+      "id": "c04-t05",
+      "key": "CRO-405",
+      "type": "docs",
+      "title": "Write the tracking runbook and the monthly GA4 vs Shopify check",
+      "priority": "medium",
+      "estimateHours": 5,
+      "goal": "A runbook that explains the full GlowShop tracking setup, how to test it, and how to do the monthly GA4 vs Shopify check in 30 minutes.",
+      "context": "Hi, great work on tracking. Now the knowledge is only in your head. Please write a runbook so anyone on the team can test the tracking, find a broken event and do the monthly purchase check without you.",
+      "steps": [
+        "Create a Google Doc `GlowShop tracking runbook` and share it as Anyone with the link → Commenter.",
+        "Section `Architecture`: a simple drawing (Insert → Drawing → New) with three boxes: Theme (dataLayer: `view_item_list`, `view_item`, `add_to_cart`, `view_cart`) → GTM → GA4; Checkout → Customer Events custom pixel (`begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase`) → GA4; Shopify cookie banner → Consent Mode v2 → both.",
+        "Section `Where things live`: links and names: GA4 property ID and Measurement ID, GTM container ID, the theme file `snippets/glowshop-datalayer.liquid`, the custom pixel name, the tracking plan sheet.",
+        "Section `How to test (15 minutes)`: numbered steps to test the full funnel with GTM Preview, the Shopify Pixel Helper and GA4 DebugView, with one test order. Copy the exact menu paths from your tickets.",
+        "Section `If an event is missing`: a short checklist in order: dataLayer → trigger → tag → consent → DebugView → published version → pixel status `Connected`. Link to your case CRO-304.",
+        "Section `Monthly GA4 vs Shopify check (30 minutes)`: the exact steps from CRO-404: export orders, export GA4 transaction IDs, match with COUNTIF, calculate the gap, compare with last month, and the action if the gap grows more than 5 points.",
+        "Section `Change log`: a table with date, change, version (GTM or pixel), tested by. Fill it with all versions from sprints 3 and 4.",
+        "Ask someone else (a classmate is fine) to follow `How to test` without your help. Write in a comment where they got stuck and fix that step."
+      ],
+      "acceptance": [
+        "The runbook has all 7 sections and an architecture drawing.",
+        "The test steps use exact menu paths and finish in about 15 minutes.",
+        "The monthly check has numbered steps, the COUNTIF formula and a clear rule for when to act.",
+        "The change log lists GTM versions v1 to v5 and the custom pixel.",
+        "There is a comment from a test reader and the step they got stuck on was fixed."
+      ],
+      "evidence": [
+        "Link to the Google Doc `GlowShop tracking runbook`.",
+        "Screenshot of the comment from your test reader."
+      ],
+      "hints": [
+        "Write each step as an action: 'Open …', 'Click …', 'Check that …'.",
+        "Put links next to every tool name, so nobody has to search.",
+        "A runbook is good when a new person can follow it alone. Test that, do not guess."
+      ],
+      "explain": {
+        "en": "In this task I wrote the GlowShop tracking runbook. It has a simple drawing of how the theme, GTM, the checkout pixel, consent and GA4 work together. It explains where every part lives, how to test the full funnel in fifteen minutes and what to check when an event is missing. It also has the monthly check of GA4 purchases against Shopify orders with a clear rule for when to act. A classmate followed the test steps and I fixed the step where they got stuck."
+      },
+      "vocabulary": [
+        {
+          "term": "runbook",
+          "en": "a step-by-step guide for a task that the team does again and again"
+        },
+        {
+          "term": "architecture",
+          "en": "how the parts of a system connect to each other"
+        },
+        {
+          "term": "change log",
+          "en": "a list of changes with dates, so you can see what changed and when"
+        },
+        {
+          "term": "handover",
+          "en": "giving your work to another person so they can continue it"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why did you write a runbook?",
+          "a": "Tracking breaks, often when someone changes the theme or GTM. If only I know how it works, the team is stuck when I am away. The runbook explains the setup, the test steps and the monthly check. A classmate tested it, so I know a new person can follow it."
+        },
+        {
+          "q": "Can you explain the GlowShop tracking setup in a few sentences?",
+          "a": "The theme pushes storefront e-commerce events to the dataLayer, and GTM sends them to GA4. Checkout events come from a Shopify custom pixel, because theme code does not run in checkout. The Shopify cookie banner feeds Consent Mode v2 in both places. Every purchase has the Shopify order ID as transaction_id."
+        },
+        {
+          "q": "How do you check every month that the tracking is still healthy?",
+          "a": "I export Shopify orders and GA4 transaction IDs for the month and match them by ID. I calculate the gap in orders and revenue and compare it with the month before. If the gap grows by more than five points, I test the funnel and check the change log. I write the result in the runbook."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Shopify Help: Testing custom pixels",
+          "url": "https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels/testing"
+        },
+        {
+          "title": "Tag Manager Help: Preview and debug containers",
+          "url": "https://support.google.com/tagmanager/answer/6107056"
+        }
+      ]
+    }
+  ]
+}

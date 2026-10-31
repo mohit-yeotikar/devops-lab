@@ -4,7 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import TicketCard from '../../../components/TicketCard.astro';
 import { sprintById } from '../../../lib/curriculum';
 import { progressFor } from '../../../lib/db';
-import { labs } from '../../../sandbox/labs.js';
+import { allLabs as labs } from '../../../sandbox/registry.js';
 const sprintLabs = labs.filter((l) => l.sprints.includes(Astro.params.id!));
 const s = sprintById(Astro.params.id!);
 if (!s) return new Response('Not found', { status: 404 });

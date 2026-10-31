@@ -7,8 +7,13 @@ if (Astro.locals.user) return Astro.redirect('/app');
   <AuthShell>
   <div class="auth">
     <h1>Create your account</h1>
-    <p class="sub">You need a laptop and a free AWS account. Use your real name: it goes on your experience letter.</p>
+    <p class="sub">You need a laptop. Everything else is free. Use your real name: it goes on your experience letter.</p>
     <form data-api action="/api/auth/signup" method="post">
+      <fieldset class="tracks"><legend>Choose your track</legend>
+        <label><input type="radio" name="track" value="devops" checked /><span><b>DevOps Engineer</b><small>Linux, Docker, CI/CD, AWS, Kubernetes</small></span></label>
+        <label><input type="radio" name="track" value="cro" /><span><b>CRO and Analytics</b><small>GA4, Tag Manager, research, A/B tests, Shopify</small></span></label>
+        <label><input type="radio" name="track" value="martech" /><span><b>MarTech and Performance Marketing</b><small>Analytics 360, Google Ads, SA360, CM360, DV360, Adobe, HubSpot</small></span></label>
+      </fieldset>
       <label>Full name</label><input name="name" required autocomplete="name" placeholder="As on your documents" />
       <label>Email</label><input name="email" type="email" required autocomplete="email" />
       <label>Username <span class="help">(for your public portfolio link)</span></label><input name="handle" pattern="[a-z0-9-]{3,30}" placeholder="first-last" />

@@ -1,0 +1,329 @@
+{
+  "id": "c11",
+  "number": 11,
+  "title": "Shopify themes, speed and Meta Conversions API",
+  "weeks": "21-22",
+  "theme": "Change the Dawn theme with Liquid, make the store fast (Core Web Vitals), and send clean Meta Pixel and Conversions API events without duplicates.",
+  "jobStory": "In this sprint you work closer to the code of the store. You learn Liquid, sections and blocks in the Dawn theme with Shopify CLI, and you build a delivery-estimate line for the product page. You measure Core Web Vitals, find slow apps and fix the biggest speed problems. You connect Meta Pixel and the Conversions API through the Shopify Facebook & Instagram app, and you solve a case where Meta counts every purchase twice.",
+  "outcomes": [
+    "I used Shopify CLI to pull, preview and change a Dawn theme, and I built a new section with blocks and settings.",
+    "I built a delivery-estimate block for the product page that store staff can edit in the theme editor.",
+    "I measured LCP, INP and CLS with Lighthouse and the Chrome Performance panel, removed app bloat and improved the product page.",
+    "I connected Meta Pixel and the Conversions API with the Facebook & Instagram app and checked events in Test events.",
+    "I found and fixed double purchases in Meta with event_id deduplication."
+  ],
+  "tickets": [
+    {
+      "id": "c11-t01",
+      "key": "CRO-1101",
+      "type": "task",
+      "title": "Learn Liquid and build a Dawn section with Shopify CLI",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You can pull the practice theme with Shopify CLI, preview changes locally, and add a new 'GlowShop benefits' section with editable blocks.",
+      "context": "Hi, many of our test ideas need small theme changes. I do not want to wait for an agency every time. Please learn how our Dawn theme works: Liquid, sections and blocks. Start with a simple section that shows three product benefits, and make it editable in the theme editor so marketing can change the text.",
+      "steps": [
+        "Install Node.js LTS from https://nodejs.org and Git. Then install Shopify CLI: `npm install -g @shopify/cli@latest`. Check it with `shopify version`.",
+        "In Shopify admin go to Online Store → Themes. On your current theme click … → Duplicate and rename the copy `Dawn - dev`. Never change the live theme directly.",
+        "Make a folder and pull the theme: `mkdir glowshop-theme && cd glowshop-theme`, then `shopify theme pull --store your-store.myshopify.com`. Choose `Dawn - dev` from the list. Log in with your Partner account when the browser opens.",
+        "Start the local preview: `shopify theme dev --store your-store.myshopify.com`. Open the link it shows (usually http://127.0.0.1:9292). When you save a file, the page updates.",
+        "Learn the folders: `layout` (theme.liquid wraps every page), `templates` (JSON files that list the sections of each page type), `sections` (big parts of a page), `snippets` (small reusable parts), `assets` (CSS, JS, images), `locales` (texts in languages), `config` (theme settings). Open `templates/product.json` and find the list of sections.",
+        "Learn the three parts of Liquid. Objects print data: `{{ product.title }}`. Filters change data: `{{ product.price | money }}`. Tags are logic: `{% if product.available %} ... {% endif %}` and `{% for block in section.blocks %} ... {% endfor %}`.",
+        "Create the file `sections/glow-benefits.liquid`. At the top write the HTML: a `<div class=\"page-width glow-benefits\">` with a heading `{{ section.settings.heading }}` and a list. Inside the list use `{% for block in section.blocks %}<li {{ block.shopify_attributes }}><strong>{{ block.settings.title }}</strong> {{ block.settings.text }}</li>{% endfor %}`.",
+        "At the bottom add the schema. Between `{% schema %}` and `{% endschema %}` write JSON with: `\"name\": \"GlowShop benefits\"`, `\"settings\"` with one text setting `heading` (default `Why customers love it`), `\"blocks\"` with one block type `benefit` that has two settings: `title` (text) and `text` (textarea), `\"max_blocks\": 4`, and `\"presets\"` with the name `GlowShop benefits` and three default blocks of type `benefit`.",
+        "Add a little CSS in the same file between `{% style %}` and `{% endstyle %}`: a grid with 1 column on mobile and 3 columns from 750 px. Keep it small.",
+        "Run the theme check: `shopify theme check`. Fix every error it shows for your file.",
+        "Open the theme editor for `Dawn - dev`: Online Store → Themes → Dawn - dev → Customize. Choose Products → Default product, click Add section → GlowShop benefits. Change the texts to real GlowShop benefits (for example 'Fragrance free', 'Dermatologist tested', '30-day returns'). Save.",
+        "Check that the texts were saved in `templates/product.json` (pull again with `shopify theme pull` and look). Understand why: the section code is in `sections`, but the settings each page uses are saved in the template JSON.",
+        "Put the theme folder in a private GitHub repo: `git init`, add a `.gitignore` with `node_modules/` and `.shopify/`, commit and push. From now on every theme change is a commit."
+      ],
+      "acceptance": [
+        "`shopify theme dev` runs and shows the `Dawn - dev` theme locally.",
+        "`sections/glow-benefits.liquid` has a setting, a block type and a preset, and `shopify theme check` shows no errors for it.",
+        "The section is added to the product template in the theme editor with 3 real benefit texts.",
+        "The section shows 1 column on mobile and 3 columns on desktop.",
+        "The theme code is in a private GitHub repo with at least one commit."
+      ],
+      "evidence": [
+        "The content of `sections/glow-benefits.liquid`, pasted as text",
+        "Screenshot of the theme editor with the section and its blocks",
+        "Screenshots of the product page on mobile and desktop",
+        "Link to the private GitHub repo (add your team lead as a collaborator)"
+      ],
+      "hints": [
+        "If the section does not appear in 'Add section', the `presets` part of the schema is missing or the JSON has an error.",
+        "`{{ block.shopify_attributes }}` lets the theme editor highlight the block when you click it. Always add it.",
+        "If `shopify theme dev` asks for a password, enter the storefront password of your development store."
+      ],
+      "explain": {
+        "en": "In this task I learned how a Shopify Dawn theme works. I used Shopify CLI to pull a copy of the theme and preview my changes locally. I learned the three parts of Liquid: objects, filters and tags. I built a new section with a heading setting and editable benefit blocks, and I added a preset so it shows in the theme editor. I checked my code with theme check and added the section to the product page. Finally I saved the theme code in a private GitHub repo."
+      },
+      "vocabulary": [
+        { "term": "Liquid", "en": "the template language of Shopify themes" },
+        { "term": "section", "en": "a big part of a page that store staff can add and move in the theme editor" },
+        { "term": "block", "en": "a small part inside a section, like one benefit or one button" },
+        { "term": "schema", "en": "JSON at the end of a section file that defines its settings and blocks" },
+        { "term": "preset", "en": "the default version of a section that appears in 'Add section'" },
+        { "term": "Shopify CLI", "en": "a command line tool to work on themes and apps on your computer" }
+      ],
+      "interview": [
+        { "q": "What is the difference between a section and a block in Shopify?", "a": "A section is a big part of a page, like a banner or a product information area. A block is a smaller part inside a section, like one benefit or one button. Both have settings in the schema, so staff can change them in the theme editor without code." },
+        { "q": "How do you change a Shopify theme safely?", "a": "I never edit the live theme. I duplicate it, pull the copy with Shopify CLI and preview with shopify theme dev. I run theme check and keep the code in Git. When everything is tested, I publish the copy." },
+        { "q": "What are objects, filters and tags in Liquid?", "a": "Objects print data, like product.title in double curly brackets. Filters change the data, like money, which formats a price. Tags add logic, like if and for, and they use curly brackets with percent signs." }
+      ],
+      "resources": [
+        { "title": "Shopify dev docs: Sections", "url": "https://shopify.dev/docs/storefronts/themes/architecture/sections" },
+        { "title": "Shopify dev docs: Liquid reference", "url": "https://shopify.dev/docs/api/liquid" },
+        { "title": "Shopify dev docs: Shopify CLI for themes", "url": "https://shopify.dev/docs/storefronts/themes/tools/cli" }
+      ]
+    },
+    {
+      "id": "c11-t02",
+      "key": "CRO-1102",
+      "type": "project",
+      "title": "Build a delivery-estimate block for the product page",
+      "priority": "high",
+      "estimateHours": 9,
+      "goal": "The product page shows 'Order today, get it between <date> and <date>' with business days, different settings for the US and Canada, and no layout shift.",
+      "context": "Hi, in our research many customers asked 'when will it arrive?'. Our roadmap has a test for a delivery estimate on the product page. Paid apps do this, but we can build it in the theme. Please build it as a block that marketing can turn on, move and edit, with separate days for Canada because shipping there is slower.",
+      "steps": [
+        "Work in your `Dawn - dev` theme with `shopify theme dev` running (see CRO-1101). Create a Git branch: `git checkout -b delivery-estimate`.",
+        "Open `sections/main-product.liquid`. Find the loop over the blocks: `{%- for block in section.blocks -%}` and the `{%- case block.type -%}` with lines like `{%- when 'text' -%}`, `{%- when 'title' -%}`, `{%- when 'price' -%}`.",
+        "Add a new case before `{%- endcase -%}`: `{%- when 'delivery_estimate' -%} {% render 'delivery-estimate', block: block %}`.",
+        "In the `{% schema %}` of the same file find the `\"blocks\"` array and add a new block object: type `delivery_estimate`, name `Delivery estimate`, `\"limit\": 1`, and settings: `label` (text, default `Order today, get it between`), `us_min` and `us_max` (range 1-15, default 3 and 5), `ca_min` and `ca_max` (range 1-20, default 6 and 10), `cutoff_hour` (range 0-23, default 14, label 'Order cut-off hour').",
+        "Create `snippets/delivery-estimate.liquid`. In Liquid choose the days by country: `{%- if localization.country.iso_code == 'CA' -%}{%- assign min_days = block.settings.ca_min -%}{%- assign max_days = block.settings.ca_max -%}{%- else -%}{%- assign min_days = block.settings.us_min -%}{%- assign max_days = block.settings.us_max -%}{%- endif -%}`.",
+        "Write the HTML with a fallback text that is always correct: `<p class=\"delivery-estimate\" data-min=\"{{ min_days }}\" data-max=\"{{ max_days }}\" data-cutoff=\"{{ block.settings.cutoff_hour }}\" {{ block.shopify_attributes }}>Delivery in {{ min_days }}-{{ max_days }} business days</p>`. The fallback shows if JavaScript fails.",
+        "Calculate the real dates in the browser, not in Liquid. Shopify caches pages, so a date made in Liquid with `'now'` can be old. Add a small script in the snippet: read data-min, data-max and data-cutoff; if the current hour is after the cut-off, start from tomorrow; add business days by skipping Saturday and Sunday; format with `new Intl.DateTimeFormat(document.documentElement.lang, { weekday: 'short', month: 'short', day: 'numeric' })`; then set the text to `label + ' ' + firstDate + ' and ' + lastDate`.",
+        "Stop layout shift: the line must have the same height before and after the script runs. Give `.delivery-estimate` a fixed `min-height` (for example `1.5em`) and do not add new lines with the script, only change the text.",
+        "In the theme editor go to Products → Default product → Product information → Add block → Delivery estimate. Put it under the Buy buttons. Save.",
+        "Test the business days. Temporarily change the script to use a fixed date (for example Friday 15:00) and check that the dates skip the weekend. Test Monday 09:00 and Saturday too. Write the results in a small test table. Remove the fixed date again.",
+        "Test Canada: in Settings → Markets make sure Canada is active (you will do this fully in sprint 12), then use the country selector in the footer of the store (add the country selector in Customize → Footer if it is hidden). The days must change to the Canada settings.",
+        "Test in French if French is published: the dates must show in French because of `document.documentElement.lang`.",
+        "Check accessibility and size: the text must be readable at 375 px width, and the contrast must pass in DevTools (inspect the text, look at Contrast in the color picker).",
+        "Prepare the block for an A/B test: write in your GS test plan how this block can be the variant (for example GrowthBook shows it with a feature flag by removing a `hidden` class). Do not start the test yet.",
+        "Commit, push the branch, and open a pull request in your theme repo with screenshots. Merge it after your own review, then push the theme with `shopify theme push --theme 'Dawn - dev'`."
+      ],
+      "acceptance": [
+        "The block 'Delivery estimate' can be added, moved and edited in the theme editor and appears only once.",
+        "US visitors see dates with the US settings and Canadian visitors see dates with the Canada settings.",
+        "Dates skip weekends and move one day later after the cut-off hour; the test table shows Friday, Saturday and Monday cases.",
+        "The fallback text shows when JavaScript is turned off (DevTools → Settings → Debugger → Disable JavaScript).",
+        "There is no layout shift from the block (CLS check in the Performance panel shows no shift for this element)."
+      ],
+      "evidence": [
+        "Link to the pull request in your theme repo",
+        "Screenshots of the product page for US and Canada with the delivery line",
+        "Your test table for the business-day cases, pasted as text"
+      ],
+      "hints": [
+        "If the block does not appear in 'Add block', check the JSON in the schema with `shopify theme check`.",
+        "`localization.country.iso_code` is the country the shopper chose or that Shopify detected, for example `US` or `CA`.",
+        "Holidays are not included. Write this as a known limit in the PR, or add a setting for a holiday message."
+      ],
+      "explain": {
+        "en": "In this project I built a delivery-estimate block for the product page in our Dawn theme. I added a new block type to the main product section and a snippet that shows the delivery dates. The number of days comes from the block settings, with different days for the US and Canada based on the shopper's country. I calculated the dates in JavaScript because Shopify caches pages, and I skipped weekends and used a cut-off hour. I reserved space for the line so there is no layout shift. I tested different days and countries and merged the change with a pull request."
+      },
+      "vocabulary": [
+        { "term": "business day", "en": "a working day, usually Monday to Friday" },
+        { "term": "cut-off time", "en": "the last time to order so the order ships the same day" },
+        { "term": "snippet", "en": "a small reusable Liquid file that you include with render" },
+        { "term": "fallback", "en": "a simple version that shows when the normal way does not work" },
+        { "term": "layout shift", "en": "when parts of the page move while it loads" }
+      ],
+      "interview": [
+        { "q": "Why did you calculate the delivery dates in JavaScript and not in Liquid?", "a": "Shopify caches pages, so a date made in Liquid can be from an older moment. The browser always knows the real date and time of the visitor. Liquid gives the settings and a fallback text, and JavaScript makes the final dates. If JavaScript fails, the customer still sees a correct range of business days." },
+        { "q": "How did you show different delivery times for Canada?", "a": "I used localization.country.iso_code in Liquid. If it is CA, the snippet uses the Canada settings, otherwise the US settings. Store staff can change both in the theme editor. I tested it with the country selector in the footer." },
+        { "q": "How did you avoid hurting Core Web Vitals with this block?", "a": "The script only changes the text inside a line that is already on the page. The line has a fixed minimum height, so nothing moves. The script is very small and runs fast, so it does not hurt INP." }
+      ],
+      "resources": [
+        { "title": "Shopify dev docs: Blocks", "url": "https://shopify.dev/docs/storefronts/themes/architecture/blocks" },
+        { "title": "Shopify dev docs: Liquid localization object", "url": "https://shopify.dev/docs/api/liquid/objects/localization" },
+        { "title": "Shopify dev docs: Input settings for sections and blocks", "url": "https://shopify.dev/docs/storefronts/themes/architecture/settings/input-settings" }
+      ]
+    },
+    {
+      "id": "c11-t03",
+      "key": "CRO-1103",
+      "type": "task",
+      "title": "Measure Core Web Vitals and remove app bloat",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "A before/after report for the home page and a product page with LCP, INP, CLS and page weight, the main causes, and at least 3 fixes done in the theme.",
+      "context": "Hi, our product page feels slow on phones, and slow pages sell less. Over the years we installed many apps, and some left code behind. Please measure our Core Web Vitals on the practice store, find what makes it slow, and fix the biggest problems.",
+      "steps": [
+        "Learn the targets (good at the 75th percentile of real users): LCP (Largest Contentful Paint, main content visible) 2.5 seconds or less, INP (Interaction to Next Paint, reaction to clicks and taps) 200 ms or less, CLS (Cumulative Layout Shift, page moving) 0.1 or less.",
+        "Learn field data vs lab data. Field data comes from real Chrome users (CrUX) and is what Google uses. Lab data is one test on one device. Your development store is password protected and has no real users, so you will use lab data for it.",
+        "See field data on a real store first: open https://pagespeed.web.dev, test the home page of any public Shopify skincare store, and look at the top part 'Discover what your real users are experiencing'. Write the LCP, INP and CLS. This is how a live store is measured.",
+        "Measure your practice store with Lighthouse. Open the store in a Chrome Incognito window (no extensions), enter the password, and open a product page. DevTools → Lighthouse → Mode `Navigation`, Device `Mobile`, Category `Performance` → Analyze page load. Run it 3 times and use the middle (median) result. Write LCP, CLS, Total Blocking Time and the score.",
+        "Measure INP yourself: DevTools → Performance. The panel shows local LCP, CLS and INP live. Turn on CPU throttling 4x. Click a variant (30 ml / 50 ml), click Add to cart, open the cart drawer. Write the INP value and which interaction was the slowest.",
+        "Find the LCP element: in the Lighthouse report open 'Largest Contentful Paint element'. On a product page it is usually the first product image. Check in the HTML (Elements panel) if this image has `loading=\"lazy\"`. The LCP image must not be lazy-loaded.",
+        "Add 2 free apps to see app bloat, for example a free product reviews app and Shopify Inbox (chat). Measure again with Lighthouse. Then look at DevTools → Network, filter by `JS`, sort by Size and write the 5 biggest scripts and who loads them (domain).",
+        "Find app code in the theme: Online Store → Themes → Customize → App embeds (left menu icon). Write which embeds are on. Search the theme code for app scripts: in your theme folder run `grep -rn \"<script\" layout/theme.liquid` and look for code of apps you do not use.",
+        "Fix 1, app bloat: uninstall the app you do not need, turn off unused App embeds, and remove code that old apps left in `theme.liquid` or snippets (put the removed code in your Git history, do not just delete it without a commit).",
+        "Fix 2, LCP image: in your theme find where the first product image is rendered (search for `image_tag` in `snippets/product-media.liquid` or `sections/main-product.liquid`). For the first image only, make sure it uses `loading: 'eager'` and add `fetchpriority: 'high'` to the `image_tag` filter. Keep `loading: 'lazy'` for the other images.",
+        "Fix 3, CLS: make sure every image has width and height (the `image_tag` filter adds them), that the delivery line from CRO-1102 has a min-height, and that no banner or app pushes the page down after loading. Find shifts in DevTools → Performance → record a page load → Layout shifts track.",
+        "Optional fix 4, fonts and images: in the theme settings use a system font or one font weight only, and upload product images at a sensible size (for example 2000 px wide, not 6000 px).",
+        "Measure again 3 times and use the median. Make a before/after table in Google Sheets: page, LCP, CLS, TBT, INP (Performance panel), total JS size, number of requests. Write one sentence for each fix and the change it made."
+      ],
+      "acceptance": [
+        "The report has field data (LCP, INP, CLS) from one public Shopify store, and lab data for the practice store.",
+        "Before and after numbers are the median of 3 Lighthouse runs on mobile for the home page and one product page.",
+        "The 5 biggest scripts are listed with their source.",
+        "At least 3 fixes are done and committed in the theme repo, including no lazy-loading on the first product image.",
+        "Every fix has one sentence about its effect, even if the effect was small."
+      ],
+      "evidence": [
+        "Link to the before/after Google Sheet",
+        "Screenshots of the Lighthouse result before and after for the product page",
+        "Link to the commit or pull request with the theme fixes"
+      ],
+      "hints": [
+        "Lighthouse results change between runs. That is why you run 3 times and use the median.",
+        "INP is not in Lighthouse page load reports. Use the Performance panel and real clicks; Total Blocking Time is only a lab hint for INP.",
+        "In a live store the Shopify admin also has a web performance report (search 'Web performance' in Analytics → Reports). A development store usually has no data there."
+      ],
+      "explain": {
+        "en": "In this task I measured and improved the speed of our practice store. I learned the Core Web Vitals targets: LCP under 2.5 seconds, INP under 200 milliseconds and CLS under 0.1. I looked at field data of a real store in PageSpeed Insights and used Lighthouse and the Chrome Performance panel for our store. I found heavy app scripts, a lazy-loaded main product image and layout shifts. I removed unused apps and old app code, made the first product image load with high priority, and fixed the shifts. I made a before and after table with the median of three runs."
+      },
+      "vocabulary": [
+        { "term": "LCP (Largest Contentful Paint)", "en": "the time until the biggest image or text on the screen is shown" },
+        { "term": "INP (Interaction to Next Paint)", "en": "how fast the page reacts after a click or tap" },
+        { "term": "CLS (Cumulative Layout Shift)", "en": "how much the page moves while it loads" },
+        { "term": "field data", "en": "speed data from real users over the last 28 days" },
+        { "term": "lazy loading", "en": "loading an image only when the user scrolls near it" },
+        { "term": "app bloat", "en": "slow code from too many apps, often from apps nobody uses" }
+      ],
+      "interview": [
+        { "q": "What are the Core Web Vitals and their good values?", "a": "There are three. LCP shows how fast the main content appears, and good is 2.5 seconds or less. INP shows how fast the page reacts to clicks, and good is 200 milliseconds or less. CLS shows how much the page moves, and good is 0.1 or less. Google measures them at the 75th percentile of real users." },
+        { "q": "What is the difference between field data and lab data?", "a": "Field data comes from real Chrome users on their own devices and networks. Lab data is one test in a controlled setting, like Lighthouse. Field data shows the real experience, lab data helps me find and test the cause. I use both." },
+        { "q": "What slows down Shopify stores the most in your experience?", "a": "Apps are a big cause. Each app can add scripts on every page, and some leave code after you uninstall them. Big images and a lazy-loaded main image also hurt LCP. I check App embeds, the theme code and the Network panel, and I remove what we do not use." }
+      ],
+      "resources": [
+        { "title": "web.dev: Web Vitals", "url": "https://web.dev/articles/vitals" },
+        { "title": "web.dev: Optimize LCP", "url": "https://web.dev/articles/optimize-lcp" },
+        { "title": "Shopify dev docs: Theme performance best practices", "url": "https://shopify.dev/docs/storefronts/themes/best-practices/performance" }
+      ]
+    },
+    {
+      "id": "c11-t04",
+      "key": "CRO-1104",
+      "type": "task",
+      "title": "Connect Meta Pixel and the Conversions API with the Facebook & Instagram app",
+      "priority": "medium",
+      "estimateHours": 7,
+      "goal": "The practice store sends PageView, ViewContent, AddToCart, InitiateCheckout and Purchase to Meta from the browser (Pixel) and from the server (Conversions API), checked in Test events, without any ad spend.",
+      "context": "Hi, our marketing team runs Meta ads, and Meta needs good conversion data to show ads to the right people. Browser tracking alone misses many events because of ad blockers and privacy settings. Please connect the Pixel and the Conversions API on the practice store, the official way, and check every event. We do not spend any money on ads for this.",
+      "steps": [
+        "Create a free Meta business portfolio at https://business.facebook.com if you do not have one. Create a free Facebook Page `GlowShop Practice`. You do not need to add a payment method and you do not create any ads.",
+        "In Shopify admin open the Shopify App Store and install the free app `Facebook & Instagram` (by Meta). Open it and click Start setup. Connect your Facebook account, the business portfolio and the Page.",
+        "In the data sharing step choose to create a new dataset (pixel) named `GlowShop Practice` and set Customer data sharing to `Maximum`. Maximum means Pixel in the browser plus the Conversions API from Shopify's server. Accept the terms and finish the setup. You can skip catalog and shop steps that need more than a free setup.",
+        "Check Shopify consent: Settings → Customer privacy. Write which consent banner and regions are active. Meta events from the app follow the customer's consent choice.",
+        "Install the free Chrome extension `Meta Pixel Helper`. Open your store, view a product and add it to the cart. The helper should show PageView, ViewContent and AddToCart with your dataset id.",
+        "Open Events Manager: https://business.facebook.com/events_manager → choose your dataset → Test events. Under 'Confirm your website's events are set up correctly' enter your store URL and click Open website. Use this window for all next actions.",
+        "In the test window: view a product, add to cart, start checkout and make a test order with the Bogus Gateway (Settings → Payments, test gateway, card number `1`).",
+        "In Test events, check each event: the name, the source ('Browser' or 'Server') and the parameters (click an event to open it). For Purchase check `value`, `currency` and `content_ids`. Write a table: Event, Browser yes/no, Server yes/no, Parameters, Deduplicated yes/no.",
+        "Find the deduplication. When the same Purchase arrives from the browser and the server with the same event_id, Test events shows it as one event with a note that it was deduplicated (or 'Processed' for one and 'Deduplicated' for the other). Write the event_id you see (it is set by Shopify).",
+        "Look at Event Match Quality: Events Manager → your dataset → Overview → click Purchase → View details → Event match quality. With little traffic it may say there is not enough data. Then write which customer information parameters you saw in Test events for the server Purchase (for example email `em`, phone `ph`, `fbp`, `fbc`, IP address, user agent), because these drive the score.",
+        "Write a one-page note: what Pixel and CAPI each do, why we use both, what dedup is, what EMQ is, and the table from step 8."
+      ],
+      "acceptance": [
+        "The Facebook & Instagram app is connected with Customer data sharing set to Maximum, with no payment method and no ads.",
+        "Meta Pixel Helper shows PageView, ViewContent and AddToCart on the practice store.",
+        "Test events shows Purchase from the test order with value and currency.",
+        "The table lists 5 events with browser and server source and a dedup column.",
+        "The note explains Pixel, CAPI, dedup and EMQ in simple words."
+      ],
+      "evidence": [
+        "Screenshot of the app's data sharing setting (Maximum)",
+        "Screenshot of Test events with the Purchase event and its source",
+        "Your event table and one-page note, pasted as text or as a link"
+      ],
+      "hints": [
+        "If Test events shows nothing, use the window opened from Test events. Normal tabs do not send the test code.",
+        "If the app cannot connect on a development store, set up the Pixel manually in Settings → Customer events and do the Conversions API test with the Payload helper in CRO-1105. Write down what blocked you.",
+        "Server events can arrive some seconds or minutes later than browser events. Wait and refresh."
+      ],
+      "explain": {
+        "en": "In this task I connected Meta tracking to our practice store without spending money on ads. I installed the Facebook and Instagram app and set customer data sharing to Maximum, so events are sent by the Pixel in the browser and by the Conversions API from the server. I checked the events with Meta Pixel Helper and in Events Manager Test events, including a test purchase. I saw that the browser and server purchase were deduplicated with the same event id. I also looked at Event Match Quality and the customer parameters that improve it."
+      },
+      "vocabulary": [
+        { "term": "Meta Pixel", "en": "Meta's tracking code that sends events from the browser" },
+        { "term": "Conversions API (CAPI)", "en": "a way to send events to Meta from the server, not the browser" },
+        { "term": "dataset", "en": "the place in Meta Events Manager that receives your events (the pixel id)" },
+        { "term": "Event Match Quality (EMQ)", "en": "a score from 0 to 10 that shows how well Meta can match events to people" },
+        { "term": "Test events", "en": "a tab in Events Manager that shows your test events live" }
+      ],
+      "interview": [
+        { "q": "Why do you use both the Meta Pixel and the Conversions API?", "a": "The Pixel runs in the browser and can be blocked by ad blockers or privacy settings. The Conversions API sends the same events from the server, so fewer events are lost. Meta removes duplicates when both have the same event name and event id. Together they give more complete data." },
+        { "q": "What is Event Match Quality?", "a": "It is a score from 0 to 10 for how well Meta can connect an event to a Meta user. It is higher when we send more customer information, like hashed email and phone, fbp and fbc cookies, IP address and user agent. We only send this data with the customer's consent." },
+        { "q": "How did you test Meta events without spending money?", "a": "I used Events Manager Test events. I opened the store from the Test events page and did a full test order with the Bogus Gateway. I saw each event, its source and its parameters. No ads were needed." }
+      ],
+      "resources": [
+        { "title": "Meta for Developers: Conversions API", "url": "https://developers.facebook.com/docs/marketing-api/conversions-api" },
+        { "title": "Shopify Help Center: Facebook & Instagram by Meta", "url": "https://help.shopify.com/en/manual/online-sales-channels/facebook-instagram-by-meta" }
+      ]
+    },
+    {
+      "id": "c11-t05",
+      "key": "CRO-1105",
+      "type": "incident",
+      "title": "Case: Meta shows double purchases",
+      "priority": "high",
+      "estimateHours": 9,
+      "goal": "You find why Meta counts about twice as many purchases as Shopify, fix it, and prove with Test events that browser and server purchases are deduplicated with a matching event_id.",
+      "context": "Hi, marketing is confused. Meta Ads Manager shows 212 purchases last week, but Shopify has only 108 orders. Last month an agency added 'their own pixel code' for a promotion. Meta now thinks our ads work twice as well as they do, and we may spend too much. Please find the cause, fix it and show me proof.",
+      "steps": [
+        "Write down the numbers: 212 Meta purchases vs 108 Shopify orders. 212 / 108 ≈ 1.96, so almost every order is counted twice. Write 3 possible causes before you look: the Pixel is installed twice (app plus custom code), browser and server events have different event_ids so dedup fails, or a GTM tag also sends a Meta Purchase.",
+        "Rebuild the problem on the practice store. In Shopify admin go to Settings → Customer events → Add custom pixel, name it `Agency pixel (old)`. Paste the standard Meta Pixel base code from Meta's docs with your dataset id, but without the `<script>` tags. Below it add: `analytics.subscribe('checkout_completed', (event) => { const c = event.data.checkout; fbq('track', 'Purchase', { value: c.totalPrice.amount, currency: c.currencyCode }); });`. Set its permissions to match the consent settings, save and click Connect.",
+        "Make a test order from the Test events window (Events Manager → dataset → Test events → Open website). Look at the result: you now see an extra browser Purchase with no event_id (or a different one). It cannot be deduplicated, so Meta counts it as a second purchase.",
+        "Investigate like on a live store. Make a list of every place a Meta Purchase can come from: Settings → Customer events (app pixels and custom pixels), Online Store → Themes → Edit code (search `fbq(` in `theme.liquid` and snippets), GTM (search for Meta or Facebook tags), and other apps (Settings → Apps and sales channels). Write what you find in each place.",
+        "Check Events Manager: dataset → Overview → click Purchase. Look at the browser and server event counts and at the deduplication information. Open the Diagnostics tab and write any warnings about duplicate or missing event_ids.",
+        "Fix the case: delete the `Agency pixel (old)` custom pixel (Settings → Customer events → … → Disconnect, then Delete). The Facebook & Instagram app already sends Purchase from browser and server with matching event_ids.",
+        "Learn how dedup works by testing it yourself with the Conversions API. In Events Manager → dataset → Settings → Conversions API, click Generate access token (under 'Set up direct integration'). Copy it into a password manager. Never put it in theme code, a custom pixel or Git.",
+        "Copy the test code from the Test events tab (it looks like `TEST12345`). Open the Test events website window, open DevTools → Console and send a browser purchase: `fbq('track', 'Purchase', {value: 42, currency: 'USD'}, {eventID: 'gs-dedup-001'});`.",
+        "Within a few minutes send the same purchase from the 'server' with curl in a terminal. Replace PIXEL_ID, TOKEN, TEST12345 and the time (use the output of `date +%s`): `curl -X POST 'https://graph.facebook.com/v23.0/PIXEL_ID/events' -F 'data=[{\"event_name\":\"Purchase\",\"event_time\":1790000000,\"event_id\":\"gs-dedup-001\",\"action_source\":\"website\",\"event_source_url\":\"https://your-store.myshopify.com/\",\"user_data\":{\"client_ip_address\":\"203.0.113.10\",\"client_user_agent\":\"Mozilla/5.0\"},\"custom_data\":{\"currency\":\"USD\",\"value\":42}}]' -F 'test_event_code=TEST12345' -F 'access_token=TOKEN'`. Use the newest Graph API version from the Meta docs if v23.0 is old.",
+        "Check Test events: the browser and server Purchase with event_id `gs-dedup-001` must show as one deduplicated event. Now repeat with a browser eventID `gs-dedup-002` and a server event_id `gs-dedup-003`. Both are counted. Write the rule: Meta deduplicates when event_name and event_id are the same (within 48 hours).",
+        "Instead of curl you may use Meta's Payload Helper (developers.facebook.com → Conversions API → Payload helper), which can also send to Test events.",
+        "Delete the access token test: in Business settings → System users or in the dataset settings, remove tokens you do not need any more.",
+        "Write the incident report (8-12 sentences): symptom with numbers, how you found the cause, the fix, the proof (screenshots), what the double count did to the ROAS that marketing saw (reported ROAS was about 2 times too high), and one prevention rule: 'No pixel code is added outside the Facebook & Instagram app without a review, and every custom Purchase event must send the order id as eventID'."
+      ],
+      "acceptance": [
+        "You reproduced the double purchase with a custom pixel and saw it in Test events.",
+        "A list shows all places checked for Meta code (Customer events, theme, GTM, apps) and the result for each.",
+        "After the fix, a test order shows only one Purchase from browser plus server, deduplicated.",
+        "The same event_id test shows one deduplicated Purchase, and the different event_id test shows two.",
+        "The incident report has numbers, cause, fix, proof, effect on ROAS and a prevention rule; no access token appears anywhere in your evidence."
+      ],
+      "evidence": [
+        "Screenshot of Test events with the double purchase before the fix",
+        "Screenshot of Test events with the deduplicated purchase (same event_id) and the two separate purchases (different event_ids)",
+        "Your incident report, pasted as text (hide the dataset id and never paste the token)"
+      ],
+      "hints": [
+        "Dedup needs the SAME event name too. 'Purchase' and 'purchase' are different names.",
+        "If the curl call returns an error about event_time, the time is too old or in the future. Use `date +%s` right before you send.",
+        "In a real custom pixel, use the order id as eventID: `{ eventID: event.data.checkout.order.id }`, and the server must send the same id."
+      ],
+      "explain": {
+        "en": "In this case Meta showed almost twice as many purchases as Shopify. I rebuilt the problem on our practice store with an extra custom pixel that sent Purchase without an event id. I checked every place where Meta code can live: customer events, the theme, GTM and other apps. I removed the extra pixel, so only the Facebook and Instagram app sends Purchase from the browser and the server with the same event id. Then I tested deduplication myself with the Conversions API and Test events. I wrote an incident report with the effect on ROAS and a rule to stop it from happening again."
+      },
+      "vocabulary": [
+        { "term": "deduplication", "en": "removing the second copy when the same event arrives twice" },
+        { "term": "event_id", "en": "a unique id for one event, the same in browser and server so Meta can match them" },
+        { "term": "custom pixel", "en": "your own tracking code in Shopify Settings → Customer events" },
+        { "term": "access token", "en": "a secret key that allows a program to send data to an API" },
+        { "term": "ROAS", "en": "return on ad spend: revenue from ads divided by the money spent on ads" }
+      ],
+      "interview": [
+        { "q": "Meta shows twice as many purchases as Shopify. How do you investigate?", "a": "First I compare the numbers to see if it is a clean double. Then I list every place where Meta code can be: the Shopify app, custom pixels, the theme and GTM. I use Test events with a test order to see each Purchase and its source and event id. In my case an extra custom pixel sent Purchase without an event id." },
+        { "q": "How does Meta deduplicate browser and server events?", "a": "Meta keeps one event when the browser and the server send the same event name and the same event id within 48 hours. If the ids are different or missing, both are counted. The best event id for a purchase is the order id, because both sides know it." },
+        { "q": "Why are double purchases a business problem and not only a data problem?", "a": "Marketing sees twice as many conversions, so the ROAS looks twice as good. They may spend more money on ads that do not really work. Meta's algorithm also learns from wrong data. Clean data protects the ad budget." }
+      ],
+      "resources": [
+        { "title": "Meta for Developers: Handling duplicate Pixel and Conversions API events", "url": "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events" },
+        { "title": "Meta for Developers: Conversions API parameters", "url": "https://developers.facebook.com/docs/marketing-api/conversions-api/parameters" },
+        { "title": "Shopify Help Center: Custom pixels", "url": "https://help.shopify.com/en/manual/promoting-marketing/pixels/custom-pixels" }
+      ]
+    }
+  ]
+}

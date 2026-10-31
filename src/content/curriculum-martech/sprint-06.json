@@ -1,0 +1,352 @@
+{
+  "id": "m06",
+  "number": 6,
+  "title": "Google Ads: Performance Max, Demand Gen, YouTube and bidding",
+  "weeks": "11-12",
+  "theme": "Choose and run Smart Bidding with care, build Performance Max and Demand Gen the right way, plan YouTube, and fix a tROAS campaign that stopped spending.",
+  "jobStory": "In this sprint you move Voltra from manual habits to Smart Bidding that is built on true values. You write the bidding playbook, design Performance Max for the accessories store with a product feed, asset groups, audience signals and brand exclusions, and plan Demand Gen and YouTube for the new scooter launch. You solve a real case: a tROAS campaign that stopped spending. You end with an experiments and automation runbook so changes are tested, not guessed.",
+  "outcomes": [
+    "I chose bid strategies by goal and data volume and wrote rules for targets, budgets and learning periods.",
+    "I designed a Performance Max campaign with a product feed, asset groups, audience signals and brand exclusions.",
+    "I planned Demand Gen and YouTube campaigns with the right formats, audiences and measurement.",
+    "I diagnosed a tROAS campaign that stopped spending and fixed it without breaking learning.",
+    "I wrote an experiments and automation runbook with a custom experiment, a script and automated rules."
+  ],
+  "tickets": [
+    {
+      "id": "m06-t01",
+      "key": "MKT-601",
+      "type": "task",
+      "title": "Write the Voltra Smart Bidding playbook",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Every Voltra campaign has a bid strategy chosen for its goal and data volume, with written rules for targets, budgets, learning periods and value-based bidding.",
+      "context": "Hi, every campaign in our account uses a different bid strategy and nobody knows why. Some still use manual CPC, some have tROAS targets nobody can explain. Now that bookings come back from the CRM with values, I want one playbook: which strategy, when, and how we change targets safely.",
+      "steps": [
+        "Before you start, open the `mk-bidding` lab in this app (menu `Practice`) and play the free mode: switch between Maximize conversions, tCPA, tROAS and Maximize conversion value and watch what happens to spend and volume when the budget or target changes.",
+        "Create a Google Doc `MKT-601 Voltra bidding playbook`. Section 1: the strategies. Maximize conversions (spend the budget, get the most conversions), Maximize conversions with a target CPA, Maximize conversion value (get the most value), Maximize conversion value with a target ROAS, and Target impression share (only for brand defense). Write when each fits.",
+        "Section 2: the decision tree. Inputs: goal (volume or value), how many conversions per month (for example below 15, 15-50, above 50), values available or not, budget fixed or flexible. Output: a strategy. Example: values from the CRM and steady volume → Maximize conversion value with tROAS.",
+        "Section 3: value-based bidding for Voltra. Use the stage values from MKT-504 (qualified lead, test ride, booking). Explain conversion value rules (`Goals` → `Value rules`) for location or device, for example higher value for leads from cities where dealers convert better.",
+        "Section 4: targets and budgets. Write the rules: set the first target near the last 30 days real CPA or ROAS; change targets in small steps (about 10 to 20 percent) and not more than once a week; a target that is too strict lowers spend, a loose one spends more at a worse rate; with Maximize conversions the budget is the real limit, so do not cap budget and target at the same time without a reason.",
+        "Section 5: learning periods. A new strategy, a big target or budget change, or a new primary conversion action starts learning, often about one to two weeks or three conversion cycles. Write the conversion lag for Voltra (booking can come 10 to 20 days after the click) and why you judge results only after the lag.",
+        "Section 6: special tools. Portfolio bid strategies (shared across campaigns, `Tools` → `Shared library` → `Bid strategies`), seasonality adjustments for short events like a 3-day sale, and data exclusions for days when tracking broke (`Tools` → `Bid strategies` → `Advanced controls`).",
+        "Build two portfolio strategies in the test account from MKT-501: `PF_tCPA_Leads` for the generic campaigns and `PF_tROAS_Accessories`. Screenshot them. Metrics stay empty; you test the set-up.",
+        "Make a table in the doc for every campaign from MKT-501: current strategy, new strategy, first target, reason, review date.",
+        "End with a one-page summary for the CMO: what changes, expected impact, and what we will not do (for example: no daily target changes)."
+      ],
+      "acceptance": [
+        "The playbook has the six sections and a clear decision tree.",
+        "Value-based bidding uses the stage values from MKT-504 and mentions value rules.",
+        "Target change rules state size and frequency, and learning period and conversion lag are explained.",
+        "Two portfolio bid strategies exist in the test account.",
+        "Every planned campaign has a strategy, first target and review date."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-601 Voltra bidding playbook`",
+        "Screenshot on Google Drive of the two portfolio bid strategies in the test account",
+        "Screenshot on Google Drive of your `mk-bidding` free mode result"
+      ],
+      "hints": [
+        "tROAS is set as a percent in Google Ads: 400 percent means Rs 4 of value for every Rs 1 of cost.",
+        "Data exclusions are for broken tracking. Seasonality adjustments are for short, expected changes in conversion rate. Do not mix them up.",
+        "Manual CPC is still fine for a tiny test with almost no conversions. Write that exception."
+      ],
+      "explain": {
+        "en": "In this task I wrote one bidding playbook for Voltra. I described each Smart Bidding strategy and built a decision tree based on goal, conversion volume, values and budget. I used the stage values from the CRM for value-based bidding and added value rules for better cities. I wrote safe rules for target changes, learning periods and conversion lag, and when to use portfolios, seasonality adjustments and data exclusions. I built two portfolio strategies in the test account and gave every campaign a strategy, a first target and a review date."
+      },
+      "vocabulary": [
+        { "term": "Smart Bidding", "en": "Google's automatic bidding that sets a bid for each auction to reach a goal" },
+        { "term": "target ROAS (tROAS)", "en": "the conversion value you want for each rupee of cost, set as a percent" },
+        { "term": "target CPA (tCPA)", "en": "the average cost you want to pay for one conversion" },
+        { "term": "learning period", "en": "the time a bid strategy needs to adjust after a big change" },
+        { "term": "conversion lag", "en": "the time between the click and the conversion" },
+        { "term": "portfolio bid strategy", "en": "one bid strategy shared by many campaigns with one target" }
+      ],
+      "interview": [
+        {
+          "q": "How do you choose between tCPA and tROAS?",
+          "a": "If all conversions are worth about the same, I use Maximize conversions with a target CPA. If values differ, as with bookings versus leads or accessories orders, I use Maximize conversion value with a target ROAS, because it can pay more for a valuable customer. Value-based bidding needs reliable values, so I make sure the CRM import and values are correct first. I set the first target near recent real results and move it in small steps."
+        },
+        {
+          "q": "How do you change a target without hurting performance?",
+          "a": "I change it in steps of about 10 to 20 percent and not more than about once a week. I wait at least one conversion cycle, longer when conversion lag is long, before I judge the result. Big jumps restart learning and can cut spend or waste money. I log every change with a reason, so we can read the results later."
+        },
+        {
+          "q": "When do you use data exclusions and seasonality adjustments?",
+          "a": "Data exclusions tell Smart Bidding to ignore days when conversion data was wrong, for example after a tag broke. Seasonality adjustments tell it to expect a short change in conversion rate, like a three-day sale, so it bids up and down faster. Both are for short periods, usually a few days. For long seasons I let the algorithm adapt by itself."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About Smart Bidding", "url": "https://support.google.com/google-ads/answer/7065882" },
+        { "title": "Google Ads Help: About Target ROAS bidding", "url": "https://support.google.com/google-ads/answer/6268637" },
+        { "title": "Google Ads Help: About Target CPA bidding", "url": "https://support.google.com/google-ads/answer/2471188" }
+      ]
+    },
+    {
+      "id": "m06-t02",
+      "key": "MKT-602",
+      "type": "project",
+      "title": "Design Performance Max for the accessories store and test ride leads",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "Voltra has a Performance Max design with a valid product feed, asset groups by theme, audience signals, brand exclusions and clear reporting, built in the test account.",
+      "context": "Hi, the agency wants to put all our money into Performance Max because it is easy. I am worried it will eat our brand traffic and hide what works. Please design PMax for the accessories store and test ride leads so we keep control and can read the results.",
+      "steps": [
+        "Create a Google Doc `MKT-602 Voltra PMax design`. Write in short what PMax is: one campaign that serves on Search, Shopping, YouTube, Display, Discover, Gmail and Maps, using your conversion goals, assets, feed and signals.",
+        "Build a product feed as a Google Sheet `MKT-602 Voltra feed` for 15 accessories (helmets, chargers, covers, phone holders). Use the Merchant Center product data specification: `id`, `title`, `description`, `link`, `image_link`, `availability`, `price` (for example `2499.00 INR`), `brand`, `condition`, `google_product_category`, `gtin` or `mpn`, and `custom_label_0` to `custom_label_4`. Voltra is a practice company, so do not upload this feed to a live Merchant Center.",
+        "Use custom labels for control: `custom_label_0` = margin band (high, mid, low), `custom_label_1` = best seller yes or no, `custom_label_2` = season. Write how you would split listing groups or campaigns by margin so tROAS can differ.",
+        "Write feed quality rules: titles start with brand + product type + key attribute (for example `Voltra Helmet ISI Certified Matte Black M`), real price and stock, high quality images without text overlay, and how you watch disapprovals in Merchant Center `Products` → `Needs attention`.",
+        "Design two PMax campaigns: `PMAX_IN_Accessories` (goal: purchases, Maximize conversion value with tROAS, feed linked) and `PMAX_IN_TestRide` (goal: qualified leads and test rides from MKT-504, no feed). Explain why leads and store are not in one campaign: different goals and values.",
+        "Plan asset groups by theme, not by audience: for accessories `AG_Helmets`, `AG_Charging`, `AG_Comfort`; for test rides `AG_Zip_City`, `AG_Glide_Family`, `AG_Cargo_Business`. Each has: up to 15 headlines, up to 5 long headlines, up to 5 descriptions, images (landscape, square, portrait), logos, at least one real video (else Google makes one), final URL and display paths.",
+        "Plan audience signals per asset group: your data (CRM bookers via Customer Match, site visitors, test ride leads), custom segments (people who searched `electric scooter price`, or browse EV comparison sites), interests. Write that signals are a starting hint, not targeting; PMax can go beyond them. Add search themes for each asset group.",
+        "Protect brand and control traffic: add brand exclusions with a brand list for `Voltra` in `PMAX_IN_TestRide` so brand searches stay in your Search brand campaign; add campaign negative keywords for support and jobs from MKT-502; decide Final URL expansion (off for test rides, or on with URL exclusions like `/careers` and `/support`). Remember exact match Search keywords that match the search exactly win over PMax.",
+        "Build `PMAX_IN_TestRide` in the test account (`Campaigns` → plus → `New campaign` → `Leads` → `Performance Max`) with one asset group, a signal and brand exclusions. Screenshot the asset group and the brand exclusion setting.",
+        "Write the reporting plan: channel performance report, search terms insights, asset performance and asset group reports, product reports in the `Products` view, and the conversion value by stage from the CRM. Add one guardrail metric: brand campaign impression share must not fall after PMax launch.",
+        "End with a test plan: launch PMax for test rides as an experiment against the current Search plus Display set-up (link to MKT-605) and the success rule."
+      ],
+      "acceptance": [
+        "The feed sheet has 15 products with all required attributes and three custom labels.",
+        "Two PMax campaigns are designed with goals, bid strategies and a reason for the split.",
+        "Each asset group has a full asset list, audience signals and search themes.",
+        "Brand exclusions, negatives and URL expansion decisions are written and shown in the test account.",
+        "The reporting plan and the experiment plan are in the doc."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-602 Voltra PMax design`",
+        "Link to the Google Sheet `MKT-602 Voltra feed`",
+        "Screenshots on Google Drive of the PMax asset group and the brand exclusion setting in the test account"
+      ],
+      "hints": [
+        "If the test account will not let you finish PMax without a feed or a business detail, save it as a draft and screenshot the parts you set.",
+        "Audience signals do not limit reach. If someone says PMax only shows to the signal, correct them.",
+        "Margin labels let you set different value targets for low and high margin products."
+      ],
+      "explain": {
+        "en": "In this project I designed Performance Max for Voltra in two campaigns: one for the accessories store with a product feed and one for test ride leads. I built a feed in the Merchant Center format with custom labels for margin, best sellers and season. I planned asset groups by theme with full assets, audience signals and search themes. I protected brand traffic with brand exclusions, negatives and URL rules, and built one campaign in the test account. I also wrote the reporting plan and an experiment to prove PMax adds value."
+      },
+      "vocabulary": [
+        { "term": "Performance Max (PMax)", "en": "one goal-based campaign that serves across all Google channels" },
+        { "term": "asset group", "en": "a set of texts, images, videos and a URL for one theme in PMax" },
+        { "term": "audience signal", "en": "a hint about good customers that helps PMax start faster; it does not limit who sees ads" },
+        { "term": "brand exclusion", "en": "a setting that stops a campaign from serving on searches for chosen brands" },
+        { "term": "product feed", "en": "a file with all products and their details that Merchant Center reads" },
+        { "term": "custom label", "en": "a feed field you fill yourself to group products, for example by margin" }
+      ],
+      "interview": [
+        {
+          "q": "How do you stop Performance Max from taking brand traffic?",
+          "a": "I add a brand list with our brand as a brand exclusion in the PMax campaign, so brand searches go to the Search brand campaign. Exact match keywords that match the search exactly also win over PMax. I watch brand campaign impression share and cost before and after launch as a guardrail. If PMax still shows strong results, I test them with an experiment instead of trusting the blended number."
+        },
+        {
+          "q": "How do you structure asset groups?",
+          "a": "I group by theme or product line, because the assets and landing page must match what the person sees. Each asset group has a full set of headlines, descriptions, images in all ratios, logos and a real video, so Google does not make a weak one for us. I add audience signals and search themes as hints. I check the asset reports regularly and replace weak assets."
+        },
+        {
+          "q": "What makes a good product feed?",
+          "a": "A good feed has clear titles with brand, product type and key attributes, correct price and stock, a correct product category and good images. I use custom labels for business data such as margin band and best sellers, so I can set different targets. I watch Merchant Center diagnostics every week, because disapproved products simply do not serve. For many advertisers the feed is the biggest lever in Shopping and PMax."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About Performance Max campaigns", "url": "https://support.google.com/google-ads/answer/10724817" },
+        { "title": "Merchant Center Help: Product data specification", "url": "https://support.google.com/merchants/answer/7052112" }
+      ]
+    },
+    {
+      "id": "m06-t03",
+      "key": "MKT-603",
+      "type": "task",
+      "title": "Plan Demand Gen and YouTube for the Voltra Glide launch",
+      "priority": "medium",
+      "estimateHours": 7,
+      "goal": "The Voltra Glide launch has a clear Demand Gen and YouTube plan with formats, audiences, bidding, frequency and measurement, built as drafts in the test account.",
+      "context": "Hi, we launch the Voltra Glide family scooter in eight weeks. Brand wants YouTube reach, performance wants test rides. Please give me one plan that serves both, with the right campaign types, and tell me how we will know if it worked.",
+      "steps": [
+        "Create a Google Doc `MKT-603 Glide launch video plan`. Split the goals: awareness (reach the right people at a fair frequency), consideration (views and site visits), action (test ride leads).",
+        "Map campaign types to goals. Awareness: Video campaign with subtype `Video reach` (efficient reach with bumper and skippable ads, or non-skippable in-stream). Consideration: Video campaign with `Video views`. Action: a Demand Gen campaign optimised for qualified leads or test rides. Write that video action campaigns were upgraded to Demand Gen, so action goals on YouTube now run in Demand Gen.",
+        "List the YouTube formats and specs: skippable in-stream (skip after 5 seconds), non-skippable in-stream (up to 15 or 30 seconds by market), bumper (6 seconds, no skip), in-feed video, and Shorts (vertical 9:16). Write which cut of the Glide film fits each.",
+        "Plan Demand Gen: it serves on YouTube (in-stream, in-feed, Shorts), Discover, Gmail and the Google Display Network, with channel controls. Formats: video ads, image ads, carousel ads and product ads with a feed. Write which channels you keep and why.",
+        "Plan audiences: your data (site visitors, CRM leads that did not book), lookalike segments in Demand Gen built from bookers (narrow, balanced or broad), custom segments from search terms such as `family scooter`, `ev for daily office`, life events and in-market segments for two-wheelers.",
+        "Set bidding: Demand Gen with Maximize conversions or tCPA on the test ride action, Video reach with target CPM, and frequency rules (for example 2 to 3 per week for reach). Write why Demand Gen needs enough conversions and why you start with a broader goal if volume is low.",
+        "Plan measurement: brand lift study for awareness and ad recall (needs a minimum spend, ask the Google team), conversion lift or a geo split for test rides, view-through and engaged-view conversions in reports, and the GA4 and CRM view. Write what you will report each week.",
+        "Build drafts in the test account: one Demand Gen campaign `DG_IN_Glide_TestRide` with one ad group and channel controls, and one Video campaign `YT_IN_Glide_Reach`. Use a public YouTube video URL as a placeholder. Screenshot both.",
+        "Add a budget split table for 8 weeks (percent by campaign and week) and a creative checklist: brand in the first 5 seconds, sound off friendly, clear call to action, vertical cut for Shorts."
+      ],
+      "acceptance": [
+        "Every goal has a campaign type, format, audience, bid strategy and KPI.",
+        "The plan says correctly that action-focused YouTube buying now runs in Demand Gen.",
+        "Demand Gen channels, formats and lookalike segments are described.",
+        "Measurement covers brand lift, a lift or geo test and engaged-view conversions.",
+        "Both draft campaigns are in the test account."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-603 Glide launch video plan`",
+        "Screenshots on Google Drive of the Demand Gen and Video campaign drafts in the test account"
+      ],
+      "hints": [
+        "Engaged-view conversion: someone watched at least 10 seconds (or the whole ad if shorter) and converted later.",
+        "Do not judge reach campaigns on last-click leads. Give each goal its own KPI.",
+        "Lookalike segments need a seed list; plan where the seed comes from (CRM bookers)."
+      ],
+      "explain": {
+        "en": "In this task I planned the video side of the Voltra Glide launch. I split the goals into awareness, consideration and action and gave each one a campaign type, format, audience, bid strategy and KPI. I used Video reach and Video views for brand goals and Demand Gen with lookalike segments for test ride leads. I planned measurement with brand lift, a lift or geo test and engaged-view conversions. I built two draft campaigns in the test account and added a budget split and a creative checklist."
+      },
+      "vocabulary": [
+        { "term": "Demand Gen", "en": "a campaign type for visual ads on YouTube, Discover, Gmail and Display, built to drive action" },
+        { "term": "bumper ad", "en": "a 6-second video ad that cannot be skipped" },
+        { "term": "lookalike segment", "en": "an audience of people similar to a seed list, such as your buyers" },
+        { "term": "brand lift", "en": "a study that measures how ads change awareness or ad recall" },
+        { "term": "engaged-view conversion", "en": "a conversion after someone watched a video ad long enough but did not click" }
+      ],
+      "interview": [
+        {
+          "q": "How do you plan YouTube for both brand and performance goals?",
+          "a": "I split the plan by goal and give each goal its own campaign type and KPI. Reach and frequency for awareness, views for consideration, and Demand Gen for leads. I do not judge reach campaigns on last-click leads, because that kills the top of the funnel. I prove value with brand lift and a geo or conversion lift test."
+        },
+        {
+          "q": "What is Demand Gen and when do you use it?",
+          "a": "Demand Gen is a campaign for visual and video ads across YouTube, Discover, Gmail and the Display Network. It replaced the old action campaigns for video, and it has lookalike segments and channel controls. I use it when I want new demand that converts, for example test ride leads before people search. It needs enough conversions, so I may start on a broader action and move deeper later."
+        },
+        {
+          "q": "How do you measure the impact of video?",
+          "a": "I use several views together: brand lift for awareness and recall, conversion lift or a geo holdout for business impact, and engaged-view conversions in platform reports. I also watch brand search volume and direct traffic in the launch cities. Platform view-through numbers alone over-claim, so I trust the lift tests more. The weekly report shows each goal with its own measure."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About Demand Gen campaigns", "url": "https://support.google.com/google-ads/answer/13695777" },
+        { "title": "Skillshop: Google Ads training and certifications", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    },
+    {
+      "id": "m06-t04",
+      "key": "MKT-604",
+      "type": "incident",
+      "lab": "mk-bidding",
+      "title": "Case: tROAS campaign stopped spending",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You find why the accessories tROAS campaign dropped to almost zero spend and bring it back without restarting learning from scratch.",
+      "context": "Hi, `PMAX_IN_Accessories` spent about Rs 40,000 a day and now spends less than Rs 3,000. Nobody paused it and the budget is the same. The festive season starts in ten days. Please find the cause today and fix it safely.",
+      "steps": [
+        "First finish the practice lab: open `Practice` → `Smart bidding and budgets` (`mk-bidding`) in this app and solve the case part. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-604` with a timeline: time, what you checked, what you saw.",
+        "List the common causes of a tROAS campaign that stops spending and where to check each: (1) target raised too high in one step: `Change history`; (2) conversion values dropped or broke, for example currency sent as 1 instead of Rs or a tag change, so the model thinks ROAS fell: conversion action details and GA4 or CRM; (3) conversion lag after a recent change; (4) feed problems: products disapproved or out of stock in Merchant Center; (5) a new primary conversion action with no history; (6) budget or policy limits; (7) a learning period after a big change.",
+        "In the lab case, read the bid strategy report (`Tools` → `Bid strategies` → strategy → report) and the status: look for `Learning`, `Limited` or `Misconfigured`. Compare target ROAS with actual ROAS over the last 30 days.",
+        "Check the values: in the lab, the average order value fell from about Rs 2,600 to Rs 260 on one date. Find what changed (a tag sent the price without the decimal fix, or a value in a different currency). Explain why lower reported values make the strategy bid lower and lose auctions.",
+        "Decide the fix in the right order: first fix the tracking; then add a data exclusion for the broken dates so Smart Bidding ignores them (`Tools` → `Bid strategies` → `Advanced controls` → `Data exclusions`); then set the tROAS back near the last good real ROAS, not the wish value; change in steps of about 10 to 20 percent after that.",
+        "Plan the festive season: add a seasonality adjustment only for the short sale days with an expected conversion rate change, and do not raise the tROAS before the sale. Check feed stock and prices for the top 50 products.",
+        "Write what you would not do: do not switch to Maximize conversions without a target in panic, do not cut and raise the budget every day, do not create a new campaign (it loses all history).",
+        "Write the report: Summary, Impact (lost spend and revenue estimate), Root cause, Fix, Monitoring (daily alert if spend falls below 50 percent of budget for two days, and a value sanity check per conversion action)."
+      ],
+      "acceptance": [
+        "The lab in this app is finished and your root cause is saved there.",
+        "At least six possible causes are listed with the exact place to check each.",
+        "The root cause is shown with numbers from the lab (target vs actual ROAS, order value change).",
+        "The fix uses the right order: tracking, data exclusion, realistic target, small steps.",
+        "The report has a monitoring rule and a festive season plan."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Case MKT-604` with the timeline and report",
+        "Screenshot on Google Drive of your finished lab result"
+      ],
+      "hints": [
+        "A tROAS that is higher than what the campaign can reach makes it bid lower and lower until it barely serves.",
+        "Data exclusions do not fix tracking. They only tell bidding to ignore those days.",
+        "Look at conversion value per conversion by day. A sudden step down is almost always tracking."
+      ],
+      "explain": {
+        "en": "In this case I found why our accessories tROAS campaign almost stopped spending. I first finished the bidding lab and then listed all common causes with where to check each one. The data showed that the reported order value fell by ten times on one day because of a tag change, so Smart Bidding thought ROAS had crashed and bid lower. I fixed the tracking, added a data exclusion for the broken days and set the target back near the last real ROAS. I also wrote a festive season plan and a daily alert for spend and value."
+      },
+      "vocabulary": [
+        { "term": "data exclusion", "en": "a setting that tells Smart Bidding to ignore conversion data from broken days" },
+        { "term": "seasonality adjustment", "en": "a setting that tells Smart Bidding to expect a short change in conversion rate" },
+        { "term": "bid strategy status", "en": "a label like Learning or Limited that tells how the strategy is doing" },
+        { "term": "actual ROAS", "en": "conversion value divided by cost in a period" },
+        { "term": "under-spending", "en": "when a campaign spends much less than its budget" }
+      ],
+      "interview": [
+        {
+          "q": "A tROAS campaign stopped spending. What do you check first?",
+          "a": "I check change history for a target or goal change, and then the conversion values by day. A sudden drop in value per conversion usually means tracking broke, and then bidding believes ROAS fell and bids down. I also check the feed for disapprovals or stock, the bid strategy status and recent learning periods. Only after that do I touch the target."
+        },
+        {
+          "q": "How do you fix it without losing learning?",
+          "a": "I fix the root cause first, then add a data exclusion for the broken dates so the model ignores bad data. I set the target near the last good real ROAS and move it in small steps. I keep the same campaign, because a new campaign loses all the history. I explain the plan to stakeholders, so nobody makes panic changes in the meantime."
+        },
+        {
+          "q": "How do you prepare Smart Bidding for a short sale?",
+          "a": "For a short sale of a few days, I use a seasonality adjustment with the expected change in conversion rate, so bidding reacts faster. I check budgets, feed stock and prices before the sale. I do not raise the ROAS target just before the sale, because that cuts volume when demand is high. After the sale I review whether the adjustment was right."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: About Target ROAS bidding", "url": "https://support.google.com/google-ads/answer/6268637" },
+        { "title": "Google Ads Help: About Smart Bidding", "url": "https://support.google.com/google-ads/answer/7065882" }
+      ]
+    },
+    {
+      "id": "m06-t05",
+      "key": "MKT-605",
+      "type": "docs",
+      "title": "Experiments and automation runbook: custom experiments, scripts and rules",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "Voltra has a runbook for testing changes with Google Ads experiments and for safe automation with scripts and automated rules.",
+      "context": "Hi, people change bid strategies and landing pages on a feeling and then argue about the results. Please write a runbook so big changes go through experiments, and set up simple automation so we catch problems at night, not on Monday.",
+      "steps": [
+        "Read the `cro-ab` lab notes in this app (menu `Practice`) on sample size and test length. The same logic applies to ads experiments.",
+        "Create a Google Doc `MKT-605 Experiments and automation runbook`. Section 1: when we must run an experiment (bid strategy change, broad match roll-out, PMax launch, new landing page) and when a simple change is fine.",
+        "Section 2: Google Ads custom experiments. Write the steps: `Campaigns` → `Experiments` → plus → `Custom experiment` → choose the base campaign → make the change in the trial → set the split (usually 50 percent), choose `Cookie-based` or `Search-based` split and write when each fits → start and end date. Add the success metric and the guardrail metric before you start.",
+        "Write the reading rules: run at least 4 weeks or two conversion cycles, do not read the first week of learning, use the confidence shown in the experiment report, and apply the winner with `Apply` (update the base or convert the trial). Note other experiment types: ad variations, video experiments and Performance Max uplift experiments.",
+        "Build one custom experiment in the test account on `SRCH_IN_Generic_EScooter`: trial changes the bid strategy to the portfolio `PF_tCPA_Leads`. Screenshot the set-up page.",
+        "Section 3: Google Ads scripts. In the test account open `Tools` → `Bulk actions` → `Scripts` → plus. Write a short JavaScript script `Voltra budget pacing`: loop over enabled campaigns with `AdsApp.campaigns().withCondition(\"campaign.status = ENABLED\").get()`, read cost for `TODAY` with `getStatsFor(\"TODAY\").getCost()`, compare with the daily budget `getBudget().getAmount()`, and `Logger.log` campaigns below 30 percent at noon. Click `Preview` and save the log. (The test account has no cost, so the log shows zero.) Put the code in a GitHub gist.",
+        "Write in the runbook how you would extend it: send an email with `MailApp.sendEmail`, run it hourly, and add a broken landing page check with `UrlFetchApp`.",
+        "Section 4: automated rules. Write three rules: pause keywords with cost above Rs 5,000 and zero conversions in 30 days (email first, do not pause brand); email if a campaign spends less than 50 percent of budget by 3 pm; email if conversions are zero for 24 hours on a campaign that normally has more than 10 a day. Create one rule in the test account (`Tools` → `Bulk actions` → `Rules`).",
+        "Section 5: governance. Who can create scripts and rules, naming (`AUTO_` prefix), a change log sheet, and a monthly review to delete unused automation."
+      ],
+      "acceptance": [
+        "The runbook has the five sections and clear rules for when to run an experiment.",
+        "The experiment section has split type, length, success and guardrail metrics and how to apply the winner.",
+        "One custom experiment and one automated rule exist in the test account.",
+        "The budget pacing script previews without errors and the code is in a gist.",
+        "Governance names owners, naming and a review routine."
+      ],
+      "evidence": [
+        "Link to the Google Doc `MKT-605 Experiments and automation runbook`",
+        "Link to the GitHub gist with the `Voltra budget pacing` script",
+        "Screenshots on Google Drive of the experiment set-up, the script preview log and the automated rule"
+      ],
+      "hints": [
+        "If the script fails, read the line number in the log. A common error is a missing `.get()` after a selector.",
+        "A cookie-based split keeps one user in one arm, which is better when users search many times before they convert.",
+        "Rules run on a schedule and only on the data they see. Scripts can do more checks and send richer alerts."
+      ],
+      "explain": {
+        "en": "In this task I wrote a runbook so Voltra tests big changes instead of guessing. I described when we must run an experiment and how to set up a Google Ads custom experiment with the split, length, success metric and guardrail. I built one experiment in the test account that tests a portfolio tCPA strategy. I wrote a budget pacing script in JavaScript, previewed it and saved it in a gist, and I created an automated rule. I also added governance with owners, naming and a monthly review."
+      },
+      "vocabulary": [
+        { "term": "custom experiment", "en": "a Google Ads test that splits traffic between the original campaign and a changed trial" },
+        { "term": "guardrail metric", "en": "a metric that must not get worse while you test something else" },
+        { "term": "Google Ads script", "en": "JavaScript code that runs inside Google Ads to read data or make changes" },
+        { "term": "automated rule", "en": "a simple if-then action in Google Ads that runs on a schedule" },
+        { "term": "cookie-based split", "en": "an experiment split where each user always sees the same arm" }
+      ],
+      "interview": [
+        {
+          "q": "How do you run a Google Ads experiment properly?",
+          "a": "I write the hypothesis, the success metric and a guardrail metric before I start. I use a custom experiment with a 50 percent split, usually cookie-based for searches people repeat. I let it run at least four weeks or two conversion cycles and ignore the first learning week. I apply the winner only when the result is clear in the experiment report."
+        },
+        {
+          "q": "What do you automate with scripts?",
+          "a": "I automate checks that people forget: budget pacing, sudden drops in conversions, broken landing pages and disapproved ads. Scripts can read many accounts from a manager account and send one clear alert. I keep scripts simple, log every change, and put the code in version control. Anything that changes bids or pauses spend gets an email-only phase first."
+        },
+        {
+          "q": "What are the risks of automated rules?",
+          "a": "Rules act on a fixed schedule and only on the data they see, so conversion lag can make them pause good keywords. They can also fight with Smart Bidding if they change bids. I use rules mainly for alerts and for clear cases like paused landing pages. Every rule has an owner, a naming prefix and a monthly review."
+        }
+      ],
+      "resources": [
+        { "title": "Google Ads Help: Set up a custom experiment", "url": "https://support.google.com/google-ads/answer/6261395" },
+        { "title": "Google Ads scripts: Get started", "url": "https://developers.google.com/google-ads/scripts/docs/start" }
+      ]
+    }
+  ]
+}

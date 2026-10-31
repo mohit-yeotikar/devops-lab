@@ -4,7 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import CoachChat from '../../../components/CoachChat.astro';
 import { ticketById, sprintOf, drillFor } from '../../../lib/curriculum';
 import { progressOne, thread, today } from '../../../lib/db';
-import { labs } from '../../../sandbox/labs.js';
+import { allLabs as labs, labById } from '../../../sandbox/registry.js';
 const t = ticketById(Astro.params.id!);
 if (!t) return new Response('Not found', { status: 404 });
 const u = Astro.locals.user!;
@@ -21,7 +21,8 @@ const prev = steps[idx - 1], next = steps[idx + 1];
 const allTicked = t.acceptance.length > 0 && t.acceptance.every((_, i) => checked.has(i));
 const stepAt = status === 'todo' ? 0 : status === 'doing' ? (allTicked ? (p?.explain_score != null ? 3 : 2) : 1) : status === 'changes' ? 3 : status === 'review' ? 4 : 5;
 const howSteps = ['Press Start', 'Do the steps on your laptop. Tick "Done means".', 'Explain it in your own words', 'Log hours and submit proof', 'Reviewer checks it'];
-const lab = labs.find((l) => l.sprints.includes(s.id));
+const caseLab = t.lab ? labById(t.lab) : undefined;
+const lab = caseLab ?? labs.find((l) => l.sprints.includes(s.id));
 const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<code>$1</code>');
 ---
 <Base title={`${t.key} ${t.title}`}>
@@ -42,6 +43,7 @@ const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<co
 
   <div class="tab on">
     <div class="card"><p><strong>Goal:</strong> {t.goal}</p><blockquote style="margin:0;border-left:3px solid var(--line);padding-left:12px;color:var(--muted)">{t.context}</blockquote></div>
+    {caseLab && <div class="notice warn"><strong>Case:</strong> first finish the practice lab <a href={`/app/practice/${caseLab.id}`}>{caseLab.title}</a> in the browser. Then do the real part below on your own tools.</div>}
     {drill && <div class="notice warn"><strong>Incident drill:</strong> this ticket uses <a href={`/app/drills/${drill}`}>drills/{drill}</a>. Open it, start the broken system on your laptop, find the cause, then come back and submit.</div>}
     <h2>Steps</h2>
     <div class="card"><ol class="steps">{t.steps.map((st) => <li set:html={inline(st)} />)}</ol></div>

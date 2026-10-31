@@ -4,7 +4,8 @@ import { body, json, requireAdmin } from '../../../lib/auth';
 
 export const POST: APIRoute = async (ctx) => {
   const admin = requireAdmin(ctx); const db = env.DB;
-  const b = await body<{ user: string; action: string; role?: string }>(ctx.request);
+  const b = await body<{ user: string; action: string; role?: string; track?: string }>(ctx.request);
+  if (b.action === 'track') { await db.prepare('UPDATE users SET track = ? WHERE id = ?').bind(['cro', 'martech'].includes(String(b.track)) ? String(b.track) : 'devops', b.user).run(); return json({ reload: true }); }
   if (b.user === admin.id) return json({ error: 'You cannot change your own account here.' }, 400);
   if (b.action === 'role') await db.prepare('UPDATE users SET role = ? WHERE id = ?').bind(b.role === 'admin' ? 'admin' : 'trainee', b.user).run();
   else if (b.action === 'delete') await db.prepare('DELETE FROM users WHERE id = ?').bind(b.user).run();

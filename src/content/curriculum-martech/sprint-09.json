@@ -1,0 +1,361 @@
+{
+  "id": "m09",
+  "number": 9,
+  "title": "Display & Video 360 and programmatic (DSP)",
+  "weeks": "17-18",
+  "theme": "Buy display, video and YouTube media through a DSP: the programmatic supply chain, DV360 structure, pacing, frequency, audiences, brand safety and viewability.",
+  "jobStory": "In this sprint you take over Voltra's programmatic buying. You map how one impression is sold in real time, from the publisher through the SSP and the exchange to the DSP. You design the Display & Video 360 build for the scooter launch: insertion orders, line items, budgets, pacing, frequency caps, audiences and deals. You write the brand safety and viewability standard that every agency must follow, compare DV360 with The Trade Desk and Amazon DSP, and fix a line item that does not spend its budget.",
+  "outcomes": [
+    "I mapped the programmatic supply chain and the deal types (open auction, PMP, preferred deal, programmatic guaranteed) and checked ads.txt for real publishers.",
+    "I designed a full DV360 build: partner, advertiser, campaign, insertion orders and line items, with budgets, pacing, frequency caps, bid strategies and Floodlight goals.",
+    "I wrote an audience, brand safety and viewability standard based on the MRC viewability rules and third-party verification.",
+    "I compared DV360, The Trade Desk and Amazon DSP, and YouTube buying in DV360 versus Google Ads, and wrote a recommendation.",
+    "I found the root cause of an under-pacing line item and wrote a fix and a prevention checklist."
+  ],
+  "tickets": [
+    {
+      "id": "m09-t01",
+      "key": "MKT-901",
+      "type": "task",
+      "title": "Map the programmatic supply chain and the deal types",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "The team has one clear map of how Voltra's programmatic money reaches publishers, which deal type to use when, and where fees are taken.",
+      "context": "Hi, this is Neha, head of digital. Our agency says 'programmatic' for everything, and the finance team asks me where the money goes. Before we build anything in DV360, please make a simple map of the supply chain and the deal types, with real checks on the publishers we buy. I want to be able to explain the working media share to the CFO.",
+      "steps": [
+        "Start the free Skillshop course for Display & Video 360 (search `Display & Video 360` on skillshop.withgoogle.com). Finish the modules about programmatic basics and deals. Take notes in a Google Doc `MKT-901 notes`.",
+        "Create a Google Sheet `Voltra programmatic map`. In the tab `Flow`, write the life of one impression in 8-10 rows: user opens a page → publisher ad server (for example Google Ad Manager) → header bidding or SSP → ad exchange sends a bid request (OpenRTB) → DSPs (DV360, The Trade Desk) decide and bid → auction (first-price for most exchanges today) → winning creative is served by the ad server (CM360) → impression, viewability and verification tags fire. Add a column `time` (the whole auction takes about 100-200 milliseconds).",
+        "In the tab `Glossary`, define in one line each: RTB, SSP, DSP, ad exchange, publisher ad server, advertiser ad server, header bidding, first-price auction, floor price, bid request, data provider, verification vendor.",
+        "In the tab `Deal types`, make a table with the columns `deal type`, `price`, `volume guaranteed?`, `priority`, `who negotiates`, `best use for Voltra`. Rows: `Open auction`, `Private auction (PMP)`, `Preferred deal`, `Programmatic guaranteed`. Example: preferred deal = fixed price, no volume promise, the buyer sees the impression before the open auction; programmatic guaranteed = fixed price and fixed volume, reserved inventory.",
+        "Add a row for `Instant deals` and `YouTube programmatic guaranteed` in DV360, and write when Voltra would use them (for example a launch-day masthead-like reservation on a fixed budget).",
+        "In the tab `ads.txt check`, pick 5 Indian news or auto publishers. Open `https://<publisher-domain>/ads.txt` for each one. Count the lines, the `DIRECT` lines and the `RESELLER` lines. Check if Google is listed as `google.com, pub-…, DIRECT, f08c47fec0942fa0`. Write what this means for buying through DV360.",
+        "Explain `sellers.json` and the `schain` (SupplyChain object) in two lines each. Write why Voltra should prefer short paths with `DIRECT` sellers (supply path optimization).",
+        "In the tab `Fees`, build a simple waterfall for INR 1,00,00,000 of programmatic spend. Use clearly labelled assumptions: agency fee, DSP platform fee, data fee per 1,000 impressions, verification fee per 1,000 impressions, SSP and exchange take rate. Show `working media` (what the publisher gets) as a share of the total. Mark every number as an assumption to check against the real contract.",
+        "Add 3 questions that Voltra will send to the agency about fees and paths (for example: Do you buy principal-based or as an agent? Do we get log-level data? Which SSPs do you use for our top 20 domains?).",
+        "Write a short summary at the top of the sheet: 5 bullet points that the CMO can read in one minute."
+      ],
+      "acceptance": [
+        "The `Flow` tab shows every hop from page load to served ad, with the role of SSP, exchange, DSP and both ad servers.",
+        "The `Deal types` table has all four core deal types with price, volume and priority, and a use case for Voltra each.",
+        "The `ads.txt check` tab has 5 real publishers with counts of DIRECT and RESELLER lines.",
+        "The `Fees` waterfall adds up to 100% and shows the working media share, with every input marked as an assumption.",
+        "The summary has 5 bullets and no jargon that is not in the glossary."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra programmatic map` (view access)",
+        "Screenshot of one publisher's ads.txt with the Google DIRECT line highlighted",
+        "Screenshot of your Skillshop course progress"
+      ],
+      "hints": [
+        "A preferred deal has a fixed price but no promise of volume. Programmatic guaranteed has both. Private auction has a floor, not a fixed price.",
+        "If ads.txt does not load, try the domain with `www.` and without it. Some publishers redirect.",
+        "Keep the fee numbers as inputs in separate cells, so the CFO can change them and see the result."
+      ],
+      "explain": {
+        "en": "In this task I mapped how one programmatic impression is bought and sold. I wrote the path from the publisher ad server through the SSP and the exchange to the DSP, and back to the ad server that serves our creative. I compared open auction, private auction, preferred deals and programmatic guaranteed by price, volume and priority. I checked the ads.txt files of five real publishers to see which sellers are authorised. I also built a fee waterfall to show how much of each rupee reaches the publisher as working media."
+      },
+      "vocabulary": [
+        { "term": "SSP", "en": "supply-side platform: the tool a publisher uses to sell ad impressions to many buyers" },
+        { "term": "DSP", "en": "demand-side platform: the tool an advertiser uses to bid on impressions from many exchanges" },
+        { "term": "preferred deal", "en": "a deal with a fixed price where the buyer sees impressions first, but volume is not promised" },
+        { "term": "programmatic guaranteed", "en": "a deal with a fixed price and a fixed number of reserved impressions" },
+        { "term": "ads.txt", "en": "a public file on a publisher site that lists the companies allowed to sell its ads" },
+        { "term": "working media", "en": "the part of the budget that actually pays for ad space, after all fees" }
+      ],
+      "interview": [
+        {
+          "q": "When would you choose a preferred deal over programmatic guaranteed?",
+          "a": "I choose programmatic guaranteed when I need fixed volume on fixed dates, for example a product launch on a premium publisher. I choose a preferred deal when I want first look at good inventory at a known price, but I do not want to commit to volume. A preferred deal gives me flexibility, because I can stop bidding if the audience or viewability is poor. With guaranteed deals I also plan makegoods and creative approvals early, because the publisher has reserved the space."
+        },
+        {
+          "q": "How do you know how much of your programmatic budget reaches the publisher?",
+          "a": "I build a fee waterfall from the contracts: agency fee, DSP fee, data and verification CPMs, and the SSP take rate. Then I ask for log-level data or supply path reports to check the real numbers. I also check ads.txt and sellers.json and push the agency towards short, direct paths. A working media share well below the plan is a signal to renegotiate or change the supply path."
+        },
+        {
+          "q": "Why do ads.txt and sellers.json matter to a brand like Voltra?",
+          "a": "They reduce the risk of buying fake or resold inventory. ads.txt tells me which sellers the publisher has authorised, and sellers.json tells me who the seller really is. In DV360 I can limit buying to authorised direct sellers, which cuts domain spoofing. It also helps supply path optimization, because each extra reseller usually takes another fee."
+        }
+      ],
+      "resources": [
+        { "title": "Display & Video 360 Help: Overview of deals", "url": "https://support.google.com/displayvideo/answer/7243138" },
+        { "title": "Display & Video 360 Help: Programmatic Guaranteed deals", "url": "https://support.google.com/displayvideo/answer/7067656" },
+        { "title": "Google Skillshop", "url": "https://skillshop.withgoogle.com/" }
+      ]
+    },
+    {
+      "id": "m09-t02",
+      "key": "MKT-902",
+      "type": "project",
+      "title": "Design the DV360 build for the Voltra scooter launch",
+      "priority": "high",
+      "estimateHours": 12,
+      "goal": "A complete, reviewable DV360 build sheet for the 8-week launch of the Voltra V2 scooter, that an agency trader can set up without questions.",
+      "context": "Hi, this is Arjun, CMO. The Voltra V2 scooter launches in 6 weeks in 12 cities. We have INR 2.4 crore for programmatic display, video and YouTube in DV360, on top of search and social. I do not want the agency to build it their way again. Please design the full structure, naming, budgets, pacing, frequency and goals, so we can check every line before it goes live.",
+      "steps": [
+        "Read the DV360 Help pages `Create a campaign`, `Create an insertion order` and `Create a line item`. Write down the hierarchy in your own words: partner → advertiser → campaign → insertion order → line item (→ ad group for YouTube line items).",
+        "Create a Google Sheet `Voltra DV360 build - V2 launch`. In the tab `Structure`, write: partner = the agency or Voltra seat, advertiser = `Voltra Mobility IN`, one campaign = `VOL_V2Launch_IN_2026`. Explain which settings live at advertiser level (Floodlight link from CM360, brand safety defaults, billing, currency INR, time zone Asia/Kolkata).",
+        "Design 4 insertion orders by goal and funnel stage: `IO_Awareness_YouTube`, `IO_Awareness_Display_Video`, `IO_Consideration_Display`, `IO_Conversion_Retargeting`. For each, write the KPI (for example CPM and reach for awareness, cost per test ride booking for conversion), budget and flight dates.",
+        "Split the INR 2.4 crore across the IOs in the sheet with a reason for each share. Add a `Budget segments` column, so week 1-2 (launch burst) can get more money than week 3-8.",
+        "Set pacing per IO and line item. Write when you use `Flight` vs `Daily` pacing and `Even`, `Ahead` or `ASAP`. Example: launch burst IO with `Ahead` pacing; always-on retargeting with `Daily` + `Even`. Explain why `ASAP` is risky for a long flight.",
+        "Under each IO, design 2-4 line items in the tab `Line items`. Columns: `line item name`, `type` (Display, Video, YouTube & partners), `inventory` (open auction, deal name), `targeting` (geo: 12 cities, language, audience, environment, device), `bid strategy`, `bid or goal`, `frequency cap`, `creatives`, `Floodlight activities counted`.",
+        "Use a naming convention and write it in the tab `Naming`: `<IO short>_<channel>_<audience>_<inventory>_<geo>_<v1>`, for example `CON_DIS_InMkt2W_PMP-AutoNews_12C_v1`. Link it to the naming rules you wrote in m01.",
+        "Choose bid strategies and write why: fixed CPM for programmatic guaranteed deals; automated strategies such as `Maximize viewable impressions` for awareness or a `Beat goal` CPA strategy for retargeting. Note that automated bidding needs enough conversions; for low-volume line items use a higher-volume Floodlight such as `test_ride_form_start`.",
+        "Plan frequency caps at three levels: campaign (for example 12 per week across all media), IO and line item. Explain that the lowest cap wins and that YouTube caps are set on the YouTube line item.",
+        "In the tab `Floodlight`, list the CM360 Floodlight activities from m08 that DV360 will count (counter: `test_ride_form_start`, `dealer_locator_click`; sales: `booking_paid`, `accessory_purchase`), with post-click and post-view windows, and say which one is the optimisation goal for each line item.",
+        "Add a tab `QA checklist` with at least 12 checks before launch, for example: flight dates and time zone, budget totals match the IO, pacing, frequency caps, geo, brand safety settings, creative approval status, landing page with UTM and click macro, Floodlight on the conversion line items, deal IDs active.",
+        "Add a tab `Reporting`: the daily checks (spend vs plan, pacing %, CPM, viewability, frequency) and the weekly report (reach, unique reach, conversions by IO). Name the DV360 report type you would use (for example a Standard report and a Reach report).",
+        "Ask a colleague or a friend to read the sheet as if they were the trader. Fix every question they ask."
+      ],
+      "acceptance": [
+        "The sheet shows the full DV360 hierarchy with one campaign, 4 insertion orders and at least 10 line items.",
+        "IO budgets add up exactly to INR 2.4 crore and each IO has pacing type, pacing rate, flight dates and a KPI.",
+        "Every line item has a name that follows the naming convention, a bid strategy with a reason, a frequency cap and a Floodlight goal or a clear non-conversion KPI.",
+        "The QA checklist has 12 or more checkable items.",
+        "The reporting tab names daily and weekly checks and the DV360 report types."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Voltra DV360 build - V2 launch`",
+        "A one-page Google Doc that explains the budget split and pacing choices to the CMO",
+        "List of questions from your reviewer and how you answered them"
+      ],
+      "hints": [
+        "Campaign level goals and frequency caps are not a budget. The money sits on the insertion order, and the line item spends it.",
+        "Do not put too many line items under one IO. Each line item needs enough budget to learn and to give clear results.",
+        "Write the CPM you expect per line item. Budget divided by CPM tells you the impressions, and you can check if a city list is big enough."
+      ],
+      "explain": {
+        "en": "In this project I designed the full Display & Video 360 build for our scooter launch. I used one campaign with four insertion orders, one for each goal in the funnel. I split the budget by goal and gave the launch weeks more money with budget segments. For each line item I set the targeting, the deal or open auction, the bid strategy, the frequency cap and the Floodlight goal. I wrote a naming convention and a QA checklist, so the agency could build it exactly and we could check it before launch."
+      },
+      "vocabulary": [
+        { "term": "insertion order", "en": "the DV360 level that holds the budget, flight dates, pacing and the main goal" },
+        { "term": "line item", "en": "the DV360 level that bids: it has targeting, a bid strategy and creatives" },
+        { "term": "pacing", "en": "how fast the budget is spent over the flight: even, ahead or as fast as possible" },
+        { "term": "frequency cap", "en": "the highest number of times one person can see your ads in a time period" },
+        { "term": "Floodlight", "en": "the Google Marketing Platform conversion tag used by CM360, DV360 and SA360" },
+        { "term": "budget segment", "en": "a part of an insertion order budget with its own dates" }
+      ],
+      "interview": [
+        {
+          "q": "How do you structure a DV360 campaign for a product launch?",
+          "a": "I create one campaign for the launch, with a campaign-level frequency cap and goal. Under it I build insertion orders by objective and funnel stage, because the IO holds budget, pacing and the KPI. Line items under each IO separate media type, inventory and audience, so I can compare them and move budget. I keep the naming strict, so reports group cleanly in DV360, CM360 and BigQuery."
+        },
+        {
+          "q": "When do you use Ahead pacing instead of Even?",
+          "a": "I use Ahead when the start of the flight matters most, like a launch week, or when I know inventory gets tight later. Even is my default for always-on, because it spreads the budget and keeps CPMs stable. I avoid ASAP on long flights, because the budget can be gone in a day at high prices. I always check pacing in the first 48 hours and adjust."
+        },
+        {
+          "q": "How do you pick the optimisation goal when real bookings are rare?",
+          "a": "Automated bidding needs enough conversions to learn. If paid bookings are only a few per week per line item, I optimise to a higher-volume signal that predicts bookings, like a test ride form start, and I value it lower. I still report the real KPI, cost per booking, from Floodlight and the CRM. When volume grows, I move the goal closer to revenue."
+        }
+      ],
+      "resources": [
+        { "title": "Display & Video 360 Help: Create an insertion order", "url": "https://support.google.com/displayvideo/answer/2696705" },
+        { "title": "Display & Video 360 Help: Set budgets and control your pacing", "url": "https://support.google.com/displayvideo/answer/3114676" },
+        { "title": "Display & Video 360 Help: Manage frequency with frequency caps", "url": "https://support.google.com/displayvideo/answer/2696786" }
+      ]
+    },
+    {
+      "id": "m09-t03",
+      "key": "MKT-903",
+      "type": "task",
+      "title": "Write the audience, brand safety and viewability standard",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "Voltra has one written standard for audiences, brand safety, viewability and invalid traffic that applies to every DSP line item, by any agency.",
+      "context": "Hi, Neha here. Last year our scooter ad showed next to a news story about a battery fire. It went viral for the wrong reason. I also see 30% viewability on some reports. Please write a clear standard for who we target, where we can appear, and what counts as a valid, viewable impression. All agencies will sign it.",
+      "steps": [
+        "Read the DV360 Help page `Audiences overview`. In a Google Doc `Voltra programmatic standard v1`, write section 1 `Audiences` with four groups: first-party (Customer Match, GA4 or Floodlight remarketing lists, CRM lists from HubSpot), Google audiences (affinity, in-market, life events, detailed demographics), custom audiences (keywords, URLs, apps) and contextual targeting (keywords, categories).",
+        "For each audience group, write one Voltra example, the funnel stage and the main risk. Example: in-market `Motorcycles & scooters` for consideration; Customer Match of past bookers as an exclusion for acquisition line items.",
+        "Write the consent rule for first-party data: only users who gave marketing consent can be uploaded or remarketed. Link it to your Consent Mode v2 setup from m03.",
+        "Write section 2 `Brand safety and suitability`. Define the advertiser-level defaults in DV360: digital content labels (for example allow DL-G and DL-PG, exclude DL-MA, decide on DL-T), sensitive categories to exclude (for example tragedy and conflict, sensitive social issues), and an account-level keyword and URL exclusion list.",
+        "Add a Voltra-specific list: news about fires, accidents, battery recalls and EV crashes. Write how you handle it: keyword exclusions plus a pre-bid filter from a verification vendor (for example Integral Ad Science or DoubleVerify), and why too many keyword blocks cut reach on news sites.",
+        "Write the inventory rules: authorised sellers only (ads.txt and app-ads.txt), an app exclusion list for kids apps and games, and a site inclusion list for the programmatic guaranteed and PMP deals.",
+        "Write section 3 `Viewability`. State the MRC standard: display = at least 50% of pixels in view for at least 1 continuous second; large display ads (242,500 pixels or more) = 30% for 1 second; video = 50% of pixels for at least 2 continuous seconds. Say which tool measures it (Active View in DV360/CM360, plus the verification vendor).",
+        "Set Voltra targets in a table: minimum viewability rate per format, the viewable CPM (vCPM) goal, and the action if a line item is below target for 7 days (optimise, then pause).",
+        "Write section 4 `Invalid traffic (IVT)`. Explain general IVT (known bots, data-centre traffic, filtered by lists) vs sophisticated IVT (hard to detect, needs analysis). Write the rule: Voltra pays only for impressions after GIVT filtering, and asks for SIVT reports from the vendor.",
+        "Write section 5 `Third-party cookies and identity`. In 3-4 neutral sentences, describe the current state: Chrome kept third-party cookies with user choice instead of removing them, and in October 2025 Google announced the retirement of most Privacy Sandbox APIs (such as Topics and Protected Audience). Safari and Firefox block third-party cookies by default. Check the current status on `https://privacysandbox.google.com/` and write the date you checked. List what Voltra uses instead: first-party data, contextual targeting, Customer Match, and modelled reach.",
+        "Add a one-page `Agency checklist` at the end with 10 yes/no checks that every new line item must pass."
+      ],
+      "acceptance": [
+        "The document has 5 sections: audiences, brand safety, viewability, IVT and identity.",
+        "The viewability section states the MRC display, large display and video rules correctly.",
+        "Brand safety defaults name concrete DV360 settings (digital content labels, sensitive categories, exclusion lists, verification vendor).",
+        "The identity section is neutral, shows the date you checked the status, and links to the official source.",
+        "The agency checklist has 10 yes/no items."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Voltra programmatic standard v1`",
+        "Link to the Voltra keyword exclusion list (Google Sheet) with at least 40 terms in English and the other languages Voltra buys, marked by theme",
+        "Screenshot of the DV360 Help or Skillshop page you used for the viewability and brand safety settings"
+      ],
+      "hints": [
+        "Brand safety means avoiding harmful content for everyone. Suitability means what is right for your brand. A news site can be safe but not suitable next to a crash story.",
+        "Viewability is about the ad being seen. It does not prove that a real human saw it. That is why you also need IVT rules.",
+        "Do not block the word `electric` or `battery`. Block specific phrases like `battery fire` so you keep reach on auto news."
+      ],
+      "explain": {
+        "en": "In this task I wrote Voltra's standard for programmatic quality. I defined which audiences we use at each funnel stage and that only consented first-party data can be used. I set brand safety defaults in DV360 with content labels, sensitive categories, exclusion lists and a pre-bid verification vendor. I wrote the MRC viewability rules and set clear targets and actions per format. I also wrote rules for invalid traffic and a neutral note on third-party cookies, and finished with a checklist for every agency line item."
+      },
+      "vocabulary": [
+        { "term": "brand suitability", "en": "choosing content that fits your brand, not only content that is safe in general" },
+        { "term": "viewability", "en": "whether an ad had a real chance to be seen, measured by pixels in view and time" },
+        { "term": "MRC", "en": "Media Rating Council: the US body that sets the viewability and IVT measurement standards" },
+        { "term": "invalid traffic (IVT)", "en": "impressions or clicks that do not come from real people with real interest, like bots" },
+        { "term": "Customer Match", "en": "uploading consented customer emails or phone numbers to target or exclude them in Google ads" },
+        { "term": "pre-bid filter", "en": "a check that stops the DSP from bidding on unsafe or low-quality impressions" }
+      ],
+      "interview": [
+        {
+          "q": "What is the MRC viewability standard?",
+          "a": "For display, at least 50% of the ad pixels must be in view for at least one continuous second. For large display ads of 242,500 pixels or more, it is 30% for one second. For video, it is 50% of pixels for at least two continuous seconds. I treat this as a minimum and often set a vCPM goal, so we pay for what can be seen."
+        },
+        {
+          "q": "How do you balance brand safety with reach?",
+          "a": "I use layers: platform content labels and sensitive categories, a short and specific keyword list, and a verification vendor for pre-bid filtering. Very long keyword lists block good news content and push CPMs up. I review blocked impressions every month and remove keywords that cost reach without real risk. For high-risk moments, like a recall in the news, I can tighten the rules for a few days."
+        },
+        {
+          "q": "What is the status of third-party cookies, and what do you do about it?",
+          "a": "Chrome did not remove third-party cookies; it kept them with user choice, and in October 2025 Google announced the retirement of most Privacy Sandbox APIs. Safari and Firefox already block them by default, so a large share of users cannot be tracked that way anyway. I do not build my plan on third-party cookies. I invest in consented first-party data, Customer Match, contextual targeting, server-side tagging and modelled measurement, and I check the official status page before each planning cycle."
+        }
+      ],
+      "resources": [
+        { "title": "Display & Video 360 Help: Audiences overview", "url": "https://support.google.com/displayvideo/answer/9099427" },
+        { "title": "Display & Video 360 Help: FAQ on third-party cookie changes in Chrome", "url": "https://support.google.com/displayvideo/answer/14762010" },
+        { "title": "Privacy Sandbox: official status site", "url": "https://privacysandbox.google.com/" }
+      ]
+    },
+    {
+      "id": "m09-t04",
+      "key": "MKT-904",
+      "type": "docs",
+      "title": "Write the DSP and YouTube buying recommendation",
+      "priority": "medium",
+      "estimateHours": 6,
+      "goal": "A decision memo that says which DSP (or DSPs) Voltra should use, and whether YouTube is bought in DV360 or Google Ads, with clear reasons.",
+      "context": "Hi, Arjun here. Our agency wants to add The Trade Desk, and the Amazon team offered us Amazon DSP for the accessories store. Today YouTube runs in Google Ads. I need a short memo for the leadership meeting: which DSPs do we use, and where do we buy YouTube?",
+      "steps": [
+        "Create a Google Doc `Memo - DSP and YouTube buying`. Start with a 3-line summary: the decision, the main reason, the next step.",
+        "Make a comparison table for `Display & Video 360`, `The Trade Desk` and `Amazon DSP`. Rows: inventory access (YouTube, open web, CTV, retail), first-party data and identity (Customer Match; UID2 at The Trade Desk; Amazon shopping signals), measurement (Floodlight and CM360; third-party; Amazon Marketing Cloud), integration with Voltra's stack (GA4/360, CM360, SA360, BigQuery), fees and minimums (write 'ask for quote'), team skills needed.",
+        "Write the strengths of each in 2-3 lines. DV360: native YouTube and Google audiences, one stack with CM360 and Floodlight. The Trade Desk: independent DSP, wide open-web and CTV supply, OpenPath direct supply. Amazon DSP: Amazon audiences and retail measurement, useful for the accessories store and Amazon listings.",
+        "Write the risks of running more than one DSP: frequency is not shared across DSPs, more fees and more reports, and DSPs can bid against each other for the same impression. Write how you would limit this (clear split by goal or inventory, one ad server: CM360).",
+        "Write a section `YouTube: DV360 or Google Ads?`. Compare: access to YouTube programmatic guaranteed and instant deals (DV360), cross-media frequency with display and CTV (DV360), Demand Gen and conversion-focused YouTube campaigns with PMax and Google Ads signals (Google Ads), Brand Lift in both, and who in the team runs each tool.",
+        "Name YouTube formats and buying options in 3 lines: skippable in-stream, non-skippable in-stream (15 seconds or less), bumper (6 seconds), in-feed and Shorts. In DV360, YouTube line items have subtypes such as efficient reach, non-skippable, target frequency, ad sequence and video views (names can change; check the Help Center).",
+        "Write your recommendation for Voltra with dates: for example keep DV360 as the main DSP for display, video, CTV and YouTube reach; keep YouTube conversion campaigns (Demand Gen) in Google Ads; run an 8-week Amazon DSP test only for accessories with a holdout; do not add The Trade Desk this year unless a CTV deal needs it.",
+        "Add `How we will judge the test`: KPI, budget, duration and the incrementality method (you will learn the method in m12).",
+        "Send the memo to a friend or mentor and ask: 'Can you say the decision in one sentence after 1 minute?' Fix the summary until they can."
+      ],
+      "acceptance": [
+        "The memo has a 3-line summary, a comparison table with at least 6 rows and a dated recommendation.",
+        "The risks of multiple DSPs are named, with how to control them.",
+        "The YouTube section compares DV360 and Google Ads on at least 4 points and names the main formats.",
+        "No fee number is stated as a fact without a source; unknown fees say 'ask for quote'."
+      ],
+      "evidence": [
+        "Link to the Google Doc `Memo - DSP and YouTube buying`",
+        "The one-sentence decision your reviewer wrote after reading the summary"
+      ],
+      "hints": [
+        "A memo is a decision document, not a training text. Lead with the decision.",
+        "Use official product pages for facts about each DSP. Write 'not confirmed' when a vendor claim has no public source."
+      ],
+      "explain": {
+        "en": "In this task I wrote a decision memo about our DSPs and YouTube buying. I compared DV360, The Trade Desk and Amazon DSP on inventory, data, measurement, integration and team skills. I explained the risks of several DSPs, like frequency that is not shared and DSPs bidding against each other. I compared YouTube in DV360 and in Google Ads and made a clear recommendation with dates. I also planned a small Amazon DSP test with a holdout, so we could judge it on incrementality."
+      },
+      "vocabulary": [
+        { "term": "The Trade Desk", "en": "an independent DSP that does not own media, known for open web and connected TV buying" },
+        { "term": "Amazon DSP", "en": "Amazon's DSP that uses Amazon shopping data to target and measure ads" },
+        { "term": "UID2", "en": "Unified ID 2.0: an open identity standard based on hashed and encrypted emails, used by The Trade Desk and others" },
+        { "term": "CTV", "en": "connected TV: streaming apps on smart TVs" },
+        { "term": "Demand Gen", "en": "a Google Ads campaign type for YouTube, Discover and Gmail that is built for conversions" }
+      ],
+      "interview": [
+        {
+          "q": "Would you run two DSPs at the same time?",
+          "a": "Only with a clear reason and a clean split, for example one DSP for YouTube and Google inventory and one for a retail or CTV use case. Two DSPs on the same open-web inventory often bid against each other and break frequency control. I keep one ad server, CM360, so reach and frequency are measured in one place. I would also run the second DSP as a test with a holdout before I scale it."
+        },
+        {
+          "q": "Where do you buy YouTube, DV360 or Google Ads?",
+          "a": "It depends on the goal. For reach and brand work across YouTube, display and CTV, DV360 gives me one frequency cap, deals and programmatic guaranteed. For conversion work, Demand Gen in Google Ads uses Google Ads conversion data and works well with our search account. Many advertisers do both with a clear split, and I measure them with the same Brand Lift and conversion lift methods."
+        },
+        {
+          "q": "What does Amazon DSP add that DV360 does not?",
+          "a": "Amazon DSP gives access to Amazon's shopping audiences and to closed-loop measurement of sales on Amazon, including Amazon Marketing Cloud for deeper analysis. That is useful when you sell on Amazon, like Voltra's accessories. It is less useful for dealer leads, where our own CRM data matters more. I would test it with clear incrementality rules, not just Amazon's attributed ROAS."
+        }
+      ],
+      "resources": [
+        { "title": "Display & Video 360 Help: YouTube Programmatic Guaranteed via instant deals", "url": "https://support.google.com/displayvideo/answer/10273315" },
+        { "title": "Display & Video 360 Help: Display & Video 360 overview", "url": "https://support.google.com/displayvideo/answer/9059464" }
+      ]
+    },
+    {
+      "id": "m09-t05",
+      "key": "MKT-905",
+      "type": "incident",
+      "lab": "mk-dv360",
+      "title": "Case: the launch line item is under-pacing",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "Find why the conversion line item spends only 35% of its daily budget, fix it without wasting money, and stop it from happening again.",
+      "context": "Hi, Neha here. Day 3 of the launch and the retargeting line item `CON_DIS_RMKT-Visitors_PMP-AutoNews_12C_v1` spent only 35% of plan. The other line items are fine. The agency says 'the market is slow'. I do not believe it. Please find the real cause today.",
+      "steps": [
+        "First finish the practice lab: open Practice → DV360 line items (`mk-dv360`) in this app and solve the under-pacing case. Write your root cause in the app before you go on.",
+        "Start a Google Doc `Case MKT-905` with a timeline: time, what you checked, what you saw.",
+        "Write the formula for pacing: `pacing % = actual spend to date / planned spend to date`. Calculate it for the line item and for its insertion order from the numbers in the lab. Note if the IO is also under-pacing or only this line item.",
+        "Check the simple causes first, in this order: line item status and flight dates, IO budget and budget segment dates, pacing settings (Daily + Even with a small daily amount), creative approval status for the exchange or deal, and whether the deal is active and accepted on the publisher side.",
+        "Check the targeting funnel: audience list size (a remarketing list that is too small or not yet filled), the 12-city geo, language, environment, the site inclusion list, viewability targeting and brand safety settings. Write how many users or impressions are left after each layer, as in the lab.",
+        "Check the bid: compare the fixed bid or the goal with the deal floor price and the win rate. In DV360, use the line item troubleshooting view to see where bid requests were filtered or lost (for example lost to bid price, filtered by targeting).",
+        "Check the frequency cap: a cap of 1 per day on a small remarketing list can stop most spend. Calculate the maximum possible impressions: list size × cap × days.",
+        "Write the root cause in one sentence and the evidence that proves it. Example: 'The remarketing list has 18,000 users, the cap is 1 per week and the PMP deal floor is above our fixed bid, so the line item can buy at most about 9,000 impressions per week.'",
+        "Write the fix as a ranked list: what you change first (for example widen the list window from 7 to 30 days, raise the cap to 3 per week, add open auction on the same sites), what you will not change (do not switch pacing to ASAP), and how much extra spend you expect. Move unspendable budget to another IO if the fix is not enough.",
+        "Write 5 prevention checks for the launch QA list from MKT-902, for example: estimate available impressions before launch; check list sizes; check deal floors against bids; check pacing at 24 hours and 48 hours.",
+        "Write a short message to the agency (5-6 lines) with the cause, the fix and the new pacing check rule. Keep it factual."
+      ],
+      "acceptance": [
+        "The lab case is solved in the app.",
+        "Pacing % is calculated for the line item and the IO with the formula shown.",
+        "The root cause is one sentence with numbers that prove it, not a guess.",
+        "The fix is ranked, gives the expected effect on spend, and does not use ASAP pacing as the fix.",
+        "5 prevention checks are added to the launch QA checklist."
+      ],
+      "evidence": [
+        "Screenshot of the solved lab in the app",
+        "Link to the Google Doc `Case MKT-905` with timeline, root cause, fix and prevention",
+        "The message to the agency (pasted text)"
+      ],
+      "hints": [
+        "If only one line item under-paces, the cause is usually in that line item: targeting, bid, cap, deal or creative. If the whole IO under-paces, check the IO budget and pacing.",
+        "A remarketing list needs time to fill after launch. A new list on day 3 is often tiny.",
+        "Raising the bid fixes a floor problem but not a small audience. Check the reach limit first."
+      ],
+      "explain": {
+        "en": "In this case a launch line item spent only a third of its budget. I calculated pacing for the line item and the insertion order and saw that only one line item was the problem. I checked status, dates, creatives and the deal, then the targeting funnel layer by layer. I found that the remarketing list was small, the frequency cap was tight and our bid was below the deal floor. I fixed it in a ranked order, moved spare budget to another IO, and added pre-launch checks so it would not happen again."
+      },
+      "vocabulary": [
+        { "term": "under-pacing", "en": "when a line item spends less than planned for the time so far" },
+        { "term": "floor price", "en": "the lowest price a publisher accepts for an impression in an auction or deal" },
+        { "term": "win rate", "en": "the share of bids that won the auction" },
+        { "term": "remarketing list", "en": "a list of people who visited your site or app, used to show them ads again" },
+        { "term": "available impressions", "en": "the number of impressions that match your targeting and can be bought" }
+      ],
+      "interview": [
+        {
+          "q": "A line item is under-pacing. How do you troubleshoot it?",
+          "a": "First I check if it is only this line item or the whole insertion order. Then I go from simple to complex: status, dates, budget, creative approval and deal status, then the targeting funnel, then bid versus floor and win rate, then frequency caps. DV360 shows where bid requests were filtered or lost, which saves time. I only change one or two things at a time, so I know what fixed it."
+        },
+        {
+          "q": "Why not just switch the line item to ASAP pacing?",
+          "a": "ASAP does not create inventory. If the audience is small or the bid is under the floor, ASAP changes nothing. If inventory exists, ASAP can spend the budget at bad prices in a few hours. I fix the real limit, like the audience, the cap or the bid, and keep Even pacing."
+        },
+        {
+          "q": "How do you prevent pacing problems before launch?",
+          "a": "I estimate available impressions for every line item from list sizes, geo and caps, and compare that with the planned impressions. I check deal floors against our bids and make sure deals are accepted and creatives approved. I set a pacing check at 24 and 48 hours with a clear rule, for example act if a line item is below 80% of plan. This turns a surprise into a routine check."
+        }
+      ],
+      "resources": [
+        { "title": "Display & Video 360 Help: Troubleshoot your deals and line items", "url": "https://support.google.com/displayvideo/answer/6292894" },
+        { "title": "Display & Video 360 Help: About budgets", "url": "https://support.google.com/displayvideo/answer/2696773" },
+        { "title": "Display & Video 360 Help: Automated bid strategies", "url": "https://support.google.com/displayvideo/answer/2997422" }
+      ]
+    }
+  ]
+}
