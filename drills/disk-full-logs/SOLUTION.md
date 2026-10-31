@@ -50,5 +50,3 @@ A: I set log rotation with a maximum size and number of files. I keep the log le
 ## Explain it (script)
 
 **English:** "All requests failed with 500. The app log showed 'No space left on device'. The log volume was 100% full because the new log agent ran in debug mode and wrote debug lines without stopping. I set the agent to info level, recreated it, and truncated debug.log. Now the volume is almost empty and /health is 200. Next, we will add log rotation and a disk alert at 80%."
-
-**Hindi / Hinglish:** "Saari requests 500 de rahi thi. App log me 'No space left on device' tha. Log volume 100% full tha kyunki naya log agent debug mode me tha aur lagataar debug lines likh raha tha. Maine agent ko info level pe kiya, usko recreate kiya aur debug.log ko truncate kiya. Ab volume khaali hai aur /health 200 de raha hai. Aage log rotation aur 80% disk alert lagayenge."

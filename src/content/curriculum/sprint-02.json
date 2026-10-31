@@ -55,34 +55,28 @@
         "If the container stops at once, read why with `docker logs api`."
       ],
       "explain": {
-        "en": "In this task I put the ShopNotes API in a Docker image. I wrote a multi-stage Dockerfile: the first stage installs the Python packages into a virtual environment, and the second stage copies only that environment and app.py. The container runs as a normal user with uid 10001, not root. I added a HEALTHCHECK that calls /health, and a .dockerignore so .venv, .git and .env never go into the image. I compared the size with a single-stage build and wrote the result in the pull request.",
-        "hi": "Is task mein maine ShopNotes API ko Docker image mein daala. Maine multi-stage Dockerfile likha: pehla stage Python packages ko virtual environment mein install karta hai, aur dusra stage sirf woh environment aur app.py copy karta hai. Container root nahi, uid 10001 wale normal user se chalta hai. Maine HEALTHCHECK add kiya jo /health call karta hai, aur .dockerignore banaya taaki .venv, .git aur .env kabhi image mein na jaaye. Single-stage build se size compare karke result pull request mein likha."
+        "en": "In this task I put the ShopNotes API in a Docker image. I wrote a multi-stage Dockerfile: the first stage installs the Python packages into a virtual environment, and the second stage copies only that environment and app.py. The container runs as a normal user with uid 10001, not root. I added a HEALTHCHECK that calls /health, and a .dockerignore so .venv, .git and .env never go into the image. I compared the size with a single-stage build and wrote the result in the pull request."
       },
       "vocabulary": [
         {
           "term": "image",
-          "en": "a packed file system plus settings, used to start containers",
-          "hi": "packed file system aur settings, jisse containers start hote hain"
+          "en": "a packed file system plus settings, used to start containers"
         },
         {
           "term": "container",
-          "en": "a running copy of an image, isolated from other programs",
-          "hi": "image ki chalti hui copy, jo dusre programs se alag rehti hai"
+          "en": "a running copy of an image, isolated from other programs"
         },
         {
           "term": "multi-stage build",
-          "en": "a Dockerfile with more than one FROM, where the last stage keeps only what is needed",
-          "hi": "Dockerfile jisme ek se zyada FROM hote hain aur last stage mein sirf zaroori cheezein rehti hain"
+          "en": "a Dockerfile with more than one FROM, where the last stage keeps only what is needed"
         },
         {
           "term": "layer",
-          "en": "one saved step of an image; Docker reuses layers that did not change",
-          "hi": "image ka ek saved step; jo layer nahi badli, Docker use dobara use karta hai"
+          "en": "one saved step of an image; Docker reuses layers that did not change"
         },
         {
           "term": ".dockerignore",
-          "en": "a list of files that Docker must not send into the build",
-          "hi": "files ki list jo Docker build mein nahi bhejni chahiye"
+          "en": "a list of files that Docker must not send into the build"
         }
       ],
       "interview": [
@@ -158,34 +152,28 @@
         "Use `docker compose logs <service>` before you change anything."
       ],
       "explain": {
-        "en": "In this task I made the whole app start with one command, docker compose up. The compose file has three services: Postgres, the API and an Nginx web container that sends /api/ to the API. I used health checks with depends_on condition service_healthy, so the API waits until the database is really ready. The database data lives in a named volume, so it survives docker compose down. The password comes from a .env file that is not in Git. I tested the start order, the data after a restart, and the 503 when the database is stopped.",
-        "hi": "Is task mein maine poora app ek command, docker compose up, se start hone layak banaya. Compose file mein teen services hain: Postgres, API aur ek Nginx web container jo /api/ ko API tak bhejta hai. Maine health checks ke saath depends_on condition service_healthy use kiya, taaki API tab tak ruke jab tak database sach mein ready na ho. Database ka data named volume mein hai, isliye docker compose down ke baad bhi bacha rehta hai. Password .env file se aata hai jo Git mein nahi hai. Maine start order, restart ke baad data, aur database band hone par 503 ko test kiya."
+        "en": "In this task I made the whole app start with one command, docker compose up. The compose file has three services: Postgres, the API and an Nginx web container that sends /api/ to the API. I used health checks with depends_on condition service_healthy, so the API waits until the database is really ready. The database data lives in a named volume, so it survives docker compose down. The password comes from a .env file that is not in Git. I tested the start order, the data after a restart, and the 503 when the database is stopped."
       },
       "vocabulary": [
         {
           "term": "Docker Compose",
-          "en": "a tool that starts many containers from one YAML file",
-          "hi": "tool jo ek YAML file se kai containers ek saath start karta hai"
+          "en": "a tool that starts many containers from one YAML file"
         },
         {
           "term": "service",
-          "en": "one part of a compose file, like db, api or web",
-          "hi": "compose file ka ek hissa, jaise db, api ya web"
+          "en": "one part of a compose file, like db, api or web"
         },
         {
           "term": "named volume",
-          "en": "storage that Docker keeps even when the container is removed",
-          "hi": "storage jise Docker container hatne ke baad bhi rakhta hai"
+          "en": "storage that Docker keeps even when the container is removed"
         },
         {
           "term": "depends_on",
-          "en": "a compose setting that controls which service starts first",
-          "hi": "compose setting jo decide karti hai kaunsi service pehle start hogi"
+          "en": "a compose setting that controls which service starts first"
         },
         {
           "term": "Docker DNS",
-          "en": "Docker gives each service a name that other containers can use as a host name",
-          "hi": "Docker har service ko naam deta hai jise dusre containers host name ki tarah use kar sakte hain"
+          "en": "Docker gives each service a name that other containers can use as a host name"
         }
       ],
       "interview": [
@@ -255,34 +243,28 @@
         "GitHub Packages accepts only classic personal access tokens for `docker login`. A fine-grained token will not work here."
       ],
       "explain": {
-        "en": "In this task I pushed our API and web images to GitHub Container Registry. I made a classic token with only the write:packages scope and logged in with --password-stdin, so the token is not in my shell history. I added the org.opencontainers.image.source label so each package is linked to our repo. I pushed a fixed version 0.1.0 and latest, made the packages public, and tested a pull after logout. Compose can now run a released version with TAG=0.1.0 without building anything.",
-        "hi": "Is task mein maine API aur web images GitHub Container Registry par push ki. Sirf write:packages scope wala classic token banaya aur --password-stdin se login kiya, taaki token shell history mein na aaye. org.opencontainers.image.source label add kiya taaki har package hamare repo se link ho. Fixed version 0.1.0 aur latest push kiye, packages public kiye, aur logout ke baad pull karke test kiya. Ab Compose TAG=0.1.0 se bina build kiye released version chala sakta hai."
+        "en": "In this task I pushed our API and web images to GitHub Container Registry. I made a classic token with only the write:packages scope and logged in with --password-stdin, so the token is not in my shell history. I added the org.opencontainers.image.source label so each package is linked to our repo. I pushed a fixed version 0.1.0 and latest, made the packages public, and tested a pull after logout. Compose can now run a released version with TAG=0.1.0 without building anything."
       },
       "vocabulary": [
         {
           "term": "container registry",
-          "en": "a server that stores images so others can pull them",
-          "hi": "server jo images store karta hai taaki dusre unhe pull kar saken"
+          "en": "a server that stores images so others can pull them"
         },
         {
           "term": "tag",
-          "en": "a name for one version of an image, like 0.1.0",
-          "hi": "image ke ek version ka naam, jaise 0.1.0"
+          "en": "a name for one version of an image, like 0.1.0"
         },
         {
           "term": "personal access token",
-          "en": "a long secret string that works like a password for one job",
-          "hi": "lambi secret string jo ek kaam ke liye password ki tarah kaam karti hai"
+          "en": "a long secret string that works like a password for one job"
         },
         {
           "term": "scope",
-          "en": "the list of things a token is allowed to do",
-          "hi": "un kaamon ki list jo token kar sakta hai"
+          "en": "the list of things a token is allowed to do"
         },
         {
           "term": "pull",
-          "en": "to download an image from a registry",
-          "hi": "registry se image download karna"
+          "en": "to download an image from a registry"
         }
       ],
       "interview": [
@@ -350,34 +332,28 @@
         "Do not ignore a CVE only to make the scan green. Every ignore needs a reason and a review date."
       ],
       "explain": {
-        "en": "In this task I scanned our Docker images with Trivy. First I counted the HIGH and CRITICAL findings, then I used --ignore-unfixed to see the ones we can really fix. I rebuilt with --pull to get the newest base image patches and raised Python library versions in requirements.txt. I also ran trivy config on the Dockerfiles and trivy fs to look for secrets in the repo. For one finding without a fix I wrote a .trivyignore entry with a reason and a review date. In the end both images had no fixable high findings and the app still worked.",
-        "hi": "Is task mein maine Trivy se apni Docker images scan ki. Pehle HIGH aur CRITICAL findings gine, phir --ignore-unfixed se woh dekhe jo sach mein fix ho sakte hain. --pull ke saath rebuild kiya taaki naye base image ke patches mil jaaye, aur requirements.txt mein Python libraries ke version badhaye. Dockerfiles par trivy config aur repo mein secrets dhoondhne ke liye trivy fs bhi chalaya. Ek finding ka fix nahi tha, uske liye .trivyignore mein reason aur review date ke saath entry likhi. Aakhir mein dono images mein koi fixable high finding nahi bachi aur app bhi theek chala."
+        "en": "In this task I scanned our Docker images with Trivy. First I counted the HIGH and CRITICAL findings, then I used --ignore-unfixed to see the ones we can really fix. I rebuilt with --pull to get the newest base image patches and raised Python library versions in requirements.txt. I also ran trivy config on the Dockerfiles and trivy fs to look for secrets in the repo. For one finding without a fix I wrote a .trivyignore entry with a reason and a review date. In the end both images had no fixable high findings and the app still worked."
       },
       "vocabulary": [
         {
           "term": "vulnerability",
-          "en": "a known weakness in software that an attacker can use",
-          "hi": "software ki jaani-maani kamzori jiska attacker fayda utha sakta hai"
+          "en": "a known weakness in software that an attacker can use"
         },
         {
           "term": "CVE",
-          "en": "a public id number for one known vulnerability, like CVE-2024-1234",
-          "hi": "ek known vulnerability ka public id number, jaise CVE-2024-1234"
+          "en": "a public id number for one known vulnerability, like CVE-2024-1234"
         },
         {
           "term": "severity",
-          "en": "how dangerous a finding is: LOW, MEDIUM, HIGH or CRITICAL",
-          "hi": "finding kitni khatarnak hai: LOW, MEDIUM, HIGH ya CRITICAL"
+          "en": "how dangerous a finding is: LOW, MEDIUM, HIGH or CRITICAL"
         },
         {
           "term": "base image",
-          "en": "the image in the FROM line that your image starts from",
-          "hi": "FROM line wali image jisse aapki image shuru hoti hai"
+          "en": "the image in the FROM line that your image starts from"
         },
         {
           "term": "security gate",
-          "en": "a check that stops the pipeline when it finds a serious problem",
-          "hi": "check jo serious problem milne par pipeline rok deta hai"
+          "en": "a check that stops the pipeline when it finds a serious problem"
         }
       ],
       "interview": [
@@ -442,29 +418,24 @@
         "Mark dangerous commands (like `down -v` or `system prune -a`) clearly."
       ],
       "explain": {
-        "en": "In this task I wrote the Docker runbook for the team. It explains how to start and stop the stack, read logs, open a shell, release a new image version and scan it with Trivy. I added a table of all environment variables and marked which ones are secrets. I also wrote the clean-up commands with a clear warning about what they delete, and four real errors from this sprint with their fixes. Now people can find answers on one page instead of asking on chat.",
-        "hi": "Is task mein maine team ke liye Docker runbook likha. Isme stack start aur stop karna, logs padhna, shell kholna, nayi image version release karna aur Trivy se scan karna samjhaya hai. Maine saare environment variables ki table banayi aur secrets ko mark kiya. Clean-up commands bhi likhe aur saaf warning di ki woh kya delete karte hain, aur is sprint ke chaar asli errors unke fix ke saath likhe. Ab log chat par puchne ki jagah ek page par jawab dhoondh sakte hain."
+        "en": "In this task I wrote the Docker runbook for the team. It explains how to start and stop the stack, read logs, open a shell, release a new image version and scan it with Trivy. I added a table of all environment variables and marked which ones are secrets. I also wrote the clean-up commands with a clear warning about what they delete, and four real errors from this sprint with their fixes. Now people can find answers on one page instead of asking on chat."
       },
       "vocabulary": [
         {
           "term": "dangling image",
-          "en": "an old image layer with no tag, left after rebuilds",
-          "hi": "purani image layer jiska koi tag nahi, rebuild ke baad bachi hui"
+          "en": "an old image layer with no tag, left after rebuilds"
         },
         {
           "term": "build cache",
-          "en": "saved build steps that make the next build faster",
-          "hi": "save kiye gaye build steps jo agla build fast banate hain"
+          "en": "saved build steps that make the next build faster"
         },
         {
           "term": "port conflict",
-          "en": "two programs try to use the same port on one machine",
-          "hi": "ek machine par do programs ek hi port use karna chahte hain"
+          "en": "two programs try to use the same port on one machine"
         },
         {
           "term": "troubleshooting",
-          "en": "finding the cause of a problem step by step",
-          "hi": "problem ka kaaran step by step dhoondhna"
+          "en": "finding the cause of a problem step by step"
         }
       ],
       "interview": [

@@ -17,7 +17,7 @@ test('every sprint has the required shape', () => {
       for (const k of ['id', 'key', 'type', 'title', 'priority', 'estimateHours', 'goal', 'context', 'steps', 'acceptance', 'evidence', 'hints', 'explain', 'vocabulary', 'interview', 'resources']) assert.ok(k in t, `${t.id ?? '?'} missing ${k}`);
       assert.ok(['task', 'project', 'incident', 'docs'].includes(t.type), `${t.id} bad type ${t.type}`);
       assert.equal(t.interview.length, 3, `${t.id} needs exactly 3 interview questions`);
-      assert.ok(t.explain.en && t.explain.hi, `${t.id} needs explain.en and explain.hi`);
+      assert.ok(t.explain.en, `${t.id} needs explain.en`);
       assert.ok(t.steps.length >= 3, `${t.id} too few steps`);
       assert.ok(!keys.has(t.key), `duplicate key ${t.key}`); keys.add(t.key);
       assert.ok(!ids.has(t.id), `duplicate id ${t.id}`); ids.add(t.id);

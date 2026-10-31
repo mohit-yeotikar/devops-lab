@@ -60,5 +60,3 @@ A: A pool keeps a small, fixed number of open connections and lends them to requ
 ## Explain it (script)
 
 **English:** "After some traffic the app returned 500. The logs said 'too many clients already', and pg_stat_activity showed all 10 connections idle and owned by the app. The code opened a new connection for every request and never closed it. I added a finally block that closes the connection and redeployed. Now, after two load tests, the app uses only one or two connections and /health is 200."
-
-**Hindi / Hinglish:** "Thodi traffic ke baad app 500 de raha tha. Logs me 'too many clients already' tha, aur pg_stat_activity me saari 10 connections idle thi, sab app ki. Code har request pe nayi connection kholta tha aur kabhi band nahi karta tha. Maine finally block me connection close kiya aur redeploy kiya. Ab do load test ke baad bhi app sirf ek-do connections use karta hai aur /health 200 hai."

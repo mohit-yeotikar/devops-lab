@@ -53,34 +53,28 @@
         "The service container is reachable on `localhost:5432` because the job runs directly on the runner and we mapped the port."
       ],
       "explain": {
-        "en": "In this task I added CI with GitHub Actions. On every pull request a job checks out the code, sets up Python 3.12 with a pip cache, runs ruff for linting and runs pytest. The tests use a real Postgres 16 service container, so I also test the database code, not only simple functions. I made a test fail on purpose to see the red check, then fixed it. Now broken code cannot be merged without everyone seeing it.",
-        "hi": "Is task mein maine GitHub Actions se CI add kiya. Har pull request par ek job code checkout karta hai, pip cache ke saath Python 3.12 setup karta hai, linting ke liye ruff chalata hai aur pytest chalata hai. Tests ek asli Postgres 16 service container use karte hain, isliye database wala code bhi test hota hai, sirf simple functions nahi. Maine jaan bujh kar ek test fail karke red check dekha, phir fix kiya. Ab toota hua code bina sabko dikhe merge nahi ho sakta."
+        "en": "In this task I added CI with GitHub Actions. On every pull request a job checks out the code, sets up Python 3.12 with a pip cache, runs ruff for linting and runs pytest. The tests use a real Postgres 16 service container, so I also test the database code, not only simple functions. I made a test fail on purpose to see the red check, then fixed it. Now broken code cannot be merged without everyone seeing it."
       },
       "vocabulary": [
         {
           "term": "CI (continuous integration)",
-          "en": "every change is built and tested automatically",
-          "hi": "har change apne aap build aur test hota hai"
+          "en": "every change is built and tested automatically"
         },
         {
           "term": "workflow",
-          "en": "a YAML file in .github/workflows that GitHub Actions runs",
-          "hi": ".github/workflows mein YAML file jise GitHub Actions chalata hai"
+          "en": "a YAML file in .github/workflows that GitHub Actions runs"
         },
         {
           "term": "runner",
-          "en": "the machine that runs the jobs of a workflow",
-          "hi": "woh machine jo workflow ke jobs chalati hai"
+          "en": "the machine that runs the jobs of a workflow"
         },
         {
           "term": "linter",
-          "en": "a tool that finds mistakes and bad style in code without running it",
-          "hi": "tool jo code chalaye bina galtiyan aur kharab style dhoondhta hai"
+          "en": "a tool that finds mistakes and bad style in code without running it"
         },
         {
           "term": "service container",
-          "en": "a helper container, like a database, that runs next to a CI job",
-          "hi": "helper container, jaise database, jo CI job ke saath chalta hai"
+          "en": "a helper container, like a database, that runs next to a CI job"
         }
       ],
       "interview": [
@@ -154,34 +148,28 @@
         "Image names must be lowercase. If your GitHub user has capital letters, write the owner part in lowercase by hand."
       ],
       "explain": {
-        "en": "In this task I extended the CI pipeline to build, scan and push our images. After the tests pass, a matrix job builds the api and web images with Docker Buildx and the GitHub Actions cache. Trivy scans each image and stops the job on fixable HIGH or CRITICAL findings, so a bad image is never pushed. docker/metadata-action makes clear tags: the PR number, the commit id, main and the version for release tags. The job logs in to ghcr.io with the short-lived GITHUB_TOKEN, so we store no personal token.",
-        "hi": "Is task mein maine CI pipeline ko images build, scan aur push karne ke liye badhaya. Tests pass hone ke baad ek matrix job Docker Buildx aur GitHub Actions cache ke saath api aur web images build karta hai. Trivy har image scan karta hai aur fixable HIGH ya CRITICAL finding milne par job rok deta hai, isliye kharab image kabhi push nahi hoti. docker/metadata-action saaf tags banata hai: PR number, commit id, main aur release tags ke liye version. Job thodi der wale GITHUB_TOKEN se ghcr.io mein login karta hai, isliye koi personal token store nahi karna padta."
+        "en": "In this task I extended the CI pipeline to build, scan and push our images. After the tests pass, a matrix job builds the api and web images with Docker Buildx and the GitHub Actions cache. Trivy scans each image and stops the job on fixable HIGH or CRITICAL findings, so a bad image is never pushed. docker/metadata-action makes clear tags: the PR number, the commit id, main and the version for release tags. The job logs in to ghcr.io with the short-lived GITHUB_TOKEN, so we store no personal token."
       },
       "vocabulary": [
         {
           "term": "matrix",
-          "en": "one job definition that runs many times with different values",
-          "hi": "ek job definition jo alag values ke saath kai baar chalti hai"
+          "en": "one job definition that runs many times with different values"
         },
         {
           "term": "GITHUB_TOKEN",
-          "en": "a token GitHub creates for each workflow run; it ends when the run ends",
-          "hi": "token jo GitHub har workflow run ke liye banata hai; run khatam to token khatam"
+          "en": "a token GitHub creates for each workflow run; it ends when the run ends"
         },
         {
           "term": "Buildx",
-          "en": "the Docker build tool with cache and multi-platform support",
-          "hi": "Docker ka build tool jisme cache aur multi-platform support hai"
+          "en": "the Docker build tool with cache and multi-platform support"
         },
         {
           "term": "needs",
-          "en": "a workflow setting that makes a job wait for another job",
-          "hi": "workflow setting jo ek job ko dusre job ka intezaar karwati hai"
+          "en": "a workflow setting that makes a job wait for another job"
         },
         {
           "term": "immutable tag",
-          "en": "a tag that always points to the same image, like a commit id",
-          "hi": "tag jo hamesha ek hi image ko point karta hai, jaise commit id"
+          "en": "a tag that always points to the same image, like a commit id"
         }
       ],
       "interview": [
@@ -252,34 +240,28 @@
         "Tag only commits that are already on main and green."
       ],
       "explain": {
-        "en": "In this task I protected the main branch with a GitHub ruleset. Direct pushes and force pushes are blocked, and a pull request can merge only when the test and build checks are green. I tested the rule with a direct push and it was rejected. Then I started semantic versioning: I wrote a changelog, pushed the annotated tag v0.2.0, and CI made the image tags 0.2.0 and 0.2. Last, I created a GitHub release with generated notes and wrote the release steps down.",
-        "hi": "Is task mein maine GitHub ruleset se main branch ko protect kiya. Direct push aur force push block hain, aur pull request tabhi merge hoga jab test aur build checks green honge. Maine direct push karke rule test kiya aur woh reject hua. Phir semantic versioning shuru ki: changelog likha, annotated tag v0.2.0 push kiya, aur CI ne image tags 0.2.0 aur 0.2 banaye. Aakhir mein generated notes ke saath GitHub release banaya aur release ke steps likh diye."
+        "en": "In this task I protected the main branch with a GitHub ruleset. Direct pushes and force pushes are blocked, and a pull request can merge only when the test and build checks are green. I tested the rule with a direct push and it was rejected. Then I started semantic versioning: I wrote a changelog, pushed the annotated tag v0.2.0, and CI made the image tags 0.2.0 and 0.2. Last, I created a GitHub release with generated notes and wrote the release steps down."
       },
       "vocabulary": [
         {
           "term": "ruleset",
-          "en": "GitHub rules that protect branches, like no direct push",
-          "hi": "GitHub ke rules jo branches ko protect karte hain, jaise direct push mana"
+          "en": "GitHub rules that protect branches, like no direct push"
         },
         {
           "term": "status check",
-          "en": "a CI result that GitHub shows on a pull request",
-          "hi": "CI ka result jo GitHub pull request par dikhata hai"
+          "en": "a CI result that GitHub shows on a pull request"
         },
         {
           "term": "semantic versioning",
-          "en": "version numbers MAJOR.MINOR.PATCH that show what kind of change it is",
-          "hi": "MAJOR.MINOR.PATCH version numbers jo batate hain change kis type ka hai"
+          "en": "version numbers MAJOR.MINOR.PATCH that show what kind of change it is"
         },
         {
           "term": "annotated tag",
-          "en": "a git tag with a message, an author and a date",
-          "hi": "message, author aur date wala git tag"
+          "en": "a git tag with a message, an author and a date"
         },
         {
           "term": "changelog",
-          "en": "a file that lists what changed in each version",
-          "hi": "file jo batati hai har version mein kya badla"
+          "en": "a file that lists what changed in each version"
         }
       ],
       "interview": [
@@ -354,34 +336,28 @@
         "In companies you would use a Multibranch Pipeline, so every branch and PR gets its own build."
       ],
       "explain": {
-        "en": "In this task I built the same pipeline in Jenkins, because many companies use it. I made a Jenkins image with the Docker CLI and ran it in Docker with the host Docker socket. My Jenkinsfile has four stages: lint and test inside a python:3.12-slim container, build both images, scan them with the Trivy image, and push them to ghcr.io. The registry token is a Jenkins credential, used with withCredentials, so it is masked in the logs. The job reads the Jenkinsfile from GitHub and polls for changes every five minutes.",
-        "hi": "Is task mein maine wahi pipeline Jenkins mein banayi, kyunki bahut companies Jenkins use karti hain. Maine Docker CLI wali Jenkins image banayi aur host ke Docker socket ke saath Docker mein chalayi. Mere Jenkinsfile mein chaar stages hain: python:3.12-slim container ke andar lint aur test, dono images build, Trivy image se scan, aur ghcr.io par push. Registry token Jenkins credential hai jo withCredentials se use hota hai, isliye logs mein masked dikhta hai. Job GitHub se Jenkinsfile padhta hai aur har paanch minute mein changes check karta hai."
+        "en": "In this task I built the same pipeline in Jenkins, because many companies use it. I made a Jenkins image with the Docker CLI and ran it in Docker with the host Docker socket. My Jenkinsfile has four stages: lint and test inside a python:3.12-slim container, build both images, scan them with the Trivy image, and push them to ghcr.io. The registry token is a Jenkins credential, used with withCredentials, so it is masked in the logs. The job reads the Jenkinsfile from GitHub and polls for changes every five minutes."
       },
       "vocabulary": [
         {
           "term": "Jenkinsfile",
-          "en": "a file in the repo that describes a Jenkins pipeline as code",
-          "hi": "repo mein file jo Jenkins pipeline ko code ki tarah describe karti hai"
+          "en": "a file in the repo that describes a Jenkins pipeline as code"
         },
         {
           "term": "stage",
-          "en": "one named step group in a pipeline, like Build or Scan",
-          "hi": "pipeline mein ek naam wala steps ka group, jaise Build ya Scan"
+          "en": "one named step group in a pipeline, like Build or Scan"
         },
         {
           "term": "credentials",
-          "en": "secrets that Jenkins stores safely and gives to a job when needed",
-          "hi": "secrets jo Jenkins safe rakhta hai aur zaroorat par job ko deta hai"
+          "en": "secrets that Jenkins stores safely and gives to a job when needed"
         },
         {
           "term": "Poll SCM",
-          "en": "Jenkins checks the repo on a schedule and builds when it changed",
-          "hi": "Jenkins schedule par repo check karta hai aur change hone par build karta hai"
+          "en": "Jenkins checks the repo on a schedule and builds when it changed"
         },
         {
           "term": "Docker socket",
-          "en": "the file /var/run/docker.sock that lets a program control Docker",
-          "hi": "/var/run/docker.sock file jisse koi program Docker ko control kar sakta hai"
+          "en": "the file /var/run/docker.sock that lets a program control Docker"
         }
       ],
       "interview": [
@@ -448,29 +424,24 @@
         "Keep it short. People read it when a check is red and they are in a hurry."
       ],
       "explain": {
-        "en": "In this task I documented our two CI/CD pipelines. The page shows the flow from pull request to image push, what each job checks and which image tags each event makes. I listed every secret, where it is stored and when it expires. I wrote clear steps for what to do when a check is red, and how to make a release. I also compared GitHub Actions and Jenkins in a small table and added a CI badge to the README.",
-        "hi": "Is task mein maine apni do CI/CD pipelines ka documentation likha. Page par pull request se image push tak ka flow hai, har job kya check karta hai aur har event se kaunse image tags bante hain. Har secret ki list banayi, woh kahan store hai aur kab expire hoga. Check red hone par kya karna hai aur release kaise karni hai, iske saaf steps likhe. GitHub Actions aur Jenkins ki ek chhoti comparison table bhi banayi aur README mein CI badge lagaya."
+        "en": "In this task I documented our two CI/CD pipelines. The page shows the flow from pull request to image push, what each job checks and which image tags each event makes. I listed every secret, where it is stored and when it expires. I wrote clear steps for what to do when a check is red, and how to make a release. I also compared GitHub Actions and Jenkins in a small table and added a CI badge to the README."
       },
       "vocabulary": [
         {
           "term": "CD (continuous delivery)",
-          "en": "every green change is ready to be released at any time",
-          "hi": "har green change kabhi bhi release hone ke liye ready rehta hai"
+          "en": "every green change is ready to be released at any time"
         },
         {
           "term": "badge",
-          "en": "a small image in the README that shows the pipeline status",
-          "hi": "README mein chhoti image jo pipeline ka status dikhati hai"
+          "en": "a small image in the README that shows the pipeline status"
         },
         {
           "term": "token expiry",
-          "en": "the date after which a token stops working",
-          "hi": "woh date jiske baad token kaam karna band kar deta hai"
+          "en": "the date after which a token stops working"
         },
         {
           "term": "trigger",
-          "en": "the event that starts a pipeline, like a push or a tag",
-          "hi": "woh event jo pipeline start karta hai, jaise push ya tag"
+          "en": "the event that starts a pipeline, like a push or a tag"
         }
       ],
       "interview": [

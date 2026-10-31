@@ -53,15 +53,14 @@
         "RDS free tier includes 750 hours per month of one micro instance. A one-hour test instance is fine, but delete it the same day."
       ],
       "explain": {
-        "en": "In this task I configured automated backups for our RDS Postgres database with Terraform, with a 7-day retention and a backup window at night. Then I did a real restore test. I added a test row, did a point-in-time restore to a new instance, and checked that the row and the row count were correct. I measured the time, so now we know our restore takes about this many minutes. After the test I deleted the test instance to keep the cost at zero. I wrote everything in a restore test report.",
-        "hi": "Is task mein maine Terraform se RDS Postgres database ke automated backups configure kiye, 7 din retention aur raat ka backup window. Phir ek asli restore test kiya. Ek test row add ki, naye instance par point-in-time restore kiya, aur check kiya ki row aur row count sahi hain. Time measure kiya, ab hume pata hai ki restore mein kitne minute lagte hain. Test ke baad test instance delete kiya taaki cost zero rahe. Sab kuch ek restore test report mein likha."
+        "en": "In this task I configured automated backups for our RDS Postgres database with Terraform, with a 7-day retention and a backup window at night. Then I did a real restore test. I added a test row, did a point-in-time restore to a new instance, and checked that the row and the row count were correct. I measured the time, so now we know our restore takes about this many minutes. After the test I deleted the test instance to keep the cost at zero. I wrote everything in a restore test report."
       },
       "vocabulary": [
-        { "term": "point-in-time recovery", "en": "restoring the database to any second inside the retention period", "hi": "retention period ke andar kisi bhi second par database ko restore karna" },
-        { "term": "snapshot", "en": "a full copy of the database disk at one moment", "hi": "ek pal par database disk ki poori copy" },
-        { "term": "RTO", "en": "Recovery Time Objective; how long it may take to be back online", "hi": "Recovery Time Objective; wapas online aane mein kitna time lag sakta hai" },
-        { "term": "RPO", "en": "Recovery Point Objective; how much data we may lose, in time", "hi": "Recovery Point Objective; kitne time ka data kho sakte hain" },
-        { "term": "retention period", "en": "how many days backups are kept", "hi": "backups kitne din tak rakhe jaate hain" }
+        { "term": "point-in-time recovery", "en": "restoring the database to any second inside the retention period" },
+        { "term": "snapshot", "en": "a full copy of the database disk at one moment" },
+        { "term": "RTO", "en": "Recovery Time Objective; how long it may take to be back online" },
+        { "term": "RPO", "en": "Recovery Point Objective; how much data we may lose, in time" },
+        { "term": "retention period", "en": "how many days backups are kept" }
       ],
       "interview": [
         { "q": "How do you know your backups work?", "a": "I test them. I did a point-in-time restore of our RDS database to a new instance and checked a test row and the row count. I measured how long it took. A backup is only useful if the restore works, so we repeat this test every three months." },
@@ -115,15 +114,14 @@
         "S3 free tier is 5 GB. A small app dump is a few MB, so 14 days is far below the limit."
       ],
       "explain": {
-        "en": "In this task I added a second kind of backup: a nightly pg_dump of the ShopNotes database to S3. I wrote a small bash script with set -euo pipefail, so it stops on any error, and I run it with cron at 2 AM Indian time. The EC2 instance role can only put files in one folder of the bucket, and there are no access keys on the server. A lifecycle rule deletes dumps older than 14 days, so the cost stays low. I also restored one dump into a local Postgres in Docker to prove it works.",
-        "hi": "Is task mein maine doosri tarah ka backup add kiya: ShopNotes database ka raat ka pg_dump S3 mein. Ek chhota bash script likha set -euo pipefail ke saath, taaki koi bhi error aaye to ruk jaaye, aur use cron se raat 2 baje Indian time par chalaya. EC2 instance role sirf bucket ke ek folder mein file daal sakta hai, aur server par koi access key nahi hai. Lifecycle rule 14 din se purane dumps delete kar deta hai, isliye cost kam rehti hai. Ek dump ko Docker wale local Postgres mein restore karke prove bhi kiya ki ye kaam karta hai."
+        "en": "In this task I added a second kind of backup: a nightly pg_dump of the ShopNotes database to S3. I wrote a small bash script with set -euo pipefail, so it stops on any error, and I run it with cron at 2 AM Indian time. The EC2 instance role can only put files in one folder of the bucket, and there are no access keys on the server. A lifecycle rule deletes dumps older than 14 days, so the cost stays low. I also restored one dump into a local Postgres in Docker to prove it works."
       },
       "vocabulary": [
-        { "term": "pg_dump", "en": "a Postgres tool that writes the database into a file", "hi": "Postgres ka tool jo database ko ek file mein likhta hai" },
-        { "term": "cron", "en": "a Linux service that runs commands on a schedule", "hi": "Linux service jo schedule par commands chalati hai" },
-        { "term": "lifecycle rule", "en": "an S3 rule that deletes or moves old files automatically", "hi": "S3 rule jo purani files ko khud delete ya move kar deta hai" },
-        { "term": "logical backup", "en": "a backup of tables and data as SQL objects, not the disk", "hi": "tables aur data ka SQL objects ki tarah backup, disk ka nahi" },
-        { "term": "instance role", "en": "an IAM role attached to EC2 so it gets temporary keys automatically", "hi": "EC2 se juda IAM role jisse use temporary keys khud mil jaati hain" }
+        { "term": "pg_dump", "en": "a Postgres tool that writes the database into a file" },
+        { "term": "cron", "en": "a Linux service that runs commands on a schedule" },
+        { "term": "lifecycle rule", "en": "an S3 rule that deletes or moves old files automatically" },
+        { "term": "logical backup", "en": "a backup of tables and data as SQL objects, not the disk" },
+        { "term": "instance role", "en": "an IAM role attached to EC2 so it gets temporary keys automatically" }
       ],
       "interview": [
         { "q": "Why do you need pg_dump if RDS already has backups?", "a": "RDS backups can only be restored as a new RDS instance in the same account. A pg_dump file is portable: I can load it into any Postgres, for example on a laptop or in another cloud. It also helps when I need only one table back. So it is a second, independent copy." },
@@ -179,15 +177,14 @@
         "Do chaos tests only on dev or staging, with a plan, and tell the team first."
       ],
       "explain": {
-        "en": "In this project I did planned node maintenance and a release with zero failed requests. First I wrote a change request with the risk and a rollback plan, and it was approved in a pull request. I made the API safe with three replicas spread over nodes, a PodDisruptionBudget, maxUnavailable zero and a preStop sleep. While a curl loop was running, I drained each node and released a new version, and all requests returned 200. Then I ran chaos drills: I killed pods, a whole node and the database pod, and wrote a report with what happened and what we should improve.",
-        "hi": "Is project mein maine planned node maintenance aur ek release kiya, bina ek bhi failed request ke. Pehle risk aur rollback plan ke saath change request likha, aur woh pull request mein approve hua. API ko safe banaya: teen replicas alag nodes par, PodDisruptionBudget, maxUnavailable zero aur preStop sleep. Ek curl loop chalte hue maine har node drain kiya aur naya version release kiya, aur saari requests 200 aayi. Phir chaos drills kiye: pods, ek poora node aur database pod kill kiye, aur report likhi ki kya hua aur kya improve karna chahiye."
+        "en": "In this project I did planned node maintenance and a release with zero failed requests. First I wrote a change request with the risk and a rollback plan, and it was approved in a pull request. I made the API safe with three replicas spread over nodes, a PodDisruptionBudget, maxUnavailable zero and a preStop sleep. While a curl loop was running, I drained each node and released a new version, and all requests returned 200. Then I ran chaos drills: I killed pods, a whole node and the database pod, and wrote a report with what happened and what we should improve."
       },
       "vocabulary": [
-        { "term": "drain", "en": "move all pods away from a node so you can work on it", "hi": "node se saare pods hata dena taaki us par kaam kar sakein" },
-        { "term": "PodDisruptionBudget", "en": "a rule that keeps a minimum number of pods running during planned work", "hi": "rule jo planned kaam ke dauraan kam se kam itne pods chalu rakhta hai" },
-        { "term": "change request", "en": "a written plan for a change, with risk and rollback, approved before work", "hi": "change ka likha hua plan, risk aur rollback ke saath, kaam se pehle approve hota hai" },
-        { "term": "chaos engineering", "en": "breaking things on purpose in a safe way to find weak points", "hi": "safe tareeke se jaan-boojh kar cheezein todna taaki kamzor jagah mile" },
-        { "term": "CHANGELOG", "en": "a file that lists what changed in each version", "hi": "file jisme har version mein kya badla uski list hoti hai" }
+        { "term": "drain", "en": "move all pods away from a node so you can work on it" },
+        { "term": "PodDisruptionBudget", "en": "a rule that keeps a minimum number of pods running during planned work" },
+        { "term": "change request", "en": "a written plan for a change, with risk and rollback, approved before work" },
+        { "term": "chaos engineering", "en": "breaking things on purpose in a safe way to find weak points" },
+        { "term": "CHANGELOG", "en": "a file that lists what changed in each version" }
       ],
       "interview": [
         { "q": "How did you do node maintenance without downtime?", "a": "I ran three API replicas spread over different nodes and added a PodDisruptionBudget with minAvailable 2. Then I cordoned and drained one node at a time. The PDB made sure at least two pods were always running. A curl loop during the work showed only HTTP 200 answers." },
@@ -239,15 +236,14 @@
         "Look at the Google SRE postmortem examples to see the style."
       ],
       "explain": {
-        "en": "In this task I wrote our on-call documentation. I defined three severity levels and an escalation path, so everyone knows how fast to act and who to call. I wrote one runbook for every alert we have, with the same sections and the real commands we use. Each alert links to its runbook. I also made a blameless postmortem template and filled it for the CrashLoopBackOff incident. Blameless means we look for problems in the system and the process, not for a person to blame.",
-        "hi": "Is task mein maine hamari on-call documentation likhi. Teen severity levels aur ek escalation path define kiya, taaki sabko pata ho kitni jaldi act karna hai aur kisko call karna hai. Har alert ke liye ek runbook likha, same sections aur asli commands ke saath. Har alert apne runbook se linked hai. Ek blameless postmortem template bhi banaya aur CrashLoopBackOff incident ke liye bhara. Blameless ka matlab hai hum system aur process mein problem dhoondhte hain, kisi insaan ko blame nahi karte."
+        "en": "In this task I wrote our on-call documentation. I defined three severity levels and an escalation path, so everyone knows how fast to act and who to call. I wrote one runbook for every alert we have, with the same sections and the real commands we use. Each alert links to its runbook. I also made a blameless postmortem template and filled it for the CrashLoopBackOff incident. Blameless means we look for problems in the system and the process, not for a person to blame."
       },
       "vocabulary": [
-        { "term": "on-call", "en": "being the person who answers alerts during a shift, also at night", "hi": "shift ke dauraan alerts ka jawab dene wala insaan hona, raat mein bhi" },
-        { "term": "severity", "en": "how serious an incident is, for example SEV1 to SEV3", "hi": "incident kitna serious hai, jaise SEV1 se SEV3" },
-        { "term": "escalation", "en": "asking a more senior person for help when you cannot fix it fast", "hi": "jaldi fix na ho to senior insaan se madad maangna" },
-        { "term": "postmortem", "en": "a written review after an incident to learn and prevent it again", "hi": "incident ke baad likha review taaki seekh sakein aur dobara na ho" },
-        { "term": "blameless", "en": "looking at systems and process, not blaming a person", "hi": "system aur process ko dekhna, kisi insaan ko blame nahi karna" }
+        { "term": "on-call", "en": "being the person who answers alerts during a shift, also at night" },
+        { "term": "severity", "en": "how serious an incident is, for example SEV1 to SEV3" },
+        { "term": "escalation", "en": "asking a more senior person for help when you cannot fix it fast" },
+        { "term": "postmortem", "en": "a written review after an incident to learn and prevent it again" },
+        { "term": "blameless", "en": "looking at systems and process, not blaming a person" }
       ],
       "interview": [
         { "q": "What is a blameless postmortem?", "a": "It is a review after an incident where we do not blame a person. We ask why the system allowed the mistake and how to make it safer. People then share the full truth without fear. The result is a list of action items with owners and dates." },
@@ -300,15 +296,14 @@
         "In Python, use `with` blocks or `try/finally` so the connection is always given back, even when an error happens."
       ],
       "explain": {
-        "en": "In this incident the API became slow and then failed under load with database connection errors, while CPU and memory looked normal. I checked pg_stat_activity in Postgres and counted the connections and their state. I compared the number of app copies times the pool size with max_connections. Then I read the app code and found the one reason why connections were not given back. I fixed it and the connections stayed stable under the same load. I wrote a blameless postmortem with the numbers and action items, like an alert on active connections.",
-        "hi": "Is incident mein load par API pehle slow hui aur phir database connection errors ke saath fail hui, jabki CPU aur memory normal the. Maine Postgres mein pg_stat_activity check kiya aur connections aur unki state count ki. App copies guna pool size ko max_connections se compare kiya. Phir app code padha aur woh ek wajah mili jiski wajah se connections wapas nahi ho rahe the. Fix kiya aur same load par connections stable rahe. Numbers aur action items ke saath blameless postmortem likha, jaise active connections par alert."
+        "en": "In this incident the API became slow and then failed under load with database connection errors, while CPU and memory looked normal. I checked pg_stat_activity in Postgres and counted the connections and their state. I compared the number of app copies times the pool size with max_connections. Then I read the app code and found the one reason why connections were not given back. I fixed it and the connections stayed stable under the same load. I wrote a blameless postmortem with the numbers and action items, like an alert on active connections."
       },
       "vocabulary": [
-        { "term": "connection pool", "en": "a group of open DB connections that the app reuses", "hi": "khule DB connections ka group jo app dobara use karta hai" },
-        { "term": "max_connections", "en": "the most connections Postgres accepts at the same time", "hi": "Postgres ek saath zyada se zyada kitne connections leta hai" },
-        { "term": "pg_stat_activity", "en": "a Postgres view that shows every connection and what it does", "hi": "Postgres view jo har connection aur woh kya kar raha hai dikhata hai" },
-        { "term": "idle in transaction", "en": "a connection that started a transaction and is waiting without finishing it", "hi": "connection jisne transaction shuru kiya aur bina khatam kiye wait kar raha hai" },
-        { "term": "PgBouncer", "en": "a small proxy that shares few DB connections between many clients", "hi": "chhota proxy jo kam DB connections ko bahut clients mein share karta hai" }
+        { "term": "connection pool", "en": "a group of open DB connections that the app reuses" },
+        { "term": "max_connections", "en": "the most connections Postgres accepts at the same time" },
+        { "term": "pg_stat_activity", "en": "a Postgres view that shows every connection and what it does" },
+        { "term": "idle in transaction", "en": "a connection that started a transaction and is waiting without finishing it" },
+        { "term": "PgBouncer", "en": "a small proxy that shares few DB connections between many clients" }
       ],
       "interview": [
         { "q": "The app shows 'too many connections'. What do you check?", "a": "First I check max_connections in Postgres and count the connections in pg_stat_activity by state. Then I calculate app copies times pool size and compare. I also look for idle in transaction connections, which mean the code does not finish its transactions. This tells me if the problem is the pool size or a connection leak." },

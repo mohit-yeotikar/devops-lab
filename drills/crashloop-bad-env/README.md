@@ -50,8 +50,6 @@ kubectl -n shopnotes-crashloop get pods -w          # the app pod shows CrashLoo
 - `kubectl -n shopnotes-crashloop logs deploy/shopnotes-app --previous`
 - Read the value of `DATABASE_URL` letter by letter.
 
-> Hinglish: Container baar baar gir raha hai toh pehle uske last logs padho, error wahi likha hota hai.
-
 ## Clean up
 
 ```bash

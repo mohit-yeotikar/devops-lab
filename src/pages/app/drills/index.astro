@@ -8,7 +8,7 @@ const best = new Map<string, string>(); res.forEach((r) => { if (!best.has(r.dri
 ---
 <Base title="Incident drills">
   <h1>Incident drills</h1>
-  <p class="sub">A broken system starts on your laptop. Users are angry. Find the cause and fix it, like an on-call engineer. <span class="hi">Server kharab hai, tumhe dhundhna hai kyun. Jaise real on-call.</span></p>
+  <p class="sub">A broken system starts on your laptop. Users are angry. Find the cause and fix it, like an on-call engineer.</p>
   <div class="card"><strong>Before you start:</strong> clone the lab repo once: <code>git clone https://github.com/mohit-yeotikar/devops-lab.git</code>, then <code>cd devops-lab/drills/&lt;name&gt;</code> and <code>docker compose up -d</code>. Do not open SOLUTION.md until you submit.</div>
   <div class="grid">
     {drills.map((d) => <a class="card" href={`/app/drills/${d.name}`}>

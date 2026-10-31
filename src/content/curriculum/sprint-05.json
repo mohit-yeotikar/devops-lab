@@ -54,34 +54,28 @@
         "Never edit or delete the state file by hand. Use `terraform state` commands."
       ],
       "explain": {
-        "en": "In this task I prepared Terraform for the team. I installed Terraform 1.x from the HashiCorp apt repo and deleted the hand-made AWS resources from the last sprint. Then I created the remote state: an S3 bucket with versioning, default encryption and all public access blocked, and a DynamoDB table with the LockID key for state locking. I wrote the S3 backend block and default tags for every resource, and ran terraform init. I know that newer Terraform can also lock with use_lockfile in S3 without DynamoDB.",
-        "hi": "Is task mein maine team ke liye Terraform ready kiya. HashiCorp apt repo se Terraform 1.x install kiya aur pichle sprint ke haath se bane AWS resources delete kiye. Phir remote state banaya: versioning, default encryption aur public access block wala S3 bucket, aur state locking ke liye LockID key wala DynamoDB table. S3 backend block aur har resource ke liye default tags likhe, aur terraform init chalaya. Mujhe pata hai ki naye Terraform mein DynamoDB ke bina S3 mein use_lockfile se bhi lock ho sakta hai."
+        "en": "In this task I prepared Terraform for the team. I installed Terraform 1.x from the HashiCorp apt repo and deleted the hand-made AWS resources from the last sprint. Then I created the remote state: an S3 bucket with versioning, default encryption and all public access blocked, and a DynamoDB table with the LockID key for state locking. I wrote the S3 backend block and default tags for every resource, and ran terraform init. I know that newer Terraform can also lock with use_lockfile in S3 without DynamoDB."
       },
       "vocabulary": [
         {
           "term": "Infrastructure as Code",
-          "en": "writing servers and networks in files, so a tool can create them the same way every time",
-          "hi": "servers aur network ko files mein likhna, taaki tool har baar same tarah bana sake"
+          "en": "writing servers and networks in files, so a tool can create them the same way every time"
         },
         {
           "term": "state file",
-          "en": "Terraform's record of what it created and the real ids",
-          "hi": "Terraform ka record ki usne kya banaya aur unki asli ids kya hain"
+          "en": "Terraform's record of what it created and the real ids"
         },
         {
           "term": "remote backend",
-          "en": "a shared place, like S3, where the state file is stored",
-          "hi": "shared jagah, jaise S3, jahan state file rakhi jaati hai"
+          "en": "a shared place, like S3, where the state file is stored"
         },
         {
           "term": "state lock",
-          "en": "a lock that stops two people from changing the state at the same time",
-          "hi": "lock jo do logon ko ek saath state badalne se rokta hai"
+          "en": "a lock that stops two people from changing the state at the same time"
         },
         {
           "term": "bucket versioning",
-          "en": "S3 keeps old versions of every file, so you can go back",
-          "hi": "S3 har file ke purane versions rakhta hai, taaki wapas ja saken"
+          "en": "S3 keeps old versions of every file, so you can go back"
         }
       ],
       "interview": [
@@ -160,39 +154,32 @@
         "Use `terraform console` to test expressions like `cidrsubnet(\"10.0.0.0/16\", 8, 11)`."
       ],
       "explain": {
-        "en": "In this task I wrote our 3-tier AWS setup as Terraform code with three modules: network, app and database. The network module makes the VPC, the public and private subnets, the routes and an optional NAT instance. The app module makes the Ubuntu server, its security group rules and an optional load balancer, and the database module makes RDS PostgreSQL in the private subnets. I used count with true or false switches for the parts that cost money, and separate security group rule resources. I applied it, tested the app through the load balancer, and destroyed everything the same day.",
-        "hi": "Is task mein maine apna 3-tier AWS setup Terraform code mein teen modules ke saath likha: network, app aur database. Network module VPC, public aur private subnets, routes aur optional NAT instance banata hai. App module Ubuntu server, uske security group rules aur optional load balancer banata hai, aur database module private subnets mein RDS PostgreSQL banata hai. Paise lene wale parts ke liye true ya false switch ke saath count use kiya, aur security group rules ke alag resources banaye. Maine apply kiya, load balancer se app test kiya, aur usi din sab destroy kar diya."
+        "en": "In this task I wrote our 3-tier AWS setup as Terraform code with three modules: network, app and database. The network module makes the VPC, the public and private subnets, the routes and an optional NAT instance. The app module makes the Ubuntu server, its security group rules and an optional load balancer, and the database module makes RDS PostgreSQL in the private subnets. I used count with true or false switches for the parts that cost money, and separate security group rule resources. I applied it, tested the app through the load balancer, and destroyed everything the same day."
       },
       "vocabulary": [
         {
           "term": "module",
-          "en": "a folder of Terraform code with inputs and outputs that you can reuse",
-          "hi": "Terraform code ka folder jiske inputs aur outputs hote hain aur jise dobara use kar sakte hain"
+          "en": "a folder of Terraform code with inputs and outputs that you can reuse"
         },
         {
           "term": "count",
-          "en": "a Terraform setting that makes 0, 1 or many copies of a resource",
-          "hi": "Terraform setting jo resource ki 0, 1 ya kai copies banati hai"
+          "en": "a Terraform setting that makes 0, 1 or many copies of a resource"
         },
         {
           "term": "data source",
-          "en": "Terraform reads existing information, like the newest AMI, without creating it",
-          "hi": "Terraform pehle se maujood jaankari padhta hai, jaise newest AMI, bina kuch banaye"
+          "en": "Terraform reads existing information, like the newest AMI, without creating it"
         },
         {
           "term": "plan",
-          "en": "Terraform shows what it will add, change or destroy before it does it",
-          "hi": "Terraform karne se pehle dikhata hai ki kya add, change ya destroy karega"
+          "en": "Terraform shows what it will add, change or destroy before it does it"
         },
         {
           "term": "output",
-          "en": "a value a module or the root gives back, like an IP or a DNS name",
-          "hi": "value jo module ya root wapas deta hai, jaise IP ya DNS naam"
+          "en": "a value a module or the root gives back, like an IP or a DNS name"
         },
         {
           "term": "sensitive variable",
-          "en": "a variable Terraform hides in the plan and output",
-          "hi": "variable jise Terraform plan aur output mein chhupa deta hai"
+          "en": "a variable Terraform hides in the plan and output"
         }
       ],
       "interview": [
@@ -264,34 +251,28 @@
         "Some teams use one folder per environment instead of workspaces. Be ready to explain both."
       ],
       "explain": {
-        "en": "In this task I set up two environments, dev and prod, with Terraform workspaces. Each workspace has its own state file in S3 under env:/ and its own tfvars file, so the same code makes different setups. Dev is private with a NAT instance, and prod is one public server with an Elastic IP, because in the next sprint it gets a Let's Encrypt certificate. Every resource has the workspace name in its name and in the Env tag. I wrote up.sh and down.sh scripts and destroyed the environments every evening to stay free.",
-        "hi": "Is task mein maine Terraform workspaces se do environments banaye, dev aur prod. Har workspace ki apni state file S3 mein env:/ ke neeche hai aur apni tfvars file hai, isliye ek hi code se alag setups bante hain. Dev private hai NAT instance ke saath, aur prod ek public server hai Elastic IP ke saath, kyunki agle sprint mein use Let's Encrypt certificate milega. Har resource ke naam aur Env tag mein workspace ka naam hai. Maine up.sh aur down.sh scripts likhi aur free rehne ke liye har shaam environments destroy kiye."
+        "en": "In this task I set up two environments, dev and prod, with Terraform workspaces. Each workspace has its own state file in S3 under env:/ and its own tfvars file, so the same code makes different setups. Dev is private with a NAT instance, and prod is one public server with an Elastic IP, because in the next sprint it gets a Let's Encrypt certificate. Every resource has the workspace name in its name and in the Env tag. I wrote up.sh and down.sh scripts and destroyed the environments every evening to stay free."
       },
       "vocabulary": [
         {
           "term": "workspace",
-          "en": "a separate state for the same Terraform code, like dev and prod",
-          "hi": "ek hi Terraform code ke liye alag state, jaise dev aur prod"
+          "en": "a separate state for the same Terraform code, like dev and prod"
         },
         {
           "term": "tfvars file",
-          "en": "a file with values for Terraform variables for one environment",
-          "hi": "ek environment ke Terraform variables ki values wali file"
+          "en": "a file with values for Terraform variables for one environment"
         },
         {
           "term": "environment",
-          "en": "one full copy of the system, like dev for tests or prod for users",
-          "hi": "system ki ek poori copy, jaise tests ke liye dev ya users ke liye prod"
+          "en": "one full copy of the system, like dev for tests or prod for users"
         },
         {
           "term": "Elastic IP",
-          "en": "a fixed public IP address that you can attach to an instance",
-          "hi": "fixed public IP address jo instance se jod sakte hain"
+          "en": "a fixed public IP address that you can attach to an instance"
         },
         {
           "term": "tag",
-          "en": "a key and value label on an AWS resource, like Env=dev",
-          "hi": "AWS resource par key aur value wala label, jaise Env=dev"
+          "en": "a key and value label on an AWS resource, like Env=dev"
         }
       ],
       "interview": [
@@ -366,34 +347,28 @@
         "The plan job uses `TF_WORKSPACE=dev`, so the dev workspace must already exist from OPS-503."
       ],
       "explain": {
-        "en": "In this task I added terraform plan to our pull requests without storing any AWS keys in GitHub. I created an OIDC identity provider for GitHub in IAM and a role that only pull request runs of our repo can assume. The role has ReadOnlyAccess plus a small inline policy for the DynamoDB state lock. The workflow runs fmt, validate and plan for the dev workspace and posts the plan as a comment on the pull request. I tested that a write action in CI is denied, and I removed the temporary IAM rights from my user afterwards.",
-        "hi": "Is task mein maine bina koi AWS key GitHub mein rakhe pull requests par terraform plan add kiya. IAM mein GitHub ke liye OIDC identity provider banaya aur ek role banaya jise sirf hamare repo ke pull request runs assume kar sakte hain. Role ke paas ReadOnlyAccess hai aur DynamoDB state lock ke liye chhoti inline policy. Workflow dev workspace ke liye fmt, validate aur plan chalata hai aur plan ko pull request par comment ki tarah daalta hai. Maine test kiya ki CI mein write action deny hota hai, aur baad mein apne user se temporary IAM rights hata diye."
+        "en": "In this task I added terraform plan to our pull requests without storing any AWS keys in GitHub. I created an OIDC identity provider for GitHub in IAM and a role that only pull request runs of our repo can assume. The role has ReadOnlyAccess plus a small inline policy for the DynamoDB state lock. The workflow runs fmt, validate and plan for the dev workspace and posts the plan as a comment on the pull request. I tested that a write action in CI is denied, and I removed the temporary IAM rights from my user afterwards."
       },
       "vocabulary": [
         {
           "term": "OIDC",
-          "en": "a standard where GitHub proves who is running a job, so AWS can give a short-lived role",
-          "hi": "standard jisme GitHub prove karta hai ki job kaun chala raha hai, taaki AWS thodi der ka role de sake"
+          "en": "a standard where GitHub proves who is running a job, so AWS can give a short-lived role"
         },
         {
           "term": "IAM role",
-          "en": "a set of permissions that someone can use for a short time, with no long-term keys",
-          "hi": "permissions ka set jise koi thodi der use kar sakta hai, bina lambi keys ke"
+          "en": "a set of permissions that someone can use for a short time, with no long-term keys"
         },
         {
           "term": "trust policy",
-          "en": "the part of a role that says who is allowed to use it",
-          "hi": "role ka woh hissa jo batata hai ki use kaun use kar sakta hai"
+          "en": "the part of a role that says who is allowed to use it"
         },
         {
           "term": "short-lived credentials",
-          "en": "keys that stop working after a short time, like one hour",
-          "hi": "keys jo thodi der baad, jaise ek ghante mein, kaam karna band kar deti hain"
+          "en": "keys that stop working after a short time, like one hour"
         },
         {
           "term": "plan comment",
-          "en": "the terraform plan output posted on the pull request for reviewers",
-          "hi": "terraform plan ka output jo reviewers ke liye pull request par daala jaata hai"
+          "en": "the terraform plan output posted on the pull request for reviewers"
         }
       ],
       "interview": [
@@ -468,34 +443,28 @@
         "`docker compose up -d --wait` waits until the health checks are healthy."
       ],
       "explain": {
-        "en": "In this task I handled a P1 incident where every page showed 502 Bad Gateway. I knew 502 means Nginx works but cannot get an answer from the upstream, so I read the Nginx error log and found connection refused to the upstream address. Then I compared the address in the Nginx config with the address the app really listens on, tested both from inside the Nginx container, and fixed the config without touching the app code. I recreated Nginx, ran nginx -t, and check.sh passed. Then I wrote a blameless postmortem and added a smoke test in CI that calls /api/health through Nginx.",
-        "hi": "Is task mein maine ek P1 incident handle kiya jisme har page 502 Bad Gateway dikha raha tha. Mujhe pata tha ki 502 ka matlab Nginx chal raha hai par upstream se jawab nahi mil raha, isliye Nginx ka error log padha aur upstream address par connection refused mila. Phir Nginx config ka address aur app jis address par sach mein sun raha hai, dono compare kiye, Nginx container ke andar se dono test kiye, aur app code chhue bina config fix kiya. Nginx recreate kiya, nginx -t chalaya, aur check.sh pass hua. Phir blameless postmortem likha aur CI mein smoke test add kiya jo Nginx ke through /api/health call karta hai."
+        "en": "In this task I handled a P1 incident where every page showed 502 Bad Gateway. I knew 502 means Nginx works but cannot get an answer from the upstream, so I read the Nginx error log and found connection refused to the upstream address. Then I compared the address in the Nginx config with the address the app really listens on, tested both from inside the Nginx container, and fixed the config without touching the app code. I recreated Nginx, ran nginx -t, and check.sh passed. Then I wrote a blameless postmortem and added a smoke test in CI that calls /api/health through Nginx."
       },
       "vocabulary": [
         {
           "term": "502 Bad Gateway",
-          "en": "the proxy could not get a good answer from the server behind it",
-          "hi": "proxy ko peeche wale server se sahi jawab nahi mila"
+          "en": "the proxy could not get a good answer from the server behind it"
         },
         {
           "term": "upstream",
-          "en": "the server that Nginx sends requests to",
-          "hi": "woh server jise Nginx requests bhejta hai"
+          "en": "the server that Nginx sends requests to"
         },
         {
           "term": "postmortem",
-          "en": "a written review after an incident: what happened, why, and how to stop it",
-          "hi": "incident ke baad likha review: kya hua, kyun hua, aur dobara kaise rokein"
+          "en": "a written review after an incident: what happened, why, and how to stop it"
         },
         {
           "term": "blameless",
-          "en": "we look for the broken process, not for a person to blame",
-          "hi": "hum toota hua process dhoondhte hain, kisi insaan ko blame nahi karte"
+          "en": "we look for the broken process, not for a person to blame"
         },
         {
           "term": "smoke test",
-          "en": "a quick test after a build or deploy that checks the main path works",
-          "hi": "build ya deploy ke baad chhota test jo check karta hai ki main raasta chal raha hai"
+          "en": "a quick test after a build or deploy that checks the main path works"
         }
       ],
       "interview": [

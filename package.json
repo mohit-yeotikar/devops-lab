@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
-    "deploy": "astro build && wrangler deploy",
+    "deploy": "astro build && wrangler d1 migrations apply devops-lab --remote && wrangler deploy",
     "db:local": "wrangler d1 migrations apply devops-lab --local",
     "db:remote": "wrangler d1 migrations apply devops-lab --remote",
     "check": "astro check",

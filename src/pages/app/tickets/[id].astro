@@ -4,6 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import CoachChat from '../../../components/CoachChat.astro';
 import { ticketById, sprintOf, drillFor } from '../../../lib/curriculum';
 import { progressOne, thread, today } from '../../../lib/db';
+import { labs } from '../../../sandbox/labs.js';
 const t = ticketById(Astro.params.id!);
 if (!t) return new Response('Not found', { status: 404 });
 const u = Astro.locals.user!;
@@ -17,6 +18,10 @@ const chat = await thread(db, u.id, `ticket:${t.id}:chat`, 10);
 const drill = t.type === 'incident' ? drillFor(t) : undefined;
 const steps = s.tickets; const idx = steps.findIndex((x) => x.id === t.id);
 const prev = steps[idx - 1], next = steps[idx + 1];
+const allTicked = t.acceptance.length > 0 && t.acceptance.every((_, i) => checked.has(i));
+const stepAt = status === 'todo' ? 0 : status === 'doing' ? (allTicked ? (p?.explain_score != null ? 3 : 2) : 1) : status === 'changes' ? 3 : status === 'review' ? 4 : 5;
+const howSteps = ['Press Start', 'Do the steps on your laptop. Tick "Done means".', 'Explain it in your own words', 'Log hours and submit proof', 'Reviewer checks it'];
+const lab = labs.find((l) => l.sprints.includes(s.id));
 const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<code>$1</code>');
 ---
 <Base title={`${t.key} ${t.title}`}>
@@ -25,6 +30,8 @@ const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<co
     <div><h1>{t.title}</h1><div class="row"><span class={`pill ${t.type}`}>{t.type}</span><span class={`pill ${status}`}>{status === 'changes' ? 'fix needed' : status === 'review' ? 'in review' : status}</span><span class="help">priority {t.priority} · ~{t.estimateHours} h · logged {p?.hours ?? 0} h</span></div></div>
     {status === 'todo' && <form data-api action={`/api/tickets/${t.id}`} method="post"><input type="hidden" name="action" value="start" /><button class="btn" type="submit">Start this ticket</button></form>}
   </div>
+  <ol class="how-ticket" aria-label="Your steps for this ticket">{howSteps.map((h, i) => <li class={i < stepAt ? 'ok' : i === stepAt ? 'on' : ''}>{h}</li>)}</ol>
+  {lab && status !== 'done' && <p class="help">New to these commands? <a href={`/app/practice/${lab.id}`}>Practise "{lab.title}" in the browser first</a> (about {lab.minutes} min).</p>}
   {status === 'changes' && <div class="notice warn"><strong>Reviewer asked for changes:</strong> {p?.reviewer_note}</div>}
   {status === 'done' && <div class="notice ok"><strong>Approved.</strong> {p?.reviewer_note}</div>}
   {status === 'review' && <div class="notice">Submitted. Waiting for the reviewer. You can start the next ticket.</div>}
@@ -48,16 +55,16 @@ const inline = (x: string) => x.replace(/</g, '&lt;').replace(/`([^`]+)`/g, '<co
     </div>
     {t.hints.length > 0 && <details class="card"><summary><strong>Stuck? Open the hints</strong></summary><ul class="steps">{t.hints.map((h) => <li>{h}</li>)}</ul></details>}
     <h2>Words to know</h2>
-    <div class="card"><table><tbody>{t.vocabulary.map((v) => <tr><td><strong>{v.term}</strong></td><td>{v.en}</td><td class="hi">{v.hi}</td></tr>)}</tbody></table></div>
+    <div class="card"><table><tbody>{t.vocabulary.map((v) => <tr><td><strong>{v.term}</strong></td><td>{v.en}</td></tr>)}</tbody></table></div>
     {t.resources.length > 0 && <p class="help">Read: {t.resources.map((r, i) => <>{i > 0 && ' · '}<a href={r.url} target="_blank" rel="noopener">{r.title}</a></>)}</p>}
     <p class="row noprint">{prev && <a class="btn sec" href={`/app/tickets/${prev.id}`}>← {prev.key}</a>}{next && <a class="btn sec" href={`/app/tickets/${next.id}`}>{next.key} →</a>}</p>
   </div>
 
   <div class="tab">
-    <div class="card"><h3 style="margin-top:0">How an engineer says it</h3><p>{t.explain.en}</p><p class="hi">{t.explain.hi}</p></div>
+    <div class="card"><h3 style="margin-top:0">How an engineer says it</h3><p>{t.explain.en}</p></div>
     <div class="card">
       <h3 style="margin-top:0">Now you. Write what you did in your own words.</h3>
-      <p class="help">5 to 7 sentences. Start with "In this task I ...". Mistakes are fine, the coach will fix them. <span class="hi">Apne shabdon me likho. Galti chalegi, coach theek karega.</span></p>
+      <p class="help">5 to 7 sentences. Start with "In this task I ...". Mistakes are fine, the coach will fix them.</p>
       <form data-api action="/api/coach" method="post" data-out="explain-out"><input type="hidden" name="mode" value="explain" /><input type="hidden" name="ticket" value={t.id} />
         <textarea name="text" required minlength="30" placeholder="In this task I ...">{p?.explanation}</textarea>
         <p class="row"><button class="btn" type="submit">Check my explanation</button>{p?.explain_score != null && <span class="help">Last score: {p.explain_score}/10</span>}</p>

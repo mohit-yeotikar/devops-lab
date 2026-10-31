@@ -38,8 +38,6 @@ Open https://localhost:8447/health in a browser too.
 - `openssl x509 -in certs/shopnotes.crt -noout -dates`
 - `echo | openssl s_client -connect localhost:8447 -servername localhost 2>/dev/null | openssl x509 -noout -dates`
 
-> Hinglish: Code sahi hai, server bhi chal raha hai, par certificate ki expiry date nikal gayi. Date check karo.
-
 ## Clean up
 
 ```bash

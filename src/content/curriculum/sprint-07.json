@@ -53,15 +53,14 @@
         "Your machine needs about 4 GB of free RAM for this cluster. Close other heavy apps."
       ],
       "explain": {
-        "en": "In this task I created a local Kubernetes cluster with k3d. k3d runs k3s inside Docker, so it is free and fast. I built the API image with a fixed version tag and imported it into the cluster. I wrote a Deployment with 2 replicas and a ClusterIP Service in front of the pods. I tested it with kubectl port-forward and curl. When I deleted a pod, the Deployment made a new one, so I saw self-healing with my own eyes.",
-        "hi": "Is task mein maine k3d se laptop par ek local Kubernetes cluster banaya. k3d, k3s ko Docker ke andar chalata hai, isliye ye free aur fast hai. Maine API ki image fixed version tag ke saath build ki aur cluster mein import ki. Phir ek Deployment likha jisme 2 replicas hain, aur pods ke aage ek ClusterIP Service lagayi. kubectl port-forward aur curl se test kiya. Jab maine ek pod delete kiya, Deployment ne turant naya pod bana diya, yani self-healing khud dekha."
+        "en": "In this task I created a local Kubernetes cluster with k3d. k3d runs k3s inside Docker, so it is free and fast. I built the API image with a fixed version tag and imported it into the cluster. I wrote a Deployment with 2 replicas and a ClusterIP Service in front of the pods. I tested it with kubectl port-forward and curl. When I deleted a pod, the Deployment made a new one, so I saw self-healing with my own eyes."
       },
       "vocabulary": [
-        { "term": "cluster", "en": "a group of machines (nodes) that Kubernetes controls together", "hi": "machines (nodes) ka group jise Kubernetes ek saath manage karta hai" },
-        { "term": "pod", "en": "the smallest unit in Kubernetes; one or more containers that run together", "hi": "Kubernetes ki sabse chhoti unit; ek ya zyada containers jo saath chalte hain" },
-        { "term": "Deployment", "en": "an object that keeps the wanted number of pods running and updates them", "hi": "ek object jo chahiye utne pods chalu rakhta hai aur unhe update karta hai" },
-        { "term": "Service", "en": "a fixed name and IP that sends traffic to the right pods", "hi": "ek fixed naam aur IP jo traffic sahi pods tak bhejta hai" },
-        { "term": "namespace", "en": "a folder inside the cluster to keep resources apart", "hi": "cluster ke andar ek folder jaisa, resources ko alag rakhne ke liye" }
+        { "term": "cluster", "en": "a group of machines (nodes) that Kubernetes controls together" },
+        { "term": "pod", "en": "the smallest unit in Kubernetes; one or more containers that run together" },
+        { "term": "Deployment", "en": "an object that keeps the wanted number of pods running and updates them" },
+        { "term": "Service", "en": "a fixed name and IP that sends traffic to the right pods" },
+        { "term": "namespace", "en": "a folder inside the cluster to keep resources apart" }
       ],
       "interview": [
         { "q": "What is the difference between a pod and a Deployment?", "a": "A pod is one running copy of my container. If a pod dies, nobody makes it again. A Deployment watches the pods and always keeps the number of replicas I asked for. It also does rolling updates when I change the image." },
@@ -115,15 +114,14 @@
         "Use `kubectl exec -it -n shopnotes postgres-0 -- psql -U shopnotes` to look inside the database."
       ],
       "explain": {
-        "en": "In this task I ran Postgres inside Kubernetes as a StatefulSet. A StatefulSet gives the pod a fixed name, postgres-0, and its own persistent volume. I put normal settings like the DB host in a ConfigMap and the password in a Secret. The API reads both as environment variables. I deleted the database pod and my data was still there, so the volume works. I also learned that a Secret is only base64, so we must control who can read it.",
-        "hi": "Is task mein maine Postgres ko Kubernetes ke andar StatefulSet ki tarah chalaya. StatefulSet pod ko ek fixed naam deta hai, jaise postgres-0, aur uska apna persistent volume. Normal settings jaise DB host maine ConfigMap mein daali aur password Secret mein. API dono ko environment variables ki tarah padhti hai. Maine database pod delete kiya, phir bhi data bacha raha, matlab volume sahi kaam kar raha hai. Ye bhi seekha ki Secret sirf base64 hota hai, isliye access control zaroori hai."
+        "en": "In this task I ran Postgres inside Kubernetes as a StatefulSet. A StatefulSet gives the pod a fixed name, postgres-0, and its own persistent volume. I put normal settings like the DB host in a ConfigMap and the password in a Secret. The API reads both as environment variables. I deleted the database pod and my data was still there, so the volume works. I also learned that a Secret is only base64, so we must control who can read it."
       },
       "vocabulary": [
-        { "term": "StatefulSet", "en": "like a Deployment, but each pod keeps a fixed name and its own disk", "hi": "Deployment jaisa, par har pod ka fixed naam aur apni disk hoti hai" },
-        { "term": "PersistentVolumeClaim (PVC)", "en": "a request from a pod for a piece of disk storage", "hi": "pod ki taraf se disk storage ki request" },
-        { "term": "ConfigMap", "en": "an object that keeps normal settings for the app", "hi": "ek object jisme app ki normal settings rakhte hain" },
-        { "term": "Secret", "en": "an object for passwords and keys; stored as base64, not encrypted by default", "hi": "password aur keys ke liye object; base64 mein hota hai, by default encrypted nahi" },
-        { "term": "headless Service", "en": "a Service with no virtual IP that gives each pod its own DNS name", "hi": "bina virtual IP wali Service jo har pod ko apna DNS naam deti hai" }
+        { "term": "StatefulSet", "en": "like a Deployment, but each pod keeps a fixed name and its own disk" },
+        { "term": "PersistentVolumeClaim (PVC)", "en": "a request from a pod for a piece of disk storage" },
+        { "term": "ConfigMap", "en": "an object that keeps normal settings for the app" },
+        { "term": "Secret", "en": "an object for passwords and keys; stored as base64, not encrypted by default" },
+        { "term": "headless Service", "en": "a Service with no virtual IP that gives each pod its own DNS name" }
       ],
       "interview": [
         { "q": "Why did you use a StatefulSet for Postgres and not a Deployment?", "a": "A database needs its data to stay with the same pod. A StatefulSet gives the pod a fixed name like postgres-0 and a volume that stays with that name. If the pod restarts, it gets the same disk back. A Deployment treats pods as all the same, which is fine for the API but not for a database." },
@@ -179,15 +177,14 @@
         "A wrong liveness probe kills healthy pods. Keep `initialDelaySeconds` long enough for the app to start."
       ],
       "explain": {
-        "en": "In this project I ran the full ShopNotes app on Kubernetes. I used the Traefik Ingress that comes with k3s, so users have one URL, and the frontend Nginx forwards /api to the API Service. I added readiness and liveness probes, so Kubernetes sends traffic only to healthy pods and restarts stuck pods. I set CPU and memory requests and limits on every container. Then I made an HPA and ran a load test, and the API went from 2 to 5 pods by itself. When the load stopped, it went back to 2 pods.",
-        "hi": "Is project mein maine poora ShopNotes app Kubernetes par chalaya. k3s ke saath aane wala Traefik Ingress use kiya, jisse users ke liye ek hi URL hai, aur frontend ka Nginx /api wala traffic API Service ko bhejta hai. Readiness aur liveness probes lagaye, taaki traffic sirf healthy pods ko jaaye aur atke hue pods restart ho jaayein. Har container par CPU aur memory requests aur limits set kiye. Phir HPA banaya aur load test kiya, API khud 2 se 5 pods tak scale hui. Load band hua to wapas 2 pods par aa gayi."
+        "en": "In this project I ran the full ShopNotes app on Kubernetes. I used the Traefik Ingress that comes with k3s, so users have one URL, and the frontend Nginx forwards /api to the API Service. I added readiness and liveness probes, so Kubernetes sends traffic only to healthy pods and restarts stuck pods. I set CPU and memory requests and limits on every container. Then I made an HPA and ran a load test, and the API went from 2 to 5 pods by itself. When the load stopped, it went back to 2 pods."
       },
       "vocabulary": [
-        { "term": "Ingress", "en": "rules that send outside web traffic to the right Service by host and path", "hi": "rules jo bahar ka web traffic host aur path ke hisaab se sahi Service ko bhejte hain" },
-        { "term": "readiness probe", "en": "a check that says if the pod is ready to get traffic", "hi": "check jo batata hai ki pod traffic lene ke liye ready hai ya nahi" },
-        { "term": "liveness probe", "en": "a check that restarts the container if it is stuck", "hi": "check jo container atak jaaye to use restart kar deta hai" },
-        { "term": "requests and limits", "en": "the minimum resources a container gets and the maximum it may use", "hi": "container ko kam se kam kitna resource milega aur zyada se zyada kitna use kar sakta hai" },
-        { "term": "HPA", "en": "Horizontal Pod Autoscaler; it adds or removes pods based on load", "hi": "Horizontal Pod Autoscaler; load ke hisaab se pods badhata ya ghatata hai" }
+        { "term": "Ingress", "en": "rules that send outside web traffic to the right Service by host and path" },
+        { "term": "readiness probe", "en": "a check that says if the pod is ready to get traffic" },
+        { "term": "liveness probe", "en": "a check that restarts the container if it is stuck" },
+        { "term": "requests and limits", "en": "the minimum resources a container gets and the maximum it may use" },
+        { "term": "HPA", "en": "Horizontal Pod Autoscaler; it adds or removes pods based on load" }
       ],
       "interview": [
         { "q": "What is the difference between a readiness probe and a liveness probe?", "a": "The readiness probe decides if a pod gets traffic. If it fails, the pod is removed from the Service but not restarted. The liveness probe decides if the container is alive. If it fails a few times, Kubernetes restarts the container." },
@@ -238,14 +235,13 @@
         "Use the official kubectl quick reference to check flags."
       ],
       "explain": {
-        "en": "In this task I wrote a debugging runbook for Kubernetes. I put the commands in the order we really use them: get, logs, describe, events, exec, and then network checks. I wrote what each pod status means in simple words. I tested every command by breaking the app on purpose, for example with a wrong image tag and a wrong Service selector. Now the developers can fix simple problems without waiting for the DevOps team.",
-        "hi": "Is task mein maine Kubernetes debugging ka runbook likha. Commands usi order mein likhe jaise hum asli mein use karte hain: get, logs, describe, events, exec, aur phir network checks. Har pod status ka matlab simple words mein likha. Har command test kiya, app ko jaan-boojh kar tod kar, jaise galat image tag aur galat Service selector. Ab developers chhoti problems khud fix kar sakte hain, DevOps team ka wait nahi karna padta."
+        "en": "In this task I wrote a debugging runbook for Kubernetes. I put the commands in the order we really use them: get, logs, describe, events, exec, and then network checks. I wrote what each pod status means in simple words. I tested every command by breaking the app on purpose, for example with a wrong image tag and a wrong Service selector. Now the developers can fix simple problems without waiting for the DevOps team."
       },
       "vocabulary": [
-        { "term": "runbook", "en": "a step-by-step guide to check and fix a known problem", "hi": "kisi known problem ko check aur fix karne ki step-by-step guide" },
-        { "term": "events", "en": "short messages from Kubernetes about what happened to an object", "hi": "Kubernetes ke chhote messages ki kisi object ke saath kya hua" },
-        { "term": "endpoints", "en": "the list of pod IPs that a Service sends traffic to", "hi": "un pod IPs ki list jinko Service traffic bhejti hai" },
-        { "term": "exit code 137", "en": "the container was killed, very often because it used too much memory", "hi": "container ko kill kiya gaya, aksar zyada memory use karne ki wajah se" }
+        { "term": "runbook", "en": "a step-by-step guide to check and fix a known problem" },
+        { "term": "events", "en": "short messages from Kubernetes about what happened to an object" },
+        { "term": "endpoints", "en": "the list of pod IPs that a Service sends traffic to" },
+        { "term": "exit code 137", "en": "the container was killed, very often because it used too much memory" }
       ],
       "interview": [
         { "q": "A pod is not working. What do you check first?", "a": "First I run kubectl get pods to see the status and the restart count. Then I check kubectl logs, and if it restarted I use the --previous flag. Then I run kubectl describe pod and read the events at the bottom. These three commands find most problems." },
@@ -299,14 +295,13 @@
         "Exit code 1 usually means the app itself stopped with an error. Exit code 137 means it was killed."
       ],
       "explain": {
-        "en": "In this incident the API kept crashing after a config change. I checked the status and saw many restarts, which is CrashLoopBackOff in Kubernetes. I read the logs of the previous run and found the error message. Then I compared the environment variables with what the code expects and found the wrong setting. I fixed it in the config file and restarted the service, and the check script passed. As prevention, I suggested that the app checks its required settings at start and prints a clear message.",
-        "hi": "Is incident mein config change ke baad API baar-baar crash ho rahi thi. Maine status check kiya to bahut saare restarts dikhe, jise Kubernetes mein CrashLoopBackOff kehte hain. Pichhle run ke logs padhe aur error message mila. Phir environment variables ko code ki expectation se compare kiya aur galat setting pakdi. Config file mein fix kiya, service restart ki, aur check script PASS ho gayi. Prevention ke liye suggest kiya ki app start hote hi zaroori settings check kare aur clear message de."
+        "en": "In this incident the API kept crashing after a config change. I checked the status and saw many restarts, which is CrashLoopBackOff in Kubernetes. I read the logs of the previous run and found the error message. Then I compared the environment variables with what the code expects and found the wrong setting. I fixed it in the config file and restarted the service, and the check script passed. As prevention, I suggested that the app checks its required settings at start and prints a clear message."
       },
       "vocabulary": [
-        { "term": "CrashLoopBackOff", "en": "the container keeps crashing and Kubernetes waits longer before each restart", "hi": "container baar-baar crash hota hai aur Kubernetes har restart se pehle zyada wait karta hai" },
-        { "term": "root cause", "en": "the real first reason for a problem, not only the symptom", "hi": "problem ki asli pehli wajah, sirf symptom nahi" },
-        { "term": "environment variable", "en": "a named value the app reads when it starts", "hi": "ek naam wali value jo app start hote waqt padhta hai" },
-        { "term": "timeline", "en": "the list of what happened and when during an incident", "hi": "incident mein kab kya hua uski list" }
+        { "term": "CrashLoopBackOff", "en": "the container keeps crashing and Kubernetes waits longer before each restart" },
+        { "term": "root cause", "en": "the real first reason for a problem, not only the symptom" },
+        { "term": "environment variable", "en": "a named value the app reads when it starts" },
+        { "term": "timeline", "en": "the list of what happened and when during an incident" }
       ],
       "interview": [
         { "q": "What does CrashLoopBackOff mean and how do you fix it?", "a": "It means the container starts and then exits again and again, and Kubernetes waits longer between tries. It is a symptom, not the cause. I run kubectl logs with --previous to see why the last run stopped, and kubectl describe to see the exit code. Very often the cause is a wrong env variable, a missing secret, or a bad command." },

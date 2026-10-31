@@ -1,0 +1,95 @@
+---
+// Login and sign-up frame: a slow, quiet code background and a terminal that types a deploy.
+---
+<div class="auth-page">
+  <canvas class="bg-code" aria-hidden="true"></canvas>
+  <div class="auth-wrap">
+    <div class="auth-art">
+      <p class="eyebrow">DevOps Lab</p>
+      <h2>Do the work of a DevOps engineer. Every day.</h2>
+      <p>Real tickets, a practice terminal, broken servers to fix, and a coach for your English. Every hour you log becomes your record.</p>
+      <div class="mini-term" aria-hidden="true">
+        <div class="term-bar"><span class="term-title">trainee@shopnotes-dev</span></div>
+        <pre></pre>
+      </div>
+      <div class="pipeline" aria-hidden="true"><span>build</span><i></i><span>test</span><i></i><span>deploy</span><i></i><span>monitor</span></div>
+    </div>
+    <slot />
+  </div>
+</div>
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1) Typing terminal
+  const pre = document.querySelector<HTMLPreElement>('.mini-term pre');
+  const stages = [...document.querySelectorAll<HTMLElement>('.pipeline span')];
+  const script: [string, string[], number][] = [
+    ['git push origin main', ['Enumerating objects: 7, done.', 'To github.com:shopnotes/app.git', '   4c1e9a2..9f0b3d7  main -> main'], 0],
+    ['docker compose up -d --build', ['✔ Container shop-db-1     Started', '✔ Container shop-api-1    Started', '✔ Container shop-nginx-1  Started'], 1],
+    ['terraform apply -auto-approve', ['aws_instance.app: Creation complete after 32s', 'Apply complete! Resources: 1 added, 0 changed.'], 2],
+    ['curl -s localhost/health', ['{"db":"ok","status":"ok"}'], 3],
+  ];
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  let html = '';
+  const paint = (extra = '') => { if (pre) { pre.innerHTML = html + extra; pre.scrollTop = pre.scrollHeight; } };
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  async function play() {
+    if (!pre) return;
+    if (reduce) {
+      html = script.map(([c, o]) => `<span class="g">$</span> <span class="c">${esc(c)}</span>\n${o.map((l) => `<span class="o">${esc(l)}</span>`).join('\n')}`).join('\n');
+      paint(); stages.forEach((s) => s.classList.add('on')); return;
+    }
+    for (;;) {
+      html = ''; stages.forEach((s) => s.classList.remove('on'));
+      for (const [cmd, out, stage] of script) {
+        html += '<span class="g">$</span> ';
+        for (let i = 1; i <= cmd.length; i++) { paint(`<span class="c">${esc(cmd.slice(0, i))}</span><span class="caret"></span>`); await wait(38 + Math.random() * 40); }
+        html += `<span class="c">${esc(cmd)}</span>\n`; paint();
+        await wait(380);
+        for (const l of out) { html += `<span class="o">${esc(l)}</span>\n`; paint(); await wait(140); }
+        stages[stage]?.classList.add('on');
+        await wait(900);
+      }
+      paint('<span class="g">$</span> <span class="caret"></span>');
+      await wait(3200);
+    }
+  }
+  play();
+
+  // 2) Background: faint commands drifting up, a few highlighted in the accent colour.
+  const canvas = document.querySelector<HTMLCanvasElement>('.bg-code');
+  const ctx = canvas?.getContext('2d');
+  if (canvas && ctx) {
+    const words = ['git commit -m "fix"', 'docker ps', 'kubectl get pods', 'terraform plan', 'systemctl status nginx', 'tail -f app.log', 'curl -i /health', '200 OK', 'grep ERROR', 'helm upgrade', 'ssh ubuntu@10.0.1.12', 'ansible-playbook site.yml', 'aws s3 ls', 'docker compose up -d', 'git switch -c feature', '{ "status": "ok" }', 'chmod +x deploy.sh', 'df -h', 'apiVersion: apps/v1', 'replicas: 3', 'FROM python:3.12-slim', 'EXPOSE 5000', 'proxy_pass http://api:5000;', 'on: push', 'runs-on: ubuntu-latest', '✔ build', '✔ test', '✔ deploy', 'kubectl rollout status', 'prometheus', 'grafana', 'uptime'];
+    type P = { t: string; x: number; y: number; v: number; a: number; s: number; hi: boolean };
+    let ps: P[] = [], w = 0, h = 0, dpr = 1, text = '#8a8f97', hi = '#2458e6', raf = 0;
+    const colors = () => { const cs = getComputedStyle(document.documentElement); text = cs.getPropertyValue('--text-3').trim() || text; hi = cs.getPropertyValue('--signal').trim() || hi; };
+    const make = (y?: number): P => ({ t: words[Math.floor(Math.random() * words.length)], x: Math.random() * w, y: y ?? h + 20, v: 0.12 + Math.random() * 0.28, a: 0.10 + Math.random() * 0.16, s: 11 + Math.floor(Math.random() * 4), hi: Math.random() < 0.12 });
+    const size = () => {
+      dpr = Math.min(2, devicePixelRatio || 1); w = innerWidth; h = innerHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round((w * h) / 26000);
+      ps = Array.from({ length: n }, () => make(Math.random() * h));
+      colors();
+    };
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of ps) {
+        ctx.globalAlpha = p.hi ? Math.min(0.5, p.a * 2.4) : p.a;
+        ctx.fillStyle = p.hi ? hi : text;
+        ctx.font = `${p.s}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+        ctx.fillText(p.t, p.x, p.y);
+      }
+      ctx.globalAlpha = 1;
+    };
+    const tick = () => {
+      for (let i = 0; i < ps.length; i++) { ps[i].y -= ps[i].v; if (ps[i].y < -20) ps[i] = make(); }
+      draw(); raf = requestAnimationFrame(tick);
+    };
+    size(); draw();
+    if (!reduce) raf = requestAnimationFrame(tick);
+    addEventListener('resize', () => { size(); draw(); });
+    document.addEventListener('visibilitychange', () => { cancelAnimationFrame(raf); if (!document.hidden && !reduce) raf = requestAnimationFrame(tick); });
+    new MutationObserver(() => { colors(); draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+</script>

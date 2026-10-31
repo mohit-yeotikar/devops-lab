@@ -1,0 +1,40 @@
+---
+import { env } from '../../../lib/env';
+import Base from '../../../layouts/Base.astro';
+import { labs, TOPICS } from '../../../sandbox/labs.js';
+import { practiceRuns } from '../../../lib/db';
+const runs = await practiceRuns(env.DB, Astro.locals.user!.id);
+const done = new Set(runs.map((r) => r.lab));
+const next = labs.find((l) => !done.has(l.id));
+---
+<Base title="Practice">
+  <header class="page-head">
+    <p class="eyebrow">Practice</p>
+    <h1>Practise in the browser first</h1>
+    <p class="sub">Each lab is a fake server in your browser. Nothing can break and nothing costs money. Type real commands, follow the tasks, and see a green tick when a task is done. Then do the real ticket on your laptop.</p>
+  </header>
+
+  <div class="keys card">
+    <div><kbd>Enter</kbd> runs the command</div>
+    <div><kbd>↑</kbd> repeats the last command</div>
+    <div><kbd>Tab</kbd> completes a name</div>
+    <div><kbd>help</kbd> lists the commands</div>
+  </div>
+
+  {TOPICS.map((topic) => { const list = labs.filter((l) => l.topic === topic); return list.length > 0 && (
+    <section class="lab-group">
+      <h2>{topic}</h2>
+      <div class="grid">
+        {list.map((l) => (
+          <a class={`card lab-card${next?.id === l.id ? ' is-next' : ''}`} href={`/app/practice/${l.id}`}>
+            <div class="row between">
+              <span class="help">{l.tasks.length} tasks · about {l.minutes} min</span>
+              {done.has(l.id) ? <span class="pill done">Finished</span> : next?.id === l.id ? <span class="pill review">Start here</span> : null}
+            </div>
+            <h3>{l.title}</h3>
+            <p class="help">{l.summary}</p>
+          </a>
+        ))}
+      </div>
+    </section>); })}
+</Base>

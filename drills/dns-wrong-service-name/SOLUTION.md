@@ -48,5 +48,3 @@ A: In Kubernetes a Service gets a DNS name like `postgres.my-namespace.svc.clust
 ## Explain it (script)
 
 **English:** "The health check returned 503 even though Postgres was healthy. The error was 'could not translate host name db'. Yesterday's cleanup renamed the service from db to postgres, but the DATABASE_URL still used db. Docker DNS only knows service names, so db did not resolve. I changed the host to postgres and recreated the app. Now /health is 200."
-
-**Hindi / Hinglish:** "Postgres healthy tha phir bhi health check 503 de raha tha. Error tha 'could not translate host name db'. Kal ki cleanup me service ka naam db se postgres kar diya, par DATABASE_URL me abhi bhi db tha. Docker DNS sirf service ke naam jaanta hai, isliye db resolve nahi hua. Maine host ko postgres kiya aur app recreate kiya. Ab /health 200 hai."

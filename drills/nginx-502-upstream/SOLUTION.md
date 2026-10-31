@@ -45,5 +45,3 @@ A: "Up" only means the process is running. The proxy can still point to the wron
 ## Explain it (script)
 
 **English:** "Users got 502 errors. I checked the Nginx error log and saw connection refused to port 5050. The app listens on 5000, so the Nginx config had the wrong port. I changed the port to 5000, tested the config, and recreated Nginx. Now /health returns 200. To stop this again, we will keep the port in one variable and add a smoke test to the deploy."
-
-**Hindi / Hinglish:** "Users ko 502 error aa raha tha. Maine Nginx ka error log dekha, usme port 5050 pe connection refused tha. App asal me port 5000 pe chal raha hai, toh Nginx config me galat port tha. Maine port 5000 kiya, config test kiya aur Nginx ko recreate kiya. Ab /health 200 de raha hai. Aage se port ek hi variable me rakhenge aur deploy me smoke test add karenge."

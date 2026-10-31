@@ -39,8 +39,6 @@ docker compose ps                   # look at the app status
 - Watch `docker stats` in a second terminal while `./load.sh` runs.
 - Read `app/app.py`: what grows on every request and never gets smaller?
 
-> Hinglish: Memory har request ke saath badh rahi hai aur kabhi kam nahi ho rahi, toh kahin na kahin leak hai. Code me dhoondo.
-
 ## Clean up
 
 ```bash
