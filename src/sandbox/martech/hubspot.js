@@ -190,7 +190,7 @@ export function mount(el, ctx) {
     <section class="card">
       <h3 style="margin-top:0">2 · Contacts and dealer outcomes</h3>
       <p class="help">30 contacts from the last month. "Booked" comes from dealer feedback 30 days later. gclid = the contact clicked a Google ad.</p>
-      <div class="tbl"><table class="hs-table mc-small"></table></div>
+      <div class="tbl"><table class="hs-table mtc-small"></table></div>
     </section>
     <section class="card">
       <h3 style="margin-top:0">3 · Measure your MQLs</h3>
@@ -227,7 +227,7 @@ export function mount(el, ctx) {
 
   function crit() {
     for (const box of el.querySelectorAll('.hs-crit')) {
-      box.innerHTML = CRITERIA.filter((k) => k.group === box.dataset.g).map((k) => `<label class="row between mc-crit"><span>${esc(k.label)}</span><input type="number" step="5" min="-100" max="100" data-k="${k.id}" value="${Number(S.pts[k.id]) || 0}" aria-label="Points for ${esc(k.label)}" /></label>`).join('');
+      box.innerHTML = CRITERIA.filter((k) => k.group === box.dataset.g).map((k) => `<label class="row between mtc-crit"><span>${esc(k.label)}</span><input type="number" step="5" min="-100" max="100" data-k="${k.id}" value="${Number(S.pts[k.id]) || 0}" aria-label="Points for ${esc(k.label)}" /></label>`).join('');
     }
     $('.hs-th').value = S.th;
   }
@@ -242,7 +242,7 @@ export function mount(el, ctx) {
     if (sh.pos >= 3 && sh.neg >= 2 && !sh.flipped.length) ctx.done('hs1');
     if (ctx.isDone('hs1') && meetsTarget(ev)) ctx.done('hs3');
     const yn = (b) => (b ? 'Yes' : '–');
-    $('.hs-table').innerHTML = `<thead><tr><th>Contact</th><th>Source</th><th>City</th><th>Pages</th><th>Price page</th><th>Test ride</th><th>Email</th><th>Budget</th><th>Fleet</th><th>gclid</th><th>Score</th><th>Stage</th><th>Dealer outcome</th></tr></thead><tbody>${ev.rows.map(({ c, s, mql }) => `<tr class="${mql && !c.booked ? 'mc-fp' : ''}"><td><b>${esc(c.n)}</b>${c.student ? ' <span class="pill">student</span>' : ''}${c.jobs ? ' <span class="pill">careers</span>' : ''}</td><td>${esc(c.src)}</td><td>${esc(c.city)}</td><td>${c.pages}</td><td>${yn(c.price)}</td><td>${yn(c.ride)}</td><td>${esc(c.mail)}</td><td>${esc(c.budget)}</td><td>${c.fleet || '–'}</td><td>${yn(c.gclid)}</td><td><b>${s}</b></td><td>${mql ? '<span class="pill review">MQL</span>' : '<span class="pill">Lead</span>'}</td><td style="text-align:left">${c.booked ? '<span class="pill done">Booked</span> ' : '<span class="pill changes">No</span> '}<span class="help">${esc(c.fb)}</span></td></tr>`).join('')}</tbody>`;
+    $('.hs-table').innerHTML = `<thead><tr><th>Contact</th><th>Source</th><th>City</th><th>Pages</th><th>Price page</th><th>Test ride</th><th>Email</th><th>Budget</th><th>Fleet</th><th>gclid</th><th>Score</th><th>Stage</th><th>Dealer outcome</th></tr></thead><tbody>${ev.rows.map(({ c, s, mql }) => `<tr class="${mql && !c.booked ? 'mtc-fp' : ''}"><td><b>${esc(c.n)}</b>${c.student ? ' <span class="pill">student</span>' : ''}${c.jobs ? ' <span class="pill">careers</span>' : ''}</td><td>${esc(c.src)}</td><td>${esc(c.city)}</td><td>${c.pages}</td><td>${yn(c.price)}</td><td>${yn(c.ride)}</td><td>${esc(c.mail)}</td><td>${esc(c.budget)}</td><td>${c.fleet || '–'}</td><td>${yn(c.gclid)}</td><td><b>${s}</b></td><td>${mql ? '<span class="pill review">MQL</span>' : '<span class="pill">Lead</span>'}</td><td style="text-align:left">${c.booked ? '<span class="pill done">Booked</span> ' : '<span class="pill changes">No</span> '}<span class="help">${esc(c.fb)}</span></td></tr>`).join('')}</tbody>`;
   }
   el.addEventListener('input', (e) => {
     const k = e.target.dataset?.k;

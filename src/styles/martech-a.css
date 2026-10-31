@@ -1,0 +1,34 @@
+/* MarTech widget labs (mk-sql, mk-auction, mk-bidding). Uses the tokens from app.css. */
+
+/* SQL lab */
+.mk-sql-editor { min-height: 170px; font: 400 13px/1.55 var(--mono); tab-size: 2; white-space: pre; overflow-wrap: normal; overflow-x: auto; background: var(--surface-2); }
+.mk-result { max-height: 420px; overflow: auto; border: 1px solid var(--border); border-radius: var(--r-md); }
+.mk-result table { min-width: 0; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.mk-result th { position: sticky; top: 0; background: var(--surface); font-family: var(--mono); font-weight: 600; }
+.mk-result td { font-family: var(--mono); white-space: nowrap; }
+.mk-null { color: var(--text-3); font-style: italic; }
+.mk-schema table { min-width: 0; font-size: 12.5px; }
+.mk-schema td, .mk-schema th { text-align: left !important; vertical-align: top; }
+.mk-pre { margin: 8px 0; padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--border); font: 400 12.5px/1.5 var(--mono); white-space: pre; overflow-x: auto; color: var(--text); }
+.mk-details { margin-top: 8px; }
+.mk-details summary { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--signal); }
+.widget .list button.item { width: 100%; font: inherit; font-size: 13px; color: var(--text); text-align: left; }
+
+/* Auction lab */
+.mk-range { padding: 0; min-height: 32px; border: 0; background: transparent; accent-color: var(--signal); box-shadow: none !important; }
+.mk-serp { display: grid; gap: 8px; }
+.mk-q { padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); }
+.mk-ad, .mk-org { display: grid; gap: 2px; padding: 8px 10px; border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface); font-size: 13.5px; }
+.mk-org { background: var(--surface-2); }
+.mk-sponsored { font-size: 12px; color: var(--text-2); font-weight: 600; }
+.mk-ad.mk-you { border-color: var(--signal); background: var(--signal-soft); }
+tr.mk-you td { background: var(--signal-soft); font-weight: 600; }
+
+/* Bidding lab */
+.mk-chart { width: 100%; height: 220px; display: block; background: var(--surface-2); border-radius: var(--r-md); margin: 8px 0 6px; }
+.widget .tbl td .pill { margin: 1px 0; }
+
+@media (max-width: 640px) {
+  .mk-sql-editor { font-size: 12.5px; }
+  .mk-pre { font-size: 12px; }
+}

@@ -83,8 +83,8 @@ export function auctionChecks(prevCfg, nextCfg, minRaise = 0) {
   if (prevCfg) {
     const p = yours(auction(prevCfg));
     const same = (k) => prevCfg[k] === nextCfg[k];
-    if (same('ectr') && same('rel') && same('lp') && nextCfg.bid > prevCfg.bid && nextCfg.bid - prevCfg.bid >= minRaise && p.shown && n.shown && p.position === n.position && n.cpc === p.cpc && n.bid > n.cpc + 0.01) out.push('a2');
-    if (same('ectr') && same('rel') && same('bid') && LEVELS.indexOf(nextCfg.lp) > LEVELS.indexOf(prevCfg.lp) && p.shown && n.shown && p.position === n.position && n.cpc < p.cpc) out.push('a5');
+    if (same('ectr') && same('rel') && same('lp') && nextCfg.bid > prevCfg.bid && nextCfg.bid - prevCfg.bid >= minRaise && p.shown && n.shown && p.position === n.position && p.slot === n.slot && n.cpc === p.cpc && n.bid > n.cpc + 0.01) out.push('a2');
+    if (same('ectr') && same('rel') && same('bid') && LEVELS.indexOf(nextCfg.lp) > LEVELS.indexOf(prevCfg.lp) && p.shown && n.shown && p.position === n.position && p.slot === n.slot && n.cpc < p.cpc) out.push('a5');
   }
   return out;
 }

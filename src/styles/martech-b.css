@@ -1,0 +1,15 @@
+/* MarTech widget labs, part B: mk-cm360, mk-dv360, mk-adobe. Uses the tokens from app.css. */
+.mtb-pre { margin: 6px 0; padding: 8px 10px; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--r-md); font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
+.widget textarea.mono { width: 100%; font-size: 12px; white-space: pre; overflow: auto; }
+.widget .rec .row label, .widget .rec > label { display: block; }
+.widget .rec input.mono { width: 100%; }
+.widget details > summary { cursor: pointer; font-size: 14px; color: var(--text-2); }
+.widget .kpis .pill { align-self: flex-start; }
+.widget .ad-hits td, .widget .ad-hits th { font-size: 12.5px; white-space: nowrap; }
+.widget .ad-hits td.mono { white-space: normal; }
+.widget .a-chart rect { transition: opacity var(--dur-fast) var(--ease-out); }
+.widget .a-chart rect:hover { opacity: 1; }
+@media (max-width: 640px) {
+  .widget .kpis { gap: 8px 16px; }
+  .widget .big { font-size: 18px; }
+}

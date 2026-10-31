@@ -216,8 +216,8 @@ export function mount(el, ctx) {
         <div style="flex:2 1 220px" class="at-hbox"><label>Time-decay half-life: <b class="at-hv"></b><input type="range" class="at-h" min="1" max="30" step="1" style="padding:0" /></label></div>
       </div>
       <div class="kpis at-kpis"></div>
-      <div class="legend"><span><i style="background:var(--text-3)"></i>Last click</span><span><i class="mc-key"></i><span class="at-mname"></span></span></div>
-      <div class="mc-bars at-bars"></div>
+      <div class="legend"><span><i style="background:var(--text-3)"></i>Last click</span><span><i class="mtc-key"></i><span class="at-mname"></span></span></div>
+      <div class="mtc-bars at-bars"></div>
       <p class="help at-note"></p>
       <div class="tbl"><table class="at-table"></table></div>
     </section>
@@ -243,8 +243,8 @@ export function mount(el, ctx) {
     <section class="card">
       <h3 style="margin-top:0">The data</h3>
       <p class="help">How the data-driven model works here: for each combination of channels, the conversion rate = bookings ÷ all journeys with exactly that combination. For each booking, Shapley adds the channels on its path in every possible order and averages how much each one raises the conversion rate. The booking value is split in those proportions. Negative values (rare) are set to zero.</p>
-      <div class="tbl"><table class="at-combos mc-small"></table></div>
-      <details><summary>Show all 200 booking paths</summary><div class="tbl"><table class="at-paths mc-small"></table></div></details>
+      <div class="tbl"><table class="at-combos mtc-small"></table></div>
+      <details><summary>Show all 200 booking paths</summary><div class="tbl"><table class="at-paths mtc-small"></table></div></details>
     </section>`;
   const $ = (s) => el.querySelector(s);
   $('.at-model').value = S.model; $('.at-h').value = S.h;
@@ -258,10 +258,10 @@ export function mount(el, ctx) {
     const sum = Object.values(cr).reduce((a, b) => a + b, 0);
     $('.at-kpis').innerHTML = `<div><span class="eyebrow">Bookings</span><span class="big">${data.paths.length}</span></div><div><span class="eyebrow">Booking value</span><span class="big">${lakh(total)}</span></div><div><span class="eyebrow">Credit given by ${esc(MODELS[m])}</span><span class="big">${lakh(sum)}</span></div><div><span class="eyebrow">Upper funnel (YouTube + Meta + DV360)</span><span class="big">${pc(UPPER.reduce((a, c) => a + sh[c], 0))}</span></div>`;
     const max = Math.max(...CH_IDS.map((c) => Math.max(sh[c], lc[c])), 0.01);
-    $('.at-bars').innerHTML = CHANNELS.map((c) => `<div class="mc-bar"><span>${esc(c.name)}</span><div class="mc-track"><i class="mc-b0" style="width:${(lc[c.id] / max) * 100}%"></i><i class="mc-b1" style="width:${(sh[c.id] / max) * 100}%"></i></div><b>${pc(sh[c.id])}</b></div>`).join('');
+    $('.at-bars').innerHTML = CHANNELS.map((c) => `<div class="mtc-bar"><span>${esc(c.name)}</span><div class="mtc-track"><i class="mtc-b0" style="width:${(lc[c.id] / max) * 100}%"></i><i class="mtc-b1" style="width:${(sh[c.id] / max) * 100}%"></i></div><b>${pc(sh[c.id])}</b></div>`).join('');
     $('.at-note').textContent = `Brand search is on ${data.paths.filter((p) => p.touches.some((t) => t.ch === 'psb')).length} paths and is the last touch on ${pc(brandLastRate(data), 0)} of them.`;
     const all = Object.fromEntries(Object.keys(MODELS).map((k) => [k, shares(credit(k, data, h))]));
-    $('.at-table').innerHTML = `<thead><tr><th>Channel</th>${Object.entries(MODELS).map(([k, v]) => `<th${k === m ? ' class="mc-sel"' : ''}>${esc(v)}</th>`).join('')}<th>${esc(MODELS[m])} vs last click</th></tr></thead><tbody>${CHANNELS.map((c) => { const d = sh[c.id] - lc[c.id]; return `<tr><td>${esc(c.name)}</td>${Object.keys(MODELS).map((k) => `<td${k === m ? ' class="mc-sel"' : ''}>${pc(all[k][c.id])}</td>`).join('')}<td class="${d > 0.005 ? 'ok' : d < -0.005 ? 'err' : ''}">${d >= 0 ? '+' : ''}${(d * 100).toFixed(1)} pts</td></tr>`; }).join('')}<tr><td><b>Total credit</b></td>${Object.keys(MODELS).map((k) => `<td>${lakh(Object.values(credit(k, data, h)).reduce((a, b) => a + b, 0))}</td>`).join('')}<td></td></tr></tbody>`;
+    $('.at-table').innerHTML = `<thead><tr><th>Channel</th>${Object.entries(MODELS).map(([k, v]) => `<th${k === m ? ' class="mtc-sel"' : ''}>${esc(v)}</th>`).join('')}<th>${esc(MODELS[m])} vs last click</th></tr></thead><tbody>${CHANNELS.map((c) => { const d = sh[c.id] - lc[c.id]; return `<tr><td>${esc(c.name)}</td>${Object.keys(MODELS).map((k) => `<td${k === m ? ' class="mtc-sel"' : ''}>${pc(all[k][c.id])}</td>`).join('')}<td class="${d > 0.005 ? 'ok' : d < -0.005 ? 'err' : ''}">${d >= 0 ? '+' : ''}${(d * 100).toFixed(1)} pts</td></tr>`; }).join('')}<tr><td><b>Total credit</b></td>${Object.keys(MODELS).map((k) => `<td>${lakh(Object.values(credit(k, data, h)).reduce((a, b) => a + b, 0))}</td>`).join('')}<td></td></tr></tbody>`;
     if (m === 'decay' && upperShare(data, h) >= UPPER_TARGET) ctx.done('at3');
   }
   $('.at-model').addEventListener('change', (e) => { S.model = e.target.value; ctx.act(); ctx.save(); render(); });

@@ -1,0 +1,44 @@
+/* MarTech widget labs, part C: mk-hubspot, mk-attribution, mk-incrementality. Uses the tokens from app.css. */
+
+/* shared */
+.mtc-small th, .mtc-small td { font-size: 12.5px; padding: 6px 8px; white-space: nowrap; }
+.mtc-small td .help { white-space: normal; display: inline-block; min-width: 180px; }
+
+/* HubSpot: scoring rows and false-positive MQLs */
+.mtc-crit { gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--border); font-weight: 400; flex-wrap: nowrap; }
+.mtc-crit span { flex: 1 1 auto; min-width: 0; }
+.mtc-crit input { width: 84px; flex: none; font-variant-numeric: tabular-nums; }
+tr.mtc-fp td { background: var(--warn-soft); }
+
+/* Attribution: paired bars (last click vs selected model) */
+.mtc-bars { display: grid; gap: 6px; margin: 10px 0; }
+.mtc-bar { display: grid; grid-template-columns: minmax(110px, 160px) 1fr 56px; gap: 10px; align-items: center; font-size: 13px; }
+.mtc-bar b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.mtc-track { display: grid; gap: 3px; min-width: 0; }
+.mtc-track i { display: block; height: 8px; border-radius: 4px; min-width: 2px; transition: width var(--dur-base) var(--ease-out); }
+.mtc-b0 { background: var(--text-3); opacity: .55; }
+.mtc-b1 { background: var(--signal); }
+.legend i.mtc-key { background: var(--signal); }
+.tbl th.mtc-sel, .tbl td.mtc-sel { background: var(--signal-soft); }
+
+/* Incrementality: city picker */
+.mtc-cities { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 6px; margin-top: 10px; }
+.mtc-city { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; font: 400 12.5px/1.35 var(--font); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); padding: 8px 10px; cursor: pointer; transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
+.mtc-city:hover { background: var(--surface-2); }
+.mtc-city:active { transform: scale(.98); }
+.mtc-city b { font-weight: 600; font-size: 13px; }
+.mtc-city span { color: var(--text-2); font-variant-numeric: tabular-nums; }
+.mtc-city.is-t { border-color: var(--signal); background: var(--signal-soft); }
+.mtc-city.is-c { border-color: var(--warn); background: var(--warn-soft); }
+
+/* line charts (SVG) */
+.mtc-l0, .mtc-l1, .mtc-l2 { stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.mtc-l0 { stroke: var(--text-3); }
+.mtc-l1 { stroke: var(--signal); }
+.mtc-l2 { stroke: var(--warn); stroke-dasharray: 5 4; }
+.mtc-mark { stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+
+@media (max-width: 640px) {
+  .mtc-bar { grid-template-columns: 96px 1fr 48px; gap: 6px; font-size: 12px; }
+  .mtc-crit input { width: 72px; }
+}
