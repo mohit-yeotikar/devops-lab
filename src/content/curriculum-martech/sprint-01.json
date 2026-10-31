@@ -55,20 +55,50 @@
         "en": "In this task I built one KPI tree for Voltra. I put contribution margin after marketing at the top, because revenue and ROAS can look good while the business loses money. I split it into deliveries, contribution per delivery, accessories and total spend, and then into the dealer route and the online route by channel. Each leaf has a leading KPI, a lagging KPI, one owner and one data source. I added guardrails like lead-to-test-ride rate so teams cannot win by buying cheap leads. I also listed the gaps, for example test ride data that only sits in the dealer system."
       },
       "vocabulary": [
-        { "term": "KPI tree", "en": "a diagram that breaks one top goal into the smaller numbers that drive it" },
-        { "term": "North Star metric", "en": "the one number that best shows if the business is creating value" },
-        { "term": "leading KPI", "en": "a number that changes fast and predicts a result later" },
-        { "term": "lagging KPI", "en": "a number that shows the final result, but only after some time" },
-        { "term": "guardrail metric", "en": "a number that must not get worse while you push the main goal" }
+        {
+          "term": "KPI tree",
+          "en": "a diagram that breaks one top goal into the smaller numbers that drive it"
+        },
+        {
+          "term": "North Star metric",
+          "en": "the one number that best shows if the business is creating value"
+        },
+        {
+          "term": "leading KPI",
+          "en": "a number that changes fast and predicts a result later"
+        },
+        {
+          "term": "lagging KPI",
+          "en": "a number that shows the final result, but only after some time"
+        },
+        {
+          "term": "guardrail metric",
+          "en": "a number that must not get worse while you push the main goal"
+        }
       ],
       "interview": [
-        { "q": "Why did you not use ROAS as the top KPI?", "a": "ROAS only counts revenue that one platform can attribute, and it ignores product margin. A campaign can show ROAS of 8 and still lose money if the margin is 10%. I put contribution margin after marketing at the top and use ROAS only as a channel-level, leading signal. That keeps every team pointed at profit, not at platform credit." },
-        { "q": "How do you stop teams from gaming a KPI?", "a": "I pair every volume KPI with a quality guardrail. For dealer leads, cost per lead is paired with lead-to-test-ride rate, so cheap junk leads show up at once. I also make sure the lagging KPI, cost per delivery, is reviewed monthly with sales. When the same tree is used by finance, sales and marketing, it is hard to win in one box and lose in another." },
-        { "q": "What do you do when a KPI in the tree cannot be measured yet?", "a": "I keep it in the tree and mark it as a gap with an owner and a date. Hiding it would make the tree look complete and push people to optimise what is easy to count. For Voltra, test ride status lived only in the dealer system, so I listed a CRM integration as a project. Until then, we report it monthly from a dealer export and say clearly that it is partial." }
+        {
+          "q": "Why did you not use ROAS as the top KPI?",
+          "a": "ROAS only counts revenue that one platform can attribute, and it ignores product margin. A campaign can show ROAS of 8 and still lose money if the margin is 10%. I put contribution margin after marketing at the top and use ROAS only as a channel-level, leading signal. That keeps every team pointed at profit, not at platform credit."
+        },
+        {
+          "q": "How do you stop teams from gaming a KPI?",
+          "a": "I pair every volume KPI with a quality guardrail. For dealer leads, cost per lead is paired with lead-to-test-ride rate, so cheap junk leads show up at once. I also make sure the lagging KPI, cost per delivery, is reviewed monthly with sales. When the same tree is used by finance, sales and marketing, it is hard to win in one box and lose in another."
+        },
+        {
+          "q": "What do you do when a KPI in the tree cannot be measured yet?",
+          "a": "I keep it in the tree and mark it as a gap with an owner and a date. Hiding it would make the tree look complete and push people to optimise what is easy to count. For Voltra, test ride status lived only in the dealer system, so I listed a CRM integration as a project. Until then, we report it monthly from a dealer export and say clearly that it is partial."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Measurement planning (Skillshop GA4 courses)", "url": "https://skillshop.withgoogle.com/" },
-        { "title": "Google Analytics Help: Key events", "url": "https://support.google.com/analytics/answer/13128484" }
+        {
+          "title": "Google Skillshop: Google Analytics courses",
+          "url": "https://skillshop.withgoogle.com/"
+        },
+        {
+          "title": "Google Analytics Help: Mark events as key events",
+          "url": "https://support.google.com/analytics/answer/13128484"
+        }
       ]
     },
     {
@@ -114,21 +144,54 @@
         "en": "In this task I built Voltra's unit economics model in Google Sheets. I calculated contribution per scooter, per three-wheeler and per accessories order after GST, cost of goods, dealer margin and logistics. From that I got the break-even ROAS and a target ROAS that leaves 9% profit. I calculated the maximum CAC, a three-year LTV based on contribution, and the payback period. I also calculated MER from finance numbers and showed that the platforms together claim more revenue than we really made. My summary told leadership which ROAS level is safe before we give the agency more budget."
       },
       "vocabulary": [
-        { "term": "contribution margin", "en": "money left from a sale after all variable costs, before fixed costs" },
-        { "term": "break-even ROAS", "en": "the ROAS where ad spend uses up all the contribution, so profit is zero" },
-        { "term": "CAC", "en": "customer acquisition cost: marketing spend divided by new customers" },
-        { "term": "LTV", "en": "lifetime value: the total contribution a customer brings over time" },
-        { "term": "MER", "en": "marketing efficiency ratio: total revenue divided by total marketing spend" },
-        { "term": "payback period", "en": "how many months until a customer's contribution pays back their CAC" }
+        {
+          "term": "contribution margin",
+          "en": "money left from a sale after all variable costs, before fixed costs"
+        },
+        {
+          "term": "break-even ROAS",
+          "en": "the ROAS where ad spend uses up all the contribution, so profit is zero"
+        },
+        {
+          "term": "CAC",
+          "en": "customer acquisition cost: marketing spend divided by new customers"
+        },
+        {
+          "term": "LTV",
+          "en": "lifetime value: the total contribution a customer brings over time"
+        },
+        {
+          "term": "MER",
+          "en": "marketing efficiency ratio: total revenue divided by total marketing spend"
+        },
+        {
+          "term": "payback period",
+          "en": "how many months until a customer's contribution pays back their CAC"
+        }
       ],
       "interview": [
-        { "q": "What is the difference between ROAS and MER, and when do you use each?", "a": "ROAS is attributed revenue divided by the spend of one platform or campaign, so it depends on that platform's attribution and tracking. MER is total business revenue divided by total marketing spend, so it needs no attribution. I use ROAS to steer bids and budgets inside a channel, and MER to check that the whole marketing system pays off. When the platforms together claim far more revenue than finance books, I trust MER and question the platform numbers." },
-        { "q": "How do you calculate break-even ROAS?", "a": "Break-even ROAS is one divided by the contribution margin percentage. If a scooter leaves 19% contribution after cost of goods, dealer margin and logistics, break-even ROAS is about 5.3. I make sure both numbers use the same revenue basis, because ad platforms often report revenue including tax. For a profit target I divide one by the margin minus the target profit." },
-        { "q": "Why should LTV use contribution and not revenue?", "a": "The business can only spend profit, not revenue, to acquire customers. If LTV uses revenue, LTV:CAC looks great and we overspend. For Voltra I built LTV from the first contribution, service contribution, accessories and a small referral value over three years. I also show payback in months, because a cash-limited company cannot wait three years to get its money back." }
+        {
+          "q": "What is the difference between ROAS and MER, and when do you use each?",
+          "a": "ROAS is attributed revenue divided by the spend of one platform or campaign, so it depends on that platform's attribution and tracking. MER is total business revenue divided by total marketing spend, so it needs no attribution. I use ROAS to steer bids and budgets inside a channel, and MER to check that the whole marketing system pays off. When the platforms together claim far more revenue than finance books, I trust MER and question the platform numbers."
+        },
+        {
+          "q": "How do you calculate break-even ROAS?",
+          "a": "Break-even ROAS is one divided by the contribution margin percentage. If a scooter leaves 19% contribution after cost of goods, dealer margin and logistics, break-even ROAS is about 5.3. I make sure both numbers use the same revenue basis, because ad platforms often report revenue including tax. For a profit target I divide one by the margin minus the target profit."
+        },
+        {
+          "q": "Why should LTV use contribution and not revenue?",
+          "a": "The business can only spend profit, not revenue, to acquire customers. If LTV uses revenue, LTV:CAC looks great and we overspend. For Voltra I built LTV from the first contribution, service contribution, accessories and a small referral value over three years. I also show payback in months, because a cash-limited company cannot wait three years to get its money back."
+        }
       ],
       "resources": [
-        { "title": "Google Ads Help: About conversion values", "url": "https://support.google.com/google-ads/answer/3419241" },
-        { "title": "Google Ads Help: About Target ROAS bidding", "url": "https://support.google.com/google-ads/answer/6268637" }
+        {
+          "title": "Google Ads Help: About conversion values",
+          "url": "https://support.google.com/google-ads/answer/13064207"
+        },
+        {
+          "title": "Google Ads Help: About Target ROAS bidding",
+          "url": "https://support.google.com/google-ads/answer/6268637"
+        }
       ]
     },
     {
@@ -174,20 +237,50 @@
         "en": "In this task I mapped the dealer lead funnel from form to delivery. I defined six stages, each with one clear entry rule and the system that records it. I calculated the step rates, the lead-to-delivery rate by channel and the median days between stages. Then I gave each stage a value from the contribution per scooter and the chance that the stage ends in a delivery. I chose the qualified lead as the primary bidding signal, because deliveries are too slow and too few for the algorithm. I also listed the IDs like lead_id and gclid that we must store to join CRM stages back to ad clicks."
       },
       "vocabulary": [
-        { "term": "lead funnel", "en": "the stages a lead passes from first contact to a sale" },
-        { "term": "time lag", "en": "the number of days between two stages" },
-        { "term": "expected value", "en": "a value multiplied by the chance that it really happens" },
-        { "term": "GCLID", "en": "Google click ID, added to the landing page URL so a click can be matched later" },
-        { "term": "offline conversion import", "en": "sending CRM results back to an ad platform so it can learn from them" }
+        {
+          "term": "lead funnel",
+          "en": "the stages a lead passes from first contact to a sale"
+        },
+        {
+          "term": "time lag",
+          "en": "the number of days between two stages"
+        },
+        {
+          "term": "expected value",
+          "en": "a value multiplied by the chance that it really happens"
+        },
+        {
+          "term": "GCLID",
+          "en": "Google click ID, added to the landing page URL so a click can be matched later"
+        },
+        {
+          "term": "offline conversion import",
+          "en": "sending CRM results back to an ad platform so it can learn from them"
+        }
       ],
       "interview": [
-        { "q": "How do you put a value on a lead that has not bought anything yet?", "a": "I use expected value: the contribution of a delivery multiplied by the probability that a lead at that stage ends in a delivery. I take the probability from the last one or two quarters of CRM data, split by channel if the sample is big enough. The values are refreshed every quarter. This lets value-based bidding prefer leads that look like buyers, not just any form fill." },
-        { "q": "Why not optimise Google Ads directly for deliveries?", "a": "Deliveries come about 35 days after the lead and we have only a few thousand per quarter across many campaigns. Smart bidding needs enough conversions and fast feedback to learn. So I bid on a qualified lead with a value, and I import later stages as secondary actions for reporting. When volume grows, I can move the primary signal further down the funnel." },
-        { "q": "Which IDs must the lead form capture, and why?", "a": "I need our own lead_id to join all systems, plus gclid, gbraid and wbraid to match Google clicks, and the click IDs of other platforms. I also store UTM values, the GA4 client ID, the consent choice and, with consent, the email and phone for enhanced conversions for leads. Without these keys, CRM results cannot be sent back to the ad platforms. Missing IDs are the most common reason offline imports fail." }
+        {
+          "q": "How do you put a value on a lead that has not bought anything yet?",
+          "a": "I use expected value: the contribution of a delivery multiplied by the probability that a lead at that stage ends in a delivery. I take the probability from the last one or two quarters of CRM data, split by channel if the sample is big enough. The values are refreshed every quarter. This lets value-based bidding prefer leads that look like buyers, not just any form fill."
+        },
+        {
+          "q": "Why not optimise Google Ads directly for deliveries?",
+          "a": "Deliveries come about 35 days after the lead and we have only a few thousand per quarter across many campaigns. Smart bidding needs enough conversions and fast feedback to learn. So I bid on a qualified lead with a value, and I import later stages as secondary actions for reporting. When volume grows, I can move the primary signal further down the funnel."
+        },
+        {
+          "q": "Which IDs must the lead form capture, and why?",
+          "a": "I need our own lead_id to join all systems, plus gclid, gbraid and wbraid to match Google clicks, and the click IDs of other platforms. I also store UTM values, the GA4 client ID, the consent choice and, with consent, the email and phone for enhanced conversions for leads. Without these keys, CRM results cannot be sent back to the ad platforms. Missing IDs are the most common reason offline imports fail."
+        }
       ],
       "resources": [
-        { "title": "Google Ads Help: About offline conversion imports", "url": "https://support.google.com/google-ads/answer/2998031" },
-        { "title": "Google Ads Help: About enhanced conversions for leads", "url": "https://support.google.com/google-ads/answer/11347292" }
+        {
+          "title": "Google Ads Help: About offline conversion imports",
+          "url": "https://support.google.com/google-ads/answer/2998031"
+        },
+        {
+          "title": "Google Ads Help: Configure Tag Manager for enhanced conversions for leads",
+          "url": "https://support.google.com/google-ads/answer/11347292"
+        }
       ]
     },
     {
@@ -236,21 +329,54 @@
         "en": "In this project I wrote Voltra's measurement plan and the tracking plan sheet. The plan links our business objectives and KPIs to the funnels, data sources, key events, consent rules and owners. In the sheet I defined every event and parameter once, with GA4 recommended names first and snake_case custom names for things like test ride bookings. I picked eight key events and checked the GA4 and Analytics 360 limits for key events and custom dimensions. I wrote exact dataLayer examples, a clear rule against personal data in events, and a QA test case for each event. A developer reviewed it and I fixed the unclear parts."
       },
       "vocabulary": [
-        { "term": "measurement plan", "en": "a document that links business goals to the data you must collect" },
-        { "term": "tracking plan", "en": "a detailed list of every event and parameter the site must send" },
-        { "term": "key event", "en": "a GA4 event marked as important for the business (earlier called a conversion)" },
-        { "term": "dataLayer", "en": "a JavaScript list where the website puts data for Tag Manager to read" },
-        { "term": "PII", "en": "personally identifiable information, like email, phone or name" }
+        {
+          "term": "measurement plan",
+          "en": "a document that links business goals to the data you must collect"
+        },
+        {
+          "term": "tracking plan",
+          "en": "a detailed list of every event and parameter the site must send"
+        },
+        {
+          "term": "key event",
+          "en": "a GA4 event marked as important for the business (earlier called a conversion)"
+        },
+        {
+          "term": "dataLayer",
+          "en": "a JavaScript list where the website puts data for Tag Manager to read"
+        },
+        {
+          "term": "PII",
+          "en": "personally identifiable information, like email, phone or name"
+        }
       ],
       "interview": [
-        { "q": "What is the difference between a measurement plan and a tracking plan?", "a": "The measurement plan is the business document: objectives, KPIs, funnels, audiences, data sources and owners. The tracking plan is the technical contract: every event, parameter, type, trigger and dataLayer example a developer must build. I always write the plan first, so every event in the tracking plan answers a business question. Events that answer no question do not get built." },
-        { "q": "How do you choose key events in GA4?", "a": "A key event must be a business outcome that someone acts on, like a qualified lead, a test ride booking or a purchase. Micro actions like clicks or scrolls stay as normal events. I keep the list short, well below the 30 limit in standard GA4, so reports and Google Ads imports stay clean. Every key event has an owner and a written reason in the tracking plan." },
-        { "q": "How do you prevent personal data from reaching GA4?", "a": "I write a clear PII rule in the tracking plan and check it in QA: no email, phone or name in parameters, page paths or query strings. Form tools often put the email in the thank-you URL, so I check that in GTM Preview. Hashed data for enhanced conversions goes only into the user-provided data fields and only with consent. If PII still reaches GA4, I use data deletion requests and fix the source at once." }
+        {
+          "q": "What is the difference between a measurement plan and a tracking plan?",
+          "a": "The measurement plan is the business document: objectives, KPIs, funnels, audiences, data sources and owners. The tracking plan is the technical contract: every event, parameter, type, trigger and dataLayer example a developer must build. I always write the plan first, so every event in the tracking plan answers a business question. Events that answer no question do not get built."
+        },
+        {
+          "q": "How do you choose key events in GA4?",
+          "a": "A key event must be a business outcome that someone acts on, like a qualified lead, a test ride booking or a purchase. Micro actions like clicks or scrolls stay as normal events. I keep the list short, well below the 30 limit in standard GA4, so reports and Google Ads imports stay clean. Every key event has an owner and a written reason in the tracking plan."
+        },
+        {
+          "q": "How do you prevent personal data from reaching GA4?",
+          "a": "I write a clear PII rule in the tracking plan and check it in QA: no email, phone or name in parameters, page paths or query strings. Form tools often put the email in the thank-you URL, so I check that in GTM Preview. Hashed data for enhanced conversions goes only into the user-provided data fields and only with consent. If PII still reaches GA4, I use data deletion requests and fix the source at once."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Recommended events", "url": "https://support.google.com/analytics/answer/9267735" },
-        { "title": "Google Developers: GA4 recommended events reference", "url": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events" },
-        { "title": "Google Developers: The data layer", "url": "https://developers.google.com/tag-platform/tag-manager/datalayer" }
+        {
+          "title": "Google Analytics Help: Recommended events",
+          "url": "https://support.google.com/analytics/answer/9267735"
+        },
+        {
+          "title": "Google Developers: GA4 recommended events reference",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events"
+        },
+        {
+          "title": "Google Developers: The data layer",
+          "url": "https://developers.google.com/tag-platform/tag-manager/datalayer"
+        }
       ]
     },
     {
@@ -296,19 +422,46 @@
         "en": "In this task I wrote Voltra's naming and UTM standard. I defined one campaign name pattern with fixed parts like country, channel, objective, product and month, and a table of allowed values. I wrote lowercase UTM rules, the allowed sources and mediums, and when Google Ads auto-tagging replaces UTMs. I also set names for GA4 events and for GTM tags, triggers and variables. I built a UTM builder sheet with dropdowns so agencies cannot type wrong values. Then I audited the GA4 demo account and found mixed case and duplicate sources that break channel reports."
       },
       "vocabulary": [
-        { "term": "UTM parameters", "en": "tags in a link that tell analytics the source, medium and campaign of a visit" },
-        { "term": "auto-tagging", "en": "Google Ads adds a click ID (gclid) to the link by itself" },
-        { "term": "channel group", "en": "GA4 rules that put traffic into channels like Paid Search or Email" },
-        { "term": "naming convention", "en": "a fixed rule for how names are written" }
+        {
+          "term": "UTM parameters",
+          "en": "tags in a link that tell analytics the source, medium and campaign of a visit"
+        },
+        {
+          "term": "auto-tagging",
+          "en": "Google Ads adds a click ID (gclid) to the link by itself"
+        },
+        {
+          "term": "channel group",
+          "en": "GA4 rules that put traffic into channels like Paid Search or Email"
+        },
+        {
+          "term": "naming convention",
+          "en": "a fixed rule for how names are written"
+        }
       ],
       "interview": [
-        { "q": "Why does a naming standard matter at a senior level?", "a": "At scale, reports group by names. If three agencies spell the same source three ways, channel reports, budget splits and attribution are wrong. A standard with allowed values and a builder tool removes most errors before they happen. I also set a weekly check, because GA4 cannot rename data after it is collected." },
-        { "q": "Do you use UTMs on Google Ads?", "a": "No, I use auto-tagging with gclid, because it gives GA4 richer data like campaign, ad group and keyword, and it is needed for many Google Ads features. Manual UTMs can even override or conflict with auto-tagging if they are set up wrong. I use UTMs for every other platform, like Meta, email and DV360. I do keep a clean campaign naming pattern in Google Ads, because the campaign name still appears in reports." },
-        { "q": "How do you make agencies follow the standard?", "a": "I make it easy and visible. They get a builder sheet with dropdowns, the standard is part of the agency brief, and the performance lead approves new campaign names. Every week I check new source, medium and campaign values in GA4 and send fixes within 24 hours. Repeated errors are discussed in the monthly agency review." }
+        {
+          "q": "Why does a naming standard matter at a senior level?",
+          "a": "At scale, reports group by names. If three agencies spell the same source three ways, channel reports, budget splits and attribution are wrong. A standard with allowed values and a builder tool removes most errors before they happen. I also set a weekly check, because GA4 cannot rename data after it is collected."
+        },
+        {
+          "q": "Do you use UTMs on Google Ads?",
+          "a": "No, I use auto-tagging with gclid, because it gives GA4 richer data like campaign, ad group and keyword, and it is needed for many Google Ads features. Manual UTMs can even override or conflict with auto-tagging if they are set up wrong. I use UTMs for every other platform, like Meta, email and DV360. I do keep a clean campaign naming pattern in Google Ads, because the campaign name still appears in reports."
+        },
+        {
+          "q": "How do you make agencies follow the standard?",
+          "a": "I make it easy and visible. They get a builder sheet with dropdowns, the standard is part of the agency brief, and the performance lead approves new campaign names. Every week I check new source, medium and campaign values in GA4 and send fixes within 24 hours. Repeated errors are discussed in the monthly agency review."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Collect campaign data with custom URLs", "url": "https://support.google.com/analytics/answer/10917952" },
-        { "title": "Google Analytics Help: Default channel group", "url": "https://support.google.com/analytics/answer/9756891" }
+        {
+          "title": "Google Analytics Help: Collect campaign data with custom URLs",
+          "url": "https://support.google.com/analytics/answer/10917952"
+        },
+        {
+          "title": "Google Analytics Help: Default channel group",
+          "url": "https://support.google.com/analytics/answer/9756891"
+        }
       ]
     }
   ]

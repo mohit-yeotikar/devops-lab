@@ -56,21 +56,54 @@
         "en": "In this project I designed Voltra's GA4 property and built the same settings in a practice property. I chose one property for the main site and the store, because it is one customer journey. I set cross-domain measurement, added the payment gateway as an unwanted referral and created an internal traffic filter, which I tested in Realtime before I made it active. I set event data retention to 14 months and explained that it limits explorations, not standard reports. I also documented Google signals, reporting identity and the product links, and finished with a settings checklist for the production property."
       },
       "vocabulary": [
-        { "term": "data stream", "en": "a source of data for a GA4 property, like a website or an app" },
-        { "term": "cross-domain measurement", "en": "keeping one session when a user moves between two of your domains" },
-        { "term": "unwanted referral", "en": "a domain that GA4 should not count as a traffic source, like a payment page" },
-        { "term": "data retention", "en": "how long GA4 keeps user-level and event-level data for explorations" },
-        { "term": "reporting identity", "en": "how GA4 decides which visits belong to the same user" }
+        {
+          "term": "data stream",
+          "en": "a source of data for a GA4 property, like a website or an app"
+        },
+        {
+          "term": "cross-domain measurement",
+          "en": "keeping one session when a user moves between two of your domains"
+        },
+        {
+          "term": "unwanted referral",
+          "en": "a domain that GA4 should not count as a traffic source, like a payment page"
+        },
+        {
+          "term": "data retention",
+          "en": "how long GA4 keeps user-level and event-level data for explorations"
+        },
+        {
+          "term": "reporting identity",
+          "en": "how GA4 decides which visits belong to the same user"
+        }
       ],
       "interview": [
-        { "q": "When do you use one GA4 property and when several?", "a": "I use one property when users move across sites as one journey and the same team owns the data, like Voltra's main site and accessories store. I add separate properties when data must be kept apart for legal or access reasons, or for staging. With Analytics 360 I would rather use sub-properties than many separate tags, because one collection point is easier to govern. The rule is: one journey, one property; separate audiences of users, separate properties." },
-        { "q": "What does data retention change in GA4 and what does it not change?", "a": "It sets how long user-level and event-level data stays available for explorations and some other analysis. Standard reports use aggregated data and are not limited by it. Standard GA4 offers 2 or 14 months; Analytics 360 offers up to 50 months. For long-term raw data I use the BigQuery export, because there I control the storage." },
-        { "q": "How do you set up an internal traffic filter safely?", "a": "First I define the internal traffic rule in the web stream with the office IP ranges. Then I set the data filter to Testing and check in Realtime with the test data filter comparison that only internal visits are marked. Only then do I make it Active, because an active filter removes data permanently. I document the IP ranges and review them when offices or VPNs change." }
+        {
+          "q": "When do you use one GA4 property and when several?",
+          "a": "I use one property when users move across sites as one journey and the same team owns the data, like Voltra's main site and accessories store. I add separate properties when data must be kept apart for legal or access reasons, or for staging. With Analytics 360 I would rather use sub-properties than many separate tags, because one collection point is easier to govern. The rule is: one journey, one property; separate audiences of users, separate properties."
+        },
+        {
+          "q": "What does data retention change in GA4 and what does it not change?",
+          "a": "It sets how long user-level and event-level data stays available for explorations and some other analysis. Standard reports use aggregated data and are not limited by it. Standard GA4 offers 2 or 14 months; Analytics 360 offers up to 50 months. For long-term raw data I use the BigQuery export, because there I control the storage."
+        },
+        {
+          "q": "How do you set up an internal traffic filter safely?",
+          "a": "First I define the internal traffic rule in the web stream with the office IP ranges. Then I set the data filter to Testing and check in Realtime with the test data filter comparison that only internal visits are marked. Only then do I make it Active, because an active filter removes data permanently. I document the IP ranges and review them when offices or VPNs change."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Set up cross-domain measurement", "url": "https://support.google.com/analytics/answer/10071811" },
-        { "title": "Google Analytics Help: Data retention", "url": "https://support.google.com/analytics/answer/7667196" },
-        { "title": "Google Analytics Help: Filter out internal traffic", "url": "https://support.google.com/analytics/answer/10104470" }
+        {
+          "title": "Google Analytics Help: Set up cross-domain measurement",
+          "url": "https://support.google.com/analytics/answer/10071811"
+        },
+        {
+          "title": "Google Analytics Help: Data retention",
+          "url": "https://support.google.com/analytics/answer/7667196"
+        },
+        {
+          "title": "Google Analytics Help: Filter out internal traffic",
+          "url": "https://support.google.com/analytics/answer/10104470"
+        }
       ]
     },
     {
@@ -117,21 +150,54 @@
         "en": "In this task I set up custom definitions, key events, attribution and audiences in a practice GA4 property. I sent test events with parameters and checked them in DebugView. I registered vehicle model, dealer, city and form as event-scoped dimensions, and I did not register lead IDs because high-cardinality values belong in BigQuery. I marked two key events and chose the counting method. I documented the data-driven model and a 90-day lookback, and listed why GA4 and Google Ads show different numbers. Finally I built two audiences, one with an audience trigger for remarketing."
       },
       "vocabulary": [
-        { "term": "custom dimension", "en": "an event or user parameter you register so GA4 reports can show it" },
-        { "term": "cardinality", "en": "how many different values a dimension has" },
-        { "term": "lookback window", "en": "how many days back GA4 looks for touchpoints that get credit" },
-        { "term": "data-driven attribution", "en": "a model that gives credit to touchpoints based on how much they helped convert" },
-        { "term": "audience trigger", "en": "an event GA4 creates when a user joins an audience" }
+        {
+          "term": "custom dimension",
+          "en": "an event or user parameter you register so GA4 reports can show it"
+        },
+        {
+          "term": "cardinality",
+          "en": "how many different values a dimension has"
+        },
+        {
+          "term": "lookback window",
+          "en": "how many days back GA4 looks for touchpoints that get credit"
+        },
+        {
+          "term": "data-driven attribution",
+          "en": "a model that gives credit to touchpoints based on how much they helped convert"
+        },
+        {
+          "term": "audience trigger",
+          "en": "an event GA4 creates when a user joins an audience"
+        }
       ],
       "interview": [
-        { "q": "Why do GA4 and Google Ads show different conversion numbers?", "a": "They use different rules. Google Ads reports by click date and only credits Google Ads clicks, and it can include view-through and modelled conversions. GA4 reports by key event date and shares credit across all channels with its own attribution model and lookback window. The counting method can also differ. I document both setups and use GA4 for cross-channel views and Google Ads for bidding signals." },
-        { "q": "What should not be a custom dimension?", "a": "IDs and other high-cardinality values like lead IDs, order IDs or timestamps. They push rows into the (other) row and waste the limited slots, which are 50 event-scoped dimensions in standard GA4. I keep those values as event parameters and analyse them in BigQuery. In the GA4 interface I only register dimensions people will group and filter by." },
-        { "q": "How did you choose the lookback window?", "a": "I looked at the time lag in our funnel. Voltra's median lead-to-booking time is 14 days with a long tail, so a 30-day window would miss real assists. I chose 90 days for non-acquisition key events. I wrote the change date down, because attribution setting changes affect historical reports too." }
+        {
+          "q": "Why do GA4 and Google Ads show different conversion numbers?",
+          "a": "They use different rules. Google Ads reports by click date and only credits Google Ads clicks, and it can include view-through and modelled conversions. GA4 reports by key event date and shares credit across all channels with its own attribution model and lookback window. The counting method can also differ. I document both setups and use GA4 for cross-channel views and Google Ads for bidding signals."
+        },
+        {
+          "q": "What should not be a custom dimension?",
+          "a": "IDs and other high-cardinality values like lead IDs, order IDs or timestamps. They push rows into the (other) row and waste the limited slots, which are 50 event-scoped dimensions in standard GA4. I keep those values as event parameters and analyse them in BigQuery. In the GA4 interface I only register dimensions people will group and filter by."
+        },
+        {
+          "q": "How did you choose the lookback window?",
+          "a": "I looked at the time lag in our funnel. Voltra's median lead-to-booking time is 14 days with a long tail, so a 30-day window would miss real assists. I chose 90 days for non-acquisition key events. I wrote the change date down, because attribution setting changes affect historical reports too."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Custom dimensions and metrics", "url": "https://support.google.com/analytics/answer/10075209" },
-        { "title": "Google Analytics Help: Select attribution settings", "url": "https://support.google.com/analytics/answer/10596866" },
-        { "title": "Google Analytics Help: Create, edit and archive audiences", "url": "https://support.google.com/analytics/answer/9267572" }
+        {
+          "title": "Google Analytics Help: About custom dimensions and metrics",
+          "url": "https://support.google.com/analytics/answer/14240153"
+        },
+        {
+          "title": "Google Analytics Help: Get started with attribution",
+          "url": "https://support.google.com/analytics/answer/10596866"
+        },
+        {
+          "title": "Google Analytics Help: Create, edit and archive audiences",
+          "url": "https://support.google.com/analytics/answer/9267572"
+        }
       ]
     },
     {
@@ -175,20 +241,50 @@
         "en": "In this task I answered four leadership questions with GA4 explorations in the demo account. I built a funnel from session start to purchase, compared closed and open funnels, and broke it down by device with elapsed time. I used a path exploration backwards from purchase, a segment overlap of mobile, paid and buyers, and a weekly cohort of returning buyers. For each one I checked sampling and thresholds and explained the limits of standard GA4 and Analytics 360. I put the method in a deck so we can repeat it on Voltra's own data."
       },
       "vocabulary": [
-        { "term": "exploration", "en": "a GA4 analysis tool for deeper questions than standard reports" },
-        { "term": "closed funnel", "en": "a funnel where users must start at the first step" },
-        { "term": "cohort", "en": "a group of users who share a start date or a start event" },
-        { "term": "sampling", "en": "using only part of the data to answer faster" },
-        { "term": "data threshold", "en": "GA4 hides rows with few users to protect privacy" }
+        {
+          "term": "exploration",
+          "en": "a GA4 analysis tool for deeper questions than standard reports"
+        },
+        {
+          "term": "closed funnel",
+          "en": "a funnel where users must start at the first step"
+        },
+        {
+          "term": "cohort",
+          "en": "a group of users who share a start date or a start event"
+        },
+        {
+          "term": "sampling",
+          "en": "using only part of the data to answer faster"
+        },
+        {
+          "term": "data threshold",
+          "en": "GA4 hides rows with few users to protect privacy"
+        }
       ],
       "interview": [
-        { "q": "When do you use an open funnel instead of a closed funnel?", "a": "I use a closed funnel when I want the true journey from a defined entry, like session start to purchase. I use an open funnel when users can enter at any step, for example landing directly on a product page from an ad. Comparing the two shows how many users skip early steps. For Voltra's booking flow I report the closed funnel and use the open one to find entry points." },
-        { "q": "How do you handle sampling and thresholds in GA4?", "a": "I check the quality icon on every exploration. For sampling I shorten the date range or move the question to BigQuery, and with Analytics 360 I can use more detailed results with a much higher limit. Thresholds come from privacy rules when user counts are small, often with Google signals on. I can change reporting identity to device-based for a check, or use BigQuery, which has no thresholds." },
-        { "q": "Which questions do you take out of GA4 and into BigQuery?", "a": "Questions that need full history beyond retention, custom session logic, exact counts or joins with CRM data. For example, which campaigns bring test rides that later turn into deliveries needs CRM data, so it belongs in BigQuery. GA4 explorations are great for fast discovery. BigQuery is where I build the trusted, repeatable version." }
+        {
+          "q": "When do you use an open funnel instead of a closed funnel?",
+          "a": "I use a closed funnel when I want the true journey from a defined entry, like session start to purchase. I use an open funnel when users can enter at any step, for example landing directly on a product page from an ad. Comparing the two shows how many users skip early steps. For Voltra's booking flow I report the closed funnel and use the open one to find entry points."
+        },
+        {
+          "q": "How do you handle sampling and thresholds in GA4?",
+          "a": "I check the quality icon on every exploration. For sampling I shorten the date range or move the question to BigQuery, and with Analytics 360 I can use more detailed results with a much higher limit. Thresholds come from privacy rules when user counts are small, often with Google signals on. I can change reporting identity to device-based for a check, or use BigQuery, which has no thresholds."
+        },
+        {
+          "q": "Which questions do you take out of GA4 and into BigQuery?",
+          "a": "Questions that need full history beyond retention, custom session logic, exact counts or joins with CRM data. For example, which campaigns bring test rides that later turn into deliveries needs CRM data, so it belongs in BigQuery. GA4 explorations are great for fast discovery. BigQuery is where I build the trusted, repeatable version."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Google Analytics demo account", "url": "https://support.google.com/analytics/answer/6367342" },
-        { "title": "Google Analytics Help: Get started with explorations", "url": "https://support.google.com/analytics/answer/7579450" }
+        {
+          "title": "Google Analytics Help: Google Analytics demo account",
+          "url": "https://support.google.com/analytics/answer/6367342"
+        },
+        {
+          "title": "Google Analytics Help: Get started with explorations",
+          "url": "https://support.google.com/analytics/answer/7579450"
+        }
       ]
     },
     {
@@ -233,21 +329,54 @@
         "en": "In this task I wrote Voltra's Analytics 360 plan. I compared standard GA4 and 360 in a table: retention, custom dimensions, key events, audiences, sampling limits, BigQuery export, sub-properties, roll-ups and the SLA. I designed one global source property with sub-properties for India D2C, exports and dealers, and a roll-up only for a board view across brands. I defined access roles and data restrictions so agencies cannot see revenue. I was honest that 360 is billed by events and does not fix bad tagging, and I added a 90-day rollout plan."
       },
       "vocabulary": [
-        { "term": "Analytics 360", "en": "the paid enterprise version of Google Analytics with higher limits and an SLA" },
-        { "term": "sub-property", "en": "a 360 property that gets a filtered part of a source property's data" },
-        { "term": "roll-up property", "en": "a 360 property that combines data from several source properties" },
-        { "term": "SLA", "en": "service level agreement: a promise about data freshness and uptime" },
-        { "term": "data restriction", "en": "a setting that hides cost or revenue metrics from some users" }
+        {
+          "term": "Analytics 360",
+          "en": "the paid enterprise version of Google Analytics with higher limits and an SLA"
+        },
+        {
+          "term": "sub-property",
+          "en": "a 360 property that gets a filtered part of a source property's data"
+        },
+        {
+          "term": "roll-up property",
+          "en": "a 360 property that combines data from several source properties"
+        },
+        {
+          "term": "SLA",
+          "en": "service level agreement: a promise about data freshness and uptime"
+        },
+        {
+          "term": "data restriction",
+          "en": "a setting that hides cost or revenue metrics from some users"
+        }
       ],
       "interview": [
-        { "q": "What does Analytics 360 give you that the free GA4 does not?", "a": "Sub-properties and roll-up properties, much higher limits for custom dimensions, audiences, key events and retention up to 50 months, and higher exploration limits. It also gives a much higher daily BigQuery export limit, a fresher daily export and an SLA for collection and processing. It does not make bad tracking good, so I still need a clean tracking plan. I justify 360 with the governance and scale it gives, not with features we will not use." },
-        { "q": "When would you use a sub-property and when a roll-up?", "a": "A sub-property splits one source property, for example to give the export team only export data with its own access and settings. A roll-up combines several source properties, for example a board view across two brands. Both only have data from the time they are created, and both add billable events. For Voltra's main site I keep one source property and use sub-properties for access control." },
-        { "q": "How do you govern access to analytics at a company with many agencies?", "a": "I give the lowest role that lets each group do its job and grant it at the sub-property level where possible. Agencies get Analyst or Marketer roles with no cost and no revenue metrics if contracts require it. Important settings like key events and attribution need a ticket and approval. I review access every quarter and remove people who left." }
+        {
+          "q": "What does Analytics 360 give you that the free GA4 does not?",
+          "a": "Sub-properties and roll-up properties, much higher limits for custom dimensions, audiences, key events and retention up to 50 months, and higher exploration limits. It also gives a much higher daily BigQuery export limit, a fresher daily export and an SLA for collection and processing. It does not make bad tracking good, so I still need a clean tracking plan. I justify 360 with the governance and scale it gives, not with features we will not use."
+        },
+        {
+          "q": "When would you use a sub-property and when a roll-up?",
+          "a": "A sub-property splits one source property, for example to give the export team only export data with its own access and settings. A roll-up combines several source properties, for example a board view across two brands. Both only have data from the time they are created, and both add billable events. For Voltra's main site I keep one source property and use sub-properties for access control."
+        },
+        {
+          "q": "How do you govern access to analytics at a company with many agencies?",
+          "a": "I give the lowest role that lets each group do its job and grant it at the sub-property level where possible. Agencies get Analyst or Marketer roles with no cost and no revenue metrics if contracts require it. Important settings like key events and attribution need a ticket and approval. I review access every quarter and remove people who left."
+        }
       ],
       "resources": [
-        { "title": "Google Analytics Help: Analytics 360 overview", "url": "https://support.google.com/analytics/answer/11202874" },
-        { "title": "Google Analytics Help: Sub-properties", "url": "https://support.google.com/analytics/answer/11525312" },
-        { "title": "Google Skillshop: Google Analytics training", "url": "https://skillshop.withgoogle.com/" }
+        {
+          "title": "Google Analytics Help: Analytics 360 overview",
+          "url": "https://support.google.com/analytics/answer/11202874"
+        },
+        {
+          "title": "Google Analytics Help: Subproperties (Analytics 360)",
+          "url": "https://support.google.com/analytics/answer/11524031"
+        },
+        {
+          "title": "Google Skillshop: Google Analytics training",
+          "url": "https://skillshop.withgoogle.com/"
+        }
       ]
     },
     {
@@ -294,19 +423,46 @@
         "en": "In this case I found why GA4 and the CRM showed different booking numbers. First I solved the funnel lab to practise the method. Then I matched GA4 transaction IDs with CRM booking IDs and classified each row as matched, missing, duplicate or extra. I found several causes: test and cancelled bookings, UTC versus IST dates, duplicate purchase events from page reloads, and UPI users who never returned to the thank-you page. I wrote a fix plan with a once-only purchase event and server-side events from the payment webhook. I also set a rule: the CRM is the truth for finance, GA4 is for channels and funnels, and we track the match rate every week."
       },
       "vocabulary": [
-        { "term": "transaction ID", "en": "a unique ID for each order or booking, used to match systems" },
-        { "term": "match rate", "en": "the share of CRM orders that GA4 also recorded" },
-        { "term": "Measurement Protocol", "en": "a way to send events to GA4 from a server" },
-        { "term": "webhook", "en": "a message one system sends to another when something happens, like a payment" }
+        {
+          "term": "transaction ID",
+          "en": "a unique ID for each order or booking, used to match systems"
+        },
+        {
+          "term": "match rate",
+          "en": "the share of CRM orders that GA4 also recorded"
+        },
+        {
+          "term": "Measurement Protocol",
+          "en": "a way to send events to GA4 from a server"
+        },
+        {
+          "term": "webhook",
+          "en": "a message one system sends to another when something happens, like a payment"
+        }
       ],
       "interview": [
-        { "q": "GA4 and the CRM show different order numbers. How do you investigate?", "a": "I start with a row-level match on transaction ID, not with totals, because totals hide causes that cancel each other out. Then I classify rows as matched, missing, duplicate or extra and put a number on each cause. Typical causes are time zones, test and cancelled orders, duplicate purchase events, users who never reach the thank-you page and consent or ad blockers. I fix what is fixable and report a match rate for the rest." },
-        { "q": "How do you stop duplicate purchase events?", "a": "I fire purchase on a dataLayer event that the site pushes once after payment success, not on a thank-you page view. On the client side I also store the transaction ID in session storage and skip the tag if it was already sent. The strongest solution is to send it from the server when the payment webhook arrives. I check duplicates every week in BigQuery by counting purchases per transaction ID." },
-        { "q": "Which number do you give the board?", "a": "For bookings and revenue I give the CRM or finance number, because it is the system of record. I use GA4 to explain where bookings come from and how users behave, and I say clearly that it is a sample with known loss. I also show the match rate as a tracking health number. That way nobody argues about which tool is right; each number has its job." }
+        {
+          "q": "GA4 and the CRM show different order numbers. How do you investigate?",
+          "a": "I start with a row-level match on transaction ID, not with totals, because totals hide causes that cancel each other out. Then I classify rows as matched, missing, duplicate or extra and put a number on each cause. Typical causes are time zones, test and cancelled orders, duplicate purchase events, users who never reach the thank-you page and consent or ad blockers. I fix what is fixable and report a match rate for the rest."
+        },
+        {
+          "q": "How do you stop duplicate purchase events?",
+          "a": "I fire purchase on a dataLayer event that the site pushes once after payment success, not on a thank-you page view. On the client side I also store the transaction ID in session storage and skip the tag if it was already sent. The strongest solution is to send it from the server when the payment webhook arrives. I check duplicates every week in BigQuery by counting purchases per transaction ID."
+        },
+        {
+          "q": "Which number do you give the board?",
+          "a": "For bookings and revenue I give the CRM or finance number, because it is the system of record. I use GA4 to explain where bookings come from and how users behave, and I say clearly that it is a sample with known loss. I also show the match rate as a tracking health number. That way nobody argues about which tool is right; each number has its job."
+        }
       ],
       "resources": [
-        { "title": "Google Developers: Measure ecommerce (GA4)", "url": "https://developers.google.com/analytics/devguides/collection/ga4/ecommerce" },
-        { "title": "Google Developers: Measurement Protocol (GA4)", "url": "https://developers.google.com/analytics/devguides/collection/protocol/ga4" }
+        {
+          "title": "Google Developers: Measure ecommerce (GA4)",
+          "url": "https://developers.google.com/analytics/devguides/collection/ga4/ecommerce"
+        },
+        {
+          "title": "Google Developers: Measurement Protocol (GA4)",
+          "url": "https://developers.google.com/analytics/devguides/collection/protocol/ga4"
+        }
       ]
     }
   ]

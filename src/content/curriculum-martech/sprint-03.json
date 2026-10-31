@@ -57,21 +57,54 @@
         "en": "In this task I audited a Tag Manager container and wrote Voltra's tagging SOP. I found problems like duplicate Google tags, hard-coded IDs, conversion tags on all pages, risky Custom HTML and too many people with Publish rights, and I logged each one with a risk and a fix. I cleaned the practice container, used constant variables, folders and the naming standard, created a Staging environment and published a named version with notes. The SOP sets who can edit, approve and publish, how we test and roll back, and our Custom HTML policy. I also explained how Tag Manager 360 approvals and zones would control what agencies can publish."
       },
       "vocabulary": [
-        { "term": "workspace", "en": "a separate copy in GTM where you make changes before you publish" },
-        { "term": "environment", "en": "a GTM setting that lets you publish a version to staging instead of live" },
-        { "term": "version", "en": "a saved snapshot of the whole container that you can publish or roll back to" },
-        { "term": "zone", "en": "a Tag Manager 360 feature that limits where and which tags a linked container can fire" },
-        { "term": "approval workflow", "en": "a Tag Manager 360 process where changes must be approved before publishing" }
+        {
+          "term": "workspace",
+          "en": "a separate copy in GTM where you make changes before you publish"
+        },
+        {
+          "term": "environment",
+          "en": "a GTM setting that lets you publish a version to staging instead of live"
+        },
+        {
+          "term": "version",
+          "en": "a saved snapshot of the whole container that you can publish or roll back to"
+        },
+        {
+          "term": "zone",
+          "en": "a Tag Manager 360 feature that limits where and which tags a linked container can fire"
+        },
+        {
+          "term": "approval workflow",
+          "en": "a Tag Manager 360 process where changes must be approved before publishing"
+        }
       ],
       "interview": [
-        { "q": "How do you govern a GTM container with several agencies?", "a": "I limit Publish rights to two internal people and give agencies Edit or Approve. Each agency works in its own workspace, follows the naming standard and tests in Preview and on Staging. Every version gets a clear name and notes, so we can roll back fast. With Tag Manager 360 I add the approval workflow and zones, so agency tags can only fire on approved pages and tag types." },
-        { "q": "What are the biggest risks you look for in a GTM audit?", "a": "Custom HTML tags that load unknown scripts, because they are a security and privacy risk. Duplicate Google tags that double count data, and conversion tags firing on all pages that inflate conversions. Tags without consent settings in regions that need consent. And too many users with Publish rights, which is how broken changes go live." },
-        { "q": "What do Tag Manager 360 zones do?", "a": "A zone links another container to the main container and sets boundaries, for example by URL, and type restrictions for which tag types the linked container may use. That lets a regional team or an agency manage its own tags without touching the main container. The main container stays in control of what is allowed. It is a 360-only feature, and in the free version I use allowlists and permissions to get part of the same control." }
+        {
+          "q": "How do you govern a GTM container with several agencies?",
+          "a": "I limit Publish rights to two internal people and give agencies Edit or Approve. Each agency works in its own workspace, follows the naming standard and tests in Preview and on Staging. Every version gets a clear name and notes, so we can roll back fast. With Tag Manager 360 I add the approval workflow and zones, so agency tags can only fire on approved pages and tag types."
+        },
+        {
+          "q": "What are the biggest risks you look for in a GTM audit?",
+          "a": "Custom HTML tags that load unknown scripts, because they are a security and privacy risk. Duplicate Google tags that double count data, and conversion tags firing on all pages that inflate conversions. Tags without consent settings in regions that need consent. And too many users with Publish rights, which is how broken changes go live."
+        },
+        {
+          "q": "What do Tag Manager 360 zones do?",
+          "a": "A zone links another container to the main container and sets boundaries, for example by URL, and type restrictions for which tag types the linked container may use. That lets a regional team or an agency manage its own tags without touching the main container. The main container stays in control of what is allowed. It is a 360-only feature, and in the free version I use allowlists and permissions to get part of the same control."
+        }
       ],
       "resources": [
-        { "title": "Tag Manager Help: Environments", "url": "https://support.google.com/tagmanager/answer/6311518" },
-        { "title": "Tag Manager Help: Workspaces", "url": "https://support.google.com/tagmanager/answer/6328878" },
-        { "title": "Tag Manager Help: Zones (Tag Manager 360)", "url": "https://support.google.com/tagmanager/answer/7647040" }
+        {
+          "title": "Tag Manager Help: Environments",
+          "url": "https://support.google.com/tagmanager/answer/6311518"
+        },
+        {
+          "title": "Tag Manager Help: Workspaces",
+          "url": "https://support.google.com/tagmanager/answer/7059647"
+        },
+        {
+          "title": "Tag Manager Help: Zones (Tag Manager 360)",
+          "url": "https://support.google.com/tagmanager/answer/7647043"
+        }
       ]
     },
     {
@@ -117,21 +150,54 @@
         "en": "In this task I set up Consent Mode v2 on a practice site with a consent banner. I set defaults to denied for all four consent types in EEA regions, before any tag fires, using the Consent Initialization trigger. The banner updates all four types when the user accepts or rejects. Google tags use their built-in checks, and non-Google tags require extra consent and re-fire on a consent update event. I proved it in Tag Assistant and in the gcs and gcd parameters. I documented advanced versus basic mode, the regions and what modelling we can expect in GA4 and Google Ads."
       },
       "vocabulary": [
-        { "term": "Consent Mode v2", "en": "Google's way for tags to follow the user's consent, with four consent types" },
-        { "term": "CMP", "en": "consent management platform: the tool that shows the cookie banner and stores choices" },
-        { "term": "advanced consent mode", "en": "tags load and send cookieless pings when consent is denied" },
-        { "term": "basic consent mode", "en": "tags do not load at all until the user gives consent" },
-        { "term": "ad_user_data", "en": "the consent type for sending user data to Google for advertising" },
-        { "term": "conversion modelling", "en": "Google estimates conversions it cannot see because consent was denied" }
+        {
+          "term": "Consent Mode v2",
+          "en": "Google's way for tags to follow the user's consent, with four consent types"
+        },
+        {
+          "term": "CMP",
+          "en": "consent management platform: the tool that shows the cookie banner and stores choices"
+        },
+        {
+          "term": "advanced consent mode",
+          "en": "tags load and send cookieless pings when consent is denied"
+        },
+        {
+          "term": "basic consent mode",
+          "en": "tags do not load at all until the user gives consent"
+        },
+        {
+          "term": "ad_user_data",
+          "en": "the consent type for sending user data to Google for advertising"
+        },
+        {
+          "term": "conversion modelling",
+          "en": "Google estimates conversions it cannot see because consent was denied"
+        }
       ],
       "interview": [
-        { "q": "What changed in Consent Mode v2?", "a": "v2 added two consent types, ad_user_data and ad_personalization, next to ad_storage and analytics_storage. Google requires them for users in the EEA to keep features like remarketing audiences and some conversion measurement. A correct setup sets defaults before any tag fires and updates all four types from the banner. I verify it in Tag Assistant and in the gcs and gcd request parameters." },
-        { "q": "Advanced or basic consent mode: which do you choose?", "a": "Advanced mode loads Google tags and sends cookieless pings when consent is denied, which lets Google model conversions and behaviour. Basic mode blocks the tags until consent, so there is less data and only a general model. The choice is a legal and business decision, so I present both with the data impact and let legal decide per region. For Voltra we chose advanced in the EEA after legal review." },
-        { "q": "Why might a tag never fire even after the user accepts cookies?", "a": "In GTM a tag that is blocked by consent is not queued. If its trigger happened before the consent update, it does not fire later by itself. I fix this by firing non-Google tags also on a consent update event from the CMP. I test this flow on the same page in Tag Assistant every time the banner changes." }
+        {
+          "q": "What changed in Consent Mode v2?",
+          "a": "v2 added two consent types, ad_user_data and ad_personalization, next to ad_storage and analytics_storage. Google requires them for users in the EEA to keep features like remarketing audiences and some conversion measurement. A correct setup sets defaults before any tag fires and updates all four types from the banner. I verify it in Tag Assistant and in the gcs and gcd request parameters."
+        },
+        {
+          "q": "Advanced or basic consent mode: which do you choose?",
+          "a": "Advanced mode loads Google tags and sends cookieless pings when consent is denied, which lets Google model conversions and behaviour. Basic mode blocks the tags until consent, so there is less data and only a general model. The choice is a legal and business decision, so I present both with the data impact and let legal decide per region. For Voltra we chose advanced in the EEA after legal review."
+        },
+        {
+          "q": "Why might a tag never fire even after the user accepts cookies?",
+          "a": "In GTM a tag that is blocked by consent is not queued. If its trigger happened before the consent update, it does not fire later by itself. I fix this by firing non-Google tags also on a consent update event from the CMP. I test this flow on the same page in Tag Assistant every time the banner changes."
+        }
       ],
       "resources": [
-        { "title": "Google Developers: Set up consent mode on websites", "url": "https://developers.google.com/tag-platform/security/guides/consent" },
-        { "title": "Google Ads Help: About consent mode", "url": "https://support.google.com/google-ads/answer/10000067" }
+        {
+          "title": "Google Developers: Set up consent mode on websites",
+          "url": "https://developers.google.com/tag-platform/security/guides/consent"
+        },
+        {
+          "title": "Google Ads Help: About consent mode",
+          "url": "https://support.google.com/google-ads/answer/10000067"
+        }
       ]
     },
     {
@@ -176,20 +242,50 @@
         "en": "In this task I set up enhanced conversions for web in a safe test setup. I created a Google Ads test account and a conversion action with enhanced conversions using Tag Manager. On a practice booking form I pushed a purchase event with fake user data to the dataLayer. In GTM I built a user-provided data variable and a conversion tag with value, currency and transaction ID. I checked in the network request that the email and phone are hashed. I wrote a note on hashing, consent, the developer requirements and how to check the diagnostics after launch."
       },
       "vocabulary": [
-        { "term": "enhanced conversions", "en": "sending hashed first-party data with a conversion so Google can match more conversions" },
-        { "term": "hashing", "en": "turning text into a fixed code that cannot be turned back (SHA-256)" },
-        { "term": "first-party data", "en": "data your company collects directly from its own customers" },
-        { "term": "E.164", "en": "the international phone format with plus sign and country code, like +91..." },
-        { "term": "conversion linker", "en": "a GTM tag that saves ad click information in first-party cookies" }
+        {
+          "term": "enhanced conversions",
+          "en": "sending hashed first-party data with a conversion so Google can match more conversions"
+        },
+        {
+          "term": "hashing",
+          "en": "turning text into a fixed code that cannot be turned back (SHA-256)"
+        },
+        {
+          "term": "first-party data",
+          "en": "data your company collects directly from its own customers"
+        },
+        {
+          "term": "E.164",
+          "en": "the international phone format with plus sign and country code, like +91..."
+        },
+        {
+          "term": "conversion linker",
+          "en": "a GTM tag that saves ad click information in first-party cookies"
+        }
       ],
       "interview": [
-        { "q": "How do enhanced conversions work?", "a": "When a user converts, the tag sends normalised, SHA-256 hashed data like email and phone with the conversion. Google matches the hash with signed-in Google users to connect the conversion to the ad interaction when cookies are missing. It needs consent, the customer data terms and good data quality. It recovers part of the lost conversions and helps smart bidding." },
-        { "q": "How do you test enhanced conversions before launch?", "a": "I test the build in GTM Preview: the user-provided data variable must return values on the conversion event. Then I check the conversion request in the Network tab to see hashed user data. After launch I watch the Diagnostics of the conversion action for match rates and errors. I always use fake test data, never real customer data." },
-        { "q": "What is the difference between enhanced conversions for web and for leads?", "a": "For web, the conversion happens on the site and the hashed data goes with the online conversion tag. For leads, the form sends hashed data at lead time, and later the CRM uploads the qualified or closed lead with the same hashed data, so Google can match it without a gclid. Voltra needs both: web for online bookings and leads for the dealer funnel. I cover the leads setup together with offline imports." }
+        {
+          "q": "How do enhanced conversions work?",
+          "a": "When a user converts, the tag sends normalised, SHA-256 hashed data like email and phone with the conversion. Google matches the hash with signed-in Google users to connect the conversion to the ad interaction when cookies are missing. It needs consent, the customer data terms and good data quality. It recovers part of the lost conversions and helps smart bidding."
+        },
+        {
+          "q": "How do you test enhanced conversions before launch?",
+          "a": "I test the build in GTM Preview: the user-provided data variable must return values on the conversion event. Then I check the conversion request in the Network tab to see hashed user data. After launch I watch the Diagnostics of the conversion action for match rates and errors. I always use fake test data, never real customer data."
+        },
+        {
+          "q": "What is the difference between enhanced conversions for web and for leads?",
+          "a": "For web, the conversion happens on the site and the hashed data goes with the online conversion tag. For leads, the form sends hashed data at lead time, and later the CRM uploads the qualified or closed lead with the same hashed data, so Google can match it without a gclid. Voltra needs both: web for online bookings and leads for the dealer funnel. I cover the leads setup together with offline imports."
+        }
       ],
       "resources": [
-        { "title": "Google Ads Help: About enhanced conversions", "url": "https://support.google.com/google-ads/answer/9888656" },
-        { "title": "Google Ads API Docs: Test accounts", "url": "https://developers.google.com/google-ads/api/docs/best-practices/test-accounts" }
+        {
+          "title": "Google Ads Help: About enhanced conversions",
+          "url": "https://support.google.com/google-ads/answer/9888656"
+        },
+        {
+          "title": "Google Ads API Docs: Test accounts",
+          "url": "https://developers.google.com/google-ads/api/docs/best-practices/test-accounts"
+        }
       ]
     },
     {
@@ -235,21 +331,54 @@
         "en": "In this project I designed server-side tagging for Voltra and built a small working example for free. I created a server container with a GA4 client and a GA4 server tag, and I pointed my web Google tag to the tagging server with the server_container_url setting. I checked the flow in the server Preview and in GA4 Realtime. In the design I drew the data flow, chose a first-party subdomain, and wrote data controls like removing IP addresses and respecting consent on the server. I made an honest cost table and a risk list, and I recommended when Voltra should move and how we measure success."
       },
       "vocabulary": [
-        { "term": "server-side tagging", "en": "tags run on your own server instead of in the user's browser" },
-        { "term": "tagging server", "en": "the server that runs the GTM server container" },
-        { "term": "client (server GTM)", "en": "the part of a server container that receives and reads incoming requests" },
-        { "term": "first-party domain", "en": "a domain that belongs to your own website, like sgtm.voltra.in" },
-        { "term": "Conversions API", "en": "Meta's way to receive conversion events from a server" }
+        {
+          "term": "server-side tagging",
+          "en": "tags run on your own server instead of in the user's browser"
+        },
+        {
+          "term": "tagging server",
+          "en": "the server that runs the GTM server container"
+        },
+        {
+          "term": "client (server GTM)",
+          "en": "the part of a server container that receives and reads incoming requests"
+        },
+        {
+          "term": "first-party domain",
+          "en": "a domain that belongs to your own website, like sgtm.voltra.in"
+        },
+        {
+          "term": "Conversions API",
+          "en": "Meta's way to receive conversion events from a server"
+        }
       ],
       "interview": [
-        { "q": "What does server-side tagging really give a brand?", "a": "It moves vendor tags from the browser to a server we control on our own domain. That gives us control over what data each vendor receives, fewer scripts in the browser, and first-party cookies that can last longer. It is also a clean way to send Meta CAPI and other server events. It does not remove the need for consent, and it adds hosting and maintenance work." },
-        { "q": "What does it cost to run server-side GTM?", "a": "The container is free, but the tagging server is not. On Google Cloud Run, Google recommends several always-on instances for production, and cost grows with request volume; managed hosts like Stape have plans by request volume. I also count the people cost: someone must monitor uptime, update templates and test releases. I always show leadership a cost table at three traffic levels before deciding." },
-        { "q": "What are the risks of server-side tagging?", "a": "It becomes a single point of failure for all measurement, so it needs monitoring and enough instances. It can add latency if hosted far away. Some agencies sell it as a way around consent, which is wrong and a legal risk. I make sure consent signals reach every server tag and that a team owns the server like any other production system." }
+        {
+          "q": "What does server-side tagging really give a brand?",
+          "a": "It moves vendor tags from the browser to a server we control on our own domain. That gives us control over what data each vendor receives, fewer scripts in the browser, and first-party cookies that can last longer. It is also a clean way to send Meta CAPI and other server events. It does not remove the need for consent, and it adds hosting and maintenance work."
+        },
+        {
+          "q": "What does it cost to run server-side GTM?",
+          "a": "The container is free, but the tagging server is not. On Google Cloud Run, Google recommends several always-on instances for production, and cost grows with request volume; managed hosts like Stape have plans by request volume. I also count the people cost: someone must monitor uptime, update templates and test releases. I always show leadership a cost table at three traffic levels before deciding."
+        },
+        {
+          "q": "What are the risks of server-side tagging?",
+          "a": "It becomes a single point of failure for all measurement, so it needs monitoring and enough instances. It can add latency if hosted far away. Some agencies sell it as a way around consent, which is wrong and a legal risk. I make sure consent signals reach every server tag and that a team owns the server like any other production system."
+        }
       ],
       "resources": [
-        { "title": "Google Developers: Server-side tagging overview", "url": "https://developers.google.com/tag-platform/tag-manager/server-side" },
-        { "title": "Google Developers: Cloud Run setup guide for server-side tagging", "url": "https://developers.google.com/tag-platform/tag-manager/server-side/cloud-run-setup-guide" },
-        { "title": "Google Developers: Map a custom domain for server-side tagging", "url": "https://developers.google.com/tag-platform/tag-manager/server-side/custom-domain" }
+        {
+          "title": "Google Developers: Server-side tagging overview",
+          "url": "https://developers.google.com/tag-platform/tag-manager/server-side"
+        },
+        {
+          "title": "Google Developers: Cloud Run setup guide for server-side tagging",
+          "url": "https://developers.google.com/tag-platform/tag-manager/server-side/cloud-run-setup-guide"
+        },
+        {
+          "title": "Google Developers: Map a custom domain for server-side tagging",
+          "url": "https://developers.google.com/tag-platform/tag-manager/server-side/custom-domain"
+        }
       ]
     },
     {
@@ -297,19 +426,46 @@
         "en": "In this case I found why conversions dropped after a new cookie banner. First I solved the GTM lab to practise reading Preview. Then I rebuilt the agency's changes in a practice container and found four causes: the consent default was set too late, the banner did not update the two new v2 consent types, the Google Ads tag had an extra consent rule, and blocked tags were not fired again after consent. CRM bookings were flat, which proved that measurement broke, not sales. I fixed and tested the container, published a named version, and recommended a data exclusion in Google Ads. I also added an alert and made banner changes follow the tagging SOP."
       },
       "vocabulary": [
-        { "term": "data exclusion", "en": "a Google Ads setting that tells smart bidding to ignore data from broken dates" },
-        { "term": "root cause", "en": "the real reason a problem happened" },
-        { "term": "rollback", "en": "going back to the last version that worked" },
-        { "term": "incident report", "en": "a short document about what broke, why, the fix and how to prevent it" }
+        {
+          "term": "data exclusion",
+          "en": "a Google Ads setting that tells smart bidding to ignore data from broken dates"
+        },
+        {
+          "term": "root cause",
+          "en": "the real reason a problem happened"
+        },
+        {
+          "term": "rollback",
+          "en": "going back to the last version that worked"
+        },
+        {
+          "term": "incident report",
+          "en": "a short document about what broke, why, the fix and how to prevent it"
+        }
       ],
       "interview": [
-        { "q": "Conversions dropped after a cookie banner change. Where do you start?", "a": "I compare ad and analytics conversions with the CRM first. If sales are flat, the problem is measurement, not demand. Then I open Tag Assistant on the live site and check the Consent tab: is the default set before tags fire, and are all four v2 types updated on Accept. Then I check which conversion tags fire or get blocked, and I compare with the last good GTM version." },
-        { "q": "What do you do about smart bidding after a tracking outage?", "a": "Smart bidding learns from the missing conversions and lowers bids, so I act fast. After the fix, I add a data exclusion for the broken dates so the bid strategy ignores that period. I tell the media team not to make big budget or target changes until the data is clean again. I also note the dates in reports so nobody uses them for decisions." },
-        { "q": "How do you stop this from happening again?", "a": "I treat the consent banner as part of the tag setup, not as a legal widget. Any banner change goes through the GTM SOP: workspace, Staging, a consent test in Tag Assistant for Accept and Reject, and sign-off. I add a daily alert if key events drop sharply. And I keep a short consent test checklist that any analyst can run in ten minutes." }
+        {
+          "q": "Conversions dropped after a cookie banner change. Where do you start?",
+          "a": "I compare ad and analytics conversions with the CRM first. If sales are flat, the problem is measurement, not demand. Then I open Tag Assistant on the live site and check the Consent tab: is the default set before tags fire, and are all four v2 types updated on Accept. Then I check which conversion tags fire or get blocked, and I compare with the last good GTM version."
+        },
+        {
+          "q": "What do you do about smart bidding after a tracking outage?",
+          "a": "Smart bidding learns from the missing conversions and lowers bids, so I act fast. After the fix, I add a data exclusion for the broken dates so the bid strategy ignores that period. I tell the media team not to make big budget or target changes until the data is clean again. I also note the dates in reports so nobody uses them for decisions."
+        },
+        {
+          "q": "How do you stop this from happening again?",
+          "a": "I treat the consent banner as part of the tag setup, not as a legal widget. Any banner change goes through the GTM SOP: workspace, Staging, a consent test in Tag Assistant for Accept and Reject, and sign-off. I add a daily alert if key events drop sharply. And I keep a short consent test checklist that any analyst can run in ten minutes."
+        }
       ],
       "resources": [
-        { "title": "Google Developers: Set up consent mode on websites", "url": "https://developers.google.com/tag-platform/security/guides/consent" },
-        { "title": "Google Ads Help: Use data exclusions for conversion outages", "url": "https://support.google.com/google-ads/answer/10370699" }
+        {
+          "title": "Google Developers: Set up consent mode on websites",
+          "url": "https://developers.google.com/tag-platform/security/guides/consent"
+        },
+        {
+          "title": "Google Ads Help: About data exclusions",
+          "url": "https://support.google.com/google-ads/answer/10370710"
+        }
       ]
     }
   ]

@@ -1,0 +1,470 @@
+{
+  "id": "m04",
+  "number": 4,
+  "title": "BigQuery and SQL for marketers",
+  "weeks": "7-8",
+  "theme": "Query the GA4 BigQuery export with confidence: UNNEST, sessions, landing pages, funnels, revenue by source and items, a CRM join, a reporting table, a Looker Studio dashboard and cost control.",
+  "jobStory": "In this sprint you become the person who can answer any marketing question from raw data. You use the free BigQuery sandbox and Google's public GA4 sample dataset, so nothing costs money. You learn the GA4 export schema and write the queries a senior analyst writes every week: sessions, landing pages, funnels, revenue by source and medium, and product revenue. You join GA4 orders with a CRM table, build a small reporting table and a Looker Studio dashboard, and keep query cost under control. Then you solve a case where a BigQuery dashboard does not match GA4.",
+  "outcomes": [
+    "I set up the BigQuery sandbox, explored the GA4 export schema and controlled query cost with dry runs and a bytes limit.",
+    "I built sessions from user_pseudo_id and ga_session_id and found landing pages and engagement per session.",
+    "I wrote funnel, revenue by source/medium and item revenue queries with UNNEST on event_params and items.",
+    "I joined GA4 purchases with a CRM table, built a reporting table and a Looker Studio dashboard on it, and wrote a scheduled query spec.",
+    "I found and fixed the SQL mistakes that made a BigQuery dashboard disagree with GA4."
+  ],
+  "tickets": [
+    {
+      "id": "m04-t01",
+      "key": "MKT-401",
+      "type": "task",
+      "title": "BigQuery sandbox, the GA4 export schema and cost control",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You can open the GA4 export in BigQuery, explain every main field, read nested event parameters with UNNEST, and keep every query cheap.",
+      "context": "Hi, Analytics 360 now exports our raw GA4 data to BigQuery every day, but nobody in marketing can query it, so we wait days for the data team. I want you to own this. Please learn the export schema on Google's public sample data first, and set rules so nobody runs a query that costs us money by mistake. - Rahul, Head of Digital",
+      "steps": [
+        "If you want practice first, open Practice → SQL lab (`mk-sql`) in this app and do the first two levels. It trains UNNEST and session keys in the browser.",
+        "Open the BigQuery sandbox: console.cloud.google.com/bigquery with a Google account. Create a new project `voltra-analytics-practice`. Do not add a billing account. Write the sandbox limits in your notes: 10 GB storage and 1 TB of queries per month free, tables expire after 60 days, no DML (INSERT/UPDATE), no streaming, no Data Transfer Service (so no scheduled queries).",
+        "In Explorer click `+ Add` → `Star a project by name` → `bigquery-public-data`. Open `ga4_obfuscated_sample_ecommerce` → table `events_20210131` → `Schema`. Write one line for each of: `event_date`, `event_timestamp`, `event_name`, `event_params`, `user_pseudo_id`, `user_id`, `device`, `geo`, `traffic_source`, `ecommerce`, `items`.",
+        "Write the important schema facts: one row per event; daily tables `events_YYYYMMDD` (and `events_intraday_YYYYMMDD` in live exports); `event_date` is in the property time zone, `event_timestamp` is UTC in microseconds; `traffic_source` is the first-user source, not the session source; live exports today also have `collected_traffic_source` (event level) and `session_traffic_source_last_click`, but this 2020-2021 sample does not.",
+        "In all queries of this sprint the table name is shown between backticks; keep the backticks when you type or copy it, because the name has dashes and a `*`. Before running, look at the query validator at the top right of the editor: it shows how many bytes the query will process (a free dry run). Run this and write the bytes: SELECT event_date, COUNT(*) AS events, COUNT(DISTINCT user_pseudo_id) AS users FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201207' GROUP BY event_date ORDER BY event_date",
+        "List all parameter keys and their types: SELECT ep.key, COUNTIF(ep.value.string_value IS NOT NULL) AS string_rows, COUNTIF(ep.value.int_value IS NOT NULL) AS int_rows, COUNTIF(ep.value.double_value IS NOT NULL) AS double_rows FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*``, UNNEST(event_params) AS ep WHERE _TABLE_SUFFIX = '20201201' GROUP BY ep.key ORDER BY COUNT(*) DESC",
+        "Write which keys are text and which are numbers (for example `ga_session_id` is an int, `page_location` is a string).",
+        "Read one parameter with a scalar subquery (the safe pattern that keeps one row per event): SELECT (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'page_location') AS page_location, COUNT(*) AS page_views FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'page_view' GROUP BY page_location ORDER BY page_views DESC LIMIT 20",
+        "Write in your notes the difference: `FROM table, UNNEST(event_params) AS ep` makes one row per parameter (good for exploring keys); the scalar subquery `(SELECT ... FROM UNNEST(event_params) WHERE key = ...)` keeps one row per event (good for reports). Mixing them up multiplies counts.",
+        "Test cost rules. Paste this query but do not run it; only read the bytes in the validator: SELECT * FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` LIMIT 10",
+        "Write the bytes. Then select only 3 columns for one day and compare. Write that `LIMIT` does not reduce bytes scanned, but fewer columns and a `_TABLE_SUFFIX` filter do.",
+        "Set a safety limit: More → Query settings → Advanced options → `Maximum bytes billed` = `1000000000` (1 GB). Run a query above the limit and write the error message.",
+        "Write a one-page `BigQuery cost rules for marketing` doc: always filter `_TABLE_SUFFIX`, never `SELECT *`, check the validator before running, use the max bytes billed setting, build small reporting tables for dashboards, and in the paid project set a custom per-user daily query quota (IAM and admin → Quotas)."
+      ],
+      "acceptance": [
+        "The sandbox project exists without billing, and the public dataset is starred.",
+        "Every main schema field has a one-line description, including the `traffic_source` vs session source note.",
+        "The parameter key query and the page_location query run and their results are saved.",
+        "Bytes processed are recorded for `SELECT *`, for 3 columns and for one day vs one month.",
+        "The max bytes billed setting is tested and the cost rules doc is written."
+      ],
+      "evidence": [
+        "SQL of every query in a GitHub gist (one file per query)",
+        "Screenshots of the validator bytes for the cost tests and of the max bytes billed error",
+        "Link to the `BigQuery cost rules for marketing` doc"
+      ],
+      "hints": [
+        "Put the table name in backticks because it has dashes: `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`.",
+        "The sample data is obfuscated: you will see values like `<Other>` and `(data deleted)`. That is normal.",
+        "If a parameter returns NULL, check whether it lives in `int_value` instead of `string_value`."
+      ],
+      "explain": {
+        "en": "In this task I set up the BigQuery sandbox for free and learned the GA4 export schema on Google's public sample. I described the main fields and noted that event_date uses the property time zone while event_timestamp is UTC, and that traffic_source is the first-user source, not the session source. I listed all event parameter keys with their types and read parameters with a scalar subquery on UNNEST, which keeps one row per event. I tested cost: LIMIT does not reduce bytes, but fewer columns and a table suffix filter do. I set a maximum bytes billed limit and wrote cost rules for the marketing team."
+      },
+      "vocabulary": [
+        {
+          "term": "BigQuery sandbox",
+          "en": "a free way to use BigQuery without a billing account, with limits"
+        },
+        {
+          "term": "UNNEST",
+          "en": "a SQL function that turns an array into rows so you can read it"
+        },
+        {
+          "term": "event_params",
+          "en": "the array in the GA4 export that holds all parameters of an event"
+        },
+        {
+          "term": "user_pseudo_id",
+          "en": "the GA4 ID of a browser or app instance (the client ID)"
+        },
+        {
+          "term": "_TABLE_SUFFIX",
+          "en": "the part of a wildcard table name you filter on, like the date"
+        },
+        {
+          "term": "bytes processed",
+          "en": "how much data a query reads; on-demand pricing is based on it"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How is the GA4 BigQuery export structured?",
+          "a": "There is one row per event in daily tables named events_YYYYMMDD, plus intraday tables if streaming export is on. Event parameters and items are nested arrays, so I use UNNEST to read them. user_pseudo_id identifies the browser, and ga_session_id in event_params identifies the session. traffic_source is the first-user source; for session source I use session_traffic_source_last_click or collected_traffic_source in current exports."
+        },
+        {
+          "q": "How do you keep BigQuery costs under control for a marketing team?",
+          "a": "On-demand pricing is based on bytes scanned, so I always filter _TABLE_SUFFIX, select only the needed columns and never use SELECT star. LIMIT does not reduce cost. I set a maximum bytes billed on queries and a custom daily quota per user in the project. Dashboards read small aggregated tables, not the raw export."
+        },
+        {
+          "q": "When do you use a scalar subquery and when a cross join with UNNEST?",
+          "a": "A scalar subquery like SELECT value.string_value FROM UNNEST(event_params) WHERE key equals page_location keeps one row per event, so counts stay correct. A cross join with UNNEST creates one row per parameter or per item. I use the cross join to explore keys or for item-level analysis. Using it by mistake in an event-level report multiplies counts and revenue."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Cloud: Use the BigQuery sandbox",
+          "url": "https://cloud.google.com/bigquery/docs/sandbox"
+        },
+        {
+          "title": "Google Analytics Help: BigQuery Export schema",
+          "url": "https://support.google.com/analytics/answer/7029846"
+        },
+        {
+          "title": "Google Cloud: Control costs in BigQuery",
+          "url": "https://cloud.google.com/bigquery/docs/best-practices-costs"
+        }
+      ]
+    },
+    {
+      "id": "m04-t02",
+      "key": "MKT-402",
+      "type": "task",
+      "title": "Build sessions and landing pages from raw events",
+      "priority": "high",
+      "estimateHours": 8,
+      "goal": "You can count sessions, engaged sessions and landing pages correctly from the raw export and explain every difference to the GA4 interface.",
+      "context": "Hi, the agency says our new scooter landing pages have a high bounce rate, but I do not trust the GA4 report because of the (other) row and sampling. Please build sessions and landing pages from the raw data so we have numbers we can check ourselves. Practise on the sample data first. - Rahul, Head of Digital",
+      "steps": [
+        "If you want practice first, open Practice → SQL lab (`mk-sql`) and do the sessions level. It shows why a session key needs both IDs.",
+        "Write in your notes: a session is identified by `user_pseudo_id` + `ga_session_id` together. `ga_session_id` is the session start time in seconds, so two users can share it; never count sessions with `ga_session_id` alone.",
+        "Count sessions by device: WITH s AS (SELECT user_pseudo_id, (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS ga_session_id, device.category AS device_category FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231') SELECT device_category, COUNT(DISTINCT CONCAT(user_pseudo_id, CAST(ga_session_id AS STRING))) AS sessions FROM s GROUP BY device_category ORDER BY sessions DESC",
+        "Run the wrong version too, `COUNT(DISTINCT ga_session_id)`, and write the difference in %. This is the most common mistake in GA4 SQL.",
+        "Count engaged sessions. GA4 sends `session_engaged` = '1' on events of an engaged session: WITH e AS (SELECT CONCAT(user_pseudo_id, CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS STRING)) AS session_key, (SELECT COALESCE(value.string_value, CAST(value.int_value AS STRING)) FROM UNNEST(event_params) WHERE key = 'session_engaged') AS session_engaged FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231') SELECT COUNT(DISTINCT session_key) AS sessions, COUNT(DISTINCT IF(session_engaged = '1', session_key, NULL)) AS engaged_sessions, ROUND(SAFE_DIVIDE(COUNT(DISTINCT IF(session_engaged = '1', session_key, NULL)), COUNT(DISTINCT session_key)), 4) AS engagement_rate FROM e WHERE session_key IS NOT NULL",
+        "Find the landing page of each session (first `page_view` by time) and count sessions per landing page: WITH pv AS (SELECT CONCAT(user_pseudo_id, CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS STRING)) AS session_key, event_timestamp, (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'page_location') AS page_location FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'page_view'), landing AS (SELECT session_key, ARRAY_AGG(page_location IGNORE NULLS ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)] AS landing_page FROM pv WHERE session_key IS NOT NULL GROUP BY session_key) SELECT SPLIT(landing_page, '?')[SAFE_OFFSET(0)] AS landing_page, COUNT(*) AS sessions FROM landing GROUP BY 1 ORDER BY sessions DESC LIMIT 20",
+        "Write why you remove the query string with `SPLIT(..., '?')` (gclid and UTM values make every URL unique) and why GA4's own landing page dimension uses the path without query.",
+        "Extend the landing page query: join the landing table with the engaged session flag (from the step before) and add `engagement_rate` per landing page. Keep only pages with at least 200 sessions. Save it as `landing_pages_engagement.sql`.",
+        "Compare with the GA4 demo account: Reports → Engagement → Landing page, same month (December 2020 data is not in the demo account, so compare the method, not the numbers). Write 3 reasons why BigQuery and the interface can differ: the interface estimates session and user counts with HyperLogLog++, the interface can apply thresholds and (other) rows, consent mode modelling only exists in the interface.",
+        "Write a short `Session SQL guide` (Google Doc): session key, landing page, engaged session, bounce rate = 1 - engagement rate, what not to do, and links to your gist files."
+      ],
+      "acceptance": [
+        "Sessions are counted with the `user_pseudo_id` + `ga_session_id` key, and the error of the wrong method is shown in %.",
+        "The engagement rate query and the landing page query run without errors.",
+        "Landing pages are cleaned of query strings and filtered to at least 200 sessions.",
+        "At least 3 correct reasons for differences to the GA4 interface are written.",
+        "The Session SQL guide is written."
+      ],
+      "evidence": [
+        "GitHub gist with `sessions_by_device.sql`, `engaged_sessions.sql`, `landing_pages_engagement.sql`",
+        "Screenshot of the landing page result table",
+        "Link to the `Session SQL guide` doc"
+      ],
+      "hints": [
+        "`CONCAT` returns NULL if one part is NULL; filter `session_key IS NOT NULL` so those rows do not form one fake session.",
+        "`ARRAY_AGG(... ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)]` is the standard way to get the first value in a group.",
+        "In this sample `session_engaged` can be text; `COALESCE` with the int value makes the query safe for both."
+      ],
+      "explain": {
+        "en": "In this task I built sessions and landing pages from the raw GA4 export. I used user_pseudo_id plus ga_session_id as the session key, and I showed how wrong the count is with ga_session_id alone. I counted engaged sessions from the session_engaged parameter and calculated the engagement rate. I found each session's landing page as the first page view by time and removed query strings, so gclid and UTM values do not split pages. I compared the method with the GA4 interface and explained the differences, like HyperLogLog++ estimates and thresholds. I wrote a short session SQL guide for the team."
+      },
+      "vocabulary": [
+        {
+          "term": "session key",
+          "en": "user_pseudo_id plus ga_session_id: the unique ID of a session"
+        },
+        {
+          "term": "landing page",
+          "en": "the first page a user sees in a session"
+        },
+        {
+          "term": "engaged session",
+          "en": "a session that lasted over 10 seconds, had a key event or had 2 or more page views"
+        },
+        {
+          "term": "query string",
+          "en": "the part of a URL after the question mark"
+        },
+        {
+          "term": "HyperLogLog++",
+          "en": "a method that estimates unique counts fast; GA4 uses it for users and sessions"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How do you count sessions in the GA4 BigQuery export?",
+          "a": "I build a session key from user_pseudo_id and the ga_session_id event parameter and count distinct keys. ga_session_id alone is the session start time in seconds, so different users can share it and the count is too low. I also remove rows where the key is NULL. If I need to match the interface closely, I can use HLL_COUNT functions with the same precision GA4 uses."
+        },
+        {
+          "q": "Why do BigQuery session counts differ from the GA4 interface?",
+          "a": "The interface estimates unique counts with HyperLogLog++, while BigQuery gives exact counts unless I use HLL functions. The interface can also include consent mode modelling, apply thresholds and use reporting identity. Time zone and late-arriving events matter too. Small differences are normal; I document them and only investigate if the gap is large or changes suddenly."
+        },
+        {
+          "q": "How do you find the landing page per session?",
+          "a": "I take the first page_view in each session ordered by event_timestamp, using ARRAY_AGG with ORDER BY and LIMIT 1. I strip the query string, because gclid and UTM values make each URL unique. Then I group by the cleaned landing page and add engagement rate and conversions per page. I filter out pages with too few sessions so the rates are not noise."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Developers: GA4 BigQuery basic queries",
+          "url": "https://developers.google.com/analytics/bigquery/basic-queries"
+        },
+        {
+          "title": "Google Cloud: Work with arrays in GoogleSQL",
+          "url": "https://cloud.google.com/bigquery/docs/arrays"
+        }
+      ]
+    },
+    {
+      "id": "m04-t03",
+      "key": "MKT-403",
+      "type": "task",
+      "title": "Funnels, revenue by source/medium and item revenue in SQL",
+      "priority": "high",
+      "estimateHours": 9,
+      "goal": "You answer the three questions leadership asks every month with tested SQL: where users drop in the funnel, which sources bring revenue, and which products sell.",
+      "context": "Hi, every month I ask the same three questions: where do we lose people before booking, which sources bring revenue, and which accessories sell. Each time someone builds a new report by hand and the numbers change. Please write tested, reusable SQL for all three on the sample data, so we can point it at our own export later. - Ananya, CMO",
+      "steps": [
+        "If you want practice first, open Practice → SQL lab (`mk-sql`) and do the funnel and revenue levels.",
+        "Session funnel by device: WITH e AS (SELECT CONCAT(user_pseudo_id, CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS STRING)) AS session_key, device.category AS device_category, event_name FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231'), s AS (SELECT session_key, ANY_VALUE(device_category) AS device_category, COUNTIF(event_name = 'view_item') > 0 AS viewed, COUNTIF(event_name = 'add_to_cart') > 0 AS carted, COUNTIF(event_name = 'begin_checkout') > 0 AS checkout, COUNTIF(event_name = 'purchase') > 0 AS purchased FROM e WHERE session_key IS NOT NULL GROUP BY session_key) SELECT device_category, COUNT(*) AS sessions, COUNTIF(viewed) AS view_item, COUNTIF(viewed AND carted) AS add_to_cart, COUNTIF(viewed AND carted AND checkout) AS begin_checkout, COUNTIF(viewed AND carted AND checkout AND purchased) AS purchase FROM s GROUP BY device_category ORDER BY sessions DESC",
+        "Add step rates in a Google Sheet (or in SQL with `SAFE_DIVIDE`). Write which step loses the most users on mobile vs desktop. Write that this funnel checks that each step happened in the session, not the order of steps; for a strict order compare the first `event_timestamp` of each step.",
+        "Revenue by first-user source/medium (uses `traffic_source`): SELECT traffic_source.source AS first_user_source, traffic_source.medium AS first_user_medium, COUNT(*) AS purchases, ROUND(SUM(ecommerce.purchase_revenue), 2) AS revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase' GROUP BY first_user_source, first_user_medium ORDER BY revenue DESC",
+        "Revenue by session source/medium. In this sample the `source` and `medium` event parameters carry the traffic source of the event (check they exist in your key list from MKT-401): WITH e AS (SELECT user_pseudo_id, event_name, event_timestamp, ecommerce.purchase_revenue AS revenue, (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS sid, (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'source') AS src, (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'medium') AS med FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231'), s AS (SELECT CONCAT(user_pseudo_id, CAST(sid AS STRING)) AS session_key, ARRAY_AGG(src IGNORE NULLS ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)] AS session_source, ARRAY_AGG(med IGNORE NULLS ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)] AS session_medium, COUNTIF(event_name = 'purchase') AS purchases, SUM(IF(event_name = 'purchase', revenue, 0)) AS revenue FROM e WHERE sid IS NOT NULL GROUP BY session_key) SELECT COALESCE(session_source, '(direct)') AS session_source, COALESCE(session_medium, '(none)') AS session_medium, COUNT(*) AS sessions, SUM(purchases) AS purchases, ROUND(SUM(revenue), 2) AS revenue FROM s GROUP BY 1, 2 ORDER BY revenue DESC LIMIT 20",
+        "Compare the two revenue tables and write why first-user and session source give different answers (first-user credits the channel that found the user; session credits the channel of the buying visit). Write which one Voltra uses for acquisition budgets and which one for retargeting.",
+        "Write how this query changes on Voltra's live export: use `session_traffic_source_last_click` (session level, includes Google Ads campaign data) or `collected_traffic_source` (event level, manual UTM values and gclid) instead of the event parameters.",
+        "Item revenue with UNNEST on items: SELECT item.item_name, item.item_category, SUM(item.quantity) AS units, ROUND(SUM(item.item_revenue), 2) AS item_revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*``, UNNEST(items) AS item WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase' GROUP BY item.item_name, item.item_category ORDER BY item_revenue DESC LIMIT 20",
+        "Check revenue twice: compare `SUM(ecommerce.purchase_revenue)` on purchase events with `SUM(item.item_revenue)` from the items query. Write the difference and the reasons (tax and shipping are in purchase revenue, not item revenue; some purchases have no items in the sample).",
+        "Check duplicates: SELECT ecommerce.transaction_id, COUNT(*) AS purchase_events FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase' GROUP BY ecommerce.transaction_id HAVING COUNT(*) > 1 ORDER BY purchase_events DESC",
+        "Write what `(not set)` means here and how you would treat duplicates in a revenue report.",
+        "Save every query in your gist with a header comment: question, date range, author, known limits. Write a 1-page answer for the CMO with the three answers and one action for each."
+      ],
+      "acceptance": [
+        "The funnel query runs and shows four steps per device, with step rates.",
+        "Revenue is shown by first-user source/medium and by session source/medium, and the difference is explained.",
+        "The item query uses `UNNEST(items)` and the revenue cross-check is explained.",
+        "The duplicate transaction check runs and its result is explained.",
+        "Every query has a header comment and is saved in the gist."
+      ],
+      "evidence": [
+        "GitHub gist with `funnel_by_device.sql`, `revenue_first_user_source.sql`, `revenue_session_source.sql`, `item_revenue.sql`, `duplicate_transactions.sql`",
+        "Screenshot of the funnel result and the session revenue result",
+        "The 1-page answer for the CMO"
+      ],
+      "hints": [
+        "Never `UNNEST(items)` in the same query where you sum `ecommerce.purchase_revenue`: it repeats the order revenue once per item.",
+        "If the session source is NULL for most sessions, check the parameter names in your key list.",
+        "`COUNTIF(condition) > 0` inside a `GROUP BY session_key` is a simple way to flag 'did this happen in the session'."
+      ],
+      "explain": {
+        "en": "In this task I wrote reusable SQL for three monthly questions on the GA4 sample data. I built a session funnel by device and found the step with the biggest drop. I calculated revenue by first-user source and by session source and explained why they differ, and how the query changes on a live export with session_traffic_source_last_click. I calculated item revenue with UNNEST on items and cross-checked it against purchase revenue. I also checked for duplicate transaction IDs. Every query has a header comment, and I gave the CMO a one-page answer with an action for each question."
+      },
+      "vocabulary": [
+        {
+          "term": "first-user source",
+          "en": "the source that first brought a user to the site"
+        },
+        {
+          "term": "session source",
+          "en": "the source of the visit in which something happened"
+        },
+        {
+          "term": "items array",
+          "en": "the list of products inside an ecommerce event in the export"
+        },
+        {
+          "term": "cross-check",
+          "en": "comparing two ways of calculating the same number to find errors"
+        }
+      ],
+      "interview": [
+        {
+          "q": "How do you build a funnel in SQL on GA4 data?",
+          "a": "I group events by session key and flag each step with COUNTIF event_name equals the step, greater than zero. Then I count sessions that reached each step, requiring all earlier steps too. If the business needs a strict order, I compare the first timestamp of each step. I break it down by device or channel to find where the leak is."
+        },
+        {
+          "q": "Which traffic source field do you use for revenue by channel?",
+          "a": "It depends on the question. traffic_source is the first-user source, good for acquisition value. For the session that bought, I use session_traffic_source_last_click in current exports, or collected_traffic_source on the event and then pick the session's first value. I always label the column clearly, because first-user and session revenue by channel are different answers."
+        },
+        {
+          "q": "What is a common mistake with UNNEST(items)?",
+          "a": "Summing order-level revenue after unnesting items, which repeats the order revenue once per item and inflates it. Also, a cross join with UNNEST drops purchases that have an empty items array. I keep order-level and item-level queries separate and cross-check the totals. Differences like tax and shipping are expected and I document them."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Developers: GA4 BigQuery ecommerce queries",
+          "url": "https://developers.google.com/analytics/bigquery/advanced-queries"
+        },
+        {
+          "title": "Google Developers: GA4 ecommerce demo dataset",
+          "url": "https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset"
+        }
+      ]
+    },
+    {
+      "id": "m04-t04",
+      "key": "MKT-404",
+      "type": "project",
+      "title": "Reporting table, CRM join and a Looker Studio dashboard on BigQuery",
+      "priority": "high",
+      "estimateHours": 11,
+      "goal": "Voltra has a small, cheap reporting table, a tested GA4-to-CRM join, a Looker Studio dashboard on BigQuery, and a written spec for the daily scheduled query.",
+      "context": "Hi, the board wants one dashboard that shows sessions, bookings and revenue by channel, and also how many online orders were really delivered, which only the CRM knows. Please build the full chain on the sample data: a reporting table, a CRM join and a dashboard. Keep it cheap, because every chart runs a query. - Ananya, CMO",
+      "steps": [
+        "In your sandbox project create a dataset: Explorer → your project → `Create dataset` → ID `voltra_mart`, location `US` (the public sample dataset is in the US, and a query cannot join datasets from different locations).",
+        "Build the reporting table (DDL is allowed in the sandbox; the table expires after 60 days): CREATE OR REPLACE TABLE voltra_mart.daily_sessions AS WITH e AS (SELECT PARSE_DATE('%Y%m%d', event_date) AS event_date, user_pseudo_id, event_name, event_timestamp, (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS sid, (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'source') AS src, (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'medium') AS med, device.category AS device_category, ecommerce.purchase_revenue AS revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'), s AS (SELECT CONCAT(user_pseudo_id, CAST(sid AS STRING)) AS session_key, MIN(event_date) AS session_date, ARRAY_AGG(src IGNORE NULLS ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)] AS source, ARRAY_AGG(med IGNORE NULLS ORDER BY event_timestamp LIMIT 1)[SAFE_OFFSET(0)] AS medium, ANY_VALUE(device_category) AS device_category, COUNTIF(event_name = 'purchase') AS purchases, SUM(IF(event_name = 'purchase', revenue, 0)) AS revenue FROM e WHERE sid IS NOT NULL GROUP BY session_key) SELECT session_date, COALESCE(source, '(direct)') AS source, COALESCE(medium, '(none)') AS medium, device_category, COUNT(*) AS sessions, SUM(purchases) AS purchases, ROUND(SUM(revenue), 2) AS revenue FROM s GROUP BY 1, 2, 3, 4",
+        "Check the table: open it → `Details` and write its size in MB next to the size of one month of the raw export. Write why dashboards on this table are fast and cheap.",
+        "Make a fake CRM table. Get 50 real transaction IDs: SELECT DISTINCT ecommerce.transaction_id FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase' AND ecommerce.transaction_id != '(not set)' LIMIT 50",
+        "Save results to Google Sheets, add a column `status` (`delivered` for about 40 rows, `cancelled` or `returned` for the rest) and `delivered_date`. Download as CSV.",
+        "Load it: `voltra_mart` → `Create table` → Source `Upload` → your CSV → table `crm_orders`, schema auto-detect. Loading data is free.",
+        "Join GA4 and CRM: WITH p AS (SELECT ecommerce.transaction_id AS transaction_id, traffic_source.source AS first_user_source, traffic_source.medium AS first_user_medium, ecommerce.purchase_revenue AS ga4_revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase') SELECT p.first_user_source, p.first_user_medium, COUNT(*) AS matched_orders, COUNTIF(c.status = 'delivered') AS delivered_orders, ROUND(SUM(IF(c.status = 'delivered', p.ga4_revenue, 0)), 2) AS delivered_revenue FROM p JOIN voltra_mart.crm_orders AS c ON p.transaction_id = c.transaction_id GROUP BY p.first_user_source, p.first_user_medium ORDER BY delivered_revenue DESC",
+        "Write the CRM join concept for Voltra's real data: the website sends `lead_id` and `transaction_id` as event parameters; the CRM exports leads and orders daily to BigQuery (HubSpot or the CRM's own connector, or a CSV load); we join on these IDs, never on email; we report delivered revenue by channel as the true outcome.",
+        "Build the dashboard: lookerstudio.google.com → Create → Report → Add data → BigQuery → My projects → `voltra-analytics-practice` → `voltra_mart` → `daily_sessions`. Add: date range control, scorecards (sessions, purchases, revenue, conversion rate as a calculated field `SUM(purchases) / SUM(sessions)`), a time series of sessions and revenue, a table by source/medium, a bar chart by device.",
+        "Add a second page from the CRM join: in Add data choose BigQuery → `Custom query`, paste the join query, and show delivered orders and delivered revenue by source.",
+        "Set data freshness on each data source (Resource → Manage added data sources → Edit → Data freshness, for example every 12 hours) and write why it matters for cost.",
+        "Write the scheduled query spec (the sandbox cannot run scheduled queries, so this is a document for the paid project): runs daily at 09:00 IST, re-processes the last 3 days because GA4 daily tables can still change for up to 72 hours, uses `_TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', DATE_SUB(@run_date, INTERVAL 3 DAY)) AND FORMAT_DATE('%Y%m%d', DATE_SUB(@run_date, INTERVAL 1 DAY))`, deletes and re-inserts those dates (or uses MERGE) in a date-partitioned table, has a max bytes billed limit, and an owner who gets the failure email.",
+        "Share the dashboard with view access and add a text box 'Data: GA4 sample + fake CRM, built for practice'."
+      ],
+      "acceptance": [
+        "`voltra_mart.daily_sessions` exists and is much smaller than the raw data; its size is recorded.",
+        "`voltra_mart.crm_orders` is loaded and the join returns delivered orders by source.",
+        "The Looker Studio report has two pages (BigQuery table and custom query), a date control, scorecards, a time series and a source table.",
+        "Data freshness is set and explained.",
+        "The scheduled query spec includes the 3-day re-processing window, partitioning, cost limit and owner."
+      ],
+      "evidence": [
+        "Link to the Looker Studio report (view access)",
+        "GitHub gist with `daily_sessions.sql`, `crm_transaction_ids.sql`, `ga4_crm_join.sql`",
+        "Link to the scheduled query spec (Google Doc)"
+      ],
+      "hints": [
+        "If you see 'Not found: Dataset ... was not found in location', your dataset is not in `US`. Recreate it in `US`.",
+        "If the CSV upload fails, check that the header row has no spaces and dates are `YYYY-MM-DD`.",
+        "If the sandbox refuses `CREATE OR REPLACE TABLE`, run only the SELECT part and use Save results → BigQuery table → `voltra_mart.daily_sessions`."
+      ],
+      "explain": {
+        "en": "In this project I built the full chain from raw GA4 data to a board dashboard, on free sample data. I created a small daily sessions table by date, source, medium and device, so dashboards read megabytes instead of the raw export. I made a fake CRM table with real transaction IDs, loaded it into BigQuery and joined it with GA4 purchases to show delivered revenue by source. I built a two-page Looker Studio report on BigQuery and set data freshness to control cost. I also wrote the spec for the daily scheduled query, which re-processes the last three days because GA4 tables can still change."
+      },
+      "vocabulary": [
+        {
+          "term": "reporting table",
+          "en": "a small, pre-aggregated table built for dashboards"
+        },
+        {
+          "term": "join key",
+          "en": "a field that exists in two tables, used to connect their rows"
+        },
+        {
+          "term": "scheduled query",
+          "en": "a BigQuery query that runs by itself on a timetable"
+        },
+        {
+          "term": "data freshness",
+          "en": "how often Looker Studio asks the data source for new data"
+        },
+        {
+          "term": "partitioned table",
+          "en": "a table split by date so queries read only the dates they need"
+        }
+      ],
+      "interview": [
+        {
+          "q": "Why do you build reporting tables instead of pointing Looker Studio at the raw export?",
+          "a": "Every chart and filter in Looker Studio runs a query. On the raw export each query scans gigabytes, which is slow and costly. A small aggregated table is fast and cheap, and the logic for sessions and channels is defined once, so every chart agrees. I refresh it daily with a scheduled query."
+        },
+        {
+          "q": "How do you join GA4 data with CRM data?",
+          "a": "I send our own IDs, like lead_id and transaction_id, as event parameters from the website. The CRM exports leads and orders to BigQuery every day. I join on those IDs, never on email, and report outcomes like delivered revenue by channel. I also track the match rate, because missing IDs make channels look worse than they are."
+        },
+        {
+          "q": "What do you put in a scheduled query for GA4 data?",
+          "a": "I re-process the last three days, because GA4 daily tables can still be updated for up to 72 hours. I write into a date-partitioned table and replace those dates, so reruns do not create duplicates. I set a bytes limit and a clear owner for failure emails. And I document the logic in the query header so others can maintain it."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Cloud: Scheduling queries",
+          "url": "https://cloud.google.com/bigquery/docs/scheduling-queries"
+        },
+        {
+          "title": "Looker Studio Help: Connect to BigQuery",
+          "url": "https://support.google.com/looker-studio/answer/6370296"
+        }
+      ]
+    },
+    {
+      "id": "m04-t05",
+      "key": "MKT-405",
+      "type": "incident",
+      "lab": "mk-sql",
+      "title": "Case: the BigQuery dashboard does not match GA4",
+      "priority": "high",
+      "estimateHours": 7,
+      "goal": "You find the SQL mistakes behind a dashboard that shows wrong sessions and revenue, measure each one, and publish corrected queries and a checklist.",
+      "context": "Hi, the data team's new BigQuery dashboard shows 31% fewer sessions and 12% more revenue than GA4 for last month. The board has seen both numbers and asks which one is right. Please review their SQL, tell me what is wrong, and fix it before the next board meeting. - Ananya, CMO",
+      "steps": [
+        "First finish the practice lab: open Practice → SQL lab (`mk-sql`) in this app and solve all levels, including the case level. Then do the real part below on the public sample.",
+        "Run the data team's session query (broken) and write the result: SELECT COUNT(DISTINCT (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id')) AS sessions FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231'",
+        "Run the fixed version and write the difference in %: SELECT COUNT(DISTINCT CONCAT(user_pseudo_id, CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS STRING))) AS sessions FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231'",
+        "Run the data team's revenue query (broken) and write the result: SELECT ROUND(SUM(ecommerce.purchase_revenue), 2) AS revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*``, UNNEST(items) AS item WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase'",
+        "Run the fixed version (no UNNEST) and write the difference: SELECT ROUND(SUM(ecommerce.purchase_revenue), 2) AS revenue FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231' AND event_name = 'purchase'",
+        "Explain both effects: orders with many items are counted many times, and orders with an empty items array disappear.",
+        "Check the date filter: the team used `WHERE _TABLE_SUFFIX >= '20201201'` with no end. Write why this can include later months and, on a live export, also `intraday_` tables (the wildcard `events_*` matches `events_intraday_*`, and 'intraday_...' sorts after any date). Write the safe filter: `_TABLE_SUFFIX BETWEEN 'start' AND 'end'`.",
+        "Check the channel logic: the team grouped revenue by `traffic_source.source`. Write why this is first-user source, while the GA4 traffic acquisition report uses session source, so channel numbers cannot match.",
+        "Check the time zone: the team built dates with `DATE(TIMESTAMP_MICROS(event_timestamp))`, which is UTC. Write why `event_date` (property time zone) is better for daily reports that must match GA4, or use `DATE(TIMESTAMP_MICROS(event_timestamp), 'Asia/Kolkata')`.",
+        "Show the remaining expected gap: estimate sessions the way the GA4 interface does with HyperLogLog++: SELECT HLL_COUNT.EXTRACT(HLL_COUNT.INIT(CONCAT(user_pseudo_id, CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS STRING)), 12)) AS sessions_hll FROM ``bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`` WHERE _TABLE_SUFFIX BETWEEN '20201201' AND '20201231'",
+        "Compare it with the exact count and write the % difference.",
+        "Put all results in a Google Sheet `Case MKT-405`: mistake, broken value, fixed value, effect in %, fix. Add the expected differences that are not errors (HLL estimates, consent modelling, thresholds, late events).",
+        "Write a `GA4 SQL review checklist` (10 lines) the data team must use before any dashboard goes live: session key, scalar subquery vs cross join, no order revenue after `UNNEST(items)`, `_TABLE_SUFFIX BETWEEN`, time zone, first-user vs session source, duplicate transactions, `(not set)` handling, cost check, header comment.",
+        "Write a short answer for the CMO: which number is right, what was wrong, what is fixed, and what gap will always remain and why."
+      ],
+      "acceptance": [
+        "The lab `mk-sql` is solved in the app.",
+        "Broken and fixed values are recorded for sessions and revenue with the % effect.",
+        "The date filter, channel field and time zone mistakes are explained correctly.",
+        "The HLL estimate is compared with the exact count.",
+        "The 10-line review checklist and the CMO answer are written."
+      ],
+      "evidence": [
+        "Link to the Google Sheet `Case MKT-405`",
+        "GitHub gist with the broken and fixed queries",
+        "The review checklist and the short CMO answer (Google Doc link)"
+      ],
+      "hints": [
+        "Fewer sessions than GA4 almost always means a weak session key.",
+        "More revenue than GA4 often means a join or UNNEST that repeats rows. Count rows before and after each join.",
+        "A small gap that stays stable over time is normal. A gap that jumps on one date is a bug or a tracking change."
+      ],
+      "explain": {
+        "en": "In this case I found why a BigQuery dashboard did not match GA4. First I solved the SQL lab. Then I ran the data team's queries next to fixed versions on the public sample and measured each mistake. Sessions were too low because they counted ga_session_id alone, and revenue was wrong because they summed order revenue after unnesting items. They also had an open date filter, first-user source instead of session source and UTC dates. I showed the small gap that always remains because GA4 estimates counts with HyperLogLog++. I wrote a SQL review checklist and a clear answer for the CMO."
+      },
+      "vocabulary": [
+        {
+          "term": "fan-out",
+          "en": "when a join or UNNEST repeats rows and makes sums too big"
+        },
+        {
+          "term": "intraday table",
+          "en": "a GA4 export table for today's data that is still being filled"
+        },
+        {
+          "term": "time zone",
+          "en": "the local time setting used to decide which day an event belongs to"
+        },
+        {
+          "term": "code review",
+          "en": "another person checks your code before it goes live"
+        }
+      ],
+      "interview": [
+        {
+          "q": "A BigQuery dashboard shows fewer sessions and more revenue than GA4. What do you check?",
+          "a": "For fewer sessions I check the session key first: it must combine user_pseudo_id and ga_session_id. For more revenue I look for fan-out: order revenue summed after UNNEST of items or after a join. Then I check the date filter, the time zone and which traffic source field is used. I measure each mistake separately so the business sees what each one caused."
+        },
+        {
+          "q": "What gap between BigQuery and GA4 is normal?",
+          "a": "A small, stable gap is normal. The interface estimates users and sessions with HyperLogLog++, it can include consent mode modelling, and it can apply thresholds. Events can also arrive late and update daily tables for up to three days. I document these as expected and only investigate gaps that are large or change suddenly."
+        },
+        {
+          "q": "How do you stop wrong SQL from reaching the board?",
+          "a": "I use a short review checklist for every dashboard query and a second person reviews the SQL. Key metrics are cross-checked against a second method, like item revenue against order revenue. Queries live in version control with a header that says the question, the date logic and the known limits. New dashboards run next to GA4 for two weeks before the board sees them."
+        }
+      ],
+      "resources": [
+        {
+          "title": "Google Developers: Unique count approximation in GA4 (HyperLogLog++)",
+          "url": "https://developers.google.com/analytics/blog/2022/hll"
+        },
+        {
+          "title": "Google Cloud: Query multiple tables using a wildcard table",
+          "url": "https://cloud.google.com/bigquery/docs/querying-wildcard-tables"
+        }
+      ]
+    }
+  ]
+}
